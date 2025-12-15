@@ -7,6 +7,7 @@ class Car:
     """
     See Section 3.6.2.
     """
+
     def __init__(self, name: str):
         self.id: str = name
         self.color: str = "#FF0000"

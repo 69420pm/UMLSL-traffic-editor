@@ -6,6 +6,7 @@ from pse.umlsl_editor.src.core.query.token import Token
 
 class Parser:
     """Recursive descent query."""
+
     def __init__(self, tokens: List[Token]):
         self.tokens = tokens
         self.pos = 0
