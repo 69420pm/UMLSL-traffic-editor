@@ -1,9 +1,9 @@
 from typing import List, Any
 
-from pse.umlsl_editor.car import Car
-from pse.umlsl_editor.road import Road
-from pse.umlsl_editor.ui.coordinate_system import CoordinateSystem
-from pse.umlsl_editor.ui.scene import SceneManager
+from pse.umlsl_editor.src.core.car import Car
+from pse.umlsl_editor.src.core.road import Road
+from pse.umlsl_editor.src.ui.coordinate_system import CoordinateSystem
+from pse.umlsl_editor.src.ui.scene import SceneManager
 
 
 class RoadGraphicsItem:

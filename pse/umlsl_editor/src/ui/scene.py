@@ -1,6 +1,6 @@
 from typing import Dict
 
-from pse.umlsl_editor.traffic_snapshot import TrafficSnapshot
+from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
 
 
 class SceneManager:

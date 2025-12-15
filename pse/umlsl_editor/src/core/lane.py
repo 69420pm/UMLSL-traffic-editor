@@ -1,4 +1,4 @@
-from pse.umlsl_editor.directions import LaneDirection
+from pse.umlsl_editor.src.core.directions import LaneDirection
 
 
 class Lane:

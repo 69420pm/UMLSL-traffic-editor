@@ -1,8 +1,8 @@
 from typing import Optional
 
-from pse.umlsl_editor.car import Car
-from pse.umlsl_editor.road import Road
-from pse.umlsl_editor.ui.scene_element import LaTeXPreviewWidget
+from pse.umlsl_editor.src.core.car import Car
+from pse.umlsl_editor.src.core.road import Road
+from pse.umlsl_editor.src.ui.scene_element import LaTeXPreviewWidget
 
 class BaseDialog:
     """Abstract base for Modal Dialogs."""

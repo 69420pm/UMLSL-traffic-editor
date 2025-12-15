@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pse.umlsl_editor.lane import Lane
+from pse.umlsl_editor.src.core.lane import Lane
 
 
 class Road:
