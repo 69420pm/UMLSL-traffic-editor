@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import List
 
+
 class TokenType(Enum):
     ATOM = 1
     AND = 2
@@ -11,12 +12,15 @@ class TokenType(Enum):
     LPAREN = 7
     RPAREN = 8
 
+
 class Token:
     def __init__(self, type_: TokenType, value: str):
         self.type = type_
         self.value = value
 
+
 class Lexer:
     """Tokenizes LaTeX strings like '\land', '\lor', 're(c1)'."""
+
     def tokenize(self, source: str) -> List[Token]:
         pass
