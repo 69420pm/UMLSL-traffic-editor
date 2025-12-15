@@ -1,3 +1,7 @@
+from typing import List, Optional
+
+from pse.umlsl_editor.lane import Lane
+
 
 class Road:
     """

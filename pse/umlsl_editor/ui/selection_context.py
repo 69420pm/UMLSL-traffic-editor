@@ -1,3 +1,6 @@
+from typing import Optional
+
+
 class SelectionContext:
     """Handles logic for selecting entities (DC10)."""
     def __init__(self):

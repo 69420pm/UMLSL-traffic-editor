@@ -1,3 +1,6 @@
+from typing import List
+
+
 class TokenType(Enum):
     ATOM = 1
     AND = 2

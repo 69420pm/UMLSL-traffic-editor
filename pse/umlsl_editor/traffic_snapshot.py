@@ -1,3 +1,10 @@
+from typing import Dict, List
+
+from pse.umlsl_editor.car import Car
+from pse.umlsl_editor.road import Road
+from pse.umlsl_editor.ui.settings import SimulationSettings
+
+
 class TrafficSnapshot:
     """Root data object (The 'Document')."""
     def __init__(self):

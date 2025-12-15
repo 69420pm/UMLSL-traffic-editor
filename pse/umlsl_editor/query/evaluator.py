@@ -2,6 +2,7 @@ from typing import Optional
 
 from pse.umlsl_editor.car import Car
 from pse.umlsl_editor.query.nodes import ConjunctionNode, HorizontalChopNode, AtomNode
+from pse.umlsl_editor.query.token import Lexer
 from pse.umlsl_editor.traffic_snapshot import TrafficSnapshot
 
 

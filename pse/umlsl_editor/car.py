@@ -1,3 +1,8 @@
+from typing import Optional, Any
+
+from pse.umlsl_editor.directions import TurnIntent
+
+
 class Car:
     """
     See Section 3.6.2.

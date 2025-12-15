@@ -1,3 +1,6 @@
+from pse.umlsl_editor.traffic_snapshot import TrafficSnapshot
+
+
 class PersistenceService:
     """Handles saving/loading JSON (MC10)."""
 

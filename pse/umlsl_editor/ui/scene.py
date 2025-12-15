@@ -1,3 +1,8 @@
+from typing import Dict
+
+from pse.umlsl_editor.traffic_snapshot import TrafficSnapshot
+
+
 class SceneManager:
     """Intermediary between Data and Visual Items."""
     def __init__(self, canvas: 'TrafficVisualEditor'):
