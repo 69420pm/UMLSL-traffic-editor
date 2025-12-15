@@ -1,5 +1,5 @@
+from enum import Enum
 from typing import List
-
 
 class TokenType(Enum):
     ATOM = 1
