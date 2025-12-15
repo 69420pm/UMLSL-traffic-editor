@@ -5,8 +5,7 @@ from pse.umlsl_editor.query.nodes import ConjunctionNode, HorizontalChopNode, At
 from pse.umlsl_editor.query.token import Lexer
 from pse.umlsl_editor.traffic_snapshot import TrafficSnapshot
 
-
-class UMLSLManager:
+class UMLSLEvaluator:
     """Facade for the UI to interact with logic."""
     def __init__(self):
         self.lexer = Lexer()

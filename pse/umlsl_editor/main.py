@@ -1,5 +1,5 @@
 # This is a sample Python script.
-from pse.umlsl_editor.query.evaluator import UMLSLManager
+from pse.umlsl_editor.query.evaluator import UMLSLEvaluator
 from pse.umlsl_editor.traffic_snapshot import TrafficSnapshot
 from pse.umlsl_editor.ui.scene_element import TrafficVisualEditor, ConfigurationPanel
 
@@ -25,7 +25,7 @@ class MainWindow:
 
     def __init__(self):
         self.snapshot = TrafficSnapshot()
-        self.logic = UMLSLManager()
+        self.logic = UMLSLEvaluator()
 
         # UI wiring
         self.editor = TrafficVisualEditor()
