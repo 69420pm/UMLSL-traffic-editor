@@ -1,7 +1,7 @@
 from typing import List
 
-from pse.umlsl_editor.query.nodes import ASTNode
-from pse.umlsl_editor.query.token import Token
+from pse.umlsl_editor.src.core.query.nodes import ASTNode
+from pse.umlsl_editor.src.core.query.token import Token
 
 
 class Parser:

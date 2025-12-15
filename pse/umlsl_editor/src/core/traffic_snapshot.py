@@ -1,8 +1,8 @@
 from typing import Dict, List
 
-from pse.umlsl_editor.car import Car
-from pse.umlsl_editor.road import Road
-from pse.umlsl_editor.ui.settings import SimulationSettings
+from pse.umlsl_editor.src.core.car import Car
+from pse.umlsl_editor.src.core.road import Road
+from pse.umlsl_editor.src.ui.settings import SimulationSettings
 
 
 class TrafficSnapshot:

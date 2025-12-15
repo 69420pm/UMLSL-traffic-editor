@@ -1,6 +1,6 @@
 from typing import Optional, Any
 
-from pse.umlsl_editor.directions import TurnIntent
+from pse.umlsl_editor.src.core.directions import TurnIntent
 
 
 class Car:
