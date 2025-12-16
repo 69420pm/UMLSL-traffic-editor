@@ -1,8 +1,7 @@
 """
 UID Manager - Centralized unique identifier generation using UUID1.
 
-This class provides a singleton manager for generating consistent,
-time-ordered unique identifiers across your application.
+This class is a singleton that provides a method to generate unique identifiers.
 """
 
 import uuid

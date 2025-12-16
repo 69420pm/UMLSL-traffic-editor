@@ -1,4 +1,4 @@
-class SimulationSettings:
+class Settings:
     """Global settings (MC7, MC5)."""
 
     def __init__(self):

@@ -6,6 +6,11 @@ class TurnDirection(Enum):
     RIGHT = "right"
 
 
+class RoadOrientation(Enum):
+    HORIZONTAL = "horizontal"
+    VERTICAL = "vertical"
+
+
 class LaneDirection(Enum):
     FORWARD = "fn"
     BACKWARD = "bn"
