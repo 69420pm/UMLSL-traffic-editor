@@ -1,6 +1,10 @@
 from dataclasses import dataclass
+from enum import Enum
 
-from pse.umlsl_editor.src.core.directions import LaneDirection
+
+class LaneDirection(Enum):
+    FORWARD = "fn"
+    BACKWARD = "bn"
 
 
 @dataclass

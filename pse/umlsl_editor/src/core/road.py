@@ -1,8 +1,13 @@
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Dict, Optional
 
-from pse.umlsl_editor.src.core.directions import RoadOrientation
 from pse.umlsl_editor.src.core.lane import Lane
+
+
+class RoadOrientation(Enum):
+    HORIZONTAL = "horizontal"
+    VERTICAL = "vertical"
 
 
 @dataclass

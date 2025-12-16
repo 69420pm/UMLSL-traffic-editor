@@ -1,7 +1,21 @@
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Optional
 
-from pse.umlsl_editor.src.core.directions import TurnIntent
+
+class TurnDirection(Enum):
+    LEFT = "left"
+    RIGHT = "right"
+
+
+@dataclass
+class TurnIntent:
+    """Encapsulates the 'Next Turn' logic tuple."""
+
+    direction: TurnDirection
+    """The direction of the intended turn (left or right)."""
+    targetLaneId: str
+    """The ID of the target lane after the turn."""
 
 
 @dataclass

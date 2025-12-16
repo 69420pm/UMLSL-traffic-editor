@@ -7,9 +7,13 @@ from pse.umlsl_editor.src.core.road import Road
 class TrafficSnapshot:
     """Root data object. Contains all roads with its lanes and cars. Central Manager to use to get state of data models."""
 
-    def __init__(self):
-        self.roads: Dict[str, Road] = {}
-        self.cars: Dict[str, Car] = {}
+    def __init__(
+        self,
+        roads: Optional[Dict[str, Road]] = None,
+        cars: Optional[Dict[str, Car]] = None,
+    ):
+        self.roads: Dict[str, Road] = roads if roads is not None else {}
+        self.cars: Dict[str, Car] = cars if cars is not None else {}
         # self.queries: List['UMLSLQuery'] = []
 
     def get_road_by_id(self, road_id: str) -> Optional[Road]:
