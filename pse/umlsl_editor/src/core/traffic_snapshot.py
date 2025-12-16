@@ -76,7 +76,7 @@ class TrafficSnapshot:
 
     def set_car(self, car: Car) -> None:
         """
-        Add a new car to the traffic snapshot or update already exisiting one.
+        Add a new car to the traffic snapshot or update already existing one.
 
         Args:
             car: The Car object to add/update
