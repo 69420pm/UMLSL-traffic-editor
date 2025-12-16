@@ -12,12 +12,10 @@ class EntityFactory:
         pass
 
     @staticmethod
-    def create_car(self, name, assigned_road_id, lane_id, color, position_on_lane, transition, velocity,
-                   length, next_turn) -> Car:
+    def create_car(self, name: str, assigned_road_id: str, lane_id: str) -> Car:
         """Creates a car object."""
 
-        return Car(name, assigned_road_id, lane_id, color, position_on_lane, transition, velocity,
-                   length, next_turn)
+        return Car(name, assigned_road_id, lane_id)
 
     @staticmethod
     def create_road(self, name: str, orientation: RoadOrientation,
