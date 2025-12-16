@@ -1,7 +1,13 @@
-class SimulationSettings:
+from dataclasses import dataclass, field
+
+
+@dataclass
+class Settings:
     """Global settings (MC7, MC5)."""
 
-    def __init__(self):
-        self.braking_acceleration: float = 5.0
-        self.show_safety_spaces: bool = False
-        self.show_grid: bool = True
+    braking_acceleration: float = field(default=4.5)
+    """Braking acceleration in units/s². The larger the value, the shorter the braking distance"""
+    show_safety_spaces: bool = field(default=True)
+    """Whether to show safety spaces around cars."""
+    show_grid: bool = field(default=False)
+    """Whether to show grid lines on the canvas."""
