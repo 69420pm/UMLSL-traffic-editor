@@ -1,20 +1,60 @@
-from typing import Optional, Any
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Optional
 
-from pse.umlsl_editor.src.core.directions import TurnIntent
+
+class TurnDirection(Enum):
+    LEFT = "left"
+    RIGHT = "right"
 
 
+@dataclass
+class TurnIntent:
+    """Encapsulates the 'Next Turn' logic tuple."""
+
+    direction: TurnDirection
+    """The direction of the intended turn (left or right)."""
+    targetLaneId: str
+    """The ID of the target lane after the turn."""
+
+
+@dataclass
 class Car:
     """
-    See Section 3.6.2.
+    Represents a car in the traffic simulation.
     """
 
-    def __init__(self, name: str):
-        self.id: str = name
-        self.color: str = "#FF0000"
-        self.assigned_road_id: str = ""
-        self.lane_id: str = "f1"
-        self.position_on_lane: float = 0.0
-        self.velocity: float = 0.0
-        self.length: float = 4.0
-        self.next_turn: Optional[TurnIntent] = None
-        self.safety_space_geometry: Any = None  # Cached geometry
+    name: str
+    """The human readable name of the car."""
+
+    assigned_road_id: str
+    """The ID of the road the car is currently on."""
+
+    lane_id: str
+    """The ID of the lane the car is currently in."""
+
+    color: str = "#FF0000"
+    """Hex color code for rendering the car."""
+
+    position_on_lane: float = 0.0
+    """Distance along the lane in units."""
+
+    transition: float = 0.0
+    """
+    How far the car has changed from current lane (ranges from -1.0 to 1.0 (bounds excluded)).
+    -1.0 means fully in left lane, 1.0 means fully in right lane.
+    """
+
+    velocity: float = 0.0
+    """Current speed of the car."""
+
+    length: float = 4.0
+    """Physical length of the car in units."""
+
+    next_turn: Optional[TurnIntent] = None
+    """The intended turn direction and lane at the next intersection."""
+
+    # Fields below are not required in the constructor (init=False)
+
+    id: str = field(default="", init=False)
+    """The unique identifier for the car."""
