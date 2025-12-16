@@ -1,45 +1,46 @@
-from typing import Any, Optional
+from dataclasses import dataclass, field
+from typing import Optional
 
 from pse.umlsl_editor.src.core.directions import TurnIntent
 
 
+@dataclass
 class Car:
     """
     Represents a car in the traffic simulation.
     """
 
-    def __init__(
-        self,
-        name: str,
-        assigned_road_id: str,
-        lane_id: str,
-        color: str = "#FF0000",
-        position_on_lane: float = 0.0,
-        velocity: float = 0.0,
-        length: float = 4.0,
-        next_turn: Optional[TurnIntent] = None,
-    ):
-        """
-        Initialize a new Car instance.
+    name: str
+    """The human readable name of the car."""
 
-        Args:
-            id: The unique identifier for the car
-            name: The human readable name of the car
-            assigned_road_id: The ID of the road the car is currently on
-            lane_id: The ID of the lane the car is currently in
-            color: Hex color code for rendering the car (default: red "#FF0000")
-            position_on_lane: Distance along the lane in units (default: 0.0)
-            velocity: Current speed of the car (default: 0.0)
-            length: Physical length of the car in units (default: 4.0)
-            next_turn: The intended turn direction and lane at the next intersection (default: None)
-        """
-        self.id: str = ""
-        self.name: str = name
-        self.color: str = color
-        self.assigned_road_id: str = assigned_road_id
-        self.lane_id: str = lane_id
-        self.position_on_lane: float = position_on_lane
-        self.velocity: float = velocity
-        self.length: float = length
-        self.next_turn: Optional[TurnIntent] = next_turn
-        self.safety_space_geometry: Any = None
+    assigned_road_id: str
+    """The ID of the road the car is currently on."""
+
+    lane_id: str
+    """The ID of the lane the car is currently in."""
+
+    color: str = "#FF0000"
+    """Hex color code for rendering the car."""
+
+    position_on_lane: float = 0.0
+    """Distance along the lane in units."""
+
+    transition: float = 0.0
+    """
+    How far the car has changed from current lane (ranges from -1.0 to 1.0 (bounds excluded)).
+    -1.0 means fully in left lane, 1.0 means fully in right lane.
+    """
+
+    velocity: float = 0.0
+    """Current speed of the car."""
+
+    length: float = 4.0
+    """Physical length of the car in units."""
+
+    next_turn: Optional[TurnIntent] = None
+    """The intended turn direction and lane at the next intersection."""
+
+    # Fields below are not required in the constructor (init=False)
+
+    id: str = field(default="", init=False)
+    """The unique identifier for the car."""
