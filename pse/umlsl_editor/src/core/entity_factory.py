@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 
 from pse.umlsl_editor.src.core.car import Car
 from pse.umlsl_editor.src.core.lane import Lane, LaneDirection
@@ -12,10 +12,12 @@ class EntityFactory:
         pass
 
     @staticmethod
-    def create_car(self, name: str, assigned_road_id: str, lane_id: str) -> Car:
+    def create_car(self, name: str, assigned_road_id: str, lane_id: str,
+                   color: Optional[str], position: Optional[float], transition: Optional[float],
+                   velocity: Optional[float], length: Optional[float]) -> Car:
         """Creates a car object."""
 
-        return Car(name, assigned_road_id, lane_id)
+        return Car(name, assigned_road_id, lane_id, color, position, transition, velocity, length)
 
     @staticmethod
     def create_road(self, name: str, orientation: RoadOrientation,
