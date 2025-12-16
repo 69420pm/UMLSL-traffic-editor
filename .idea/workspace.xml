@@ -1,34 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b58a1a8a-540d-49e1-b2fb-183f183aebc9" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/UMLSL-traffic-editor.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/UMLSL-traffic-editor.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/persistence/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/query/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/car.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/car.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/crash_reporter.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/crash_reporter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/directions.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/directions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/lane.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/lane.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/persistence/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/ui/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/persistence/persistence_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/persistence/persistence_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/query/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/ui/components/modal/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/query/evaluator.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/query/evaluator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/query/nodes.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/query/nodes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/query/parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/query/parser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/query/token.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/query/token.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/road.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/road.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/traffic_snapshot.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/traffic_snapshot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/ui/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/ui/coordinate_system.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/ui/coordinate_system.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/ui/modal/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/ui/modal/modal.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/ui/components/modal/modal.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/ui/scene.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/ui/scene.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/ui/scene_element.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/ui/scene_element.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/ui/selection_context.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/ui/selection_context.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pse/umlsl_editor/ui/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/pse/umlsl_editor/src/ui/settings.py" afterDir="false" />
-    </list>
+    <list default="true" id="b58a1a8a-540d-49e1-b2fb-183f183aebc9" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -44,10 +17,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 6
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 6
+}</component>
   <component name="ProjectId" id="36sdWfE5H071hzhPrjYgG34IIqO" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="1" id="Add" />
@@ -56,24 +29,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "main",
-    "junie.onboarding.icon.badge.shown": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "to.speed.mode.migration.done": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/pse/umlsl_editor/src/ui" />
