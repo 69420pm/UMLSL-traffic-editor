@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pse.umlsl_editor.src.core.car import Car
+from pse.umlsl_editor.src.core.dataclasses.car import Car
 from pse.umlsl_editor.src.core.query.token import Lexer
 from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
 

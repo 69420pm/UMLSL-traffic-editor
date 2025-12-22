@@ -1,7 +1,6 @@
 from typing import Optional
 
 from pse.umlsl_editor.src.core.dataclasses.car import Car
-from pse.umlsl_editor.src.core.dataclasses.lane import LaneDirection
 from pse.umlsl_editor.src.core.dataclasses.road import Road
 
 
@@ -55,21 +54,21 @@ class TrafficSnapshot:
         """
         pass
 
-    def get_cars_in_lane(
-        self, lane_index: str, direction: LaneDirection
-    ) -> Optional[list[Car]]:
-        """
-        Retrieve all cars currently in a specific lane.
+    # def get_cars_in_lane(
+    #     self, lane_index: str, direction: LaneDirection
+    # ) -> Optional[list[Car]]:
+    #     """
+    #     Retrieve all cars currently in a specific lane.
 
-        Args:
-            lane_index: The index of the lane
-            direction: The direction of the lane
+    #     Args:
+    #         lane_index: The index of the lane
+    #         direction: The direction of the lane
 
-        Returns:
-            A list of Car objects in the specified lane
+    #     Returns:
+    #         A list of Car objects in the specified lane
 
-        """
-        pass
+    #     """
+    #     pass
 
     def add_road(self, road: Road) -> None:
         """

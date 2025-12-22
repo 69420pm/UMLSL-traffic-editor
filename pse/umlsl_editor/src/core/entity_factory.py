@@ -1,8 +1,11 @@
-from typing import Dict, Optional
+from typing import Optional
 
 from pse.umlsl_editor.src.core.dataclasses.car import Car, TurnIntent
-from pse.umlsl_editor.src.core.dataclasses.lane import Lane, LaneDirection
-from pse.umlsl_editor.src.core.dataclasses.road import Road, RoadOrientation
+from pse.umlsl_editor.src.core.dataclasses.road import (
+    LaneDirection,
+    Road,
+    RoadOrientation,
+)
 
 
 class EntityFactory:
@@ -17,7 +20,8 @@ class EntityFactory:
     def createCar(
         name: str,
         assigned_road: Road,
-        lane: Lane,
+        lane_index: int,
+        lane_direction: LaneDirection,
         color: Optional[str] = None,
         position_on_lane: Optional[float] = None,
         transition: Optional[float] = None,
@@ -34,7 +38,8 @@ class EntityFactory:
         Args:
             name: The unique human readable name of the car.
             assigned_road: The road the car is currently on.
-            lane: The lane the car is currently in.
+            lane_index: The index of the lane the car is in.
+            lane_direction: The direction of the lane (forward or backward).
             color: Hex color code for rendering (default: "#FF0000").
             position_on_lane: Distance along the lane (default: 0.0).
             transition: Lane change progress from -1.0 to 1.0 (default: 0.0).
@@ -63,7 +68,8 @@ class EntityFactory:
         return Car(
             name=name,
             assigned_road=assigned_road,
-            lane=lane,
+            lane_index=lane_index,
+            lane_direction=lane_direction,
             **kwargs,
         )
 
@@ -72,7 +78,8 @@ class EntityFactory:
         name: str,
         orientation: RoadOrientation,
         position: float,
-        lanes: list[Lane],
+        forward_lanes: Optional[int],
+        backward_lanes: Optional[int],
     ) -> Road:
         """Create a Road instance.
 
@@ -80,19 +87,12 @@ class EntityFactory:
             name: The unique human readable name of the road.
             orientation: The orientation of the road (horizontal or vertical).
             position: The position of the road in the coordinate system.
-            lanes: A list of Lane objects that belong to this road.
+            forward_lanes: Number of lanes in the forward direction (default: 0).
+            backward_lanes: Number of lanes in the backward direction (default: 0).
         """
-        return Road(name, orientation, position, lanes)
-
-    @staticmethod
-    def create_lane(index: int, direction: LaneDirection) -> Lane:
-        """
-        Creates a lane object.
-
-        Args:
-            index: The index of the lane counted from the inside out. Index is always dependent on the direction.
-            direction: The direction of the lane.
-
-        """
-
-        return Lane(index, direction)
+        kwargs: dict = {}
+        if forward_lanes is not None:
+            kwargs["forward_lanes"] = forward_lanes
+        if backward_lanes is not None:
+            kwargs["backward_lanes"] = backward_lanes
+        return Road(name, orientation, position, **kwargs)

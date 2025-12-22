@@ -93,16 +93,14 @@ class TurnIntent:
         Returns:
             A dictionary containing:
                 - 'direction': The turn direction as a string ('left' or 'right').
-                - 'target_lane': The target lane as a dictionary.
+                - 'target_lane_index': The target lane index as an integer.
+                - 'target_lane_direction': The target lane direction as a string ('fn' or 'bn').
 
-        Example:
-            >>> intent = TurnIntent(direction=TurnDirection.RIGHT, target_lane=lane)
-            >>> intent.to_dict()
-            {'direction': 'right', 'target_lane': {'index': 1, 'direction': 'fn'}}
         """
         return {
             "direction": self.direction.value,
-            "target_lane": self.target_lane.to_dict(),
+            "target_lane_index": self.target_lane_index,
+            "target_lane_direction": self.target_lane_direction.value,
         }
 
     def to_json(self) -> str:
@@ -120,7 +118,7 @@ class TurnIntent:
         Creates a TurnIntent instance from a dictionary.
 
         Args:
-            data: A dictionary containing 'direction' and 'target_lane' keys.
+            data: A dictionary containing 'direction', 'target_lane_index', and 'target_lane_direction' keys.
                   The 'direction' can be either a TurnDirection enum value
                   or a string ('left' or 'right').
 
@@ -130,19 +128,18 @@ class TurnIntent:
         Raises:
             CarValidationError: If required keys are missing or values are invalid.
 
-        Example:
-            >>> data = {'direction': 'left', 'target_lane': {'index': 1, 'direction': 'fn'}}
-            >>> intent = TurnIntent.from_dict(data)
-            >>> intent.direction
-            <TurnDirection.LEFT: 'left'>
         """
         if "direction" not in data:
             raise CarValidationError(
                 "Missing required key 'direction' in TurnIntent data"
             )
-        if "target_lane" not in data:
+        if "target_lane_index" not in data:
             raise CarValidationError(
-                "Missing required key 'target_lane' in TurnIntent data"
+                "Missing required key 'target_lane_index' in TurnIntent data"
+            )
+        if "target_lane_direction" not in data:
+            raise CarValidationError(
+                "Missing required key 'target_lane_direction' in TurnIntent data"
             )
 
         # Parse direction - handle both string and enum values
@@ -156,12 +153,30 @@ class TurnIntent:
                     f"Must be one of: {[d.value for d in TurnDirection]}"
                 )
 
-        # Parse target_lane
-        target_lane = data["target_lane"]
-        if isinstance(target_lane, dict):
-            target_lane = Lane.from_dict(target_lane)
+        # Parse target_lane_index
+        target_lane_index = data["target_lane_index"]
+        if not isinstance(target_lane_index, int):
+            raise CarValidationError(
+                f"Invalid target_lane_index value: '{target_lane_index}'. "
+                f"Must be an integer."
+            )
 
-        return cls(direction=direction, target_lane=target_lane)
+        # Parse target_lane_direction - handle both string and enum values
+        target_lane_direction = data["target_lane_direction"]
+        if isinstance(target_lane_direction, str):
+            try:
+                target_lane_direction = LaneDirection(target_lane_direction)
+            except ValueError:
+                raise CarValidationError(
+                    f"Invalid target_lane_direction value: '{target_lane_direction}'. "
+                    f"Must be one of: {[d.value for d in LaneDirection]}"
+                )
+
+        return cls(
+            direction=direction,
+            target_lane_index=target_lane_index,
+            target_lane_direction=target_lane_direction,
+        )
 
     @classmethod
     def from_json(cls, json_string: str) -> "TurnIntent":
@@ -188,7 +203,11 @@ class TurnIntent:
         Returns:
             A string in the format: TurnIntent(direction=DIRECTION, target_lane=Lane(...))
         """
-        return f"TurnIntent(direction={self.direction.name}, target_lane={self.target_lane!r})"
+        return (
+            f"TurnIntent(direction={self.direction.name}, "
+            f"target_lane_index={self.target_lane_index}, "
+            f"target_lane_direction={self.target_lane_direction.name})"
+        )
 
 
 @dataclass
@@ -203,7 +222,8 @@ class Car:
     Attributes:
         name: Unique human-readable identifier for the car. Must be a non-empty string.
         assigned_road: Reference to the Road the car is currently traveling on.
-        lane: Reference to the Lane the car is currently in. Must belong to assigned_road.
+        lane_index: Index of the lane the car is currently in.
+        lane_direction: Direction of the lane the car is currently in.
         color: Hex color code for rendering the car. Defaults to red (#FF0000).
         position_on_lane: Distance along the lane in units. Must be non-negative. Defaults to 0.0.
         transition: Lane change progress from -1.0 (fully left) to 1.0 (fully right).
@@ -214,15 +234,6 @@ class Car:
 
     Raises:
         CarValidationError: If any validation check fails during instantiation.
-
-    Example:
-        >>> from pse.umlsl_editor.src.core.dataclasses.lane import Lane, LaneDirection
-        >>> from pse.umlsl_editor.src.core.dataclasses.road import Road, RoadOrientation
-        >>> lane = Lane(index=1, direction=LaneDirection.FORWARD)
-        >>> road = Road(name="Highway", orientation=RoadOrientation.HORIZONTAL, position=100.0, lanes=[lane])
-        >>> car = Car(name="Car1", assigned_road=road, lane=lane, color="#00FF00")
-        >>> car.to_dict()
-        {'name': 'Car1', 'assigned_road': 'Highway', 'lane': {...}, 'color': '#00FF00', ...}
     """
 
     # Class-level regex pattern for validating hex color codes
@@ -231,36 +242,23 @@ class Car:
     )
 
     name: str
-    """Unique human-readable identifier for the car. Must be a non-empty string."""
 
     assigned_road: Road
-    """Reference to the Road the car is currently traveling on."""
 
-    lane: Lane
-    """Reference to the Lane the car is currently in. Must belong to assigned_road."""
+    lane_index: int
+    lane_direction: LaneDirection
 
     color: str = "#FF0000"
-    """Hex color code for rendering the car. Defaults to red (#FF0000)."""
 
     position_on_lane: float = 0.0
-    """Distance along the lane in units. Must be non-negative. Defaults to 0.0."""
 
     transition: float = 0.0
-    """
-    Lane change progress indicator.
-    Ranges from -1.0 (fully in left lane) to 1.0 (fully in right lane).
-    Value of 0.0 means the car is centered in its current lane.
-    Bounds are exclusive (-1.0 < transition < 1.0).
-    """
 
     velocity: float = 0.0
-    """Current speed of the car in units per time step. Negative values indicate reverse movement."""
 
     length: float = 4.0
-    """Physical length of the car in units. Must be positive. Defaults to 4.0."""
 
     next_turn: Optional[TurnIntent] = None
-    """Optional intended turn behavior at the next intersection. None if no turn is planned."""
 
     def __post_init__(self) -> None:
         """
@@ -269,7 +267,8 @@ class Car:
         Performs the following validation checks:
         - name must be a non-empty string
         - assigned_road must be a Road instance
-        - lane must be a Lane instance
+        - lane_index must be a positive integer
+        - lane_direction must be a LaneDirection enum value
         - color must be a valid hex color code
         - position_on_lane must be a non-negative number
         - transition must be in the range (-1.0, 1.0) exclusive
@@ -295,10 +294,18 @@ class Car:
                 f"got {type(self.assigned_road).__name__}"
             )
 
-        # Validate lane
-        if not isinstance(self.lane, Lane):
+        # Validate lane_index
+        if not isinstance(self.lane_index, int) or self.lane_index < 1:
             raise CarValidationError(
-                f"Car lane must be a Lane instance, got {type(self.lane).__name__}"
+                f"Car lane_index must be a positive integer, "
+                f"got {type(self.lane_index).__name__}: {self.lane_index}"
+            )
+
+        # Validate lane_direction
+        if not isinstance(self.lane_direction, LaneDirection):
+            raise CarValidationError(
+                f"Car lane_direction must be a LaneDirection enum value, "
+                f"got {type(self.lane_direction).__name__}: {self.lane_direction}"
             )
 
         # Validate color format (hex color code)
@@ -369,14 +376,6 @@ class Car:
 
         Returns:
             True if the string is a valid hex color code, False otherwise.
-
-        Example:
-            >>> Car._is_valid_hex_color("#FF0000")
-            True
-            >>> Car._is_valid_hex_color("#F00")
-            True
-            >>> Car._is_valid_hex_color("red")
-            False
         """
         return bool(cls._HEX_COLOR_PATTERN.match(color))
 
@@ -391,23 +390,20 @@ class Car:
             A dictionary containing all car properties:
                 - 'name': The car name as a string.
                 - 'assigned_road': The road name as a string.
-                - 'lane': The lane as a dictionary.
+                - 'lane_index': The lane index as an integer.
+                - 'lane_direction': The lane direction as a string ('fn' or 'bn').
                 - 'color': The hex color code as a string.
                 - 'position_on_lane': The position as a float.
                 - 'transition': The transition value as a float.
                 - 'velocity': The velocity as a float.
                 - 'length': The length as a float.
                 - 'next_turn': The turn intent as a dictionary, or None.
-
-        Example:
-            >>> car = Car(name="Car1", assigned_road=road, lane=lane)
-            >>> car.to_dict()
-            {'name': 'Car1', 'assigned_road': 'Highway', 'lane': {'index': 1, 'direction': 'fn'}, ...}
         """
         return {
             "name": self.name,
             "assigned_road": self.assigned_road.name,
-            "lane": self.lane.to_dict(),
+            "lane_index": self.lane_index,
+            "lane_direction": self.lane_direction.value,
             "color": self.color,
             "position_on_lane": self.position_on_lane,
             "transition": self.transition,
@@ -422,12 +418,6 @@ class Car:
 
         Returns:
             A JSON-formatted string representation of the Car.
-
-        Example:
-            >>> car = Car(name="Car1", assigned_road=road, lane=lane)
-            >>> json_str = car.to_json()
-            >>> isinstance(json_str, str)
-            True
         """
         return json.dumps(self.to_dict())
 
@@ -451,14 +441,8 @@ class Car:
             CarValidationError: If required keys are missing, road is not found,
                                 or values fail validation.
 
-        Example:
-            >>> roads = {"Highway": highway_road}
-            >>> data = {'name': 'Car1', 'assigned_road': 'Highway', 'lane': {'index': 1, 'direction': 'fn'}, ...}
-            >>> car = Car.from_dict(data, roads)
-            >>> car.name
-            'Car1'
         """
-        required_keys = ["name", "assigned_road", "lane"]
+        required_keys = ["name", "assigned_road", "lane_index", "lane_direction"]
         for key in required_keys:
             if key not in data:
                 raise CarValidationError(f"Missing required key '{key}' in Car data")
@@ -472,16 +456,23 @@ class Car:
             )
         assigned_road = road_lookup[road_name]
 
-        # Parse lane
-        lane_data = data["lane"]
-        if isinstance(lane_data, dict):
-            lane = Lane.from_dict(lane_data)
-        elif isinstance(lane_data, Lane):
-            lane = lane_data
-        else:
+        # Parse lane_index
+        lane_index = data["lane_index"]
+        if not isinstance(lane_index, int):
             raise CarValidationError(
-                f"Invalid lane data type: {type(lane_data).__name__}"
+                f"Invalid lane_index value: '{lane_index}'. Must be an integer."
             )
+
+        # Parse lane_direction - handle both string and enum values
+        lane_direction = data["lane_direction"]
+        if isinstance(lane_direction, str):
+            try:
+                lane_direction = LaneDirection(lane_direction)
+            except ValueError:
+                raise CarValidationError(
+                    f"Invalid lane_direction value: '{lane_direction}'. "
+                    f"Must be one of: {[d.value for d in LaneDirection]}"
+                )
 
         # Parse next_turn if present
         next_turn = None
@@ -499,7 +490,8 @@ class Car:
         return cls(
             name=data["name"],
             assigned_road=assigned_road,
-            lane=lane,
+            lane_index=lane_index,
+            lane_direction=lane_direction,
             color=data.get("color", "#FF0000"),
             position_on_lane=data.get("position_on_lane", 0.0),
             transition=data.get("transition", 0.0),
@@ -523,49 +515,37 @@ class Car:
         Raises:
             CarValidationError: If the JSON structure is invalid or values fail validation.
             json.JSONDecodeError: If the string is not valid JSON.
-
-        Example:
-            >>> roads = {"Highway": highway_road}
-            >>> json_str = '{"name": "Car1", "assigned_road": "Highway", ...}'
-            >>> car = Car.from_json(json_str, roads)
-            >>> car.assigned_road.name
-            'Highway'
         """
         data = json.loads(json_string)
         return cls.from_dict(data, road_lookup)
 
-    def set_next_turn(self, direction: TurnDirection, target_lane: Lane) -> None:
+    def set_next_turn(
+        self,
+        direction: TurnDirection,
+        target_lane_index: int,
+        target_lane_direction: LaneDirection,
+    ) -> None:
         """
-        Sets the car's next turn intent.
-
-        Convenience method to create and assign a TurnIntent to this car.
+        Sets the car's next turn intent, by creating a new TurnIntent instance,
+        where all values are validated.
 
         Args:
             direction: The direction of the intended turn (LEFT or RIGHT).
-            target_lane: The lane the car wants to enter after the turn.
+            target_lane_index: The index of the target lane the car wants to enter after the turn.
+            target_lane_direction: The direction of the target lane (FORWARD or BACKWARD).
 
         Raises:
             CarValidationError: If the TurnIntent validation fails.
-
-        Example:
-            >>> car.set_next_turn(TurnDirection.LEFT, target_lane)
-            >>> car.next_turn.direction
-            <TurnDirection.LEFT: 'left'>
         """
-        self.next_turn = TurnIntent(direction=direction, target_lane=target_lane)
+        self.next_turn = TurnIntent(
+            direction=direction,
+            target_lane_index=target_lane_index,
+            target_lane_direction=target_lane_direction,
+        )
 
     def clear_next_turn(self) -> None:
         """
-        Clears the car's next turn intent.
-
-        Sets next_turn to None, indicating the car has no planned turn
-        at the next intersection.
-
-        Example:
-            >>> car.set_next_turn(TurnDirection.LEFT, target_lane)
-            >>> car.clear_next_turn()
-            >>> car.next_turn is None
-            True
+        Clears the car's next turn intent, indicating the car has no planned turn.
         """
         self.next_turn = None
 
@@ -578,14 +558,6 @@ class Car:
 
         Returns:
             True if the car is in the process of changing lanes, False otherwise.
-
-        Example:
-            >>> car = Car(name="Car1", assigned_road=road, lane=lane, transition=0.0)
-            >>> car.is_in_lane_transition()
-            False
-            >>> car.transition = 0.5
-            >>> car.is_in_lane_transition()
-            True
         """
         return self.transition != 0.0
 
@@ -602,23 +574,22 @@ class Car:
         )
         return (
             f"Car(name='{self.name}', road='{self.assigned_road.name}', "
-            f"lane={self.lane.index}, pos={self.position_on_lane:.1f}, "
-            f"vel={self.velocity:.1f}{turn_info})"
+            f"lane_index={self.lane_index}, lane_direction={self.lane_direction.name}, "
+            f"pos={self.position_on_lane:.1f}, vel={self.velocity:.1f}{turn_info})"
         )
 
     def __eq__(self, other: object) -> bool:
         """
-                Checks equality between two Car instances.
+        Checks equality between two Car instances.
 
-                Two cars are considere
-        d equal if they have the same name and are
-                on the same road. This allows for car identification across state changes.
+        Two cars are considered equal if they have the same name and are
+        on the same road. This allows for car identification across state changes.
 
-                Args:
-                    other: The object to compare with.
+        Args:
+            other: The object to compare with.
 
-                Returns:
-                    True if the cars have the same name and road, False otherwise.
+        Returns:
+            True if the cars have the same name and road, False otherwise.
         """
         if not isinstance(other, Car):
             return NotImplemented
@@ -626,15 +597,3 @@ class Car:
             self.name == other.name
             and self.assigned_road.name == other.assigned_road.name
         )
-
-    def __hash__(self) -> int:
-        """
-        Returns a hash value for the Car instance.
-
-        The hash is based on the car's name and road name, consistent
-        with the equality comparison.
-
-        Returns:
-            An integer hash value.
-        """
-        return hash((self.name, self.assigned_road.name))
