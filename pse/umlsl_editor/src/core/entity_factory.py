@@ -9,12 +9,7 @@ from pse.umlsl_editor.src.core.dataclasses.road import (
 
 
 class EntityFactory:
-    """Creates all car and road objects to store in the traffic snapshot."""
-
-    def __init__(
-        self,
-    ):
-        pass
+    """Creates car and road objects to store in the traffic snapshot."""
 
     @staticmethod
     def createCar(

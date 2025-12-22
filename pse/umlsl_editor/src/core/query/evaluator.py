@@ -13,10 +13,10 @@ class UMLSLEvaluator:
         self.evaluator = Evaluator()
 
     def evaluate_query(self, latex_string: str, snapshot: TrafficSnapshot) -> bool:
-        pass
+        raise NotImplementedError
 
     def validate_syntax(self, latex_string: str) -> bool:
-        pass
+        raise NotImplementedError
 
 
 class EvaluationContext:

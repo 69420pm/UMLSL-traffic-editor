@@ -23,4 +23,4 @@ class Lexer:
     """Tokenizes LaTeX strings like '\land', '\lor', 're(c1)'."""
 
     def tokenize(self, source: str) -> List[Token]:
-        pass
+        raise NotImplementedError
