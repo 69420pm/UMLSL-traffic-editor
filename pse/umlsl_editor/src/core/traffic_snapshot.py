@@ -1,6 +1,7 @@
-from typing import Dict, List, Optional
+from typing import Optional
 
 from pse.umlsl_editor.src.core.car import Car
+from pse.umlsl_editor.src.core.lane import LaneDirection
 from pse.umlsl_editor.src.core.road import Road
 
 
@@ -9,38 +10,38 @@ class TrafficSnapshot:
 
     def __init__(
         self,
-        roads: Optional[Dict[str, Road]] = None,
-        cars: Optional[Dict[str, Car]] = None,
+        roads: Optional[dict[str, Road]] = None,
+        cars: Optional[dict[str, Car]] = None,
     ):
-        self.roads: Dict[str, Road] = roads if roads is not None else {}
-        self.cars: Dict[str, Car] = cars if cars is not None else {}
+        self.roads: dict[str, Road] = roads if roads is not None else {}
+        self.cars: dict[str, Car] = cars if cars is not None else {}
         # self.queries: List['UMLSLQuery'] = []
 
-    def get_road_by_id(self, road_id: str) -> Optional[Road]:
+    def get_road_by_name(self, road_name: str) -> Optional[Road]:
         """
-        Retrieve a road by its identifier.
+        Retrieve a road by its name.
 
         Args:
-            road_id: The unique identifier of the road to retrieve
+            road_name: The name of the road to retrieve
 
         Returns:
             The Road object if found, None otherwise
         """
         pass
 
-    def get_car_by_id(self, car_id: str) -> Optional[Car]:
+    def get_car_by_name(self, car_name: str) -> Optional[Car]:
         """
-        Retrieve a car by its identifier.
+        Retrieve a car by its name.
 
         Args:
-            car_id: The unique identifier of the car to retrieve
+            car_name: The name of the car to retrieve
 
         Returns:
             The Car object if found, None otherwise
         """
         pass
 
-    def get_cars_on_road(self, road_id: str) -> Optional[List[Car]]:
+    def get_cars_on_road(self, road_name: str) -> Optional[list[Car]]:
         """
         Retrieve all cars currently on a specific road.
 
@@ -52,12 +53,15 @@ class TrafficSnapshot:
         """
         pass
 
-    def get_cars_in_lane(self, lane_index: str) -> Optional[List[Car]]:
+    def get_cars_in_lane(
+        self, lane_index: str, direction: LaneDirection
+    ) -> Optional[list[Car]]:
         """
         Retrieve all cars currently in a specific lane.
 
         Args:
-            lane_id: The unique identifier of the lane
+            lane_index: The index of the lane
+            direction: The direction of the lane
 
         Returns:
             A list of Car objects in the specified lane

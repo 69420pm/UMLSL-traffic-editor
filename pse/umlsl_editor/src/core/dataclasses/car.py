@@ -1,8 +1,9 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
-from pse.umlsl_editor.src.core.lane import Lane
+from pse.umlsl_editor.src.core.dataclasses.lane import Lane
+from pse.umlsl_editor.src.core.dataclasses.road import Road
 
 
 class TurnDirection(Enum):
@@ -29,11 +30,11 @@ class Car:
     name: str
     """The unique human readable name of the car. Acts as an unique identifier."""
 
-    assigned_road: str
-    """The name of the road the car is currently on."""
+    assigned_road: Road
+    """The direct reference to the road the car is currently on."""
 
-    lane: str
-    """The name of the lane the car is currently in."""
+    lane: Lane
+    """The direct reference to lane the car is currently in. The lane must belong to the assigned road."""
 
     color: str = "#FF0000"
     """Hex color code for rendering the car."""

@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Optional
+from typing import Optional
 
-from pse.umlsl_editor.src.core.lane import Lane
+from pse.umlsl_editor.src.core.dataclasses.lane import Lane
 
 
 class RoadOrientation(Enum):
@@ -25,7 +25,7 @@ class Road:
     position: float
     """Position of the road in the coordinate system."""
 
-    lanes: Dict[str, Lane] = field(default_factory=dict)
+    lanes: list[Lane] = field(default_factory=list)
     """Dictionary of lanes indexed by lane ID."""
 
     def get_lane_by_id(self, lane: str) -> Optional[Lane]:
