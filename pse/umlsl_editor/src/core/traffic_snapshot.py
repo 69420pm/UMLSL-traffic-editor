@@ -65,21 +65,21 @@ class TrafficSnapshot:
         """
         pass
 
-    def set_road(self, road: Road) -> None:
+    def add_road(self, road: Road) -> None:
         """
-        Add a new road to the traffic snapshot or update already existing one.
+        Add a new road to the traffic snapshot.
 
         Args:
-            road: The Road object to add/update
+            road: The Road object to add
         """
         pass
 
-    def set_car(self, car: Car) -> None:
+    def add_car(self, car: Car) -> None:
         """
-        Add a new car to the traffic snapshot or update already exisiting one.
+        Add a new car to the traffic snapshot.
 
         Args:
-            car: The Car object to add/update
+            car: The Car object to add
         """
         pass
 
