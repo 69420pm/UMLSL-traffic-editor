@@ -1,12 +1,14 @@
 from typing import Optional
 
-from pse.umlsl_editor.src.core.car import Car
-from pse.umlsl_editor.src.core.lane import LaneDirection
-from pse.umlsl_editor.src.core.road import Road
+from pse.umlsl_editor.src.core.dataclasses.car import Car
+from pse.umlsl_editor.src.core.dataclasses.lane import LaneDirection
+from pse.umlsl_editor.src.core.dataclasses.road import Road
 
 
 class TrafficSnapshot:
     """Root data object. Contains all roads with its lanes and cars. Central Manager to use to get state of data models."""
+
+    """This class represents the entire state of the entities in the traffic simulation."""
 
     def __init__(
         self,
