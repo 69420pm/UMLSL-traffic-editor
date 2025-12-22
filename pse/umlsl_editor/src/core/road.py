@@ -17,7 +17,7 @@ class Road:
     """
 
     name: str
-    """Human-readable name of the road."""
+    """Unique human-readable name of the road. Acs as an unique identifier."""
 
     orientation: RoadOrientation
     """Orientation of the road (e.g., horizontal, vertical)."""
@@ -28,15 +28,12 @@ class Road:
     lanes: Dict[str, Lane] = field(default_factory=dict)
     """Dictionary of lanes indexed by lane ID."""
 
-    id: str = field(default="", init=False)
-    """Unique identifier for the road."""
-
-    def get_lane_by_id(self, lane_id: str) -> Optional[Lane]:
+    def get_lane_by_id(self, lane: str) -> Optional[Lane]:
         """
         Retrieve a lane by its identifier.
 
         Args:
-            lane_id: The unique identifier of the lane to retrieve
+            lane: The unique identifier of the lane to retrieve
 
         Returns:
             The Lane object if found, None otherwise

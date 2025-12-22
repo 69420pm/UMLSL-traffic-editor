@@ -2,6 +2,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
 
+from pse.umlsl_editor.src.core.lane import Lane
+
 
 class TurnDirection(Enum):
     LEFT = "left"
@@ -14,8 +16,8 @@ class TurnIntent:
 
     direction: TurnDirection
     """The direction of the intended turn (left or right)."""
-    targetLaneId: str
-    """The ID of the target lane after the turn."""
+    targetLane: Lane
+    """The lane after the turn in which the car wants to turn"""
 
 
 @dataclass
@@ -25,13 +27,13 @@ class Car:
     """
 
     name: str
-    """The human readable name of the car."""
+    """The unique human readable name of the car. Acts as an unique identifier."""
 
-    assigned_road_id: str
-    """The ID of the road the car is currently on."""
+    assigned_road: str
+    """The name of the road the car is currently on."""
 
-    lane_id: str
-    """The ID of the lane the car is currently in."""
+    lane: str
+    """The name of the lane the car is currently in."""
 
     color: str = "#FF0000"
     """Hex color code for rendering the car."""
@@ -53,8 +55,3 @@ class Car:
 
     next_turn: Optional[TurnIntent] = None
     """The intended turn direction and lane at the next intersection."""
-
-    # Fields below are not required in the constructor (init=False)
-
-    id: str = field(default="", init=False)
-    """The unique identifier for the car."""

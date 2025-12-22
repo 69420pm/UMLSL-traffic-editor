@@ -52,7 +52,7 @@ class TrafficSnapshot:
         """
         pass
 
-    def get_cars_in_lane(self, lane_id: str) -> Optional[List[Car]]:
+    def get_cars_in_lane(self, lane_index: str) -> Optional[List[Car]]:
         """
         Retrieve all cars currently in a specific lane.
 
@@ -83,20 +83,20 @@ class TrafficSnapshot:
         """
         pass
 
-    def remove_road(self, road_id: str) -> None:
+    def remove_road(self, road_name: str) -> None:
         """
         Remove a road from the traffic snapshot with all its lanes and cars.
 
         Args:
-            road_id: The unique identifier of the road to remove
+            road_name: The unique identifier of the road to remove
         """
         pass
 
-    def remove_car(self, car_id: str) -> None:
+    def remove_car(self, car_name: str) -> None:
         """
         Remove a car from the traffic snapshot.
 
         Args:
-            car_id: The unique identifier of the car to remove
+            car_name: The unique identifier of the car to remove
         """
         pass
