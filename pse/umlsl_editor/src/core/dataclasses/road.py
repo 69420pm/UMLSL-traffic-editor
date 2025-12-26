@@ -42,7 +42,7 @@ class Road:
     """
     Represents a road in the traffic simulation system.
 
-    A road is an infinte linear line with a specific orientation (horizontal or vertical)
+    A road is an infinite linear line with a specific orientation (horizontal or vertical)
     and contains one or more lanes in either forward or backward direction.
     Roads only define the number of forward and backward lanes.
 
