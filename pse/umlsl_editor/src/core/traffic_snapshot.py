@@ -3,7 +3,7 @@ from typing import Optional
 from pse.umlsl_editor.src.core.dataclasses.car import Car
 from pse.umlsl_editor.src.core.dataclasses.road import Road
 from pse.umlsl_editor.src.core.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.core.traffic_snapshot_write import TrafficSnapshotWriter
+from pse.umlsl_editor.src.core.traffic_snapshot_writer import TrafficSnapshotWriter
 
 
 class TrafficSnapshot(TrafficSnapshotReader, TrafficSnapshotWriter):
