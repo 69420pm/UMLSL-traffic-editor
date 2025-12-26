@@ -37,7 +37,7 @@ class EntityFactory:
             lane_direction: The direction of the lane (forward or backward).
             color: Hex color code for rendering (default: "#FF0000").
             position_on_lane: Distance along the lane (default: 0.0).
-            transition: Lane change progress from -1.0 to 1.0 (default: 0.0).
+            transition: Lane change progress from -1.0 to 1.0 (exclusive) (default: 0.0).
             velocity: Current speed (default: 0.0).
             length: Physical length (default: 4.0).
             next_turn: Intended turn at next intersection (default: None).
