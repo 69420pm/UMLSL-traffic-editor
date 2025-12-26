@@ -12,7 +12,7 @@ class EntityFactory:
     """Creates car and road objects to store in the traffic snapshot."""
 
     @staticmethod
-    def createCar(
+    def create_car(
         name: str,
         assigned_road: Road,
         lane_index: int,

@@ -61,7 +61,7 @@ class TurnIntent:
         - target_lane_direction must be a valid LaneDirection enum value
 
         Raises:
-            CarValidationError: If any validation check fails.
+            TurnIntentValidationError: If any validation check fails.
         """
         # Validate direction type
         if not isinstance(self.direction, TurnDirection):
@@ -124,7 +124,7 @@ class TurnIntent:
             A new TurnIntent instance populated with the provided data.
 
         Raises:
-            CarValidationError: If required keys are missing or values are invalid.
+            TurnIntentValidationError: If required keys are missing or values are invalid.
 
         """
         if "direction" not in data:
