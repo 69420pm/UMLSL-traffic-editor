@@ -199,7 +199,8 @@ class TurnIntent:
         Returns a detailed string representation of the TurnIntent.
 
         Returns:
-            A string in the format: TurnIntent(direction=DIRECTION, target_lane=Lane(...))
+            A string in the format:
+            TurnIntent(direction=DIRECTION, target_lane_index=INDEX, target_lane_direction=DIRECTION)
         """
         return (
             f"TurnIntent(direction={self.direction.name}, "
