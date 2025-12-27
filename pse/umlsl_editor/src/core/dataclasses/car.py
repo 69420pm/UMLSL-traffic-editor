@@ -217,6 +217,7 @@ class Car:
             "next_turn": self.next_turn.to_dict() if self.next_turn else None,
         }
 
+
     def to_json(self) -> str:
         """
         Serializes the Car instance to a JSON string.
