@@ -1,14 +1,24 @@
-"""The central application controller for the Model-View-Controller architecture, that managers all other controllers."""
+"""The central application controller for the Model-View-Controller architecture"""
+
+from pse.umlsl_editor.src.commands.add_car import AddCarCommand
+from pse.umlsl_editor.src.core.dataclasses.params import CarParams
+
+
 class ApplicationController:
     def __init__(self):
         pass
 
-    """Adds a car to the traffic snapshot."""
-    def add_car(self) -> bool:
-        # create the AddCarCommand, execute it and return the result
-        pass
+    def add_car(self, **car_params: CarParams) -> bool:
+        """
+        Adds a car to the traffic snapshot.
 
-    """Removes a car from the traffic snapshot."""
-    def remove_car(self):
-        # create the DeleteCarCommand, execute it and return the result
+        Args:
+            **car_params: Car creation parameters. See CarParams TypedDict for all available parameters.
+                         Required: name, assigned_road, lane_index, lane_direction
+                         Optional: color, position_on_lane, transition, velocity, length, next_turn
+
+        Returns:
+            True if the car was successfully added, False otherwise.
+        """
+        # create the AddCarCommand, execute it and return the result
         pass
