@@ -1,3 +1,4 @@
+from pse.umlsl_editor.src.controllers.application_controller import ApplicationController
 from pse.umlsl_editor.src.core.dataclasses.car import Car
 from pse.umlsl_editor.src.core.dataclasses.params import CarParams, RoadParams
 from pse.umlsl_editor.src.core.dataclasses.road import Road
