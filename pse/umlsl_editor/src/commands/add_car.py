@@ -1,5 +1,6 @@
+from typing import Unpack
+
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.core.dataclasses.car import Car
 from pse.umlsl_editor.src.core.dataclasses.params import CarParams
 from pse.umlsl_editor.src.core.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.core.traffic_snapshot_writer import TrafficSnapshotWriter
@@ -12,7 +13,7 @@ class AddCarCommand(Command[bool]):
         self,
         traffic_snapshot_reader: TrafficSnapshotReader,
         traffic_snapshot_writer: TrafficSnapshotWriter,
-        **car_params: CarParams,
+        **car_params: Unpack[CarParams],
     ):
         """
         Initialize the AddCarCommand with car parameters.

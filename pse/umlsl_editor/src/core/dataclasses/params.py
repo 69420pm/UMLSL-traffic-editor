@@ -1,11 +1,11 @@
 """TypedDict definitions for entity creation parameters to enable type-safe **kwargs passing."""
-from typing import Optional, TypedDict
+from typing import Optional, TypedDict, Required, NotRequired
 
 from pse.umlsl_editor.src.core.dataclasses.road import LaneDirection, Road, RoadOrientation
 from pse.umlsl_editor.src.core.dataclasses.turn_intent import TurnIntent
 
 
-class CarParams(TypedDict, total=False):
+class CarParams(TypedDict):
     """
     Type-safe parameter dictionary for Car creation.
 
@@ -26,19 +26,19 @@ class CarParams(TypedDict, total=False):
         length: Physical length of the car in units (default: 4.0).
         next_turn: Optional intended turn behavior at the next intersection (default: None).
     """
-    name: str
-    assigned_road: Road
-    lane_index: int
-    lane_direction: LaneDirection
-    color: str
-    position_on_lane: float
-    transition: float
-    velocity: float
-    length: float
+    name: Required[str]
+    assigned_road: Required[Road]
+    lane_index: Required[int]
+    lane_direction: Required[LaneDirection]
+    color: NotRequired[str]
+    position_on_lane: NotRequired[float]
+    transition: NotRequired[float]
+    velocity: NotRequired[float]
+    length: NotRequired[float]
     next_turn: Optional[TurnIntent]
 
 
-class RoadParams(TypedDict, total=False):
+class RoadParams(TypedDict):
     """
     Type-safe parameter dictionary for Road creation.
 
@@ -54,9 +54,9 @@ class RoadParams(TypedDict, total=False):
         forward_lanes: Number of lanes in the forward direction (default: 0).
         backward_lanes: Number of lanes in the backward direction (default: 0).
     """
-    name: str
-    orientation: RoadOrientation
-    position: float
-    forward_lanes: int
-    backward_lanes: int
+    name: Required[str]
+    orientation: Required[RoadOrientation]
+    position: Required[float]
+    forward_lanes: NotRequired[int]
+    backward_lanes: NotRequired[int]
 
