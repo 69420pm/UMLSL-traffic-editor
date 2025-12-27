@@ -22,7 +22,7 @@ class ApplicationController:
         transition: Optional[float] = None,
         velocity: Optional[float] = None,
         length: Optional[float] = None,
-        next_turn: Optional[TurnIntent] = None,) -> bool:
+        next_turn: Optional[TurnIntent] = None) -> bool:
         """
         Adds a car to the traffic snapshot based on the given parameters.
 
