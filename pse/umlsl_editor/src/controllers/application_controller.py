@@ -41,25 +41,19 @@ class ApplicationController:
         Returns:
             True if the car was successfully added, False otherwise.
         """
-        car_params = CarParams()
-        car_params.name = name
-        car_params.assigned_road = assigned_road
-        car_params.lane_index = lane_index
-        car_params.lane_direction = lane_direction
-
-        if color is not None:
-            car_params.color = color
-        if position_on_lane is not None:
-            car_params.position_on_lane = position_on_lane
-        if transition is not None:
-            car_params.transition = transition
-        if velocity is not None:
-            car_params.velocity = velocity
-        if length is not None:
-            car_params.length = length
-        if next_turn is not None:
-            car_params.next_turn = next_turn
-
+        params = {
+            "name": name,
+            "assigned_road": assigned_road,
+            "lane_index": lane_index,
+            "lane_direction": lane_direction,
+            "color": color,
+            "position_on_lane": position_on_lane,
+            "transition": transition,
+            "velocity": velocity,
+            "length": length,
+            "next_turn": next_turn,
+        }
+        car_params = CarParams(**{key: value for key, value in params.items() if value is not None})
         # create the AddCarCommand, execute it and return the result
         raise NotImplementedError("Method not implemented yet.")
 
