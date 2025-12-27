@@ -7,4 +7,4 @@ class Command(ABC, Generic[ReturnValue]):
     """Interface for commands that can be executed in the UMLSL editor."""
     @abstractmethod
     def execute(self) -> ReturnValue:
-        raise NotImplementedError("Subclasses must implement this method")
+        pass
