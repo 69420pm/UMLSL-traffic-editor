@@ -6,6 +6,8 @@ from pse.umlsl_editor.src.core.dataclasses.road import Road
 from pse.umlsl_editor.src.core.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.core.traffic_snapshot_writer import TrafficSnapshotWriter
 
+class TrafficSnapshotValidationError(ValueError):
+    pass
 
 class TrafficSnapshot(TrafficSnapshotReader, TrafficSnapshotWriter):
     """

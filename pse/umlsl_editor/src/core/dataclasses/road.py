@@ -87,6 +87,17 @@ class Road:
             backward_lanes=params.backward_lanes,
         )
 
+    def update_from_params(self, params: RoadParams) -> None:
+        """
+        Updates the Road instance's attributes based on a RoadParams object.
+
+        Args:
+            params: An instance of RoadParams containing the new road attributes.
+
+        Raises:
+            RoadValidationError: If any validation check fails.
+        """
+        raise NotImplementedError()
 
     def __post_init__(self) -> None:
         """
@@ -101,37 +112,6 @@ class Road:
         Raises:
             RoadValidationError: If any validation check fails.
         """
-        # Validate name type and value
-        if not isinstance(self.name, str):
-            raise RoadValidationError(
-                f"Road name must be a string, got {type(self.name).__name__}: {self.name}"
-            )
-        if not self.name.strip():
-            raise RoadValidationError("Road name cannot be empty or whitespace only")
-
-        # Validate orientation type
-        if not isinstance(self.orientation, RoadOrientation):
-            raise RoadValidationError(
-                f"Road orientation must be a RoadOrientation enum value, "
-                f"got {type(self.orientation).__name__}: {self.orientation}"
-            )
-
-        # Validate position type
-        if not isinstance(self.position, (int, float)):
-            raise RoadValidationError(
-                f"Road position must be a number (int or float), "
-                f"got {type(self.position).__name__}: {self.position}"
-            )
-
-        # Validate forward_lanes and backward_lanes type and value
-        if not isinstance(self.forward_lanes, int) or self.forward_lanes < 0:
-            raise RoadValidationError(
-                f"forward_lanes must be a non-negative integer, got {self.forward_lanes}"
-            )
-        if not isinstance(self.backward_lanes, int) or self.backward_lanes < 0:
-            raise RoadValidationError(
-                f"backward_lanes must be a non-negative integer, got {self.backward_lanes}"
-            )
 
     def to_dict(self) -> dict[str, Any]:
         """
@@ -150,13 +130,7 @@ class Road:
             >>> road.to_dict()
             {'name': 'Main St', 'orientation': 'horizontal', 'position': 100.0, 'forward_lanes': 2, 'backward_lanes': 1}
         """
-        return {
-            "name": self.name,
-            "orientation": self.orientation.value,
-            "position": self.position,
-            "forward_lanes": self.forward_lanes,
-            "backward_lanes": self.backward_lanes,
-        }
+        raise NotImplementedError();
 
     def to_json(self) -> str:
         """
@@ -164,15 +138,8 @@ class Road:
 
         Returns:
             A JSON-formatted string representation of the Road.
-
-        Example:
-            >>> road = Road(name="Main St", orientation=RoadOrientation.HORIZONTAL, position=100.0, forward_lanes=2, backward_lanes=1)
-            >>> road.to_json()
-            '{"name": "Main St", "orientation": "horizontal", "position": 100.0, "forward_lanes": 2, "backward_lanes": 1}'
         """
-        import json
-
-        return json.dumps(self.to_dict())
+        raise NotImplementedError()
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Road":
@@ -188,38 +155,8 @@ class Road:
         Returns:
             A new Road instance populated with the provided data.
 
-        Raises:
-            RoadValidationError: If required keys are missing or values are invalid.
-
-        Example:
-            >>> data = {'name': 'Main St', 'orientation': 'horizontal', 'position': 100.0, 'forward_lanes': 2, 'backward_lanes': 1}
-            >>> road = Road.from_dict(data)
-            >>> road.name
-            'Main St'
         """
-        required_keys = ["name", "orientation", "position"]
-        for key in required_keys:
-            if key not in data:
-                raise RoadValidationError(f"Missing required key '{key}' in Road data")
-
-        # Parse orientation - handle both string and enum values
-        orientation = data["orientation"]
-        if isinstance(orientation, str):
-            try:
-                orientation = RoadOrientation(orientation)
-            except ValueError:
-                raise RoadValidationError(
-                    f"Invalid orientation value: '{orientation}'. "
-                    f"Must be one of: {[o.value for o in RoadOrientation]}"
-                )
-
-        return cls(
-            name=data["name"],
-            orientation=orientation,
-            position=data["position"],
-            forward_lanes=data.get("forward_lanes", 0),
-            backward_lanes=data.get("backward_lanes", 0),
-        )
+        raise NotImplementedError()
 
     @classmethod
     def from_json(cls, json_string: str) -> "Road":
@@ -232,29 +169,10 @@ class Road:
         Returns:
             A new Road instance populated with the parsed JSON data.
 
-        Raises:
-            RoadValidationError: If the JSON structure is invalid or values fail validation.
-            json.JSONDecodeError: If the string is not valid JSON.
-
-        Example:
-            >>> json_str = '{"name": "Main St", "orientation": "horizontal", "position": 100.0, "forward_lanes": 2, "backward_lanes": 1}'
-            >>> road = Road.from_json(json_str)
-            >>> road.orientation
-            <RoadOrientation.HORIZONTAL: 'horizontal'>
         """
-        import json
-
-        data = json.loads(json_string)
-        return cls.from_dict(data)
+        raise NotImplementedError()
 
     def __repr__(self) -> str:
         """
         Returns a detailed string representation of the Road.
-
-        Returns:
-            A string in the format: Road(name='X', orientation=ORIENTATION, position=Y, forward_lanes=F, backward_lanes=B)
         """
-        return (
-            f"Road(name='{self.name}', orientation={self.orientation.name}, "
-            f"position={self.position}, forward_lanes={self.forward_lanes}, backward_lanes={self.backward_lanes})"
-        )

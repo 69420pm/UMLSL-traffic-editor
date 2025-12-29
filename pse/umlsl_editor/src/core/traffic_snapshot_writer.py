@@ -9,6 +9,12 @@ class TrafficSnapshotWriter(ABC):
 
     @abstractmethod
     def add_road(self, road: Road) -> None:
+        """
+        Adds a road to the snapshot and validates all attributes in the context of the snapshot.
+
+        Raises:
+            TrafficSnapshotValidationError: If the road is invalid in the context of the snapshot.
+        """
         pass
 
     @abstractmethod
@@ -20,6 +26,12 @@ class TrafficSnapshotWriter(ABC):
 
     @abstractmethod
     def add_car(self, car: Car) -> None:
+        """
+        Adds a car to the snapshot and validates all attributes in the context of the snapshot.
+        
+        Raises:
+            TrafficSnapshotValidationError: If the car is invalid in the context of the snapshot.
+        """
         pass
 
     @abstractmethod
