@@ -1,6 +1,4 @@
 """The central application controller for the Model-View-Controller architecture"""
-from typing import Optional
-
 from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.core.dataclasses.road import Road, LaneDirection
 from pse.umlsl_editor.src.core.dataclasses.turn_intent import TurnIntent

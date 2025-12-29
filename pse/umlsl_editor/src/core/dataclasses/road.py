@@ -135,19 +135,6 @@ class Road:
     def to_dict(self) -> dict[str, Any]:
         """
         Serializes the Road instance to a dictionary suitable for JSON encoding.
-
-        Returns:
-            A dictionary containing:
-                - 'name': The road name as a string.
-                - 'orientation': The orientation value as a string ('horizontal' or 'vertical').
-                - 'position': The position as a float.
-                - 'forward_lanes': The number of forward lanes as an integer.
-                - 'backward_lanes': The number of backward lanes as an integer.
-
-        Example:
-            >>> road = Road(name="Main St", orientation=RoadOrientation.HORIZONTAL, position=100.0, forward_lanes=2, backward_lanes=1)
-            >>> road.to_dict()
-            {'name': 'Main St', 'orientation': 'horizontal', 'position': 100.0, 'forward_lanes': 2, 'backward_lanes': 1}
         """
         raise NotImplementedError();
 

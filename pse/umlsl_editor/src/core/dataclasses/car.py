@@ -71,11 +71,6 @@ class Car:
         CarValidationError: If any validation check fails during instantiation.
     """
 
-    # Class-level regex pattern for validating hex color codes
-    _HEX_COLOR_PATTERN: ClassVar[re.Pattern[str]] = re.compile(
-        r"^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$"
-    )
-
     name: str
 
     assigned_road: Road
