@@ -46,3 +46,19 @@ class TrafficSnapshotReader(ABC):
         Returns a list of roads that are located within the specified rectangular area.
         """
         pass
+
+
+    @abstractmethod
+    def validate_lane(self, road: Road, lane_index: int, lane_direction: str) -> bool:
+        """
+        Validates if the specified lane index and direction exist on the given road.
+
+        Args:
+            road: The road to validate against.
+            lane_index: The index of the lane to validate.
+            lane_direction: The direction of the lane to validate ('fn' for forward, 'bn' for backward).
+
+        Returns:
+            True if the lane index and direction are valid for the road, False otherwise.
+        """
+        pass

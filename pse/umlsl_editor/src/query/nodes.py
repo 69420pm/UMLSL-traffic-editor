@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABC
 
-from pse.umlsl_editor.src.core.query.evaluator import EvaluationContext
+from pse.umlsl_editor.src.query.evaluator import EvaluationContext
 
 
 class ASTNode(ABC):
