@@ -61,3 +61,4 @@ class TrafficSnapshotReader(ABC):
         Returns:
             True if the lane index and direction are valid for the road, False otherwise.
         """
+        pass
