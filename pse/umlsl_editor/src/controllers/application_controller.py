@@ -12,7 +12,6 @@ class ApplicationController:
     def __init__(self, traffic_snapshot_reader:TrafficSnapshotReader, traffic_snapshot_writer:TrafficSnapshotWriter):
         self.traffic_snapshot_reader = traffic_snapshot_reader
         self.traffic_snapshot_writer = traffic_snapshot_writer
-        pass
 
     def _execute_command(self, command:Command):
         """Executes the given command after validating it."""
