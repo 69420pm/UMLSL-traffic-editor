@@ -136,7 +136,7 @@ class Road:
         """
         Serializes the Road instance to a dictionary suitable for JSON encoding.
         """
-        raise NotImplementedError();
+        raise NotImplementedError()
 
     def to_json(self) -> str:
         """
