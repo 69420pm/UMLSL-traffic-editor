@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
+from pse.umlsl_editor.src.core.dataclasses.params import RoadParams
+
 
 class RoadOrientation(Enum):
     """
@@ -53,8 +55,8 @@ class Road:
         position: The position of the road in the coordinate system along the
                   axis perpendicular to its orientation. For horizontal roads,
                   this is the Y-coordinate; for vertical roads, the X-coordinate.
-        forward_lanes: Number of lanes in the forward direction (default: 0).
-        backward_lanes: Number of lanes in the backward direction (default: 0).
+        forward_lanes: Number of lanes in the forward direction
+        backward_lanes: Number of lanes in the backward direction
 
     Raises:
         RoadValidationError: If name is empty, orientation is invalid,
@@ -64,8 +66,27 @@ class Road:
     name: str
     orientation: RoadOrientation
     position: float
-    forward_lanes: int = 0
-    backward_lanes: int = 0
+    forward_lanes: int
+    backward_lanes: int
+
+    @classmethod
+    def from_params(cls, params: RoadParams) -> "Road":
+        """
+        Creates a Road instance from a RoadParams object.
+
+        Args:
+            params: An instance of RoadParams containing the road attributes.
+        Returns:
+            A new Road instance with the provided parameters.
+        """
+        return cls(
+            name=params.name,
+            orientation=params.orientation,
+            position=params.position,
+            forward_lanes=params.forward_lanes,
+            backward_lanes=params.backward_lanes,
+        )
+
 
     def __post_init__(self) -> None:
         """

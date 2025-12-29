@@ -3,6 +3,7 @@ import re
 from dataclasses import dataclass
 from typing import Any, ClassVar, Optional
 
+from pse.umlsl_editor.src.core.dataclasses.params import CarParams
 from pse.umlsl_editor.src.core.dataclasses.road import LaneDirection, Road
 from pse.umlsl_editor.src.core.dataclasses.turn_intent import TurnDirection, TurnIntent
 
@@ -29,12 +30,12 @@ class Car:
         assigned_road: Reference to the Road the car is currently traveling on.
         lane_index: Index of the lane the car is currently in.
         lane_direction: Direction of the lane the car is currently in.
-        color: Hex color code for rendering the car. Defaults to red (#FF0000).
-        position_on_lane: Distance along the lane in units. Must be non-negative. Defaults to 0.0.
+        color: Hex color code for rendering the car.
+        position_on_lane: Distance along the lane in units. Must be non-negative.
         transition: Lane change progress from -1.0 (fully left) to 1.0 (fully right).
                     Value of 0.0 means centered in current lane. Bounds are exclusive.
         velocity: Current speed of the car in units per time step. Can be negative for reverse.
-        length: Physical length of the car in units. Must be positive. Defaults to 4.0.
+        length: Physical length of the car in units. Must be positive.
         next_turn: Optional intended turn behavior at the next intersection.
 
     Raises:
@@ -53,17 +54,41 @@ class Car:
     lane_index: int
     lane_direction: LaneDirection
 
-    color: str = "#FF0000"
+    color: str
 
-    position_on_lane: float = 0.0
+    position_on_lane: float
 
-    transition: float = 0.0
+    transition: float
 
-    velocity: float = 0.0
+    velocity: float
 
-    length: float = 4.0
+    length: float
 
-    next_turn: Optional[TurnIntent] = None
+    next_turn: Optional[TurnIntent]
+
+    @classmethod
+    def from_params(cls, params: CarParams) -> "Car":
+        """
+        Creates a Car instance from a CarParams dataclass.
+
+        Args:
+            params: CarParams instance containing all car attributes.
+
+        Returns:
+            A new Car instance with attributes from the params.
+        """
+        return cls(
+            name=params.name,
+            assigned_road=params.assigned_road,
+            lane_index=params.lane_index,
+            lane_direction=params.lane_direction,
+            color=params.color,
+            position_on_lane=params.position_on_lane,
+            transition=params.transition,
+            velocity=params.velocity,
+            length=params.length,
+            next_turn=params.next_turn,
+        )
 
     def __post_init__(self) -> None:
         """
@@ -167,6 +192,8 @@ class Car:
                 f"Car next_turn must be None or a TurnIntent instance, "
                 f"got {type(self.next_turn).__name__}"
             )
+
+
 
     @classmethod
     def _is_valid_hex_color(cls, color: str) -> bool:

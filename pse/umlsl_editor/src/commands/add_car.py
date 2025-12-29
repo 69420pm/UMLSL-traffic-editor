@@ -13,7 +13,7 @@ class AddCarCommand(Command[bool]):
         self,
         traffic_snapshot_reader: TrafficSnapshotReader,
         traffic_snapshot_writer: TrafficSnapshotWriter,
-        **car_params: Unpack[CarParams],
+        car_params: CarParams
     ):
         """
         Initialize the AddCarCommand with car parameters.
@@ -21,8 +21,7 @@ class AddCarCommand(Command[bool]):
         Args:
             traffic_snapshot_reader: Interface to read from the traffic snapshot.
             traffic_snapshot_writer: Interface to write to the traffic snapshot.
-            **car_params: Car creation parameters (name, assigned_road, lane_index, etc.).
-                         See CarParams TypedDict for all available parameters.
+            car_params: Car creation parameters (name, assigned_road, lane_index, etc.).
         """
         self.traffic_snapshot_writer = traffic_snapshot_writer
         self.traffic_snapshot_reader = traffic_snapshot_reader
