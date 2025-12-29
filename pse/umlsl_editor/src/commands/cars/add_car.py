@@ -31,7 +31,7 @@ class AddCarCommand(Command[None]):
         Creates a Car instance using the provided parameters, validates it through
         Car.__post_init__, and adds it to the traffic snapshot.
         """
-        pass
+        raise NotImplementedError
 
     def validate(self) -> None:
         """
@@ -40,4 +40,4 @@ class AddCarCommand(Command[None]):
         Raises:
             CommandValidationError: If the car cannot be added due to validation errors.
         """
-        pass
+        raise NotImplementedError

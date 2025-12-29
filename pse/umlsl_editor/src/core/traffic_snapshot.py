@@ -17,6 +17,9 @@ class TrafficSnapshot(TrafficSnapshotReader, TrafficSnapshotWriter):
     TrafficSnapshotReader and TrafficSnapshotWriter interfaces for read/write access.
     """
 
+    def validate_lane(self, road: Road, lane_index: int, lane_direction: str) -> bool:
+        raise NotImplementedError
+
     def get_cars_on_road(self, road: Road) -> list[Car]:
         raise NotImplementedError
 
@@ -59,25 +62,14 @@ class TrafficSnapshot(TrafficSnapshotReader, TrafficSnapshotWriter):
     def to_dict(self) -> dict[str, Any]:
         """
         Serializes the TrafficSnapshot instance to a dictionary suitable for JSON encoding.
-
-        Returns:
-            A dictionary containing:
-                - 'roads': A dictionary mapping road names to road dictionaries.
-                - 'cars': A dictionary mapping car names to car dictionaries.
         """
-        return {
-            "roads": {name: road.to_dict() for name, road in self._roads.items()},
-            "cars": {name: car.to_dict() for name, car in self._cars.items()},
-        }
+        raise NotImplementedError
 
     def to_json(self) -> str:
         """
         Serializes the TrafficSnapshot instance to a JSON string.
-
-        Returns:
-            A JSON-formatted string representation of the TrafficSnapshot.
         """
-        return json.dumps(self.to_dict())
+        raise NotImplementedError
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "TrafficSnapshot":
@@ -86,26 +78,8 @@ class TrafficSnapshot(TrafficSnapshotReader, TrafficSnapshotWriter):
 
         Args:
             data: A dictionary containing 'roads' and 'cars' keys.
-
-        Returns:
-            A new TrafficSnapshot instance populated with the provided data.
-
-        Raises:
-            ValueError: If required keys are missing or values are invalid.
         """
-        if "roads" not in data:
-            raise ValueError("Missing required key 'roads' in TrafficSnapshot data")
-        if "cars" not in data:
-            raise ValueError("Missing required key 'cars' in TrafficSnapshot data")
-
-        # First, deserialize all roads
-        roads = {name: Road.from_dict(road_data) for name, road_data in data["roads"].items()}
-
-        # Then, deserialize all cars using the road lookup
-        cars = {name: Car.from_dict(car_data, roads) for name, car_data in data["cars"].items()}
-
-        return cls(roads=roads, cars=cars)
-
+        raise NotImplementedError
     @classmethod
     def from_json(cls, json_string: str) -> "TrafficSnapshot":
         """
@@ -114,13 +88,5 @@ class TrafficSnapshot(TrafficSnapshotReader, TrafficSnapshotWriter):
         Args:
             json_string: A JSON-formatted string containing traffic snapshot data.
 
-        Returns:
-            A new TrafficSnapshot instance populated with the parsed JSON data.
-
-        Raises:
-            ValueError: If the JSON structure is invalid or values fail validation.
-            json.JSONDecodeError: If the string is not valid JSON.
         """
-        data = json.loads(json_string)
-        return cls.from_dict(data)
-
+        raise NotImplementedError

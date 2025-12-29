@@ -1,4 +1,6 @@
 """The central application controller for the Model-View-Controller architecture"""
+from typing import Optional
+
 from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.core.dataclasses.road import Road, LaneDirection
 from pse.umlsl_editor.src.core.dataclasses.turn_intent import TurnIntent
@@ -24,11 +26,11 @@ class ApplicationController:
         lane_index: int,
         lane_direction: LaneDirection,
         color:  str,
-        position_on_lane:  float,
-        transition:  float,
-        velocity:  float,
-        length:  float,
-        next_turn:  TurnIntent) -> bool:
+        position_on_lane: float,
+        transition: float,
+        velocity: float,
+        length: float,
+        next_turn: Optional[TurnIntent]) -> bool:
         """
         Adds a car to the traffic snapshot based on the given parameters.
 
