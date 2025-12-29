@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from pse.umlsl_editor.src.core.dataclasses.params import RoadParams
-
 
 class RoadOrientation(Enum):
     """
@@ -37,6 +35,27 @@ class RoadValidationError(ValueError):
     """
 
     pass
+
+@dataclass()
+class RoadParams:
+    """
+    Type-safe parameter dictionary for Road creation.
+
+    Supports all Road attributes with optional parameters marked appropriately.
+    Use this with **kwargs to avoid repetitive parameter forwarding.
+
+    Attributes:
+        name: Unique human-readable identifier for the road.
+        orientation: The orientation of the road (horizontal or vertical).
+        position: The position of the road in the coordinate system.
+        forward_lanes: Number of lanes in the forward direction
+        backward_lanes: Number of lanes in the backward direction
+    """
+    name: str
+    orientation: RoadOrientation
+    position: float
+    forward_lanes: int
+    backward_lanes: int
 
 
 @dataclass

@@ -1,14 +1,23 @@
 """The central application controller for the Model-View-Controller architecture"""
 from typing import Optional
 
-from pse.umlsl_editor.src.core.dataclasses.params import CarParams
+from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.core.dataclasses.road import Road, LaneDirection
 from pse.umlsl_editor.src.core.dataclasses.turn_intent import TurnIntent
+from pse.umlsl_editor.src.core.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.core.traffic_snapshot_writer import TrafficSnapshotWriter
 
 
 class ApplicationController:
-    def __init__(self):
+    def __init__(self, traffic_snapshot_reader:TrafficSnapshotReader, traffic_snapshot_writer:TrafficSnapshotWriter):
+        self.traffic_snapshot_reader = traffic_snapshot_reader
+        self.traffic_snapshot_writer = traffic_snapshot_writer
         pass
+
+    def _execute_command(self, command:Command):
+        """Executes the given command after validating it."""
+        raise NotImplementedError()
+
 
     def add_car(
         self,
@@ -41,7 +50,7 @@ class ApplicationController:
             True if the car was successfully added, False otherwise.
         """
         # create CarParams
-        # create the AddCarCommand, execute it and return the result
+        # create the AddCarCommand, validate it, execute it and return the result
         raise NotImplementedError("Method not implemented yet.")
 
 
