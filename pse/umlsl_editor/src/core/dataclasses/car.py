@@ -3,6 +3,7 @@ import re
 from dataclasses import dataclass
 from typing import Any, ClassVar, Optional
 
+from pse.umlsl_editor.src.core.dataclasses.entity import Entity
 from pse.umlsl_editor.src.core.dataclasses.road import LaneDirection, Road
 from pse.umlsl_editor.src.core.dataclasses.turn_intent import TurnDirection, TurnIntent
 
@@ -46,7 +47,7 @@ class CarParams:
 
 
 @dataclass
-class Car:
+class Car(Entity):
     """
     Represents a car/vehicle in the traffic simulation.
 
@@ -71,7 +72,6 @@ class Car:
         CarValidationError: If any validation check fails during instantiation.
     """
 
-    name: str
 
     assigned_road: Road
 
@@ -165,7 +165,7 @@ class Car:
         raise NotImplementedError()
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any], road_lookup: dict[str, Road]) -> "Car":
+    def from_dict(cls, data: dict[str, Any]) -> "Car":
         """
         Creates a Car instance from a dictionary.
 
@@ -175,19 +175,17 @@ class Car:
 
         Args:
             data: A dictionary containing car data with keys matching the to_dict output.
-            road_lookup: A dictionary mapping road names to Road objects.
 
         """
         raise NotImplementedError()
 
     @classmethod
-    def from_json(cls, json_string: str, road_lookup: dict[str, Road]) -> "Car":
+    def from_json(cls, json_string: str) -> "Car":
         """
         Creates a Car instance from a JSON string.
 
         Args:
             json_string: A JSON-formatted string containing car data.
-            road_lookup: A dictionary mapping road names to Road objects.
 
         Returns:
             A new Car instance populated with the parsed JSON data.

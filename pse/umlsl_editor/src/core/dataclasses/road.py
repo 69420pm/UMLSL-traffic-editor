@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
+from pse.umlsl_editor.src.core.dataclasses.entity import Entity
+
 
 class RoadOrientation(Enum):
     """
@@ -59,7 +61,7 @@ class RoadParams:
 
 
 @dataclass
-class Road:
+class Road(Entity):
     """
     Represents a road in the traffic simulation system.
 
@@ -82,7 +84,6 @@ class Road:
                              or position is not a valid number.
     """
 
-    name: str
     orientation: RoadOrientation
     position: float
     forward_lanes: int

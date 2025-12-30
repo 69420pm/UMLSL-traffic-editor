@@ -3,6 +3,7 @@ from typing import Any, Optional
 
 from pse.umlsl_editor.src.core.dataclasses.car import Car
 from pse.umlsl_editor.src.core.dataclasses.road import Road
+from pse.umlsl_editor.src.core.observable_dict import ObservableDict
 from pse.umlsl_editor.src.core.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.core.traffic_snapshot_writer import TrafficSnapshotWriter
 
@@ -53,11 +54,11 @@ class TrafficSnapshot(TrafficSnapshotReader, TrafficSnapshotWriter):
 
     def __init__(
         self,
-        roads: Optional[dict[str, Road]] = None,
-        cars: Optional[dict[str, Car]] = None,
+        roads: ObservableDict[str, Road] | None = None,
+        cars: ObservableDict[str, Car] | None = None,
     ):
-        self._roads = dict(roads) if roads is not None else {}
-        self._cars = dict(cars) if cars is not None else {}
+        self._roads = ObservableDict[str, Road] if roads is not None else {}
+        self._cars = ObservableDict[str, Car] if cars is not None else {}
 
     def to_dict(self) -> dict[str, Any]:
         """
