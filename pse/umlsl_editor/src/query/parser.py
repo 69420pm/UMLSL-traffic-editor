@@ -1,6 +1,6 @@
 from typing import List
 
-from pse.umlsl_editor.src.query.nodes import ASTNode
+from pse.umlsl_editor.src.query.ast import ASTNode
 from pse.umlsl_editor.src.query.token import Token
 
 
