@@ -1,6 +1,7 @@
 from pse.umlsl_editor.src.core.dataclasses.car import Car
 from pse.umlsl_editor.src.core.traffic_snapshot import Segment
-from pse.umlsl_editor.src.query.ast.ast import Interval, View
+from pse.umlsl_editor.src.query.ast.ast import View
+from pse.umlsl_editor.src.query.interval import Interval
 
 
 class SegmentView:

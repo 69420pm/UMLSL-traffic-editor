@@ -1,6 +1,7 @@
 from pse.umlsl_editor.src.core.dataclasses.car import Car
 from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
-from pse.umlsl_editor.src.query.ast.ast import View, BinaryNode, Interval
+from pse.umlsl_editor.src.query.ast.ast import View, BinaryNode
+from pse.umlsl_editor.src.query.interval import Interval
 
 
 class HorizontalChopNode(BinaryNode):
