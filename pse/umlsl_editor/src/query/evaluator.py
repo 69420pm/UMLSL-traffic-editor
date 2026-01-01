@@ -1,7 +1,8 @@
 from pse.umlsl_editor.src.core.dataclasses.car import Car
 from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
-from pse.umlsl_editor.src.query.ast.ast import Interval, View
+from pse.umlsl_editor.src.query.ast.ast import View
 from pse.umlsl_editor.src.query.ast.ast_parser import ASTParser
+from pse.umlsl_editor.src.query.interval import Interval
 from pse.umlsl_editor.src.query.lexer import Lexer
 
 
@@ -24,7 +25,7 @@ class UMLSLEvaluator:
         lanes = []  # todo
 
         view = View(lanes, horizontal_extension, car)
-        raise ast.evaluate(traffic_snapshot, view)
+        return ast.evaluate(traffic_snapshot, view)
 
     def compute_horizon(self, car: Car) -> float:
         return (car.velocity * car.velocity) / (2.0 * self.braking_accel)

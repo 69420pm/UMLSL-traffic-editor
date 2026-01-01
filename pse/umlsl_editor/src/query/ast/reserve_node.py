@@ -6,7 +6,7 @@ from pse.umlsl_editor.src.query.visible_segments import SegmentView, VisibleSegm
 
 def segment_reserved(traffic_snapshot: TrafficSnapshot, view: View, segment: Segment, car: Car) -> bool:
     car_context = traffic_snapshot.get_car_context(car)
-    if segment not in car_context.reserved_lanes or segment not in car_context.reserved_crossings:
+    if segment not in car_context.reserved_lanes and segment not in car_context.reserved_crossings:
         return False
 
     segment_views: list[SegmentView] = VisibleSegment().compute_visible_segments(view, car)

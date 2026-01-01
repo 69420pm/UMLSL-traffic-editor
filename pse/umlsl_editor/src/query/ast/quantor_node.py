@@ -7,7 +7,6 @@ class ExistsNode(UnaryNode):
     def __init__(self, variable: str, child: ASTNode):
         super().__init__(child)
         self.variable = variable
-        self.child = child
 
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
         if self.variable in variable_car_map:
@@ -27,7 +26,6 @@ class ForAllNode(UnaryNode):
     def __init__(self, variable: str, child: ASTNode):
         super().__init__(child)
         self.variable = variable
-        self.child = child
 
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
         if self.variable in variable_car_map:

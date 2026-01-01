@@ -15,7 +15,8 @@ class EqualityCarNode(NullaryNode):
 
 
 class EqualityHorizonNode(NullaryNode):
-    def __init(self, length: float):
+    def __init__(self, length: float):
+        super().__init__()
         self.length = length
 
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:

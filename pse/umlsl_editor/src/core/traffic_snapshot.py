@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import Any, Optional
 
 from pse.umlsl_editor.src.core.dataclasses.car import Car
@@ -10,16 +11,20 @@ class TrafficSnapshotValidationError(ValueError):
     pass
 
 
-class Segment:
-    pass
+class Segment(ABC):
+    @abstractmethod
+    def is_crossing_segment(self) -> bool:
+        pass
 
 
 class LaneSegment(Segment):
-    pass
+    def is_crossing_segment(self) -> bool:
+        return False
 
 
 class CrossingSegment(Segment):
-    pass
+    def is_crossing_segment(self) -> bool:
+        return True
 
 
 class Path:

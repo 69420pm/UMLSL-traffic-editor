@@ -19,7 +19,7 @@ class VisibleSegment:
         # todo: extract visible lanes based on the space_interval and call the other method
         pass
 
-    def compute_visible_segments(self, virtual_view: list[Segment], car: Car) -> list[SegmentView]:
+    def compute_visible_segments_virtual_views(self, virtual_view: list[Segment], car: Car) -> list[SegmentView]:
         # todo: Algorithm 2 from paper
         pass
 

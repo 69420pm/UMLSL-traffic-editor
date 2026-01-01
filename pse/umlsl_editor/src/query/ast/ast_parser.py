@@ -69,7 +69,7 @@ class ASTParser:
     def parse_expression(self, start: int, end: int) -> ASTNode:
         token = self.tokens[start]
 
-        # Parser unary tokens (has one operand)
+        # Parse unary tokens (has one operand)
         if token.type == TokenType.NEGATION:
             if start == end:
                 raise SyntaxError("Negation operator requires an operand")

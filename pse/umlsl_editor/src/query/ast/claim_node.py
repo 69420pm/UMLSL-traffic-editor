@@ -8,7 +8,7 @@ def is_claimed_segment(view: View, segment: Segment, car: Car) -> bool:
     segment_views: list[SegmentView] = VisibleSegment().compute_visible_segments(view, car)
 
     for segment_view in segment_views:
-        if segment is segment_view.segment and segment_view.space_interval.subset_of(view.space_interval):
+        if segment == segment_view.segment and segment_view.space_interval.subset_of(view.space_interval):
             return True
 
     return False
@@ -17,7 +17,7 @@ def is_claimed_segment(view: View, segment: Segment, car: Car) -> bool:
 def is_claimed_crossing(traffic_snapshot: TrafficSnapshot, segments: list[Segment], car: Car) -> bool:
     car_context = traffic_snapshot.get_car_context(car)
     claimed_crossings = car_context.claimed_crossings
-    return all(map(lambda segment: segment is CrossingSegment and segment in claimed_crossings, segments))
+    return all(map(lambda segment: segment.is_crossing_segment() and segment in claimed_crossings, segments))
 
 
 def evaluate_claim(traffic_snapshot: TrafficSnapshot, view: View, segments: list[Segment], car: Car):
