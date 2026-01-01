@@ -1,6 +1,6 @@
 from pse.umlsl_editor.src.core.dataclasses.car import Car
 from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
-from pse.umlsl_editor.src.query.ast.ast import View, ASTNode, UnaryNode, BinaryNode, NullaryNode
+from pse.umlsl_editor.src.query.ast.ast import View, UnaryNode, BinaryNode, NullaryNode
 
 
 class TrueNode(NullaryNode):
@@ -9,9 +9,6 @@ class TrueNode(NullaryNode):
 
 
 class NegationNode(UnaryNode):
-    def __init__(self, child: ASTNode):
-        super().__init__(child)
-
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
         return not self.child.evaluate(traffic_snapshot, view, variable_car_map)
 
