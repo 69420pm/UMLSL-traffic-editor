@@ -1,9 +1,9 @@
 import json
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 from pse.umlsl_editor.src.core.dataclasses.car import Car
 from pse.umlsl_editor.src.core.dataclasses.road import Road
-from pse.umlsl_editor.src.core.observable_dict import ObservableDict
+from pse.umlsl_editor.src.core.traffic_snapshot_event_manager import TrafficSnapshotEventManager
 from pse.umlsl_editor.src.core.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.core.traffic_snapshot_writer import TrafficSnapshotWriter
 
@@ -54,11 +54,12 @@ class TrafficSnapshot(TrafficSnapshotReader, TrafficSnapshotWriter):
 
     def __init__(
         self,
-        roads: ObservableDict[str, Road] | None = None,
-        cars: ObservableDict[str, Car] | None = None,
+        roads: dict[str, Road] | None = None,
+        cars: dict[str, Car] | None = None,
     ):
-        self._roads = ObservableDict[str, Road] if roads is not None else {}
-        self._cars = ObservableDict[str, Car] if cars is not None else {}
+        self.event_manager = TrafficSnapshotEventManager()
+        self._roads = dict[str, Road] if roads is not None else {}
+        self._cars = dict[str, Car] if cars is not None else {}
 
     def to_dict(self) -> dict[str, Any]:
         """

@@ -1,22 +1,79 @@
 """The central application controller for the Model-View-Controller architecture"""
-from typing import Optional
+from typing import Any, Optional
 
 from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.core.dataclasses.road import Road, LaneDirection
 from pse.umlsl_editor.src.core.dataclasses.turn_intent import TurnIntent
-from pse.umlsl_editor.src.core.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.core.traffic_snapshot_writer import TrafficSnapshotWriter
+from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
+from pse.umlsl_editor.src.core.traffic_snapshot_event_manager import TrafficSnapshotEventType
+from pse.umlsl_editor.src.view.main_window import MainWindow
 
 
 class ApplicationController:
-    def __init__(self, traffic_snapshot_reader:TrafficSnapshotReader, traffic_snapshot_writer:TrafficSnapshotWriter):
-        self.traffic_snapshot_reader = traffic_snapshot_reader
-        self.traffic_snapshot_writer = traffic_snapshot_writer
+    def __init__(self, traffic_snapshot: TrafficSnapshot, main_window: MainWindow):
+        self.traffic_snapshot = traffic_snapshot
+        self.main_window = main_window
+        self._setup_event_listeners()
 
-    def _execute_command(self, command:Command):
+    def _setup_event_listeners(self) -> None:
+        """
+        Subscribes to TrafficSnapshot events to update the View.
+        """
+        event_manager = self.traffic_snapshot.event_manager
+
+        event_manager.subscribe(TrafficSnapshotEventType.CAR_ADDED, self._on_car_added)
+        event_manager.subscribe(TrafficSnapshotEventType.CAR_REMOVED, self._on_car_removed)
+        event_manager.subscribe(TrafficSnapshotEventType.CAR_UPDATED, self._on_car_updated)
+
+        event_manager.subscribe(TrafficSnapshotEventType.ROAD_ADDED, self._on_road_added)
+        event_manager.subscribe(TrafficSnapshotEventType.ROAD_REMOVED, self._on_road_removed)
+        event_manager.subscribe(TrafficSnapshotEventType.ROAD_UPDATED, self._on_road_updated)
+
+    def _on_car_added(self, car_data: Any) -> None:
+        """
+        Callback for when a car is added to the model.
+        Delegates to the scene to create a visual representation.
+        """
+        self.main_window.get_scene().add_car_item(car_data)
+
+    def _on_car_removed(self, car_data: Any) -> None:
+        """
+        Callback for when a car is removed from the model.
+        Delegates to the scene to remove the visual representation.
+        """
+        self.main_window.get_scene().remove_car_item(car_data)
+
+    def _on_car_updated(self, car_data: Any) -> None:
+        """
+        Callback for when a car is updated in the model.
+        Delegates to the scene to update the visual representation.
+        """
+        self.main_window.get_scene().update_car_item(car_data)
+
+    def _on_road_added(self, road_data: Any) -> None:
+        """
+        Callback for when a road is added to the model.
+        Delegates to the scene to create a visual representation.
+        """
+        self.main_window.get_scene().add_road_item(road_data)
+
+    def _on_road_removed(self, road_data: Any) -> None:
+        """
+        Callback for when a road is removed from the model.
+        Delegates to the scene to remove the visual representation.
+        """
+        self.main_window.get_scene().remove_road_item(road_data)
+
+    def _on_road_updated(self, road_data: Any) -> None:
+        """
+        Callback for when a road is updated in the model.
+        Delegates to the scene to update the visual representation.
+        """
+        self.main_window.get_scene().update_road_item(road_data)
+
+    def _execute_command(self, command: Command):
         """Executes the given command after validating it."""
         raise NotImplementedError()
-
 
     def add_car(
         self,
@@ -51,5 +108,3 @@ class ApplicationController:
         # create CarParams
         # create the AddCarCommand, validate it, execute it and return the result
         raise NotImplementedError("Method not implemented yet.")
-
-
