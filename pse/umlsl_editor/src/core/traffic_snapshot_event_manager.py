@@ -23,6 +23,8 @@ class TrafficSnapshotEventType(Enum):
     ROAD_DESELECTED = "road_deselected"
     ROAD_UPDATED = "road_updated"
 
+    UPDATE_UMLSL_QUERY = "update_umlsl_query"
+
     NEW_TRAFFIC_SNAPSHOT_LOADED = "new_traffic_snapshot_loaded"
     """A new TrafficSnapshot has been loaded into the application and the entire state may have changed."""
 
@@ -42,10 +44,13 @@ class TrafficSnapshotEventManager:
         event_type: Literal[
             TrafficSnapshotEventType.CAR_ADDED,
             TrafficSnapshotEventType.CAR_REMOVED,
+            TrafficSnapshotEventType.CAR_SELECTED,
+            TrafficSnapshotEventType.CAR_DESELECTED,
             TrafficSnapshotEventType.CAR_UPDATED,
         ],
         callback: Callable[["Car"], None],
-    ) -> None: ...
+    ) -> None:
+        raise NotImplementedError
 
     @overload
     def subscribe(
@@ -53,10 +58,13 @@ class TrafficSnapshotEventManager:
         event_type: Literal[
             TrafficSnapshotEventType.ROAD_ADDED,
             TrafficSnapshotEventType.ROAD_REMOVED,
+            TrafficSnapshotEventType.ROAD_SELECTED,
+            TrafficSnapshotEventType.ROAD_DESELECTED,
             TrafficSnapshotEventType.ROAD_UPDATED,
         ],
         callback: Callable[["Road"], None],
-    ) -> None: ...
+    ) -> None:
+        raise NotImplementedError
 
     def subscribe(self, event_type: TrafficSnapshotEventType, callback: Callable[[Any], None]) -> None:
         """
@@ -68,9 +76,7 @@ class TrafficSnapshotEventManager:
                       - For CAR_* events, the data is the 'Car' object.
                       - For ROAD_* events, the data is the 'Road' object.
         """
-        if event_type not in self.subscribers:
-            self.subscribers[event_type] = []
-        self.subscribers[event_type].append(callback)
+        raise NotImplementedError
 
     @overload
     def unsubscribe(
@@ -78,10 +84,12 @@ class TrafficSnapshotEventManager:
         event_type: Literal[
             TrafficSnapshotEventType.CAR_ADDED,
             TrafficSnapshotEventType.CAR_REMOVED,
+
             TrafficSnapshotEventType.CAR_UPDATED,
         ],
         callback: Callable[["Car"], None],
-    ) -> None: ...
+    ) -> None:
+        raise NotImplementedError
 
     @overload
     def unsubscribe(
@@ -92,14 +100,14 @@ class TrafficSnapshotEventManager:
             TrafficSnapshotEventType.ROAD_UPDATED,
         ],
         callback: Callable[["Road"], None],
-    ) -> None: ...
+    ) -> None:
+        raise NotImplementedError
 
     def unsubscribe(self, event_type: TrafficSnapshotEventType, callback: Callable[[Any], None]) -> None:
         """
         Removes a previously registered callback for a specific event type.
         """
-        if event_type in self.subscribers and callback in self.subscribers[event_type]:
-            self.subscribers[event_type].remove(callback)
+        raise NotImplementedError
 
     @overload
     def notify(
@@ -110,7 +118,8 @@ class TrafficSnapshotEventManager:
             TrafficSnapshotEventType.CAR_UPDATED,
         ],
         data: "Car",
-    ) -> None: ...
+    ) -> None:
+        raise NotImplementedError
 
     @overload
     def notify(
@@ -121,7 +130,8 @@ class TrafficSnapshotEventManager:
             TrafficSnapshotEventType.ROAD_UPDATED,
         ],
         data: "Road",
-    ) -> None: ...
+    ) -> None:
+        raise NotImplementedError
 
     def notify(self, event_type: TrafficSnapshotEventType, data: Any) -> None:
         """
@@ -133,6 +143,4 @@ class TrafficSnapshotEventManager:
                   This allows the View to know exactly which object was added/removed/updated
                   without searching the entire snapshot.
         """
-        if event_type in self.subscribers:
-            for callback in self.subscribers[event_type]:
-                callback(data)
+        raise NotImplementedError

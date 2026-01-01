@@ -1,22 +1,26 @@
+from pse.umlsl_editor.src.core.dataclasses.car import Car
+from pse.umlsl_editor.src.core.dataclasses.road import Road
+
+
 class SelectionModel:
     """A model to manage selection of cars and roads in a traffic simulation."""
     def __init__(self):
-        self._selected_cars: set[str] = set()
-        self._selected_roads: set[str] = set()
+        self._selected_cars: set[Car] = set()
+        self._selected_roads: set[Road] = set()
 
-    def select_car(self, car_id: str) -> None:
+    def select_car(self, car: Car) -> None:
         """Selects a single car by its ID and deselects every other car and all roads."""
         raise NotImplementedError
 
-    def deselect_car(self, car_id: str) -> None:
+    def deselect_car(self, car: Car) -> None:
         """Deselects a single car by its ID."""
         raise NotImplementedError
 
-    def select_road(self, road_id: str) -> None:
+    def select_road(self, road: Road) -> None:
         """Selects a single road by its ID and deselects every other road and all cars."""
         raise NotImplementedError
 
-    def deselect_road(self, road_id: str) -> None:
+    def deselect_road(self, road: Road) -> None:
         """Deselects a single road by its ID."""
         raise NotImplementedError
 
