@@ -1,5 +1,6 @@
-from pse.umlsl_editor.src.query.ast import ASTNode, ConjunctionNode, TrueNode, DisjunctionNode, NegationNode
-from pse.umlsl_editor.src.query.token import Token, TokenType
+from pse.umlsl_editor.src.query.ast.ast import ASTNode
+from pse.umlsl_editor.src.query.ast.logic_node import ConjunctionNode, DisjunctionNode, NegationNode, TrueNode
+from pse.umlsl_editor.src.query.lexer import Token, TokenType
 
 
 def parse_binary(left: ASTNode, token: Token, right: ASTNode) -> ASTNode:

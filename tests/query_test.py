@@ -1,7 +1,7 @@
 import unittest
 
-from pse.umlsl_editor.src.query.ast_parser import ASTParser
-from pse.umlsl_editor.src.query.token import Lexer
+from pse.umlsl_editor.src.query.ast.ast_parser import ASTParser
+from pse.umlsl_editor.src.query.lexer import Lexer
 
 
 class TestQuery(unittest.TestCase):
