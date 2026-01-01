@@ -15,7 +15,7 @@ class ExistsNode(UnaryNode):
 
         for car in traffic_snapshot.get_cars():
             new_variable_map = variable_car_map.copy()
-            new_variable_map[car.name] = car
+            new_variable_map[self.variable] = car
 
             if self.child.evaluate(traffic_snapshot, view, new_variable_map):
                 return True
@@ -35,7 +35,7 @@ class ForAllNode(UnaryNode):
 
         for car in traffic_snapshot.get_cars():
             new_variable_map = variable_car_map.copy()
-            new_variable_map[car.name] = car
+            new_variable_map[self.variable] = car
 
             if not self.child.evaluate(traffic_snapshot, view, new_variable_map):
                 return False
