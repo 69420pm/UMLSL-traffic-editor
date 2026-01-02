@@ -5,13 +5,13 @@ from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.core.dataclasses.road import Road, LaneDirection
 from pse.umlsl_editor.src.core.dataclasses.turn_intent import TurnIntent
 from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
-from pse.umlsl_editor.src.view.main_window import MainWindow
+from pse.umlsl_editor.src.view.traffic_view import TrafficView
 
 
 class ApplicationController:
-    def __init__(self, traffic_snapshot: TrafficSnapshot, main_window: MainWindow):
+    def __init__(self, traffic_snapshot: TrafficSnapshot, view: TrafficView):
         self.traffic_snapshot = traffic_snapshot
-        self.main_window = main_window
+        self.view = view
         self._setup_event_listeners()
 
     def _setup_event_listeners(self) -> None:
@@ -30,44 +30,44 @@ class ApplicationController:
     def _on_car_added(self, car_data: Any) -> None:
         """
         Callback for when a car is added to the model.
-        Delegates to the scene to create a visual representation.
+        Delegates to the view to create a visual representation.
         """
-        self.main_window.get_scene().add_car_item(car_data)
+        self.view.add_car_view(car_data)
 
     def _on_car_removed(self, car_data: Any) -> None:
         """
         Callback for when a car is removed from the model.
-        Delegates to the scene to remove the visual representation.
+        Delegates to the view to remove the visual representation.
         """
-        self.main_window.get_scene().remove_car_item(car_data)
+        self.view.remove_car_view(car_data)
 
     def _on_car_updated(self, car_data: Any) -> None:
         """
         Callback for when a car is updated in the model.
-        Delegates to the scene to update the visual representation.
+        Delegates to the view to update the visual representation.
         """
-        self.main_window.get_scene().update_car_item(car_data)
+        self.view.update_car_view(car_data)
 
     def _on_road_added(self, road_data: Any) -> None:
         """
         Callback for when a road is added to the model.
-        Delegates to the scene to create a visual representation.
+        Delegates to the view to create a visual representation.
         """
-        self.main_window.get_scene().add_road_item(road_data)
+        self.view.add_road_view(road_data)
 
     def _on_road_removed(self, road_data: Any) -> None:
         """
         Callback for when a road is removed from the model.
-        Delegates to the scene to remove the visual representation.
+        Delegates to the view to remove the visual representation.
         """
-        self.main_window.get_scene().remove_road_item(road_data)
+        self.view.remove_road_view(road_data)
 
     def _on_road_updated(self, road_data: Any) -> None:
         """
         Callback for when a road is updated in the model.
-        Delegates to the scene to update the visual representation.
+        Delegates to the view to update the visual representation.
         """
-        self.main_window.get_scene().update_road_item(road_data)
+        self.view.update_road_view(road_data)
 
     def _execute_command(self, command: Command):
         """Executes the given command after validating it."""
