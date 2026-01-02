@@ -1,11 +1,11 @@
-from abc import ABC, abstractmethod
 from typing import Any, Optional
+
+from PySide6.QtCore import QObject, Signal
 
 from pse.umlsl_editor.src.core.dataclasses.car import Car
 from pse.umlsl_editor.src.core.dataclasses.road import Road
-from pse.umlsl_editor.src.core.traffic_snapshot_event_manager import TrafficSnapshotEventManager, \
-    TrafficSnapshotEventType
-from pse.umlsl_editor.src.core.traffic_snapshot_observables import ObservableDict
+from pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment import CrossingSegment
+from pse.umlsl_editor.src.core.traffic_snapshot_observables import ObservableDict, ObservableList
 from pse.umlsl_editor.src.core.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.core.traffic_snapshot_writer import TrafficSnapshotWriter
 
@@ -13,49 +13,26 @@ from pse.umlsl_editor.src.core.traffic_snapshot_writer import TrafficSnapshotWri
 class TrafficSnapshotValidationError(ValueError):
     pass
 
-
-# class Segment(ABC):
-#     @abstractmethod
-#     def is_crossing_segment(self) -> bool:
-#         pass
-#
-#
-# class LaneSegment(Segment):
-#     def is_crossing_segment(self) -> bool:
-#         return False
-#
-#
-# class CrossingSegment(Segment):
-#     def is_crossing_segment(self) -> bool:
-#         return True
-#
-
-
-
-#
-# class CarSnapshotContext:
-#     def __init__(self, car: Car):
-#         self.car = car
-#         self.reserved_lanes: list[LaneSegment] = []
-#         self.claimed_lanes: list[LaneSegment] = []
-#         self.reserved_crossings: list[CrossingSegment] = []
-#         self.claimed_crossings: list[CrossingSegment] = []
-#         # todo: path pursued by car
-#         self.path: Path = Path([])
-#         # todo: curr : I → Z such that curr(C ) is (the index - we save the object) of the path element of pth(C) currently occupied by the rear of C
-#         # type of that is an edge
-#         self.position = car.absolute_position()
-#         self.speed = car.velocity
-#         self.accel = 0
-#
-
-class TrafficSnapshot(TrafficSnapshotReader, TrafficSnapshotWriter):
+class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
     """
     Represents the complete state of a traffic simulation.
 
     Serves as the single source of truth for all roads and cars. Implements both
     TrafficSnapshotReader and TrafficSnapshotWriter interfaces for read/write access.
     """
+
+    # Define Signals for Model Changes
+    car_added = Signal(Car)
+    car_removed = Signal(Car)
+    car_updated = Signal(Car)
+
+    road_added = Signal(Road)
+    road_removed = Signal(Road)
+    road_updated = Signal(Road)
+
+    crossing_segment_added = Signal(CrossingSegment)
+    crossing_segment_removed = Signal(CrossingSegment)
+    crossing_segment_updated = Signal(CrossingSegment)
 
     def validate_lane(self, road: Road, lane_index: int, lane_direction: str) -> bool:
         raise NotImplementedError
@@ -95,18 +72,27 @@ class TrafficSnapshot(TrafficSnapshotReader, TrafficSnapshotWriter):
             self,
             roads: Optional[ObservableDict[str, Road]] = None,
             cars: Optional[ObservableDict[str, Car]] = None,
+            crossing_segments: Optional[ObservableList[CrossingSegment]] = None,
     ):
-        self.event_manager = TrafficSnapshotEventManager()
-        self._roads = ObservableDict[str,Road](self.event_manager,
-                                               TrafficSnapshotEventType.ROAD_ADDED,
-                                               TrafficSnapshotEventType.ROAD_REMOVED,
-                                               TrafficSnapshotEventType.ROAD_UPDATED) if roads is not None else {}
-        """ A dictionary mapping unique road names to Road objects. On every change the observable automatically notifies its subscribers. """
-        self._cars = ObservableDict[str, Car](self.event_manager,
-                                               TrafficSnapshotEventType.CAR_ADDED,
-                                               TrafficSnapshotEventType.CAR_REMOVED,
-                                               TrafficSnapshotEventType.CAR_UPDATED) if cars is not None else {}
-        """ A dictionary mapping unique car names to Car objects. On every change the observable automatically notifies its subscribers. """
+        super().__init__()
+
+        self._roads = ObservableDict[str,Road](
+            on_add=self.road_added.emit,
+            on_remove=self.road_removed.emit,
+            on_update=self.road_updated.emit
+        ) if roads is not None else {}
+
+        self._cars = ObservableDict[str, Car](
+            on_add=self.car_added.emit,
+            on_remove=self.car_removed.emit,
+            on_update=self.car_updated.emit
+        ) if cars is not None else {}
+
+        self._crossing_segments = ObservableList[CrossingSegment](
+            on_add=self.crossing_segment_added.emit,
+            on_remove=self.crossing_segment_removed.emit,
+            on_update=self.crossing_segment_updated.emit
+        ) if cars is not None else {}
 
     def to_dict(self) -> dict[str, Any]:
         """

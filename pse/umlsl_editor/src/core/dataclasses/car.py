@@ -96,9 +96,10 @@ class Car(Entity):
     claimed_lanes: list[LaneSegment]
 
     reserved_crossings: list[CrossingSegment]
-
+    # todo: curr : I → Z such that curr(C ) is (the index - we save the object) of the path element of pth(C) currently occupied by the rear of C
     claimed_crossings: list[CrossingSegment]
 
+    # todo: path pursued by car
     path: Path
 
     acceleration: float

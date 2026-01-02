@@ -1,7 +1,4 @@
-from typing import TypeVar, MutableMapping, Iterator, MutableSequence
-
-from pse.umlsl_editor.src.core.traffic_snapshot_event_manager import TrafficSnapshotEventType, \
-    TrafficSnapshotEventManager
+from typing import TypeVar, MutableMapping, Iterator, MutableSequence, Callable, Optional
 
 Key = TypeVar("Key")
 Value = TypeVar("Value")
@@ -10,14 +7,14 @@ T = TypeVar("T")
 
 class ObservableDict(MutableMapping[Key, Value]):
     """
-    A dictionary that notifies an event manager on additions, removals, and updates.
+    A dictionary that notifies via callbacks on additions, removals, and updates.
+    Can be used with PySide signals by passing signal.emit as the callback.
     """
     def __init__(
             self,
-            event_manager: TrafficSnapshotEventManager,
-            add_event: TrafficSnapshotEventType,
-            remove_event: TrafficSnapshotEventType,
-            update_event: TrafficSnapshotEventType,
+            on_add: Optional[Callable[[Value], None]] = None,
+            on_remove: Optional[Callable[[Value], None]] = None,
+            on_update: Optional[Callable[[Value], None]] = None,
             initial_data: dict[Key, Value] | None = None,
     ):
         raise NotImplementedError
@@ -40,14 +37,13 @@ class ObservableDict(MutableMapping[Key, Value]):
 
 class ObservableList(MutableSequence[T]):
     """
-    A list that notifies an event manager on additions, removals, and updates.
+    A list that notifies via callbacks on additions, removals, and updates.
     """
     def __init__(
             self,
-            event_manager: TrafficSnapshotEventManager,
-            add_event: TrafficSnapshotEventType,
-            remove_event: TrafficSnapshotEventType,
-            update_event: TrafficSnapshotEventType,
+            on_add: Optional[Callable[[T], None]] = None,
+            on_remove: Optional[Callable[[T], None]] = None,
+            on_update: Optional[Callable[[T], None]] = None,
             initial_data: list[T] | None = None,
     ):
         raise NotImplementedError

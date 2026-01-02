@@ -5,7 +5,6 @@ from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.core.dataclasses.road import Road, LaneDirection
 from pse.umlsl_editor.src.core.dataclasses.turn_intent import TurnIntent
 from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
-from pse.umlsl_editor.src.core.traffic_snapshot_event_manager import TrafficSnapshotEventType
 from pse.umlsl_editor.src.view.main_window import MainWindow
 
 
@@ -17,17 +16,16 @@ class ApplicationController:
 
     def _setup_event_listeners(self) -> None:
         """
-        Subscribes to TrafficSnapshot events to update the View.
+        Connects TrafficSnapshot signals to View slots.
         """
-        event_manager = self.traffic_snapshot.event_manager
+        # Connect Model signals to Controller handlers (or directly to View slots)
+        self.traffic_snapshot.car_added.connect(self._on_car_added)
+        self.traffic_snapshot.car_removed.connect(self._on_car_removed)
+        self.traffic_snapshot.car_updated.connect(self._on_car_updated)
 
-        event_manager.subscribe(TrafficSnapshotEventType.CAR_ADDED, self._on_car_added)
-        event_manager.subscribe(TrafficSnapshotEventType.CAR_REMOVED, self._on_car_removed)
-        event_manager.subscribe(TrafficSnapshotEventType.CAR_UPDATED, self._on_car_updated)
-
-        event_manager.subscribe(TrafficSnapshotEventType.ROAD_ADDED, self._on_road_added)
-        event_manager.subscribe(TrafficSnapshotEventType.ROAD_REMOVED, self._on_road_removed)
-        event_manager.subscribe(TrafficSnapshotEventType.ROAD_UPDATED, self._on_road_updated)
+        self.traffic_snapshot.road_added.connect(self._on_road_added)
+        self.traffic_snapshot.road_removed.connect(self._on_road_removed)
+        self.traffic_snapshot.road_updated.connect(self._on_road_updated)
 
     def _on_car_added(self, car_data: Any) -> None:
         """
