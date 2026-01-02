@@ -1,6 +1,6 @@
-from collections.abc import Callable
+from collections.abc import Callable, Iterator, MutableMapping, MutableSequence
 from enum import Enum
-from typing import Any, Literal, overload, TYPE_CHECKING
+from typing import Any, Generic, Literal, TypeVar, overload, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.core.dataclasses.car import Car
@@ -144,3 +144,63 @@ class TrafficSnapshotEventManager:
                   without searching the entire snapshot.
         """
         raise NotImplementedError
+
+
+K = TypeVar("K")
+V = TypeVar("V")
+T = TypeVar("T")
+
+
+class ObservableDict(MutableMapping[K, V]):
+    def __init__(
+        self,
+        event_manager: "TrafficSnapshotEventManager",
+        add_event: TrafficSnapshotEventType,
+        remove_event: TrafficSnapshotEventType,
+        update_event: TrafficSnapshotEventType,
+        initial_data: dict[K, V] | None = None,
+    ):
+        raise NotImplementedError
+
+    def __setitem__(self, key: K, value: V) -> None:
+        raise NotImplementedError
+
+    def __delitem__(self, key: K) -> None:
+        raise NotImplementedError
+
+    def __getitem__(self, key: K) -> V:
+        raise NotImplementedError
+
+    def __iter__(self) -> Iterator[K]:
+        raise NotImplementedError
+
+    def __len__(self) -> int:
+        raise NotImplementedError
+
+
+class ObservableList(MutableSequence[T]):
+    def __init__(
+        self,
+        event_manager: "TrafficSnapshotEventManager",
+        add_event: TrafficSnapshotEventType,
+        remove_event: TrafficSnapshotEventType,
+        update_event: TrafficSnapshotEventType,
+        initial_data: list[T] | None = None,
+    ):
+        raise NotImplementedError
+
+    def insert(self, index: int, value: T) -> None:
+        raise NotImplementedError
+
+    def __getitem__(self, index: int) -> T:
+        raise NotImplementedError
+
+    def __setitem__(self, index: int, value: T) -> None:
+        raise NotImplementedError
+
+    def __delitem__(self, index: int) -> None:
+        raise NotImplementedError
+
+    def __len__(self) -> int:
+        raise NotImplementedError
+

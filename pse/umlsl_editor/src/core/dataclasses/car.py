@@ -164,6 +164,9 @@ class Car(Entity):
         """
         raise NotImplementedError()
 
+    def absolute_position(self)-> float:
+        return self.assigned_road.position + self.position_on_lane
+
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Car":
         """

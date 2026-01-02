@@ -1,31 +1,31 @@
-from typing import Optional
-
 from pse.umlsl_editor.src.core.dataclasses.car import Car
-from pse.umlsl_editor.src.query.token import Lexer
 from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
+from pse.umlsl_editor.src.query.ast.ast import View
+from pse.umlsl_editor.src.query.ast.ast_parser import ASTParser
+from pse.umlsl_editor.src.query.interval import Interval
+from pse.umlsl_editor.src.query.lexer import Lexer
+
+
+def parse_latex_string(latex_string: str):
+    tokens = Lexer(latex_string).tokenize()
+    return ASTParser(tokens).parse_ast()
 
 
 class UMLSLEvaluator:
     """Facade for the UI to interact with logic."""
 
-    def __init__(self):
-        self.lexer = Lexer()
-        self.evaluator = Evaluator()
+    def __init__(self, braking_accel: float):
+        self.braking_accel = braking_accel
 
-    def evaluate_query(self, latex_string: str, snapshot: TrafficSnapshot) -> bool:
-        raise NotImplementedError
+    def evaluate_query(self, latex_string: str, traffic_snapshot: TrafficSnapshot, car: Car) -> bool:
+        ast = parse_latex_string(latex_string)
 
-    def validate_syntax(self, latex_string: str) -> bool:
-        raise NotImplementedError
+        horizon = self.compute_horizon(car)
+        horizontal_extension = Interval(car.absolute_position() - horizon, car.absolute_position() + horizon)
+        lanes = []  # todo
 
+        view = View(lanes, horizontal_extension, car)
+        return ast.evaluate(traffic_snapshot, view)
 
-class EvaluationContext:
-    """Context passed down during evaluation."""
-
-    def __init__(self, snapshot: TrafficSnapshot, view_car: Optional[Car] = None):
-        self.snapshot = snapshot
-        self.view_car = view_car  # The 'perspective' car for spatial logic
-
-
-class Evaluator:
-    pass
+    def compute_horizon(self, car: Car) -> float:
+        return (car.velocity * car.velocity) / (2.0 * self.braking_accel)
