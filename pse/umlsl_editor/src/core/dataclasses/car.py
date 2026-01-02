@@ -4,7 +4,10 @@ from dataclasses import dataclass
 from typing import Any, ClassVar, Optional
 
 from pse.umlsl_editor.src.core.dataclasses.entity import Entity
-from pse.umlsl_editor.src.core.dataclasses.road import LaneDirection, Road
+from pse.umlsl_editor.src.core.dataclasses.road import LaneDirection, Road, Lane
+from pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment import CrossingSegment
+from pse.umlsl_editor.src.core.dataclasses.segments.lane_segment import LaneSegment
+from pse.umlsl_editor.src.core.dataclasses.segments.segment import Path
 from pse.umlsl_editor.src.core.dataclasses.turn_intent import TurnDirection, TurnIntent
 
 
@@ -24,9 +27,7 @@ class CarParams:
 
     Attributes:
         name: Unique human-readable identifier for the car.
-        assigned_road: Reference to the Road the car is currently traveling on.
-        lane_index: Index of the lane the car is currently in.
-        lane_direction: Direction of the lane the car is currently in.
+        lane: Lane the car is currently in, defined by road, lane index, and direction.
         color: Hex color code for rendering.
         position_on_lane: Distance along the lane in units
         transition: Lane change progress from -1.0 to 1.0 exclusive
@@ -35,9 +36,7 @@ class CarParams:
         next_turn: Optional intended turn behavior at the next intersection
     """
     name: str
-    assigned_road: Road
-    lane_index: int
-    lane_direction: LaneDirection
+    lane: Lane
     color: str
     position_on_lane: float
     transition: float
@@ -57,9 +56,7 @@ class Car(Entity):
 
     Attributes:
         name: Unique human-readable identifier for the car. Must be a non-empty string.
-        assigned_road: Reference to the Road the car is currently traveling on.
-        lane_index: Index of the lane the car is currently in.
-        lane_direction: Direction of the lane the car is currently in.
+        lane: Lane the car is currently in, defined by road, lane index, and direction.
         color: Hex color code for rendering the car.
         position_on_lane: Distance along the lane in units. Must be non-negative.
         transition: Lane change progress from -1.0 (fully left) to 1.0 (fully right).
@@ -68,15 +65,19 @@ class Car(Entity):
         length: Physical length of the car in units. Must be positive.
         next_turn: Optional intended turn behavior at the next intersection.
 
+        reserved_lanes: List of LaneSegments reserved by the car for future movement.
+        claimed_lanes: List of LaneSegments currently claimed by the car.
+        reserved_crossings: List of CrossingSegments reserved by the car.
+        claimed_crossings: List of CrossingSegments currently claimed by the car.
+        path: Path is list of LaneSegments and CrossingSegments representing the planned route.
+        acceleration: Current acceleration of the car in units per time step squared.
+
     Raises:
         CarValidationError: If any validation check fails during instantiation.
     """
 
 
-    assigned_road: Road
-
-    lane_index: int
-    lane_direction: LaneDirection
+    lane: Lane
 
     color: str
 
@@ -89,6 +90,18 @@ class Car(Entity):
     length: float
 
     next_turn: Optional[TurnIntent]
+
+    reserved_lanes: list[LaneSegment]
+
+    claimed_lanes: list[LaneSegment]
+
+    reserved_crossings: list[CrossingSegment]
+
+    claimed_crossings: list[CrossingSegment]
+
+    path: Path
+
+    acceleration: float
 
     @classmethod
     def from_params(cls, params: CarParams) -> "Car":
@@ -103,15 +116,19 @@ class Car(Entity):
         """
         return cls(
             name=params.name,
-            assigned_road=params.assigned_road,
-            lane_index=params.lane_index,
-            lane_direction=params.lane_direction,
+            lane=params.lane,
             color=params.color,
             position_on_lane=params.position_on_lane,
             transition=params.transition,
             velocity=params.velocity,
             length=params.length,
             next_turn=params.next_turn,
+            reserved_lanes=[],
+            claimed_lanes=[],
+            reserved_crossings=[],
+            claimed_crossings=[],
+            path=Path(segments=[]),
+            acceleration=0.0,
         )
 
     def __post_init__(self) -> None:

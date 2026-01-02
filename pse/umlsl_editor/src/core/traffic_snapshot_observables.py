@@ -9,9 +9,12 @@ T = TypeVar("T")
 
 
 class ObservableDict(MutableMapping[Key, Value]):
+    """
+    A dictionary that notifies an event manager on additions, removals, and updates.
+    """
     def __init__(
             self,
-            event_manager: "TrafficSnapshotEventManager",
+            event_manager: TrafficSnapshotEventManager,
             add_event: TrafficSnapshotEventType,
             remove_event: TrafficSnapshotEventType,
             update_event: TrafficSnapshotEventType,
@@ -36,9 +39,12 @@ class ObservableDict(MutableMapping[Key, Value]):
 
 
 class ObservableList(MutableSequence[T]):
+    """
+    A list that notifies an event manager on additions, removals, and updates.
+    """
     def __init__(
             self,
-            event_manager: "TrafficSnapshotEventManager",
+            event_manager: TrafficSnapshotEventManager,
             add_event: TrafficSnapshotEventType,
             remove_event: TrafficSnapshotEventType,
             update_event: TrafficSnapshotEventType,
