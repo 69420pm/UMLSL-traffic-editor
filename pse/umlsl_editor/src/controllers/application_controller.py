@@ -7,8 +7,6 @@ from typing import Optional
 
 from pse.umlsl_editor.src.controllers.view_controller import ViewController
 from pse.umlsl_editor.src.controllers.command_controller import CommandController
-from pse.umlsl_editor.src.core.dataclasses.road import Road, LaneDirection
-from pse.umlsl_editor.src.core.dataclasses.turn_intent import TurnIntent
 from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
 from pse.umlsl_editor.src.view.traffic_view import TrafficView
 

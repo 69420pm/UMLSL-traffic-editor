@@ -22,57 +22,78 @@ class QueriesListWidget(QWidget):
 
     def _setup_ui(self):
         """Initialize the UI components."""
-        layout = QVBoxLayout(self)
-
-        self.list_widget = QListWidget()
-        self.list_widget.itemClicked.connect(self._on_item_clicked)
-
-        layout.addWidget(self.list_widget)
+        # layout = QVBoxLayout(self)
+        #
+        # self.list_widget = QListWidget()
+        # self.list_widget.itemClicked.connect(self._on_item_clicked)
+        #
+        # layout.addWidget(self.list_widget)
 
     def _on_item_clicked(self, item: QListWidgetItem):
         """Handle item click events."""
-        query_hash = item.data(0x0100)  # UserRole
-        if query_hash in self._queries:
-            query, _ = self._queries[query_hash]
-            self.query_selected.emit(query)
+        # query_hash = item.data(0x0100)  # UserRole
+        # if query_hash in self._queries:
+        #     query, _ = self._queries[query_hash]
+        #     self.query_selected.emit(query)
+        #     # Enable edit/delete buttons when an item is selected
+        #     self.edit_button.setEnabled(True)
+        #     self.delete_button.setEnabled(True)
+
+    def _on_add_clicked(self):
+        """Handle add button click."""
+        # self.create_query_requested.emit()
+
+    def _on_edit_clicked(self):
+        """Handle edit button click."""
+        # current_item = self.list_widget.currentItem()
+        # if current_item:
+        #     query_hash = current_item.data(0x0100)
+        #     self.edit_query_requested.emit(query_hash)
+
+    def _on_delete_clicked(self):
+        """Handle delete button click."""
+        # current_item = self.list_widget.currentItem()
+        # if current_item:
+        #     query_hash = current_item.data(0x0100)
+        #     self.delete_query_requested.emit(query_hash)
 
     def add_query(self, query: UMLSLQuery) -> None:
         """Add a query to the list."""
-        query_hash = hash((query.latex, query.assigned_car.name))
-        if query_hash in self._queries:
-            return
-
-        item = QListWidgetItem()
-        item.setText(self._format_query_text(query))
-        item.setData(0x0100, query_hash)  # Store query hash in UserRole
-
-        self.list_widget.addItem(item)
-        self._queries[query_hash] = (query, item)
+        # query_hash = hash((query.latex, query.assigned_car.name))
+        # if query_hash in self._queries:
+        #     return
+        #
+        # item = QListWidgetItem()
+        # item.setText(self._format_query_text(query))
+        # item.setData(0x0100, query_hash)  # Store query hash in UserRole
+        #
+        # self.list_widget.addItem(item)
+        # self._queries[query_hash] = (query, item)
 
     def remove_query(self, query: UMLSLQuery) -> None:
         """Remove a query from the list."""
-        query_hash = hash((query.latex, query.assigned_car.name))
-        if query_hash not in self._queries:
-            return
-
-        _, item = self._queries[query_hash]
-        row = self.list_widget.row(item)
-        self.list_widget.takeItem(row)
-        del self._queries[query_hash]
+        # query_hash = hash((query.latex, query.assigned_car.name))
+        # if query_hash not in self._queries:
+        #     return
+        #
+        # _, item = self._queries[query_hash]
+        # row = self.list_widget.row(item)
+        # self.list_widget.takeItem(row)
+        # del self._queries[query_hash]
 
     def update_query(self, query: UMLSLQuery) -> None:
         """Update a query's display in the list."""
-        query_hash = hash((query.latex, query.assigned_car.name))
-        if query_hash not in self._queries:
-            return
-
-        _, item = self._queries[query_hash]
-        item.setText(self._format_query_text(query))
-        self._queries[query_hash] = (query, item)
+        # query_hash = hash((query.latex, query.assigned_car.name))
+        # if query_hash not in self._queries:
+        #     return
+        #
+        # _, item = self._queries[query_hash]
+        # item.setText(self._format_query_text(query))
+        # self._queries[query_hash] = (query, item)
 
     def _format_query_text(self, query: UMLSLQuery) -> str:
         """Format query data for display."""
-        status = "✓" if query.validation else "✗"
-        latex_preview = query.latex[:40] + "..." if len(query.latex) > 40 else query.latex
-        return f"{status} {query.assigned_car.name}: {latex_preview}"
+        # status = "✓" if query.validation else "✗"
+        # latex_preview = query.latex[:40] + "..." if len(query.latex) > 40 else query.latex
+        # return f"{status} {query.assigned_car.name}: {latex_preview}"
 

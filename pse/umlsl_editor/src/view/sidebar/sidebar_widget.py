@@ -45,10 +45,25 @@ class SidebarWidget(QWidget):
 
         layout.addWidget(self.tab_widget)
 
-        # Connect internal signals
+        # Connect selection signals
         self.cars_list.car_selected.connect(self.car_selected.emit)
         self.roads_list.road_selected.connect(self.road_selected.emit)
         self.queries_list.query_selected.connect(self.query_selected.emit)
+
+        # Connect CRUD signals - Cars
+        self.cars_list.create_car_requested.connect(self.create_car_requested.emit)
+        self.cars_list.edit_car_requested.connect(self.edit_car_requested.emit)
+        self.cars_list.delete_car_requested.connect(self.delete_car_requested.emit)
+
+        # Connect CRUD signals - Roads
+        self.roads_list.create_road_requested.connect(self.create_road_requested.emit)
+        self.roads_list.edit_road_requested.connect(self.edit_road_requested.emit)
+        self.roads_list.delete_road_requested.connect(self.delete_road_requested.emit)
+
+        # Connect CRUD signals - Queries
+        self.queries_list.create_query_requested.connect(self.create_query_requested.emit)
+        self.queries_list.edit_query_requested.connect(self.edit_query_requested.emit)
+        self.queries_list.delete_query_requested.connect(self.delete_query_requested.emit)
 
     # Car management methods
     def add_car(self, car: Car) -> None:

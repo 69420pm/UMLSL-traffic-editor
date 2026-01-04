@@ -25,7 +25,6 @@ class ViewController:
     def _setup_event_listeners(self) -> None:
         """
         Connects TrafficSnapshot signals directly to TrafficView methods.
-        This eliminates intermediate handler methods for simple pass-through cases.
         """
         # Connect Car signals directly to view methods
         self.traffic_snapshot.car_added.connect(self.view.add_car_view)
