@@ -5,8 +5,8 @@ from pse.umlsl_editor.src.core.dataclasses.road import Road
 class SelectionModel:
     """A model to manage selection of cars and roads in a traffic simulation."""
     def __init__(self):
-        self._selected_cars: set[Car] = set()
-        self._selected_roads: set[Road] = set()
+        self._selected_car: Car | None = None
+        self._selected_road: Road | None = None
 
     def select_car(self, car: Car) -> None:
         """Selects a single car by its ID and deselects every other car and all roads."""
