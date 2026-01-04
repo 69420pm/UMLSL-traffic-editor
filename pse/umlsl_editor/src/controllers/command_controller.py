@@ -10,7 +10,7 @@ from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
 
 class CommandController:
     """
-    Manages command execution, validation, and undo/redo history.
+    Manages command execution, validation.
     Provides high-level API for modifying the traffic snapshot.
     """
 
@@ -22,12 +22,12 @@ class CommandController:
             traffic_snapshot: The model that will be modified by commands.
         """
         self.traffic_snapshot = traffic_snapshot
-        self._command_history = []  # TODO: Implement undo/redo stack
-        self._history_position = -1  # Current position in history
+        # self._command_history = []  # TODO: Implement undo/redo stack
+        # self._history_position = -1  # Current position in history
 
-    def execute_command(self, command: Command) -> any:
+    def execute_command(self, command: Command) -> None:
         """
-        Executes a command with validation and adds it to the undo/redo history.
+        Executes a command with validation and potentially later adds it to the undo/redo history.
 
         Args:
             command: The command to execute.
@@ -40,7 +40,7 @@ class CommandController:
         """
         raise NotImplementedError("Method not implemented yet.")
 
-    def execute_without_history(self, command: Command) -> any:
+    def execute_without_history(self, command: Command) -> None:
         """
         Executes a command without adding it to the undo/redo history.
         Useful for ephemeral operations like selection changes.
@@ -56,32 +56,32 @@ class CommandController:
         """
         raise NotImplementedError("Method not implemented yet.")
 
-    def undo(self) -> bool:
-        """
-        Undoes the last command in the history.
-
-        Returns:
-            True if undo was successful, False if there's nothing to undo.
-        """
-        raise NotImplementedError("Method not implemented yet.")
-
-    def redo(self) -> bool:
-        """
-        Redoes the next command in the history.
-
-        Returns:
-            True if redo was successful, False if there's nothing to redo.
-        """
-        raise NotImplementedError("Method not implemented yet.")
-
-    def can_undo(self) -> bool:
-        """Returns True if there are commands to undo."""
-        raise NotImplementedError("Method not implemented yet.")
-
-    def can_redo(self) -> bool:
-        """Returns True if there are commands to redo."""
-        raise NotImplementedError("Method not implemented yet.")
-
+    # def undo(self) -> bool:
+    #     """
+    #     Undoes the last command in the history.
+    #
+    #     Returns:
+    #         True if undo was successful, False if there's nothing to undo.
+    #     """
+    #     raise NotImplementedError("Method not implemented yet.")
+    #
+    # def redo(self) -> bool:
+    #     """
+    #     Redoes the next command in the history.
+    #
+    #     Returns:
+    #         True if redo was successful, False if there's nothing to redo.
+    #     """
+    #     raise NotImplementedError("Method not implemented yet.")
+    #
+    # def can_undo(self) -> bool:
+    #     """Returns True if there are commands to undo."""
+    #     raise NotImplementedError("Method not implemented yet.")
+    #
+    # def can_redo(self) -> bool:
+    #     """Returns True if there are commands to redo."""
+    #     raise NotImplementedError("Method not implemented yet.")
+    #
     # High-level command API methods
 
     def add_car(
@@ -268,3 +268,60 @@ class CommandController:
         """
         raise NotImplementedError("Method not implemented yet.")
 
+
+    def select_car(self, car_name: str) -> None:
+        """
+        Selects a car by its name.
+
+        Args:
+            car_name: The unique identifier of the car to select.
+        """
+        raise NotImplementedError("Method not implemented yet.")
+
+    def deselect_car(self, car_name: str) -> None:
+        """
+        Deselects a car by its name.
+
+        Args:
+            car_name: The unique identifier of the car to deselect.
+        """
+        raise NotImplementedError("Method not implemented yet.")
+
+    def select_road(self, road_name: str) -> None:
+        """
+        Selects a road by its name.
+
+        Args:
+            road_name: The unique identifier of the road to select.
+        """
+        raise NotImplementedError("Method not implemented yet.")
+
+    def deselect_road(self, road_name: str) -> None:
+        """
+        Deselects a road by its name.
+
+        Args:
+            road_name: The unique identifier of the road to deselect.
+        """
+        raise NotImplementedError("Method not implemented yet.")
+
+    def clear_selection(self) -> None:
+        """
+        Clears the selection of all cars and roads.
+        """
+        raise NotImplementedError("Method not implemented yet.")
+
+    # todo correct skeletons for load/save traffic snapshot
+    def load_traffic_snapshot(self) -> None:
+        """
+        """
+        raise NotImplementedError("Method not implemented yet.")
+
+    def save_traffic_snapshot(self) -> None:
+        """
+        """
+        raise NotImplementedError("Method not implemented yet.")
+    def save_as_traffic_snapshot(self) -> None:
+        """
+        """
+        raise NotImplementedError("Method not implemented yet.")

@@ -5,6 +5,7 @@ from PySide6.QtCore import QObject, Signal
 from pse.umlsl_editor.src.core.dataclasses.car import Car
 from pse.umlsl_editor.src.core.dataclasses.road import Road
 from pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment import CrossingSegment
+from pse.umlsl_editor.src.core.dataclasses.umlsl_query import UMLSLQuery
 from pse.umlsl_editor.src.core.traffic_snapshot_observables import ObservableDict, ObservableList
 from pse.umlsl_editor.src.core.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.core.traffic_snapshot_writer import TrafficSnapshotWriter
@@ -21,6 +22,22 @@ class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
     TrafficSnapshotReader and TrafficSnapshotWriter interfaces for read/write access.
     """
 
+    def update_road(self, road_data: Road) -> None:
+        raise NotImplementedError
+
+    def update_car(self, car_data: Car) -> None:
+        raise NotImplementedError
+
+    def add_umlsl_query(self, umlsl_query: UMLSLQuery) -> None:
+        raise NotImplementedError
+
+    def remove_umlsl_query(self, umlsl_query: UMLSLQuery) -> None:
+
+        raise NotImplementedError
+
+    def update_umlsl_query(self, umlsl_query_data: UMLSLQuery) -> None:
+        raise NotImplementedError
+
     # Define Signals for Model Changes
     car_added = Signal(Car)
     car_removed = Signal(Car)
@@ -33,6 +50,10 @@ class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
     crossing_segment_added = Signal(CrossingSegment)
     crossing_segment_removed = Signal(CrossingSegment)
     crossing_segment_updated = Signal(CrossingSegment)
+
+    umlsl_query_added = Signal(UMLSLQuery)
+    umlsl_query_removed = Signal(UMLSLQuery)
+    umlsl_query_updated = Signal(UMLSLQuery)
 
     def validate_lane(self, road: Road, lane_index: int, lane_direction: str) -> bool:
         raise NotImplementedError
@@ -59,13 +80,13 @@ class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
     def add_road(self, road: Road) -> None:
         raise NotImplementedError
 
-    def remove_road(self, road: Road) -> None:
+    def remove_road(self, road_name: str) -> None:
         raise NotImplementedError
 
     def add_car(self, car: Car) -> None:
         raise NotImplementedError
 
-    def remove_car(self, car: Car) -> None:
+    def remove_car(self, car_name: str) -> None:
         raise NotImplementedError
 
     def __init__(

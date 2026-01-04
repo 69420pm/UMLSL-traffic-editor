@@ -42,8 +42,8 @@ class ViewController:
         self.traffic_snapshot.crossing_segment_removed.connect(self.view.remove_crossing_segment_view)
         self.traffic_snapshot.crossing_segment_updated.connect(self.view.update_crossing_segment_view)
 
-        # TODO: Add UMLSL Query signals when they are implemented in TrafficSnapshot
-        # self.traffic_snapshot.umlsl_query_added.connect(self.view.add_query_view)
-        # self.traffic_snapshot.umlsl_query_removed.connect(self.view.remove_query_view)
-        # self.traffic_snapshot.umlsl_query_updated.connect(self.view.update_query_view)
+        # Connect UMLSL Query signals directly to view methods
+        self.traffic_snapshot.umlsl_query_added.connect(self.view.add_query_view)
+        self.traffic_snapshot.umlsl_query_removed.connect(self.view.remove_query_view)
+        self.traffic_snapshot.umlsl_query_updated.connect(self.view.update_query_view)
 

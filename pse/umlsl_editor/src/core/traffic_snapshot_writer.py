@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 from pse.umlsl_editor.src.core.dataclasses.car import Car
 from pse.umlsl_editor.src.core.dataclasses.road import Road
+from pse.umlsl_editor.src.core.dataclasses.umlsl_query import UMLSLQuery
 
 
 class TrafficSnapshotWriter(ABC):
@@ -18,9 +19,19 @@ class TrafficSnapshotWriter(ABC):
         pass
 
     @abstractmethod
-    def remove_road(self, road: Road) -> None:
+    def remove_road(self, road_name: str) -> None:
         """
         Removes a road from the snapshot. Also removes all cars on that road.
+        """
+        pass
+
+    @abstractmethod
+    def update_road(self, road_data: Road) -> None:
+        """
+        Updates an existing road in the snapshot and validates all attributes in the context of the snapshot.
+
+        Raises:
+            TrafficSnapshotValidationError: If the updated road is invalid in the context of the snapshot.
         """
         pass
 
@@ -34,8 +45,44 @@ class TrafficSnapshotWriter(ABC):
         pass
 
     @abstractmethod
-    def remove_car(self, car: Car) -> None:
+    def remove_car(self, car_name: str) -> None:
         """
         Removes a car from the snapshot.
+        """
+        pass
+
+    @abstractmethod
+    def update_car(self, car_data: Car) -> None:
+        """
+        Updates an existing car in the snapshot and validates all attributes in the context of the snapshot.
+
+        Raises:
+            TrafficSnapshotValidationError: If the updated car is invalid in the context of the snapshot.
+        """
+        pass
+
+    @abstractmethod
+    def add_umlsl_query(self, umlsl_query: UMLSLQuery) -> None:
+        """
+        Adds a UMLSL query to the snapshot and validates all attributes in the context of the snapshot.
+        Raises:
+            TrafficSnapshotValidationError: If the UMLSL query is invalid in the context of the snapshot.
+        """
+        pass
+
+    @abstractmethod
+    def remove_umlsl_query(self, umlsl_query: UMLSLQuery) -> None:
+        """
+        Removes a UMLSL query from the snapshot.
+        """
+        pass
+
+    @abstractmethod
+    def update_umlsl_query(self, umlsl_query_data: UMLSLQuery) -> None:
+        """
+        Updates an existing UMLSL query in the snapshot and validates all attributes in the context of the snapshot.
+
+        Raises:
+            TrafficSnapshotValidationError: If the updated UMLSL query is invalid in the context of the snapshot.
         """
         pass
