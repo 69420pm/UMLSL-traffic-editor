@@ -17,53 +17,30 @@ class SidebarWidget(QWidget):
     Main sidebar widget containing tabbed lists for queries, cars, and roads.
     """
 
-    # Signals for user interactions
-    car_selected = Signal(Car)
-    road_selected = Signal(Road)
-    query_selected = Signal(UMLSLQuery)
-
     def __init__(self, parent=None):
         super().__init__(parent)
         self._setup_ui()
 
     def _setup_ui(self):
         """Initialize the UI components."""
-        layout = QVBoxLayout(self)
+        # layout = QVBoxLayout(self)
 
-        # Create tab widget
-        self.tab_widget = QTabWidget()
-
-        # Create list widgets for each entity type
+        # # Create tab widget
+        # self.tab_widget = QTabWidget()
+        #
+        # # Create list widgets for each entity type
         self.queries_list = QueriesListWidget()
         self.cars_list = CarsListWidget()
         self.roads_list = RoadsListWidget()
+        #
+        # # Add tabs
+        # self.tab_widget.addTab(self.queries_list, "UMLSL Queries")
+        # self.tab_widget.addTab(self.cars_list, "Cars")
+        # self.tab_widget.addTab(self.roads_list, "Roads")
+        #
+        # layout.addWidget(self.tab_widget)
 
-        # Add tabs
-        self.tab_widget.addTab(self.queries_list, "UMLSL Queries")
-        self.tab_widget.addTab(self.cars_list, "Cars")
-        self.tab_widget.addTab(self.roads_list, "Roads")
 
-        layout.addWidget(self.tab_widget)
-
-        # Connect selection signals
-        self.cars_list.car_selected.connect(self.car_selected.emit)
-        self.roads_list.road_selected.connect(self.road_selected.emit)
-        self.queries_list.query_selected.connect(self.query_selected.emit)
-
-        # Connect CRUD signals - Cars
-        self.cars_list.create_car_requested.connect(self.create_car_requested.emit)
-        self.cars_list.edit_car_requested.connect(self.edit_car_requested.emit)
-        self.cars_list.delete_car_requested.connect(self.delete_car_requested.emit)
-
-        # Connect CRUD signals - Roads
-        self.roads_list.create_road_requested.connect(self.create_road_requested.emit)
-        self.roads_list.edit_road_requested.connect(self.edit_road_requested.emit)
-        self.roads_list.delete_road_requested.connect(self.delete_road_requested.emit)
-
-        # Connect CRUD signals - Queries
-        self.queries_list.create_query_requested.connect(self.create_query_requested.emit)
-        self.queries_list.edit_query_requested.connect(self.edit_query_requested.emit)
-        self.queries_list.delete_query_requested.connect(self.delete_query_requested.emit)
 
     # Car management methods
     def add_car(self, car: Car) -> None:

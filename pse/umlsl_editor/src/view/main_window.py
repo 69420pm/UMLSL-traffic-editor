@@ -16,6 +16,28 @@ class MainWindow(QMainWindow, TrafficView):
     """
     The main application window with sidebar and canvas.
     """
+
+    def add_umlsl_query_view(self, umlsl_query_data: UMLSLQuery) -> None:
+        raise NotImplementedError
+
+    def remove_umlsl_query_view(self, road_data: Any) -> None:
+        raise NotImplementedError
+
+    def update_umlsl_query_view(self, road_data: Any) -> None:
+        raise NotImplementedError
+
+    def select_car_view(self, car_data: Car) -> None:
+        raise NotImplementedError
+
+    def deselect_car_view(self, car_data: Car) -> None:
+        raise NotImplementedError
+
+    def select_road_view(self, road_data: Road) -> None:
+        raise NotImplementedError
+
+    def deselect_road_view(self, road_data: Road) -> None:
+        raise NotImplementedError
+
     def __init__(self):
         super().__init__()
         self._setup_ui()
