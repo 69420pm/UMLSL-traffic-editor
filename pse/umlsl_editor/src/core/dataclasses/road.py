@@ -42,7 +42,7 @@ class RoadValidationError(ValueError):
 class Lane:
     """Represents a lane on a road, this is an immutable data structure and should act like a tuple.
     It's not a full entity as it doesn't have an identity beyond its road, index and direction."""
-    road: Road
+    road: "Road"
     lane_index: int
     lane_direction: LaneDirection
 
