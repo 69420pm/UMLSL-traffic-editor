@@ -4,7 +4,7 @@ from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
 from pse.umlsl_editor.src.view.traffic_view import TrafficView
 
 
-class ViewController:
+class EventController:
     """
     Connects TrafficSnapshot model signals directly to TrafficView methods.
     Handles all model-to-view synchronization without intermediate logic.

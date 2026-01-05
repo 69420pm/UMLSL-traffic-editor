@@ -5,29 +5,30 @@ Provides a unified interface for the application's controller layer.
 
 from typing import Optional
 
-from pse.umlsl_editor.src.controllers.view_controller import ViewController
+from pse.umlsl_editor.src.controllers.data_controller import DataController
+from pse.umlsl_editor.src.controllers.event_controller import EventController
 from pse.umlsl_editor.src.controllers.command_controller import CommandController
 from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
 from pse.umlsl_editor.src.view.traffic_view import TrafficView
 
 
-class ApplicationController(ViewController, CommandController):
+class ApplicationController(EventController, CommandController, DataController):
     """
     Main application controller that delegates responsibilities to specialized controllers:
     - ViewController: Handles model-to-view synchronization
     - CommandController: Handles command execution and undo/redo
     """
 
-    def __init__(self, traffic_snapshot: TrafficSnapshot, view: TrafficView):
+    def __init__(self, traffic_snapshot_reader: TrafficSnapshot, view: TrafficView):
         """
         Initialize the application controller with its sub-controllers.
 
         Args:
-            traffic_snapshot: The model that holds traffic simulation data.
+            traffic_snapshot_reader: The model that holds traffic simulation data.
             view: The view that displays the traffic simulation.
         """
-        ViewController.__init__(self, traffic_snapshot, view)
-        CommandController.__init__(self, traffic_snapshot)
+        EventController.__init__(self, traffic_snapshot_reader, view)
+        CommandController.__init__(self, traffic_snapshot_reader)
 
 
 

@@ -42,7 +42,7 @@ class CarParams:
     transition: float
     velocity: float
     length: float
-    next_turn: Optional[TurnIntent]
+    next_turn: TurnIntent | None
 
 
 @dataclass
