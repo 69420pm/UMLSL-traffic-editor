@@ -4,4 +4,9 @@ isort==7.0.0
 mccabe==0.7.0
 platformdirs==4.5.1
 pylint==4.0.4
+PySide6==6.10.1
+PySide6_Addons==6.10.1
+PySide6_Essentials==6.10.1
+shiboken6==6.10.1
 tomlkit==0.13.3
+uuid==1.30

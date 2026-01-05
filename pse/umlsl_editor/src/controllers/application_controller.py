@@ -1,55 +1,34 @@
-"""The central application controller for the Model-View-Controller architecture"""
+"""
+Facade controller that combines ViewController and CommandController.
+Provides a unified interface for the application's controller layer.
+"""
+
 from typing import Optional
 
-from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.core.dataclasses.road import Road, LaneDirection
-from pse.umlsl_editor.src.core.dataclasses.turn_intent import TurnIntent
-from pse.umlsl_editor.src.core.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.core.traffic_snapshot_writer import TrafficSnapshotWriter
+from pse.umlsl_editor.src.controllers.data_controller import DataController
+from pse.umlsl_editor.src.controllers.event_controller import EventController
+from pse.umlsl_editor.src.controllers.command_controller import CommandController
+from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
+from pse.umlsl_editor.src.view.traffic_view import TrafficView
 
 
-class ApplicationController:
-    def __init__(self, traffic_snapshot_reader:TrafficSnapshotReader, traffic_snapshot_writer:TrafficSnapshotWriter):
-        self.traffic_snapshot_reader = traffic_snapshot_reader
-        self.traffic_snapshot_writer = traffic_snapshot_writer
+class ApplicationController(EventController, CommandController, DataController):
+    """
+    Main application controller that delegates responsibilities to specialized controllers:
+    - ViewController: Handles model-to-view synchronization
+    - CommandController: Handles command execution and undo/redo
+    """
 
-    def _execute_command(self, command:Command):
-        """Executes the given command after validating it."""
-        raise NotImplementedError()
-
-
-    def add_car(
-        self,
-        name: str,
-        assigned_road: Road,
-        lane_index: int,
-        lane_direction: LaneDirection,
-        color:  str,
-        position_on_lane: float,
-        transition: float,
-        velocity: float,
-        length: float,
-        next_turn: Optional[TurnIntent]) -> bool:
+    def __init__(self, traffic_snapshot_reader: TrafficSnapshot, view: TrafficView):
         """
-        Adds a car to the traffic snapshot based on the given parameters.
+        Initialize the application controller with its sub-controllers.
 
         Args:
-            name: Unique human-readable identifier for the car.
-            assigned_road: Reference to the Road the car is currently traveling on.
-            lane_index: Index of the lane the car is currently in.
-            lane_direction: Direction of the lane the car is currently in.
-            color: Hex color code
-            position_on_lane: Distance along lane
-            transition: Lane change progress
-            velocity: Current speed
-            length: Physical length
-            next_turn: Turn intent at intersection
-
-        Returns:
-            True if the car was successfully added, False otherwise.
+            traffic_snapshot_reader: The model that holds traffic simulation data.
+            view: The view that displays the traffic simulation.
         """
-        # create CarParams
-        # create the AddCarCommand, validate it, execute it and return the result
-        raise NotImplementedError("Method not implemented yet.")
+        EventController.__init__(self, traffic_snapshot_reader, view)
+        CommandController.__init__(self, traffic_snapshot_reader)
+
 
 

@@ -15,11 +15,3 @@ class Command(ABC, Generic[ReturnValue]):
         and executes successfully."""
         raise NotImplementedError()
 
-    @abstractmethod
-    def validate(self) -> None:
-        """Validates whether the command can be executed in the current context.
-
-        Raises:
-            CommandValidationError: If the command is not valid in the current context.
-        """
-        raise NotImplementedError()

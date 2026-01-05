@@ -1,8 +1,12 @@
-from abc import ABC, abstractmethod
 from typing import Any, Optional
+
+from PySide6.QtCore import QObject, Signal
 
 from pse.umlsl_editor.src.core.dataclasses.car import Car
 from pse.umlsl_editor.src.core.dataclasses.road import Road
+from pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment import CrossingSegment
+from pse.umlsl_editor.src.core.dataclasses.umlsl_query import UMLSLQuery
+from pse.umlsl_editor.src.core.traffic_snapshot_observables import ObservableDict, ObservableList
 from pse.umlsl_editor.src.core.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.core.traffic_snapshot_writer import TrafficSnapshotWriter
 
@@ -10,45 +14,7 @@ from pse.umlsl_editor.src.core.traffic_snapshot_writer import TrafficSnapshotWri
 class TrafficSnapshotValidationError(ValueError):
     pass
 
-
-class Segment(ABC):
-    @abstractmethod
-    def is_crossing_segment(self) -> bool:
-        pass
-
-
-class LaneSegment(Segment):
-    def is_crossing_segment(self) -> bool:
-        return False
-
-
-class CrossingSegment(Segment):
-    def is_crossing_segment(self) -> bool:
-        return True
-
-
-class Path:
-    def __init__(self, segments: list[Segment]):
-        self.segments = segments
-
-
-class CarSnapshotContext:
-    def __init__(self, car: Car):
-        self.car = car
-        self.reserved_lanes: list[LaneSegment] = []
-        self.claimed_lanes: list[LaneSegment] = []
-        self.reserved_crossings: list[CrossingSegment] = []
-        self.claimed_crossings: list[CrossingSegment] = []
-        # todo: path pursued by car
-        self.path: Path = Path([])
-        # todo: curr : I → Z such that curr(C ) is (the index - we save the object) of the path element of pth(C) currently occupied by the rear of C
-        # type of that is an edge
-        self.position = car.absolute_position()
-        self.speed = car.velocity
-        self.accel = 0
-
-
-class TrafficSnapshot(TrafficSnapshotReader, TrafficSnapshotWriter):
+class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
     """
     Represents the complete state of a traffic simulation.
 
@@ -56,8 +22,38 @@ class TrafficSnapshot(TrafficSnapshotReader, TrafficSnapshotWriter):
     TrafficSnapshotReader and TrafficSnapshotWriter interfaces for read/write access.
     """
 
-    def get_car_context(self, car: Car) -> CarSnapshotContext:
+    def update_road(self, road_data: Road) -> None:
         raise NotImplementedError
+
+    def update_car(self, car_data: Car) -> None:
+        raise NotImplementedError
+
+    def add_umlsl_query(self, umlsl_query: UMLSLQuery) -> None:
+        raise NotImplementedError
+
+    def remove_umlsl_query(self, umlsl_query: UMLSLQuery) -> None:
+
+        raise NotImplementedError()
+
+    def update_umlsl_query(self, umlsl_query_data: UMLSLQuery) -> None:
+        raise NotImplementedError
+
+    # Define Signals for Model Changes
+    car_added = Signal(Car)
+    car_removed = Signal(Car)
+    car_updated = Signal(Car)
+
+    road_added = Signal(Road)
+    road_removed = Signal(Road)
+    road_updated = Signal(Road)
+
+    crossing_segment_added = Signal(CrossingSegment)
+    crossing_segment_removed = Signal(CrossingSegment)
+    crossing_segment_updated = Signal(CrossingSegment)
+
+    umlsl_query_added = Signal(UMLSLQuery)
+    umlsl_query_removed = Signal(UMLSLQuery)
+    umlsl_query_updated = Signal(UMLSLQuery)
 
     def validate_lane(self, road: Road, lane_index: int, lane_direction: str) -> bool:
         raise NotImplementedError
@@ -84,22 +80,40 @@ class TrafficSnapshot(TrafficSnapshotReader, TrafficSnapshotWriter):
     def add_road(self, road: Road) -> None:
         raise NotImplementedError
 
-    def remove_road(self, road: Road) -> None:
+    def remove_road(self, road_name: str) -> None:
         raise NotImplementedError
 
     def add_car(self, car: Car) -> None:
         raise NotImplementedError
 
-    def remove_car(self, car: Car) -> None:
+    def remove_car(self, car_name: str) -> None:
         raise NotImplementedError
 
     def __init__(
             self,
-            roads: Optional[dict[str, Road]] = None,
-            cars: Optional[dict[str, Car]] = None,
+            roads: Optional[ObservableDict[str, Road]] = None,
+            cars: Optional[ObservableDict[str, Car]] = None,
+            crossing_segments: Optional[ObservableList[CrossingSegment]] = None,
     ):
-        self._roads = dict(roads) if roads is not None else {}
-        self._cars = dict(cars) if cars is not None else {}
+        super().__init__()
+
+        self._roads = ObservableDict[str,Road](
+            on_add=self.road_added.emit,
+            on_remove=self.road_removed.emit,
+            on_update=self.road_updated.emit
+        ) if roads is not None else {}
+
+        self._cars = ObservableDict[str, Car](
+            on_add=self.car_added.emit,
+            on_remove=self.car_removed.emit,
+            on_update=self.car_updated.emit
+        ) if cars is not None else {}
+
+        self._crossing_segments = ObservableList[CrossingSegment](
+            on_add=self.crossing_segment_added.emit,
+            on_remove=self.crossing_segment_removed.emit,
+            on_update=self.crossing_segment_updated.emit
+        ) if cars is not None else {}
 
     def to_dict(self) -> dict[str, Any]:
         """

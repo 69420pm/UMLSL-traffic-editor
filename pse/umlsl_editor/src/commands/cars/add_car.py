@@ -33,11 +33,3 @@ class AddCarCommand(Command[None]):
         """
         raise NotImplementedError
 
-    def validate(self) -> None:
-        """
-        Validates whether the car can be added to the traffic snapshot.
-
-        Raises:
-            CommandValidationError: If the car cannot be added due to validation errors.
-        """
-        raise NotImplementedError

@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
+from pse.umlsl_editor.src.core.dataclasses.entity import Entity
+
 
 class RoadOrientation(Enum):
     """
@@ -36,6 +38,14 @@ class RoadValidationError(ValueError):
 
     pass
 
+@dataclass(frozen=True)
+class Lane:
+    """Represents a lane on a road, this is an immutable data structure and should act like a tuple.
+    It's not a full entity as it doesn't have an identity beyond its road, index and direction."""
+    road: "Road"
+    lane_index: int
+    lane_direction: LaneDirection
+
 @dataclass()
 class RoadParams:
     """
@@ -59,7 +69,7 @@ class RoadParams:
 
 
 @dataclass
-class Road:
+class Road(Entity):
     """
     Represents a road in the traffic simulation system.
 
@@ -82,7 +92,6 @@ class Road:
                              or position is not a valid number.
     """
 
-    name: str
     orientation: RoadOrientation
     position: float
     forward_lanes: int
