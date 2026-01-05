@@ -325,3 +325,18 @@ class CommandController:
         """
         """
         raise NotImplementedError("Method not implemented yet.")
+    def change_breaking_acceleration(self, value: int) -> None :
+        """
+        Changes the breaking acceleration of the cars.
+        """
+        raise NotImplementedError("Method not implemented yet.")
+    def toggle_coordinate_system(self) -> None:
+        """
+        Toggles weather the coordinate system in the visual editor should be rendered.
+        """
+        raise NotImplementedError("Method not implemented yet.")
+    def toggle_safety_distance(self) -> None:
+        """
+        Toggles weather the safety distance of the cars in the visual editor should be rendered.
+        """
+        raise NotImplementedError("Method not implemented yet.")

@@ -46,3 +46,8 @@ class EventController:
         self.traffic_snapshot.umlsl_query_removed.connect(self.view.remove_query_view)
         self.traffic_snapshot.umlsl_query_updated.connect(self.view.update_query_view)
 
+        # Connect Setting signals directly to view methods
+        self.traffic_snapshot.change_breaking_acceleration.connect(self.view.change_breaking_acceleration)
+        self.traffic_snapshot.toggle_coordinate_system.connect(self.view.toggle_coordinate_system)
+        self.traffic_snapshot.toggle_safety_distance.connect(self.view.toggle_safety_distance)
+

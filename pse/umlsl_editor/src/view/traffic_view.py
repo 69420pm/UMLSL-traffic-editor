@@ -92,3 +92,18 @@ class TrafficView(ABC):
     def deselect_road_view(self, road_data: Road) -> None:
         """Deselects the visual representation of a road."""
         pass
+
+    @abstractmethod
+    def change_breaking_acceleration(self) -> None:
+        """Changes the breaking acceleration of the cars."""
+        pass
+
+    @abstractmethod
+    def toggle_coordinate_system(self) -> None:
+        """Changes the rendering of the coordinate system."""
+        pass
+
+    @abstractmethod
+    def toggle_safety_distance(self) -> None:
+        """Changes the rendering of the safety distance."""
+        pass

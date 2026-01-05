@@ -55,6 +55,10 @@ class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
     umlsl_query_removed = Signal(UMLSLQuery)
     umlsl_query_updated = Signal(UMLSLQuery)
 
+    change_breaking_acceleration = Signal()
+    toggle_coordinate_system = Signal()
+    toggle_safety_distance = Signal()
+
     def validate_lane(self, road: Road, lane_index: int, lane_direction: str) -> bool:
         raise NotImplementedError
 
