@@ -33,7 +33,7 @@ class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
 
     def remove_umlsl_query(self, umlsl_query: UMLSLQuery) -> None:
 
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def update_umlsl_query(self, umlsl_query_data: UMLSLQuery) -> None:
         raise NotImplementedError
