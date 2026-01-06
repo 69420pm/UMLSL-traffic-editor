@@ -1,17 +1,43 @@
-from PySide6.QtWidgets import QGraphicsScene, QGraphicsRectItem, QGraphicsEllipseItem
-from PySide6.QtGui import QColor, QPen, QBrush
-from PySide6.QtCore import Qt
 from typing import Any
+
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QBrush, QColor, QPen
+from PySide6.QtWidgets import QGraphicsEllipseItem, QGraphicsRectItem, QGraphicsScene
 
 from pse.umlsl_editor.src.core.dataclasses.car import Car
 from pse.umlsl_editor.src.core.dataclasses.road import Road, RoadOrientation
-from pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment import CrossingSegment
+from pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment import (
+    CrossingSegment,
+)
 
 
 class TrafficScene(QGraphicsScene):
     """
     A custom QGraphicsScene for rendering the traffic simulation.
     Manages the graphical representation of cars, roads, and crossing segments.
+
+    Designer-based structure:
+    - This scene is intended to be paired with a QGraphicsView (e.g., a promoted
+      TrafficCanvasView) defined in a Qt Designer .ui file.
+    - The .ui should contain a QGraphicsView in the canvas area that is promoted
+      to TrafficCanvasView, with a stable objectName (e.g., 'trafficView').
+    - A UI binder (e.g., MainWindowUiBinder) should find that view by objectName
+      and set its scene to an instance of this TrafficScene.
+
+    Separation of concerns:
+    - TrafficScene: owns and manages QGraphicsItems (roads, cars, crossings).
+    - TrafficCanvasView: handles interaction (pan, zoom) and transformation.
+    - Designer .ui: defines layout and widget placement; objectNames enable binders
+      to locate and wire the scene and view at runtime.
+    - Controllers: connect model signals to view methods; rendering logic and item
+      updates are invoked via the TrafficView interface, not from within .ui binders.
+
+    Notes:
+    - Method bodies for adding/updating/removing items are kept as structure-only
+      placeholders to align with the requirement of not implementing methods.
+    - Coordinate system rendering, safety distance, and other overlays should be
+      toggled via settings and handled by the view/scene when those methods are
+      implemented later.
     """
     def __init__(self, parent=None):
         super().__init__(parent)
