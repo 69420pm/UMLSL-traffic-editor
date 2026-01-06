@@ -1,9 +1,21 @@
 """
 Custom QGraphicsView with zoom and pan capabilities for the traffic canvas.
+
+Designer usage:
+- In Qt Designer, add a QGraphicsView where the canvas should appear.
+- Promote that QGraphicsView to this class (TrafficCanvasView):
+  - Promoted class name: TrafficCanvasView
+  - Header: pse.umlsl_editor.src.view.canvas.traffic_view
+- Give the promoted widget an objectName (e.g., 'trafficView') so a binder can find it.
+
+Structure notes:
+- This file provides a custom view class intended to be used with a QGraphicsScene (e.g., TrafficScene) to render roads and cars.
+- Pan/zoom method bodies are intentionally left unimplemented; they will be wired later.
+- Runtime .ui loading should bind the promoted widget via a UI binder class rather than constructing it manually.
 """
+from PySide6.QtCore import QPointF, Qt
+from PySide6.QtGui import QMouseEvent, QWheelEvent
 from PySide6.QtWidgets import QGraphicsView
-from PySide6.QtCore import Qt, QPointF
-from PySide6.QtGui import QWheelEvent, QMouseEvent
 
 
 class TrafficCanvasView(QGraphicsView):
@@ -78,4 +90,3 @@ class TrafficCanvasView(QGraphicsView):
         #     event.accept()
         # else:
         #     super().mouseReleaseEvent(event)
-
