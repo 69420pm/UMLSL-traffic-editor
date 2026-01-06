@@ -11,11 +11,8 @@ if __name__ == "__main__":
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
 
 
-class MainWindow:
-    """Main Application Controller."""
-
-    def __init__(self):
-        pass
-
-    def run_game_loop(self):
-        pass
+def main():
+    # initialize traffic snapshot
+    # initialize application controller
+    # initialize view
+    raise NotImplementedError()
