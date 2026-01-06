@@ -2,6 +2,7 @@
 
 from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
 from pse.umlsl_editor.src.view.traffic_view import TrafficView
+from pse.umlsl_editor.src.core.settings_model import Settings
 
 
 class EventController:
@@ -10,7 +11,7 @@ class EventController:
     Handles all model-to-view synchronization without intermediate logic.
     """
 
-    def __init__(self, traffic_snapshot: TrafficSnapshot, view: TrafficView):
+    def __init__(self, traffic_snapshot: TrafficSnapshot, view: TrafficView, settings: Settings):
         """
         Initialize the view controller.
 
@@ -20,6 +21,7 @@ class EventController:
         """
         self.traffic_snapshot = traffic_snapshot
         self.view = view
+        self.settings = settings
         self._setup_event_listeners()
 
     def _setup_event_listeners(self) -> None:
@@ -47,7 +49,7 @@ class EventController:
         self.traffic_snapshot.umlsl_query_updated.connect(self.view.update_query_view)
 
         # Connect Setting signals directly to view methods
-        self.traffic_snapshot.change_breaking_acceleration.connect(self.view.change_breaking_acceleration)
-        self.traffic_snapshot.toggle_coordinate_system.connect(self.view.toggle_coordinate_system)
-        self.traffic_snapshot.toggle_safety_distance.connect(self.view.toggle_safety_distance)
+        self.settings.change_breaking_acceleration.connect(self.view.change_breaking_acceleration)
+        self.settings.toggle_coordinate_system.connect(self.view.toggle_coordinate_system)
+        self.settings.toggle_safety_distance.connect(self.view.toggle_safety_distance)
 

@@ -25,3 +25,15 @@ class DataController:
     def get_all_roads(self) -> list[Road]:
         """Return all roads from the traffic snapshot."""
         raise NotImplementedError
+
+    def get_breaking_acceleration(self) -> float:
+        """Returns state of the breaking acceleration setting for the cars."""
+        raise NotImplementedError
+
+    def should_render_coordinate_system(self) -> bool:
+        """Returns true if coordinate system is rendered."""
+        raise NotImplementedError
+
+    def should_render_safety_distance(self) -> bool:
+        """Returns true if safety distance is rendered."""
+        raise NotImplementedError
