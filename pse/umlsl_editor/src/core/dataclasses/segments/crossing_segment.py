@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 
+from pse.umlsl_editor.src.core.dataclasses.lane import Lane
 from pse.umlsl_editor.src.core.dataclasses.position import Position
-from pse.umlsl_editor.src.core.dataclasses.road import Road, Lane
 from pse.umlsl_editor.src.core.dataclasses.segments.segment import Segment
 
 
-@dataclass
+@dataclass(frozen=True)
 class CrossingSegment(Segment):
     lane_horizontal: Lane
     lane_vertical: Lane

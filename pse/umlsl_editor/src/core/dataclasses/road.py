@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from pse.umlsl_editor.src.core.dataclasses.entity import Entity
 
 
 class RoadOrientation(Enum):
@@ -38,15 +37,7 @@ class RoadValidationError(ValueError):
 
     pass
 
-@dataclass(frozen=True)
-class Lane:
-    """Represents a lane on a road, this is an immutable data structure and should act like a tuple.
-    It's not a full entity as it doesn't have an identity beyond its road, index and direction."""
-    road: "Road"
-    lane_index: int
-    lane_direction: LaneDirection
-
-@dataclass()
+@dataclass
 class RoadParams:
     """
     Type-safe parameter dictionary for Road creation.
@@ -69,7 +60,7 @@ class RoadParams:
 
 
 @dataclass
-class Road(Entity):
+class Road():
     """
     Represents a road in the traffic simulation system.
 
@@ -92,6 +83,7 @@ class Road(Entity):
                              or position is not a valid number.
     """
 
+    name: str
     orientation: RoadOrientation
     position: float
     forward_lanes: int
@@ -141,53 +133,12 @@ class Road(Entity):
             RoadValidationError: If any validation check fails.
         """
 
-    def to_dict(self) -> dict[str, Any]:
-        """
-        Serializes the Road instance to a dictionary suitable for JSON encoding.
-        """
-        raise NotImplementedError()
+    def __eq__(self, other):
+        """Checks equality based only on the unique identifier (uid) of the Road."""
+        if not isinstance(other, Road):
+            return NotImplemented
+        return self.name == other.name
 
-    def to_json(self) -> str:
-        """
-        Serializes the Road instance to a JSON string.
-
-        Returns:
-            A JSON-formatted string representation of the Road.
-        """
-        raise NotImplementedError()
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Road":
-        """
-        Creates a Road instance from a dictionary.
-
-        Args:
-            data: A dictionary containing 'name', 'orientation', 'position',
-                  and optionally 'forward_lanes' and 'backward_lanes' keys.
-                  The 'orientation' can be either a RoadOrientation enum value
-                  or a string ('horizontal' or 'vertical').
-
-        Returns:
-            A new Road instance populated with the provided data.
-
-        """
-        raise NotImplementedError()
-
-    @classmethod
-    def from_json(cls, json_string: str) -> "Road":
-        """
-        Creates a Road instance from a JSON string.
-
-        Args:
-            json_string: A JSON-formatted string containing road data.
-
-        Returns:
-            A new Road instance populated with the parsed JSON data.
-
-        """
-        raise NotImplementedError()
-
-    def __repr__(self) -> str:
-        """
-        Returns a detailed string representation of the Road.
-        """
+    def __hash__(self):
+        """Generates a hash based only on the unique identifier (name) of the Road."""
+        return hash(self.name)

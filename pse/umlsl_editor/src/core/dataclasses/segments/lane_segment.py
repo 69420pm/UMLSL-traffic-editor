@@ -5,7 +5,7 @@ from pse.umlsl_editor.src.core.dataclasses.road import Road, LaneDirection
 from pse.umlsl_editor.src.core.dataclasses.segments.segment import Segment
 
 
-@dataclass
+@dataclass(frozen=True)
 class LaneSegment(Segment):
     assigned_road: Road
     lane_index: int

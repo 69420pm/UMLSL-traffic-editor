@@ -1,7 +1,7 @@
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Signal, QObject
 
 
-class Settings:
+class Settings(QObject):
     render_coordinate_system : bool
     render_safety_distance : bool
     breaking_acceleration: float

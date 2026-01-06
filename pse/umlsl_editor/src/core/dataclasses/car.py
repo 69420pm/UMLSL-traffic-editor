@@ -3,8 +3,7 @@ import re
 from dataclasses import dataclass
 from typing import Any, ClassVar, Optional
 
-from pse.umlsl_editor.src.core.dataclasses.entity import Entity
-from pse.umlsl_editor.src.core.dataclasses.road import LaneDirection, Road, Lane
+from pse.umlsl_editor.src.core.dataclasses.lane import Lane
 from pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.core.dataclasses.segments.lane_segment import LaneSegment
 from pse.umlsl_editor.src.core.dataclasses.segments.segment import Path
@@ -45,8 +44,8 @@ class CarParams:
     next_turn: TurnIntent | None
 
 
-@dataclass
-class Car(Entity):
+@dataclass()
+class Car():
     """
     Represents a car/vehicle in the traffic simulation.
 
@@ -75,7 +74,7 @@ class Car(Entity):
     Raises:
         CarValidationError: If any validation check fails during instantiation.
     """
-
+    name: str
 
     lane: Lane
 
@@ -165,54 +164,15 @@ class Car(Entity):
         """
         raise NotImplementedError()
 
-
-    def to_dict(self) -> dict[str, Any]:
-        """
-        Serializes the Car instance to a dictionary suitable for JSON encoding.
-        """
-        raise NotImplementedError()
-
-
-    def to_json(self) -> str:
-        """
-        Serializes the Car instance to a JSON string.
-
-        Returns:
-            A JSON-formatted string representation of the Car.
-        """
-        raise NotImplementedError()
-
     def absolute_position(self)-> float:
-        return self.lane.road.position + self.position_on_lane
+        return self.lane.road_name.position + self.position_on_lane
 
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Car":
-        """
-        Creates a Car instance from a dictionary.
+    def __eq__(self, other):
+        """Checks equality based only on the unique identifier (name) of the Car."""
+        if not isinstance(other, Car):
+            return NotImplemented
+        return self.name == other.name
 
-        Since the Car serialization only stores the road name (to avoid circular
-        references), a road_lookup dictionary must be provided to resolve the
-        actual Road object.
-
-        Args:
-            data: A dictionary containing car data with keys matching the to_dict output.
-
-        """
-        raise NotImplementedError()
-
-    @classmethod
-    def from_json(cls, json_string: str) -> "Car":
-        """
-        Creates a Car instance from a JSON string.
-
-        Args:
-            json_string: A JSON-formatted string containing car data.
-
-        Returns:
-            A new Car instance populated with the parsed JSON data.
-        """
-
-    def __repr__(self) -> str:
-        """
-        Returns a detailed string representation of the Car.
-        """
+    def __hash__(self):
+        """Generates a hash based only on the unique identifier (name) of the Car."""
+        return hash(self.name)

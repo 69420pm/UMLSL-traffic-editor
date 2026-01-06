@@ -5,6 +5,7 @@ from pse.umlsl_editor.src.core.dataclasses.car import Car
 from pse.umlsl_editor.src.core.dataclasses.road import Road
 from pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.core.dataclasses.umlsl_query import UMLSLQuery
+from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
 
 
 class TrafficView(ABC):
@@ -12,6 +13,11 @@ class TrafficView(ABC):
     Abstract interface for the traffic simulation view.
     Allows the controller to interact with the view without knowing the specific implementation (2D, 3D, etc.).
     """
+
+    @abstractmethod
+    def initialize_view(self) -> None:
+        """Initializes the entire traffic view from ground up. Gets also called when loading a new traffic snapshot."""
+        pass
 
     @abstractmethod
     def add_car_view(self, car_data: Car) -> None:
