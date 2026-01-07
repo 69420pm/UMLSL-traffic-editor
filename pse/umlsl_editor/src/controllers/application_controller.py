@@ -9,7 +9,7 @@ from pse.umlsl_editor.src.controllers.data_controller import DataController
 from pse.umlsl_editor.src.controllers.event_controller import EventController
 from pse.umlsl_editor.src.controllers.command_controller import CommandController
 from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
-from pse.umlsl_editor.src.view.traffic_view import TrafficView
+from pse.umlsl_editor.src.view.traffic_canvas.traffic import TrafficView
 
 
 class ApplicationController(EventController, CommandController, DataController):

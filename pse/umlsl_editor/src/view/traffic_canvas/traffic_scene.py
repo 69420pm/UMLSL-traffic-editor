@@ -19,7 +19,7 @@ class TrafficScene(QGraphicsScene):
     Designer-based structure:
     - This scene is intended to be paired with a QGraphicsView (e.g., a promoted
       TrafficCanvasView) defined in a Qt Designer .ui file.
-    - The .ui should contain a QGraphicsView in the canvas area that is promoted
+    - The .ui should contain a QGraphicsView in the traffic_canvas area that is promoted
       to TrafficCanvasView, with a stable objectName (e.g., 'trafficView').
     - A UI binder (e.g., MainWindowUiBinder) should find that view by objectName
       and set its scene to an instance of this TrafficScene.

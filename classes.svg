@@ -1177,7 +1177,7 @@
 <polygon fill="none" stroke="black" points="9216.38,-221.58 9220.38,-227.58 9216.38,-233.58 9212.38,-227.58 9216.38,-221.58"/>
 <text xml:space="preserve" text-anchor="middle" x="9228" y="-128.7" font-family="Times,serif" font-size="14.00" fill="green">type</text>
 </g>
-<!-- pse.umlsl_editor.src.view.canvas.traffic_view.TrafficCanvasView -->
+<!-- pse.umlsl_editor.src.view.traffic_canvas.traffic_view.TrafficCanvasView -->
 <g id="node59" class="node">
 <title>pse.umlsl_editor.src.view.canvas.traffic_view.TrafficCanvasView</title>
 <polygon fill="none" stroke="black" points="8513.5,-235.5 8513.5,-324 8761.25,-324 8761.25,-235.5 8513.5,-235.5"/>
@@ -1193,14 +1193,14 @@
 <text xml:space="preserve" text-anchor="start" x="8521.5" y="-241.2" font-family="Times,serif" font-style="italic" font-size="14.00">wheelEvent</text>
 <text xml:space="preserve" text-anchor="start" x="8583.75" y="-241.2" font-family="Times,serif" font-size="14.00">(event: QWheelEvent)</text>
 </g>
-<!-- pse.umlsl_editor.src.view.canvas.traffic_view.TrafficCanvasView&#45;&gt;pse.umlsl_editor.src.view.main_window.MainWindow -->
+<!-- pse.umlsl_editor.src.view.traffic_canvas.traffic_view.TrafficCanvasView&#45;&gt;pse.umlsl_editor.src.view.main_window.MainWindow -->
 <g id="edge48" class="edge">
 <title>pse.umlsl_editor.src.view.canvas.traffic_view.TrafficCanvasView&#45;&gt;pse.umlsl_editor.src.view.main_window.MainWindow</title>
 <path fill="none" stroke="black" d="M8637.38,-324.15C8637.38,-353.84 8637.38,-395.6 8637.38,-439.15"/>
 <polygon fill="black" stroke="black" points="8637.38,-439.19 8641.38,-445.19 8637.38,-451.19 8633.38,-445.19 8637.38,-439.19"/>
 <text xml:space="preserve" text-anchor="middle" x="8672.25" y="-420.7" font-family="Times,serif" font-size="14.00" fill="green">canvas_view</text>
 </g>
-<!-- pse.umlsl_editor.src.view.canvas.traffic_scene.TrafficScene -->
+<!-- pse.umlsl_editor.src.view.traffic_canvas.traffic_scene.TrafficScene -->
 <g id="node60" class="node">
 <title>pse.umlsl_editor.src.view.canvas.traffic_scene.TrafficScene</title>
 <polygon fill="none" stroke="black" points="8779.62,-200.5 8779.62,-359 9163.12,-359 9163.12,-200.5 8779.62,-200.5"/>
@@ -1226,7 +1226,7 @@
 <text xml:space="preserve" text-anchor="start" x="8787.62" y="-206.2" font-family="Times,serif" font-style="italic" font-size="14.00">update_road_item</text>
 <text xml:space="preserve" text-anchor="start" x="8886.62" y="-206.2" font-family="Times,serif" font-size="14.00">(road_data: Road): None</text>
 </g>
-<!-- pse.umlsl_editor.src.view.canvas.traffic_scene.TrafficScene&#45;&gt;pse.umlsl_editor.src.view.main_window.MainWindow -->
+<!-- pse.umlsl_editor.src.view.traffic_canvas.traffic_scene.TrafficScene&#45;&gt;pse.umlsl_editor.src.view.main_window.MainWindow -->
 <g id="edge47" class="edge">
 <title>pse.umlsl_editor.src.view.canvas.traffic_scene.TrafficScene&#45;&gt;pse.umlsl_editor.src.view.main_window.MainWindow</title>
 <path fill="none" stroke="black" d="M8898.9,-359.46C8875.96,-384.37 8849.48,-413.14 8822.35,-442.6"/>
