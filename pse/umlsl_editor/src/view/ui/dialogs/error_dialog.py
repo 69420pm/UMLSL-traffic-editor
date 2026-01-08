@@ -1,6 +1,3 @@
-from PySide6.QtWidgets import QVBoxLayout
-
-
 class ErrorDialog:
     def __init__(self, error_title, error_message):
         self.error_title = error_title
