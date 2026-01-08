@@ -1,5 +1,3 @@
-# controllers/car_list_controller.py
-
 from pse.umlsl_editor.src.view.ui.dialogs.car_edit_dialog import CarEditDialog
 from pse.umlsl_editor.src.view.ui.lists.list_controller import ListController
 

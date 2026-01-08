@@ -1,6 +1,6 @@
 # controllers/base_list_controller.py
-from PySide6.QtWidgets import QListWidget, QListWidgetItem, QWidget
-from PySide6.QtCore import Slot, QObject  # Your helper function from before
+from PySide6.QtWidgets import QListWidget, QListWidgetItem
+from PySide6.QtCore import Slot, QObject
 
 from pse.umlsl_editor.src.view.ui_utils import load_ui
 

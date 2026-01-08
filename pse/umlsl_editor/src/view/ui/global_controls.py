@@ -1,7 +1,6 @@
 class GlobalControls:
     def __init__(self, main_ui):
         self.main_ui = main_ui
-        pass
 
     def setup_ui(self):
         pass
