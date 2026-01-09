@@ -60,29 +60,3 @@ class TrafficSnapshotWriter(ABC):
             TrafficSnapshotValidationError: If the updated car is invalid in the context of the snapshot.
         """
         pass
-
-    @abstractmethod
-    def add_umlsl_query(self, umlsl_query: UMLSLQuery) -> None:
-        """
-        Adds a UMLSL query to the snapshot and validates all attributes in the context of the snapshot.
-        Raises:
-            TrafficSnapshotValidationError: If the UMLSL query is invalid in the context of the snapshot.
-        """
-        pass
-
-    @abstractmethod
-    def remove_umlsl_query(self, umlsl_query: UMLSLQuery) -> None:
-        """
-        Removes a UMLSL query from the snapshot.
-        """
-        pass
-
-    @abstractmethod
-    def update_umlsl_query(self, umlsl_query_data: UMLSLQuery) -> None:
-        """
-        Updates an existing UMLSL query in the snapshot and validates all attributes in the context of the snapshot.
-
-        Raises:
-            TrafficSnapshotValidationError: If the updated UMLSL query is invalid in the context of the snapshot.
-        """
-        pass

@@ -28,15 +28,7 @@ class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
     def update_car(self, car_data: Car) -> None:
         raise NotImplementedError
 
-    def add_umlsl_query(self, umlsl_query: UMLSLQuery) -> None:
-        raise NotImplementedError
 
-    def remove_umlsl_query(self, umlsl_query: UMLSLQuery) -> None:
-
-        raise NotImplementedError()
-
-    def update_umlsl_query(self, umlsl_query_data: UMLSLQuery) -> None:
-        raise NotImplementedError
 
     # Define Signals for Model Changes
     car_added = Signal(Car)
@@ -51,9 +43,7 @@ class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
     crossing_segment_removed = Signal(CrossingSegment)
     crossing_segment_updated = Signal(CrossingSegment)
 
-    umlsl_query_added = Signal(UMLSLQuery)
-    umlsl_query_removed = Signal(UMLSLQuery)
-    umlsl_query_updated = Signal(UMLSLQuery)
+
 
     def validate_lane(self, road: Road, lane_index: int, lane_direction: str) -> bool:
         raise NotImplementedError
