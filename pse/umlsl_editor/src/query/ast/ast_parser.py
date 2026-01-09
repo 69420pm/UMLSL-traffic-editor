@@ -36,7 +36,7 @@ class ASTParser:
         for i in range(start, end + 1):
             token = tokens[i]
 
-            if token.type in {TokenType.L_PAREN, TokenType.L_PAREN}:
+            if token.type in {TokenType.L_PAREN, TokenType.L_CURLY}:
                 height += 1
             elif token.type in {TokenType.R_PAREN, TokenType.R_CURLY}:
                 height -= 1
@@ -63,7 +63,9 @@ class ASTParser:
             raise SyntaxError("Invalid infix expression: expected operator between tokens")
 
         token = self.tokens[split_index]
-        if token == TokenType.CAR_EQUALS:
+        token_type = token.type
+
+        if token_type == TokenType.CAR_EQUALS:
             if start != split_index - 1 or end != split_index + 1:
                 raise SyntaxError("Car equality requires exactly two tokens (i.e. car1 == car2)")
             car1 = self.parse_car(start, declared_variables)
@@ -72,13 +74,13 @@ class ASTParser:
         else:
             left_ast = self.parse_ast_rec(start, split_index - 1, declared_variables)
             right_ast = self.parse_ast_rec(split_index + 1, end, declared_variables)
-            match token.type:
+            match token_type:
                 case TokenType.AND:
                     return ConjunctionNode(left_ast, right_ast)
                 case TokenType.OR:
                     return DisjunctionNode(left_ast, right_ast)
                 case _:
-                    raise SyntaxError(f"Unknown binary operator {token.type}")
+                    raise SyntaxError(f"Unknown binary operator {token_type}")
 
     def parse_prefix(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
         token = self.tokens[start]
@@ -141,13 +143,15 @@ class ASTParser:
                 raise SyntaxError(f"Variable {variable} declared twice")
             new_declared_variables = declared_variables.copy()
             new_declared_variables.append(variable)
-            return ExistsNode(variable, self.parse_ast_rec(start + 2, end - 1, new_declared_variables))
+            return ExistsNode(variable, self.parse_ast_rec(start + 2, end, new_declared_variables))
         else:
             arg1_start = start + 1
-            arg1_end = self.find_closing_argument_index(arg1_start)
+            arg1_end = self.find_closing_argument_index(arg1_start, end)
+            # todo: strip the curly braces
             operand1 = self.parse_ast_rec(arg1_start, arg1_end, declared_variables)
             arg2_start = arg1_end + 1
-            arg2_end = self.find_closing_argument_index(arg2_start)
+            arg2_end = self.find_closing_argument_index(arg2_start, end)
+            # todo: strip the curly braces
             operand2 = self.parse_ast_rec(arg2_start, arg2_end, declared_variables)
             match token_type:
                 case TokenType.H_CHOP:
@@ -157,13 +161,17 @@ class ASTParser:
                 case _:
                     raise SyntaxError(f"Invalid binary operator {token_type}")
 
-    def find_closing_argument_index(self, start: int) -> int:
-        end = start + 1
-        while self.tokens[end].type != TokenType.R_CURLY:
-            end += 1
-            if end >= len(self.tokens):
-                raise SyntaxError("Unbalanced parentheses: missing closing '}'")
-        return end
+    def find_closing_argument_index(self, start_index: int, end_index: int) -> int:
+        parentheses_depth = 0
+        for i in range(start_index, end_index + 1):
+            token = self.tokens[i]
+            if token.type == TokenType.L_CURLY:
+                parentheses_depth += 1
+            elif token.type == TokenType.R_CURLY:
+                parentheses_depth -= 1
+                if parentheses_depth == 0:
+                    return i
+        raise SyntaxError("Unbalanced curly braces")
 
     def parse_car(self, index: int, declared_variables: list[str]):
         token = self.tokens[index]
