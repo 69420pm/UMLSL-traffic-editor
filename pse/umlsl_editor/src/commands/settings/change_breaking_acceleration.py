@@ -1,6 +1,6 @@
 from pse.umlsl_editor.src.commands.command import Command, ReturnValue
-from pse.umlsl_editor.src.model.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.traffic_snapshot_writer import TrafficSnapshotWriter
+from pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer import TrafficSnapshotWriter
 
 
 class ChangeBreakingAcceleration(Command[None]):
