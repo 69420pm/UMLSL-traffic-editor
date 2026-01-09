@@ -11,7 +11,7 @@ class EqualityCarNode(NullaryNode):
         self.car_variable2 = car_variable2
 
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
-        return variable_car_map[self.car_variable1] == variable_car_map[self.car_variable2]
+        return variable_car_map[self.car_variable1] is variable_car_map[self.car_variable2]
 
 
 class EqualityHorizonNode(NullaryNode):
@@ -20,4 +20,5 @@ class EqualityHorizonNode(NullaryNode):
         self.length = length
 
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
+        # todo: wrong
         return view.space_interval.length() == self.length

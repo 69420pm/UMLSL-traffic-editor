@@ -4,7 +4,7 @@ from typing import Optional
 from pse.umlsl_editor.src.model.value_objects.lane import Lane
 from pse.umlsl_editor.src.model.value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.value_objects.segments.lane_segment import LaneSegment
-from pse.umlsl_editor.src.model.value_objects.segments import Path
+from pse.umlsl_editor.src.model.value_objects.segments.segment import Path
 from pse.umlsl_editor.src.model.value_objects.turn_intent import TurnIntent
 
 

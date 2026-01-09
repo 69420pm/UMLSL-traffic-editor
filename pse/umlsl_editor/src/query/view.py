@@ -1,5 +1,5 @@
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.view_models.traffic_snapshot import Path
+from pse.umlsl_editor.src.model.value_objects.segments.segment import Path
 from pse.umlsl_editor.src.query.interval import Interval
 
 

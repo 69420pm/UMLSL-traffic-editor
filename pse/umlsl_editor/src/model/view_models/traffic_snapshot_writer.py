@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import Road
-from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 
 
 class TrafficSnapshotWriter(ABC):
