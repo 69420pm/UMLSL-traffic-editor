@@ -7,8 +7,8 @@ from pse.umlsl_editor.src.model.entities.road import Road
 from pse.umlsl_editor.src.model.value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 from pse.umlsl_editor.src.model.helper.observables import ObservableDict, ObservableList
-from pse.umlsl_editor.src.model.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.traffic_snapshot_writer import TrafficSnapshotWriter
+from pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer import TrafficSnapshotWriter
 
 
 class TrafficSnapshotValidationError(ValueError):
@@ -28,8 +28,6 @@ class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
     def update_car(self, car_data: Car) -> None:
         raise NotImplementedError
 
-
-
     # Define Signals for Model Changes
     car_added = Signal(Car)
     car_removed = Signal(Car)
@@ -42,8 +40,6 @@ class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
     crossing_segment_added = Signal(CrossingSegment)
     crossing_segment_removed = Signal(CrossingSegment)
     crossing_segment_updated = Signal(CrossingSegment)
-
-
 
     def validate_lane(self, road: Road, lane_index: int, lane_direction: str) -> bool:
         raise NotImplementedError
