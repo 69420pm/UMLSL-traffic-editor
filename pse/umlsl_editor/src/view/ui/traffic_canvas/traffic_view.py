@@ -1,11 +1,11 @@
 """
-Custom QGraphicsView with zoom and pan capabilities for the traffic canvas.
+Custom QGraphicsView with zoom and pan capabilities for the traffic traffic_canvas.
 
 Designer usage:
-- In Qt Designer, add a QGraphicsView where the canvas should appear.
+- In Qt Designer, add a QGraphicsView where the traffic_canvas should appear.
 - Promote that QGraphicsView to this class (TrafficCanvasView):
   - Promoted class name: TrafficCanvasView
-  - Header: pse.umlsl_editor.src.view.canvas.traffic_view
+  - Header: pse.umlsl_editor.src.view.traffic_canvas.traffic_view
 - Give the promoted widget an objectName (e.g., 'trafficView') so a binder can find it.
 
 Structure notes:

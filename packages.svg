@@ -1017,37 +1017,37 @@
 <polygon fill="none" stroke="black" points="11802.75,-36 11647.25,-36 11647.25,0 11802.75,0 11802.75,-36"/>
 <text xml:space="preserve" text-anchor="start" x="11655.25" y="-12.95" font-family="Times,serif" font-size="14.00">pse.umlsl_editor.src.view</text>
 </g>
-<!-- pse.umlsl_editor.src.view.canvas -->
+<!-- pse.umlsl_editor.src.view.traffic_canvas -->
 <g id="node70" class="node">
 <title>pse.umlsl_editor.src.view.canvas</title>
 <polygon fill="none" stroke="black" points="12015.62,-36 11820.38,-36 11820.38,0 12015.62,0 12015.62,-36"/>
 <text xml:space="preserve" text-anchor="start" x="11828.38" y="-12.95" font-family="Times,serif" font-size="14.00">pse.umlsl_editor.src.view.canvas</text>
 </g>
-<!-- pse.umlsl_editor.src.view.canvas.traffic_scene -->
+<!-- pse.umlsl_editor.src.view.traffic_canvas.traffic_scene -->
 <g id="node71" class="node">
 <title>pse.umlsl_editor.src.view.canvas.traffic_scene</title>
 <polygon fill="none" stroke="black" points="505.38,-540 236.62,-540 236.62,-504 505.38,-504 505.38,-540"/>
 <text xml:space="preserve" text-anchor="start" x="244.62" y="-516.95" font-family="Times,serif" font-size="14.00">pse.umlsl_editor.src.view.canvas.traffic_scene</text>
 </g>
-<!-- pse.umlsl_editor.src.view.canvas.traffic_scene&#45;&gt;pse.umlsl_editor.src.core.dataclasses.car -->
+<!-- pse.umlsl_editor.src.view.traffic_canvas.traffic_scene&#45;&gt;pse.umlsl_editor.src.core.dataclasses.car -->
 <g id="edge97" class="edge">
 <title>pse.umlsl_editor.src.view.canvas.traffic_scene&#45;&gt;pse.umlsl_editor.src.core.dataclasses.car</title>
 <path fill="none" stroke="black" d="M505.7,-531.65C555.99,-534.65 613.59,-537.8 666,-540 1376.68,-569.83 2229.24,-585.72 2549.25,-590.99"/>
 <polygon fill="black" stroke="black" points="2559.19,-591.15 2549.12,-595.49 2555.41,-591.09 2549.19,-590.99 2549.19,-590.99 2549.19,-590.99 2555.41,-591.09 2549.26,-586.49 2559.19,-591.15"/>
 </g>
-<!-- pse.umlsl_editor.src.view.canvas.traffic_scene&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road -->
+<!-- pse.umlsl_editor.src.view.traffic_canvas.traffic_scene&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road -->
 <g id="edge98" class="edge">
 <title>pse.umlsl_editor.src.view.canvas.traffic_scene&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road</title>
 <path fill="none" stroke="black" d="M324.64,-540.43C255.68,-568.79 139.56,-627.46 192,-684 211.1,-704.59 563.71,-722.86 762.49,-731.58"/>
 <polygon fill="black" stroke="black" points="772.38,-732.02 762.19,-736.08 768.6,-731.85 762.39,-731.58 762.39,-731.58 762.39,-731.58 768.6,-731.85 762.59,-727.08 772.38,-732.02"/>
 </g>
-<!-- pse.umlsl_editor.src.view.canvas.traffic_scene&#45;&gt;pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment -->
+<!-- pse.umlsl_editor.src.view.traffic_canvas.traffic_scene&#45;&gt;pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment -->
 <g id="edge99" class="edge">
 <title>pse.umlsl_editor.src.view.canvas.traffic_scene&#45;&gt;pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment</title>
 <path fill="none" stroke="black" d="M372.96,-540.41C375.68,-564.5 380.61,-608.25 383.84,-636.97"/>
 <polygon fill="black" stroke="black" points="384.94,-646.68 379.34,-637.25 384.51,-642.92 383.82,-636.74 383.82,-636.74 383.82,-636.74 384.51,-642.92 388.29,-636.24 384.94,-646.68"/>
 </g>
-<!-- pse.umlsl_editor.src.view.canvas.traffic_view -->
+<!-- pse.umlsl_editor.src.view.traffic_canvas.traffic_view -->
 <g id="node72" class="node">
 <title>pse.umlsl_editor.src.view.canvas.traffic_view</title>
 <polygon fill="none" stroke="black" points="521.5,-396 256.5,-396 256.5,-360 521.5,-360 521.5,-396"/>
@@ -1083,13 +1083,13 @@
 <path fill="none" stroke="black" d="M544.23,-324.4C564.87,-332.45 586.26,-343.91 602,-360 638.13,-396.93 602.66,-438.39 645,-468 701.93,-507.82 1825.64,-500 1895,-504 1908.18,-504.76 1921.86,-505.68 1935.57,-506.69"/>
 <polygon fill="black" stroke="black" points="1945.35,-507.43 1935.04,-511.16 1941.58,-507.15 1935.38,-506.68 1935.38,-506.68 1935.38,-506.68 1941.58,-507.15 1935.72,-502.19 1945.35,-507.43"/>
 </g>
-<!-- pse.umlsl_editor.src.view.main_window&#45;&gt;pse.umlsl_editor.src.view.canvas.traffic_scene -->
+<!-- pse.umlsl_editor.src.view.main_window&#45;&gt;pse.umlsl_editor.src.view.traffic_canvas.traffic_scene -->
 <g id="edge104" class="edge">
 <title>pse.umlsl_editor.src.view.main_window&#45;&gt;pse.umlsl_editor.src.view.canvas.traffic_scene</title>
 <path fill="none" stroke="black" d="M375.26,-324.44C317.7,-335.35 255.52,-349.3 247,-360 208.3,-408.63 281.57,-466.56 331.04,-497.97"/>
 <polygon fill="black" stroke="black" points="339.23,-503.06 328.36,-501.61 336.02,-501.07 330.74,-497.79 330.74,-497.79 330.74,-497.79 336.02,-501.07 333.11,-493.96 339.23,-503.06"/>
 </g>
-<!-- pse.umlsl_editor.src.view.main_window&#45;&gt;pse.umlsl_editor.src.view.canvas.traffic_view -->
+<!-- pse.umlsl_editor.src.view.main_window&#45;&gt;pse.umlsl_editor.src.view.traffic_canvas.traffic_view -->
 <g id="edge105" class="edge">
 <title>pse.umlsl_editor.src.view.main_window&#45;&gt;pse.umlsl_editor.src.view.canvas.traffic_view</title>
 <path fill="none" stroke="black" d="M455.25,-324.3C444.46,-332.89 431.25,-343.39 419.47,-352.76"/>
