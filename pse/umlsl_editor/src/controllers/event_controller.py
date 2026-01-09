@@ -1,8 +1,8 @@
 """Controller responsible for synchronizing the model state to the view layer."""
 
-from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
+from pse.umlsl_editor.src.core.view_models.traffic_snapshot import TrafficSnapshot
 from pse.umlsl_editor.src.view.traffic_view import TrafficView
-from pse.umlsl_editor.src.core.settings_model import Settings
+from pse.umlsl_editor.src.core.view_models.settings import Settings
 
 
 class EventController:

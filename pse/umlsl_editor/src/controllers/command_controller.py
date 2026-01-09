@@ -3,9 +3,8 @@
 from typing import Optional
 
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.core.dataclasses.road import Road, LaneDirection
-from pse.umlsl_editor.src.core.dataclasses.turn_intent import TurnIntent
-from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
+from pse.umlsl_editor.src.core.entities.road import Road, LaneDirection
+from pse.umlsl_editor.src.core.value_objects.turn_intent import TurnIntent
 from pse.umlsl_editor.src.core.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.core.traffic_snapshot_writer import TrafficSnapshotWriter
 
