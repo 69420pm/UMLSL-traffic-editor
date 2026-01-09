@@ -19,7 +19,7 @@ def evaluate_reserve(view: View, segments: list[Segment], car: Car):
     return all(map(lambda segment: segment_reserved(view, segment, car), segments))
 
 
-class ConstantReserveNode(NullaryNode):
+class ReserveNode(NullaryNode):
     def __init__(self, car_resolve: CarResolve):
         super().__init__()
         self.car_resolve = car_resolve
