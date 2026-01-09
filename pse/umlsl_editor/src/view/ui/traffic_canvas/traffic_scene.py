@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QGraphicsScene
 
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import Road
-from pse.umlsl_editor.src.model.value_objects.segments.crossing_segment import (
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import (
     CrossingSegment,
 )
 
