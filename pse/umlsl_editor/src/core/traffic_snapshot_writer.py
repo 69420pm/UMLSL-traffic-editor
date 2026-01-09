@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
-from pse.umlsl_editor.src.core.dataclasses.car import Car
-from pse.umlsl_editor.src.core.dataclasses.road import Road
-from pse.umlsl_editor.src.core.dataclasses.umlsl_query import UMLSLQuery
+from pse.umlsl_editor.src.core.entities.car import Car
+from pse.umlsl_editor.src.core.entities.road import Road
+from pse.umlsl_editor.src.core.entities.umlsl_query import UMLSLQuery
 
 
 class TrafficSnapshotWriter(ABC):
@@ -58,31 +58,5 @@ class TrafficSnapshotWriter(ABC):
 
         Raises:
             TrafficSnapshotValidationError: If the updated car is invalid in the context of the snapshot.
-        """
-        pass
-
-    @abstractmethod
-    def add_umlsl_query(self, umlsl_query: UMLSLQuery) -> None:
-        """
-        Adds a UMLSL query to the snapshot and validates all attributes in the context of the snapshot.
-        Raises:
-            TrafficSnapshotValidationError: If the UMLSL query is invalid in the context of the snapshot.
-        """
-        pass
-
-    @abstractmethod
-    def remove_umlsl_query(self, umlsl_query: UMLSLQuery) -> None:
-        """
-        Removes a UMLSL query from the snapshot.
-        """
-        pass
-
-    @abstractmethod
-    def update_umlsl_query(self, umlsl_query_data: UMLSLQuery) -> None:
-        """
-        Updates an existing UMLSL query in the snapshot and validates all attributes in the context of the snapshot.
-
-        Raises:
-            TrafficSnapshotValidationError: If the updated UMLSL query is invalid in the context of the snapshot.
         """
         pass

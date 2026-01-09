@@ -4,8 +4,8 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pse.umlsl_editor.src.core.dataclasses.car import Car
-    from pse.umlsl_editor.src.core.dataclasses.road import Road
+    from pse.umlsl_editor.src.core.entities.car import Car
+    from pse.umlsl_editor.src.core.entities.road import Road
 
 
 class TrafficSnapshotReader(ABC):

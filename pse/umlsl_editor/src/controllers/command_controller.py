@@ -3,9 +3,10 @@
 from typing import Optional
 
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.core.dataclasses.road import Road, LaneDirection
-from pse.umlsl_editor.src.core.dataclasses.turn_intent import TurnIntent
-from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot
+from pse.umlsl_editor.src.core.entities.road import Road, LaneDirection
+from pse.umlsl_editor.src.core.value_objects.turn_intent import TurnIntent
+from pse.umlsl_editor.src.core.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.core.traffic_snapshot_writer import TrafficSnapshotWriter
 
 
 class CommandController:
@@ -14,14 +15,15 @@ class CommandController:
     Provides high-level API for modifying the traffic snapshot.
     """
 
-    def __init__(self, traffic_snapshot: TrafficSnapshot):
+    def __init__(self, traffic_snapshot_reader: TrafficSnapshotReader, traffic_snapshot_writer: TrafficSnapshotWriter):
         """
         Initialize the command controller.
 
         Args:
-            traffic_snapshot: The model that will be modified by commands.
+            traffic_snapshot_reader: The model that will be modified by commands.
         """
-        self.traffic_snapshot = traffic_snapshot
+        self.traffic_snapshot_reader = traffic_snapshot_reader
+        self.traffic_snapshot_writer = traffic_snapshot_writer
         # self._command_history = []  # TODO: Implement undo/redo stack
         # self._history_position = -1  # Current position in history
 

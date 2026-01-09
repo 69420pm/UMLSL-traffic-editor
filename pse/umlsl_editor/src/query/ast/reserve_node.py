@@ -1,5 +1,5 @@
-from pse.umlsl_editor.src.core.dataclasses.car import Car
-from pse.umlsl_editor.src.core.traffic_snapshot import TrafficSnapshot, Segment
+from pse.umlsl_editor.src.core.entities.car import Car
+from pse.umlsl_editor.src.core.view_models.traffic_snapshot import TrafficSnapshot, Segment
 from pse.umlsl_editor.src.query.ast.ast import View, NullaryNode
 from pse.umlsl_editor.src.query.visible_segments import SegmentView, VisibleSegment
 

@@ -1,5 +1,5 @@
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.core.dataclasses.car import CarParams
+from pse.umlsl_editor.src.core.entities.car import CarParams
 from pse.umlsl_editor.src.core.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.core.traffic_snapshot_writer import TrafficSnapshotWriter
 
