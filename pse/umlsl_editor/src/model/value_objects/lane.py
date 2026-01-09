@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from pse.umlsl_editor.src.core.entities.road import LaneDirection
+from pse.umlsl_editor.src.model.entities.road import LaneDirection
 
 
 @dataclass(frozen=True)

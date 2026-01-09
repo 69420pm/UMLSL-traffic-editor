@@ -2,8 +2,8 @@ from dataclasses import dataclass
 
 from PySide6.QtCore import Signal
 
-from pse.umlsl_editor.src.core.entities.car import Car
-from pse.umlsl_editor.src.core.entities.road import Road
+from pse.umlsl_editor.src.model.entities.car import Car
+from pse.umlsl_editor.src.model.entities.road import Road
 
 
 @dataclass

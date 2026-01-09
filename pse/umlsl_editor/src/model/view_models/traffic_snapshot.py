@@ -2,13 +2,13 @@ from typing import Any, Optional
 
 from PySide6.QtCore import QObject, Signal
 
-from pse.umlsl_editor.src.core.entities.car import Car
-from pse.umlsl_editor.src.core.entities.road import Road
-from pse.umlsl_editor.src.core.value_objects.segments.crossing_segment import CrossingSegment
-from pse.umlsl_editor.src.core.entities.umlsl_query import UMLSLQuery
-from pse.umlsl_editor.src.core.helper.observables import ObservableDict, ObservableList
-from pse.umlsl_editor.src.core.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.core.traffic_snapshot_writer import TrafficSnapshotWriter
+from pse.umlsl_editor.src.model.entities.car import Car
+from pse.umlsl_editor.src.model.entities.road import Road
+from pse.umlsl_editor.src.model.value_objects.segments.crossing_segment import CrossingSegment
+from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
+from pse.umlsl_editor.src.model.helper.observables import ObservableDict, ObservableList
+from pse.umlsl_editor.src.model.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.traffic_snapshot_writer import TrafficSnapshotWriter
 
 
 class TrafficSnapshotValidationError(ValueError):

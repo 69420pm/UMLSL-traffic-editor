@@ -1,5 +1,5 @@
-from pse.umlsl_editor.src.core.entities.car import Car
-from pse.umlsl_editor.src.core.view_models.traffic_snapshot import TrafficSnapshot
+from pse.umlsl_editor.src.model.entities.car import Car
+from pse.umlsl_editor.src.model.view_models.traffic_snapshot import TrafficSnapshot
 from pse.umlsl_editor.src.query.ast.ast import View, BinaryNode
 from pse.umlsl_editor.src.query.interval import Interval
 
