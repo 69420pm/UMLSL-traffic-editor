@@ -4,31 +4,85 @@ from typing import Optional
 
 
 class TokenType(Enum):
-    AND = "\\and"
-    OR = "\\or"
-    NOT = "\\not"
-    H_CHOP = "\\hchop"
-    V_CHOP = "\\vchop"
-    L_PAREN = "\\("
-    R_PAREN = "\\)"
-    NEGATION = "\\neg"
-    EXITS = "\\"
-    TOP = "^"
-    DOWN = "_"
+    L_PAREN = "("
+    R_PAREN = ")"
     L_CURLY = "{"
     R_CURLY = "}"
-    LITERAL = "LITERAL"  # placeholder
+    H_CHOP = "\\hchop"
+    V_CHOP = "\\vchop"
+    CLAIM = "\\cl"
+    CROSSING = "\\cs"
+    RESERVE = "\\re"
+    CAR_EQUALS = "="
+    FREE = "\\free"
+    AND = "and"
+    OR = "or"
+    NEGATION = "\\neg"
+    NEGATION_SHORT = "!"
+    EXITS = "\\exists"
+    TRUE = "true"
+    LITERAL = "LITERAL"  # value "LITERAL" is a placeholder
 
     def exact_match(self) -> Optional[str]:
         if self == TokenType.LITERAL:
             return None
         return self.name
 
-    def left_bracket(self):
-        return self == TokenType.L_PAREN or self == TokenType.L_CURLY
+    @property
+    def is_infix_binary_op(self):
+        return self in _INFIX_BINARY_OPS
 
-    def right_bracket(self):
-        return self == TokenType.R_PAREN or self == TokenType.R_CURLY
+    @property
+    def is_prefix_binary_op(self):
+        return self in _PREFIX_BINARY_OPS
+
+    @property
+    def is_binary_op(self):
+        return self.is_infix_binary_op or self.is_prefix_binary_op
+
+    @property
+    def is_unary_op(self):
+        return self in _UNARY_OPS
+
+    @property
+    def is_nullary_op(self):
+        return self in _NULLARY_OPS
+
+    def get_infix_binary_op_precedence(self):
+        if not self.is_infix_binary_op:
+            raise ValueError(f"Token {self} is not an infix binary operation.")
+        return _INFIX_BINARY_OPS_PRECEDENCE[self]
+
+
+_NULLARY_OPS = {
+    TokenType.TRUE,
+    TokenType.FREE,
+    TokenType.CROSSING
+}
+_UNARY_OPS = {
+    TokenType.NEGATION,
+    TokenType.NEGATION_SHORT,
+    TokenType.CLAIM,
+    TokenType.RESERVE,
+}
+
+### For tokens that correspond to operations and require 2 parameters, we specify whether they are infix ({p1} op {p2}) or
+### prefix (op {p1}{p2})
+_INFIX_BINARY_OPS = {
+    TokenType.AND,
+    TokenType.OR,
+    TokenType.CAR_EQUALS
+}
+_PREFIX_BINARY_OPS = {
+    TokenType.EXITS,
+    TokenType.H_CHOP,
+    TokenType.V_CHOP,
+}
+_INFIX_BINARY_OPS_PRECEDENCE = {
+    TokenType.AND: 2,
+    TokenType.OR: 1,
+    TokenType.CAR_EQUALS: 3  # irrelevant since equality requires parameters to be cars ({and, or} return booleans)
+}
 
 
 class Token:
@@ -77,4 +131,3 @@ class Lexer:
             tokens.append(Token(TokenType.LITERAL, text[last_pos:]))
 
         return tokens
-

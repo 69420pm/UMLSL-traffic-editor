@@ -8,4 +8,4 @@ class CrossingSegmentNode(NullaryNode):
         if len(view.seq_lanes) != 1:
             return False
         path = view.seq_lanes[0]
-        return all(map(lambda segment: segment.is_crossing_segment(), path.segments))
+        return all(map(lambda segment: not segment.is_lane_segment, path.segments))
