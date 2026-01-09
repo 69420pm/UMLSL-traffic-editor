@@ -1,12 +1,8 @@
-from typing import Any
+from PySide6.QtWidgets import QGraphicsScene
 
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QBrush, QColor, QPen
-from PySide6.QtWidgets import QGraphicsEllipseItem, QGraphicsRectItem, QGraphicsScene
-
-from pse.umlsl_editor.src.core.dataclasses.car import Car
-from pse.umlsl_editor.src.core.dataclasses.road import Road, RoadOrientation
-from pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment import (
+from pse.umlsl_editor.src.core.entities.car import Car
+from pse.umlsl_editor.src.core.entities.road import Road
+from pse.umlsl_editor.src.core.value_objects.segments.crossing_segment import (
     CrossingSegment,
 )
 
