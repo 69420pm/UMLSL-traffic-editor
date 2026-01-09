@@ -12,7 +12,7 @@ from pse.umlsl_editor.src.query.ast.reserve_node import ReserveNode
 from pse.umlsl_editor.src.query.lexer import Token, TokenType
 
 
-# todo: curly brackets check
+# todo: curly braces check
 class ASTParser:
     def __init__(self, tokens: list[Token], cars: list[Car]):
         self.tokens = tokens
@@ -140,7 +140,7 @@ class ASTParser:
             if variable in map(lambda car: car.name, self.cars):
                 raise SyntaxError(f"Variable {variable} is a car name and cannot be used in an exists expression")
             if variable in declared_variables:
-                raise SyntaxError(f"Variable {variable} declared twice")
+                raise SyntaxError(f"Variable {variable} declared twice in scope")
             new_declared_variables = declared_variables.copy()
             new_declared_variables.append(variable)
             return ExistsNode(variable, self.parse_ast_rec(start + 2, end, new_declared_variables))
