@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from PySide6.QtCore import Signal
 
-from pse.umlsl_editor.src.core.entities.umlsl_query import UMLSLQuery
+from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 
 class UMLSLQueriesValidationError(Exception):
     """Raised when UMLSL queries validation fails in the context of a traffic snapshot."""

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from pse.umlsl_editor.src.core.entities.road import Road, LaneDirection
-from pse.umlsl_editor.src.core.value_objects.segments.segment import Segment
+from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection
+from pse.umlsl_editor.src.model.value_objects.segments.segment import Segment
 
 
 @dataclass(frozen=True)

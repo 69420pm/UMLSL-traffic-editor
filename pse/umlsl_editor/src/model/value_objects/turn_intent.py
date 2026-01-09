@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from pse.umlsl_editor.src.core.entities.road import LaneDirection
+from pse.umlsl_editor.src.model.entities.road import LaneDirection
 
 
 class TurnDirection(Enum):
