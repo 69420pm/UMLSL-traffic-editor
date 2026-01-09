@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from pse.umlsl_editor.src.core.value_objects.lane import Lane
-from pse.umlsl_editor.src.core.value_objects.position import Position
-from pse.umlsl_editor.src.core.value_objects.segments.segment import Segment
+from pse.umlsl_editor.src.model.value_objects.lane import Lane
+from pse.umlsl_editor.src.model.value_objects.position import Position
+from pse.umlsl_editor.src.model.value_objects.segments.segment import Segment
 
 
 @dataclass(frozen=True)

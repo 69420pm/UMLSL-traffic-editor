@@ -191,7 +191,7 @@
 <path fill="none" stroke="black" d="M1960.8,-2501.49C2034.26,-2497.73 2191.31,-2484.74 2315.38,-2440.5 2356.16,-2425.96 2398.34,-2400.54 2428.38,-2380.33"/>
 <polygon fill="none" stroke="black" points="2430.16,-2383.36 2436.44,-2374.83 2426.21,-2377.58 2430.16,-2383.36"/>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.car.Car -->
+<!-- pse.umlsl_editor.src.model.dataclasses.car.Car -->
 <g id="node6" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.car.Car</title>
 <polygon fill="none" stroke="black" points="4524.75,-1432.5 4524.75,-1785.5 4810,-1785.5 4810,-1432.5 4524.75,-1432.5"/>
@@ -234,7 +234,7 @@
 <polyline fill="none" stroke="black" points="4026,-1904.75 4558.75,-1904.75"/>
 <text xml:space="preserve" text-anchor="start" x="4034" y="-1887.45" font-family="Times,serif" font-size="14.00">evaluate(traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]): bool</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.car.Car&#45;&gt;pse.umlsl_editor.src.query.ast.claim_node.ConstantClaimNode -->
+<!-- pse.umlsl_editor.src.model.dataclasses.car.Car&#45;&gt;pse.umlsl_editor.src.query.ast.claim_node.ConstantClaimNode -->
 <g id="edge53" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.car.Car&#45;&gt;pse.umlsl_editor.src.query.ast.claim_node.ConstantClaimNode</title>
 <path fill="none" stroke="black" d="M4524.27,-1726.78C4462.01,-1777.57 4392.83,-1834.03 4346.37,-1871.94"/>
@@ -251,14 +251,14 @@
 <polyline fill="none" stroke="black" points="3306,-1904.75 3838.75,-1904.75"/>
 <text xml:space="preserve" text-anchor="start" x="3314" y="-1887.45" font-family="Times,serif" font-size="14.00">evaluate(traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]): bool</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.car.Car&#45;&gt;pse.umlsl_editor.src.query.ast.reserve_node.ConstantReserveNode -->
+<!-- pse.umlsl_editor.src.model.dataclasses.car.Car&#45;&gt;pse.umlsl_editor.src.query.ast.reserve_node.ConstantReserveNode -->
 <g id="edge54" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.car.Car&#45;&gt;pse.umlsl_editor.src.query.ast.reserve_node.ConstantReserveNode</title>
 <path fill="none" stroke="black" d="M4524.39,-1649.71C4360.74,-1695.19 4084.67,-1772 3847.38,-1838.5 3803.59,-1850.77 3755.9,-1864.19 3712.72,-1876.36"/>
 <polygon fill="none" stroke="black" points="3712.79,-1876.34 3708.1,-1881.82 3701.24,-1879.6 3705.93,-1874.12 3712.79,-1876.34"/>
 <text xml:space="preserve" text-anchor="middle" x="3967.11" y="-1807.2" font-family="Times,serif" font-size="14.00" fill="green">car</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.entity.Entity -->
+<!-- pse.umlsl_editor.src.model.dataclasses.entity.Entity -->
 <g id="node22" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.entity.Entity</title>
 <polygon fill="none" stroke="black" points="5194.12,-2292.5 5194.12,-2405.5 5418.62,-2405.5 5418.62,-2292.5 5194.12,-2292.5"/>
@@ -275,13 +275,13 @@
 <text xml:space="preserve" text-anchor="start" x="5202.12" y="-2298.2" font-family="Times,serif" font-style="italic" font-size="14.00">to_json</text>
 <text xml:space="preserve" text-anchor="start" x="5241.88" y="-2298.2" font-family="Times,serif" font-size="14.00">(): str</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.car.Car&#45;&gt;pse.umlsl_editor.src.core.dataclasses.entity.Entity -->
+<!-- pse.umlsl_editor.src.model.dataclasses.car.Car&#45;&gt;pse.umlsl_editor.src.model.dataclasses.entity.Entity -->
 <g id="edge4" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.car.Car&#45;&gt;pse.umlsl_editor.src.core.dataclasses.entity.Entity</title>
 <path fill="none" stroke="black" d="M4810.48,-1647.37C4911.25,-1681.02 5041.43,-1740.59 5118.38,-1838.5 5121.91,-1843 5209.77,-2234.41 5212.38,-2239.5 5220.18,-2254.8 5230.6,-2269.72 5241.65,-2283.36"/>
 <polygon fill="none" stroke="black" points="5238.92,-2285.54 5248.02,-2290.97 5244.29,-2281.05 5238.92,-2285.54"/>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.road.Lane -->
+<!-- pse.umlsl_editor.src.model.dataclasses.road.Lane -->
 <g id="node31" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.road.Lane</title>
 <polygon fill="none" stroke="black" points="5668,-1863.75 5668,-1970.25 5768.75,-1970.25 5768.75,-1863.75 5668,-1863.75"/>
@@ -293,14 +293,14 @@
 <polyline fill="none" stroke="black" points="5668,-1888.25 5768.75,-1888.25"/>
 <text xml:space="preserve" text-anchor="start" x="5716.5" y="-1870.95" font-family="Times,serif" font-size="14.00"> </text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.car.Car&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.Lane -->
+<!-- pse.umlsl_editor.src.model.dataclasses.car.Car&#45;&gt;pse.umlsl_editor.src.model.dataclasses.road.Lane -->
 <g id="edge34" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.car.Car&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.Lane</title>
 <path fill="none" stroke="black" d="M4810.49,-1668.29C4914.84,-1708.22 5060.62,-1758.7 5193.38,-1786 5288.17,-1805.49 5314.25,-1792.78 5410.38,-1804 5459.26,-1809.7 5471.17,-1813.45 5519.88,-1820.5 5577.38,-1828.83 5598.12,-1811.11 5649.38,-1838.5 5657.89,-1843.05 5665.87,-1849.1 5673.16,-1855.81"/>
 <polygon fill="black" stroke="black" points="5679.92,-1862.46 5669.63,-1858.65 5677.22,-1859.81 5672.79,-1855.45 5672.79,-1855.45 5672.79,-1855.45 5677.22,-1859.81 5675.95,-1852.24 5679.92,-1862.46"/>
 <text xml:space="preserve" text-anchor="middle" x="5531.12" y="-1807.2" font-family="Times,serif" font-size="14.00" fill="green">lane</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.segments.segment.Path -->
+<!-- pse.umlsl_editor.src.model.dataclasses.segments.segment.Path -->
 <g id="node42" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.segments.segment.Path</title>
 <polygon fill="none" stroke="black" points="3856.5,-1880.25 3856.5,-1953.75 4008.25,-1953.75 4008.25,-1880.25 3856.5,-1880.25"/>
@@ -310,7 +310,7 @@
 <polyline fill="none" stroke="black" points="3856.5,-1904.75 4008.25,-1904.75"/>
 <text xml:space="preserve" text-anchor="start" x="3930.5" y="-1887.45" font-family="Times,serif" font-size="14.00"> </text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.car.Car&#45;&gt;pse.umlsl_editor.src.core.dataclasses.segments.segment.Path -->
+<!-- pse.umlsl_editor.src.model.dataclasses.car.Car&#45;&gt;pse.umlsl_editor.src.model.dataclasses.segments.segment.Path -->
 <g id="edge45" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.car.Car&#45;&gt;pse.umlsl_editor.src.core.dataclasses.segments.segment.Path</title>
 <path fill="none" stroke="black" d="M4524.56,-1642.53C4387.86,-1677.64 4179.09,-1741.85 4017.38,-1838.5 4001.76,-1847.83 3986.49,-1860.34 3973.31,-1872.57"/>
@@ -329,7 +329,7 @@
 <polyline fill="none" stroke="black" points="5165.75,-1888.25 5295,-1888.25"/>
 <text xml:space="preserve" text-anchor="start" x="5228.5" y="-1870.95" font-family="Times,serif" font-size="14.00"> </text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.car.Car&#45;&gt;pse.umlsl_editor.src.query.view.View -->
+<!-- pse.umlsl_editor.src.model.dataclasses.car.Car&#45;&gt;pse.umlsl_editor.src.query.view.View -->
 <g id="edge55" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.car.Car&#45;&gt;pse.umlsl_editor.src.query.view.View</title>
 <path fill="none" stroke="black" d="M4810.38,-1643.89C4913.12,-1673.5 5050.7,-1724.43 5151.38,-1804 5168.23,-1817.32 5183.02,-1835.17 5195.1,-1852.7"/>
@@ -364,7 +364,7 @@
 <path fill="none" stroke="black" d="M9395.05,-90.74C9423.85,-129.6 9469.78,-191.58 9500.96,-233.66"/>
 <polygon fill="none" stroke="black" points="9498.1,-235.68 9506.87,-241.63 9503.73,-231.52 9498.1,-235.68"/>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.car.CarParams -->
+<!-- pse.umlsl_editor.src.model.dataclasses.car.CarParams -->
 <g id="node8" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.car.CarParams</title>
 <polygon fill="none" stroke="black" points="5650.88,-1514.5 5650.88,-1703.5 5843.88,-1703.5 5843.88,-1514.5 5650.88,-1514.5"/>
@@ -381,21 +381,21 @@
 <polyline fill="none" stroke="black" points="5650.88,-1539 5843.88,-1539"/>
 <text xml:space="preserve" text-anchor="start" x="5745.5" y="-1521.7" font-family="Times,serif" font-size="14.00"> </text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.car.CarParams&#45;&gt;pse.umlsl_editor.src.commands.cars.add_car.AddCarCommand -->
+<!-- pse.umlsl_editor.src.model.dataclasses.car.CarParams&#45;&gt;pse.umlsl_editor.src.commands.cars.add_car.AddCarCommand -->
 <g id="edge56" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.car.CarParams&#45;&gt;pse.umlsl_editor.src.commands.cars.add_car.AddCarCommand</title>
 <path fill="none" stroke="black" d="M5784.91,-1703.71C5801.39,-1734.12 5823.65,-1765.31 5852.38,-1786 5940.98,-1849.81 5991.04,-1797.83 6092.38,-1838.5 6107.03,-1844.38 6121.94,-1851.88 6136.13,-1859.88"/>
 <polygon fill="none" stroke="black" points="6136.18,-1859.91 6143.38,-1859.46 6146.56,-1865.93 6139.37,-1866.38 6136.18,-1859.91"/>
 <text xml:space="preserve" text-anchor="middle" x="5977.45" y="-1807.2" font-family="Times,serif" font-size="14.00" fill="green">car_params</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.car.CarParams&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.Lane -->
+<!-- pse.umlsl_editor.src.model.dataclasses.car.CarParams&#45;&gt;pse.umlsl_editor.src.model.dataclasses.road.Lane -->
 <g id="edge35" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.car.CarParams&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.Lane</title>
 <path fill="none" stroke="black" d="M5738.48,-1703.89C5733.91,-1752.11 5728.46,-1809.59 5724.39,-1852.54"/>
 <polygon fill="black" stroke="black" points="5723.45,-1862.48 5719.91,-1852.1 5723.8,-1858.71 5724.39,-1852.52 5724.39,-1852.52 5724.39,-1852.52 5723.8,-1858.71 5728.87,-1852.94 5723.45,-1862.48"/>
 <text xml:space="preserve" text-anchor="middle" x="5739.83" y="-1807.2" font-family="Times,serif" font-size="14.00" fill="green">lane</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.car.CarValidationError -->
+<!-- pse.umlsl_editor.src.model.dataclasses.car.CarValidationError -->
 <g id="node9" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.car.CarValidationError</title>
 <polygon fill="none" stroke="black" points="9785.62,-29.25 9785.62,-78.25 9905.12,-78.25 9905.12,-29.25 9785.62,-29.25"/>
@@ -501,7 +501,7 @@
 <path fill="none" stroke="black" d="M3453.13,-1954.22C3404.75,-1968.2 3348.16,-1983.64 3296.38,-1995.5 3008.37,-2061.44 2658.2,-2115.33 2525.18,-2134.87"/>
 <polygon fill="none" stroke="black" points="2525,-2131.36 2515.61,-2136.27 2526.01,-2138.28 2525,-2131.36"/>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment.CrossingSegment -->
+<!-- pse.umlsl_editor.src.model.dataclasses.segments.crossing_segment.CrossingSegment -->
 <g id="node18" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment.CrossingSegment</title>
 <polygon fill="none" stroke="black" points="5475.62,-1555.75 5475.62,-1662.25 5619.12,-1662.25 5619.12,-1555.75 5475.62,-1555.75"/>
@@ -514,21 +514,21 @@
 <text xml:space="preserve" text-anchor="start" x="5483.62" y="-1563.95" font-family="Times,serif" font-style="italic" font-size="14.00">get_position</text>
 <text xml:space="preserve" text-anchor="start" x="5550.38" y="-1563.95" font-family="Times,serif" font-size="14.00">(): Position</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment.CrossingSegment&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.Lane -->
+<!-- pse.umlsl_editor.src.model.dataclasses.segments.crossing_segment.CrossingSegment&#45;&gt;pse.umlsl_editor.src.model.dataclasses.road.Lane -->
 <g id="edge36" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment.CrossingSegment&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.Lane</title>
 <path fill="none" stroke="black" d="M5565.67,-1662.61C5582,-1706.46 5608.13,-1769.72 5639.38,-1820.5 5646.49,-1832.07 5654.9,-1843.74 5663.54,-1854.76"/>
 <polygon fill="black" stroke="black" points="5669.73,-1862.49 5659.96,-1857.49 5667.36,-1859.54 5663.48,-1854.68 5663.48,-1854.68 5663.48,-1854.68 5667.36,-1859.54 5666.99,-1851.87 5669.73,-1862.49"/>
 <text xml:space="preserve" text-anchor="middle" x="5681.38" y="-1807.2" font-family="Times,serif" font-size="14.00" fill="green">lane_horizontal</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment.CrossingSegment&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.Lane -->
+<!-- pse.umlsl_editor.src.model.dataclasses.segments.crossing_segment.CrossingSegment&#45;&gt;pse.umlsl_editor.src.model.dataclasses.road.Lane -->
 <g id="edge37" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment.CrossingSegment&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.Lane</title>
 <path fill="none" stroke="black" d="M5533.27,-1662.39C5524.02,-1709.45 5519.6,-1777.56 5556.62,-1820.5 5584.04,-1852.3 5612.88,-1817.73 5649.38,-1838.5 5657.48,-1843.11 5665.12,-1849.03 5672.17,-1855.53"/>
 <polygon fill="black" stroke="black" points="5679.28,-1862.53 5669,-1858.72 5676.59,-1859.88 5672.15,-1855.52 5672.15,-1855.52 5672.15,-1855.52 5676.59,-1859.88 5675.31,-1852.31 5679.28,-1862.53"/>
 <text xml:space="preserve" text-anchor="middle" x="5591.5" y="-1807.2" font-family="Times,serif" font-size="14.00" fill="green">lane_vertical</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.segments.segment.Segment -->
+<!-- pse.umlsl_editor.src.model.dataclasses.segments.segment.Segment -->
 <g id="node53" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.segments.segment.Segment</title>
 <polygon fill="none" stroke="black" points="5221.38,-2107 5221.38,-2180.5 5363.38,-2180.5 5363.38,-2107 5221.38,-2107"/>
@@ -538,7 +538,7 @@
 <polyline fill="none" stroke="black" points="5221.38,-2131.5 5363.38,-2131.5"/>
 <text xml:space="preserve" text-anchor="start" x="5290.5" y="-2114.2" font-family="Times,serif" font-size="14.00"> </text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment.CrossingSegment&#45;&gt;pse.umlsl_editor.src.core.dataclasses.segments.segment.Segment -->
+<!-- pse.umlsl_editor.src.model.dataclasses.segments.crossing_segment.CrossingSegment&#45;&gt;pse.umlsl_editor.src.model.dataclasses.segments.segment.Segment -->
 <g id="edge6" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.segments.crossing_segment.CrossingSegment&#45;&gt;pse.umlsl_editor.src.core.dataclasses.segments.segment.Segment</title>
 <path fill="none" stroke="black" d="M5536.13,-1662.46C5518.26,-1739.12 5478.9,-1884.69 5416.38,-1995.5 5415.96,-1996.24 5366.51,-2054.9 5330.19,-2097.95"/>
@@ -719,7 +719,7 @@
 <polygon fill="none" stroke="black" points="5228.29,-1850.49 5232.25,-1856.52 5228.22,-1862.49 5224.25,-1856.47 5228.29,-1850.49"/>
 <text xml:space="preserve" text-anchor="middle" x="5270.38" y="-1807.2" font-family="Times,serif" font-size="14.00" fill="green">space_interval</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.road.LaneDirection -->
+<!-- pse.umlsl_editor.src.model.dataclasses.road.LaneDirection -->
 <g id="node32" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.road.LaneDirection</title>
 <polygon fill="none" stroke="black" points="5839.38,-2107 5839.38,-2180.5 5933.38,-2180.5 5933.38,-2107 5839.38,-2107"/>
@@ -729,14 +729,14 @@
 <polyline fill="none" stroke="black" points="5839.38,-2131.5 5933.38,-2131.5"/>
 <text xml:space="preserve" text-anchor="start" x="5884.5" y="-2114.2" font-family="Times,serif" font-size="14.00"> </text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.road.Lane&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.LaneDirection -->
+<!-- pse.umlsl_editor.src.model.dataclasses.road.Lane&#45;&gt;pse.umlsl_editor.src.model.dataclasses.road.LaneDirection -->
 <g id="edge38" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.road.Lane&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.LaneDirection</title>
 <path fill="none" stroke="black" d="M5748.83,-1970.62C5762.21,-1990.8 5779.19,-2013.04 5798.12,-2030 5810.35,-2040.95 5818.63,-2036.54 5830.38,-2048 5844.67,-2061.94 5856.62,-2080.29 5865.77,-2097.12"/>
 <polygon fill="black" stroke="black" points="5870.26,-2105.73 5861.64,-2098.95 5868.51,-2102.38 5865.63,-2096.87 5865.63,-2096.87 5865.63,-2096.87 5868.51,-2102.38 5869.62,-2094.78 5870.26,-2105.73"/>
 <text xml:space="preserve" text-anchor="middle" x="5836.75" y="-2016.7" font-family="Times,serif" font-size="14.00" fill="green">lane_direction</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.road.Road -->
+<!-- pse.umlsl_editor.src.model.dataclasses.road.Road -->
 <g id="node47" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.road.Road</title>
 <polygon fill="none" stroke="black" points="5381.25,-2048.5 5381.25,-2239 5675.5,-2239 5675.5,-2048.5 5381.25,-2048.5"/>
@@ -759,14 +759,14 @@
 <text xml:space="preserve" text-anchor="start" x="5389.25" y="-2054.2" font-family="Times,serif" font-style="italic" font-size="14.00">update_from_params</text>
 <text xml:space="preserve" text-anchor="start" x="5505.5" y="-2054.2" font-family="Times,serif" font-size="14.00">(params: RoadParams): None</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.road.Lane&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.Road -->
+<!-- pse.umlsl_editor.src.model.dataclasses.road.Lane&#45;&gt;pse.umlsl_editor.src.model.dataclasses.road.Road -->
 <g id="edge41" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.road.Lane&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.Road</title>
 <path fill="none" stroke="black" d="M5722.09,-1970.73C5721.19,-1990.59 5717.22,-2012.56 5706.38,-2030 5705.13,-2032 5697.18,-2037.76 5685.28,-2045.68"/>
 <polygon fill="black" stroke="black" points="5676.97,-2051.14 5682.86,-2041.89 5680.13,-2049.06 5685.33,-2045.65 5685.33,-2045.65 5685.33,-2045.65 5680.13,-2049.06 5687.8,-2049.41 5676.97,-2051.14"/>
 <text xml:space="preserve" text-anchor="middle" x="5726.22" y="-2016.7" font-family="Times,serif" font-size="14.00" fill="green">road</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.segments.lane_segment.LaneSegment -->
+<!-- pse.umlsl_editor.src.model.dataclasses.segments.lane_segment.LaneSegment -->
 <g id="node33" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.segments.lane_segment.LaneSegment</title>
 <polygon fill="none" stroke="black" points="5498.38,-1855.5 5498.38,-1978.5 5640.38,-1978.5 5640.38,-1855.5 5498.38,-1855.5"/>
@@ -779,21 +779,21 @@
 <polyline fill="none" stroke="black" points="5498.38,-1880 5640.38,-1880"/>
 <text xml:space="preserve" text-anchor="start" x="5567.5" y="-1862.7" font-family="Times,serif" font-size="14.00"> </text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.segments.lane_segment.LaneSegment&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.LaneDirection -->
+<!-- pse.umlsl_editor.src.model.dataclasses.segments.lane_segment.LaneSegment&#45;&gt;pse.umlsl_editor.src.model.dataclasses.road.LaneDirection -->
 <g id="edge39" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.segments.lane_segment.LaneSegment&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.LaneDirection</title>
 <path fill="none" stroke="black" d="M5586.38,-1978.75C5594.87,-1998.2 5607.27,-2017.83 5625.12,-2030 5700.8,-2081.57 5752.9,-1999.18 5830.38,-2048 5848.16,-2059.21 5861,-2078.28 5869.86,-2096.39"/>
 <polygon fill="black" stroke="black" points="5874,-2105.48 5865.76,-2098.24 5872.43,-2102.03 5869.86,-2096.37 5869.86,-2096.37 5869.86,-2096.37 5872.43,-2102.03 5873.95,-2094.51 5874,-2105.48"/>
 <text xml:space="preserve" text-anchor="middle" x="5663.75" y="-2016.7" font-family="Times,serif" font-size="14.00" fill="green">lane_direction</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.segments.lane_segment.LaneSegment&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.Road -->
+<!-- pse.umlsl_editor.src.model.dataclasses.segments.lane_segment.LaneSegment&#45;&gt;pse.umlsl_editor.src.model.dataclasses.road.Road -->
 <g id="edge42" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.segments.lane_segment.LaneSegment&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.Road</title>
 <path fill="none" stroke="black" d="M5539.62,-1978.77C5535.28,-1990.07 5531.49,-2001.96 5529.12,-2013.5 5527.56,-2021.13 5526.4,-2029.07 5525.58,-2037.09"/>
 <polygon fill="black" stroke="black" points="5524.75,-2046.85 5521.11,-2036.51 5525.07,-2043.08 5525.6,-2036.89 5525.6,-2036.89 5525.6,-2036.89 5525.07,-2043.08 5530.08,-2037.27 5524.75,-2046.85"/>
 <text xml:space="preserve" text-anchor="middle" x="5567.75" y="-2016.7" font-family="Times,serif" font-size="14.00" fill="green">assigned_road</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.segments.lane_segment.LaneSegment&#45;&gt;pse.umlsl_editor.src.core.dataclasses.segments.segment.Segment -->
+<!-- pse.umlsl_editor.src.model.dataclasses.segments.lane_segment.LaneSegment&#45;&gt;pse.umlsl_editor.src.model.dataclasses.segments.segment.Segment -->
 <g id="edge7" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.segments.lane_segment.LaneSegment&#45;&gt;pse.umlsl_editor.src.core.dataclasses.segments.segment.Segment</title>
 <path fill="none" stroke="black" d="M5534.24,-1978.93C5520.2,-1998.16 5502.34,-2017.6 5481.38,-2030 5439.12,-2055 5415.07,-2023.75 5372.38,-2048 5351.65,-2059.77 5333.89,-2079.08 5320.41,-2097.21"/>
@@ -942,7 +942,7 @@
 <path fill="none" stroke="black" d="M2470.38,-2168.46C2470.38,-2204.01 2470.38,-2271.35 2470.38,-2312.7"/>
 <polygon fill="none" stroke="black" points="2466.88,-2312.61 2470.38,-2322.61 2473.88,-2312.61 2466.88,-2312.61"/>
 </g>
-<!-- pse.umlsl_editor.src.core.traffic_snapshot_observables.ObservableDict -->
+<!-- pse.umlsl_editor.src.model.traffic_snapshot_observables.ObservableDict -->
 <g id="node40" class="node">
 <title>pse.umlsl_editor.src.core.traffic_snapshot_observables.ObservableDict</title>
 <polygon fill="none" stroke="black" points="10770,-29.25 10770,-78.25 10870.75,-78.25 10870.75,-29.25 10770,-29.25"/>
@@ -951,7 +951,7 @@
 <polyline fill="none" stroke="black" points="10770,-53.75 10870.75,-53.75"/>
 <text xml:space="preserve" text-anchor="start" x="10818.5" y="-36.45" font-family="Times,serif" font-size="14.00"> </text>
 </g>
-<!-- pse.umlsl_editor.src.core.traffic_snapshot_observables.ObservableList -->
+<!-- pse.umlsl_editor.src.model.traffic_snapshot_observables.ObservableList -->
 <g id="node41" class="node">
 <title>pse.umlsl_editor.src.core.traffic_snapshot_observables.ObservableList</title>
 <polygon fill="none" stroke="black" points="10888.38,-29.25 10888.38,-78.25 11084.38,-78.25 11084.38,-29.25 10888.38,-29.25"/>
@@ -973,7 +973,7 @@
 <text xml:space="preserve" text-anchor="start" x="11110.38" y="-29.2" font-family="Times,serif" font-style="italic" font-size="14.00">serialize</text>
 <text xml:space="preserve" text-anchor="start" x="11156.12" y="-29.2" font-family="Times,serif" font-size="14.00">(snapshot: TrafficSnapshot): str</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.position.Position -->
+<!-- pse.umlsl_editor.src.model.dataclasses.position.Position -->
 <g id="node44" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.position.Position</title>
 <polygon fill="none" stroke="black" points="11370.25,-8.75 11370.25,-98.75 11430.5,-98.75 11430.5,-8.75 11370.25,-8.75"/>
@@ -1023,13 +1023,13 @@
 <path fill="none" stroke="black" d="M9583.06,-90.74C9573.14,-129.03 9557.42,-189.76 9546.53,-231.79"/>
 <polygon fill="none" stroke="black" points="9543.17,-230.83 9544.05,-241.38 9549.94,-232.58 9543.17,-230.83"/>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.road.Road&#45;&gt;pse.umlsl_editor.src.core.dataclasses.entity.Entity -->
+<!-- pse.umlsl_editor.src.model.dataclasses.road.Road&#45;&gt;pse.umlsl_editor.src.model.dataclasses.entity.Entity -->
 <g id="edge5" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.road.Road&#45;&gt;pse.umlsl_editor.src.core.dataclasses.entity.Entity</title>
 <path fill="none" stroke="black" d="M5425.17,-2239.23C5408.3,-2254.68 5391.18,-2270.35 5375.4,-2284.81"/>
 <polygon fill="none" stroke="black" points="5373.4,-2281.89 5368.39,-2291.22 5378.13,-2287.05 5373.4,-2281.89"/>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.road.RoadOrientation -->
+<!-- pse.umlsl_editor.src.model.dataclasses.road.RoadOrientation -->
 <g id="node49" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.road.RoadOrientation</title>
 <polygon fill="none" stroke="black" points="5626.38,-2312.25 5626.38,-2385.75 5732.38,-2385.75 5732.38,-2312.25 5626.38,-2312.25"/>
@@ -1039,7 +1039,7 @@
 <polyline fill="none" stroke="black" points="5626.38,-2336.75 5732.38,-2336.75"/>
 <text xml:space="preserve" text-anchor="start" x="5677.5" y="-2319.45" font-family="Times,serif" font-size="14.00"> </text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.road.Road&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.RoadOrientation -->
+<!-- pse.umlsl_editor.src.model.dataclasses.road.Road&#45;&gt;pse.umlsl_editor.src.model.dataclasses.road.RoadOrientation -->
 <g id="edge43" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.road.Road&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.RoadOrientation</title>
 <path fill="none" stroke="black" d="M5598.57,-2239.23C5615.12,-2261.51 5632.01,-2284.24 5646.03,-2303.12"/>
@@ -1063,7 +1063,7 @@
 <path fill="none" stroke="black" d="M9687.13,-90.74C9655.49,-129.68 9604.99,-191.84 9570.79,-233.93"/>
 <polygon fill="none" stroke="black" points="9568.09,-231.71 9564.5,-241.68 9573.52,-236.12 9568.09,-231.71"/>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.road.RoadParams -->
+<!-- pse.umlsl_editor.src.model.dataclasses.road.RoadParams -->
 <g id="node50" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.road.RoadParams</title>
 <polygon fill="none" stroke="black" points="5693.12,-2074 5693.12,-2213.5 5821.62,-2213.5 5821.62,-2074 5693.12,-2074"/>
@@ -1077,14 +1077,14 @@
 <polyline fill="none" stroke="black" points="5693.12,-2098.5 5821.62,-2098.5"/>
 <text xml:space="preserve" text-anchor="start" x="5755.5" y="-2081.2" font-family="Times,serif" font-size="14.00"> </text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.road.RoadParams&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.RoadOrientation -->
+<!-- pse.umlsl_editor.src.model.dataclasses.road.RoadParams&#45;&gt;pse.umlsl_editor.src.model.dataclasses.road.RoadOrientation -->
 <g id="edge44" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.road.RoadParams&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.RoadOrientation</title>
 <path fill="none" stroke="black" d="M5730.86,-2213.84C5719.76,-2242.77 5707.15,-2275.63 5697.19,-2301.59"/>
 <polygon fill="black" stroke="black" points="5693.67,-2310.76 5693.05,-2299.81 5695.02,-2307.23 5697.25,-2301.42 5697.25,-2301.42 5697.25,-2301.42 5695.02,-2307.23 5701.45,-2303.04 5693.67,-2310.76"/>
 <text xml:space="preserve" text-anchor="middle" x="5742.95" y="-2260.7" font-family="Times,serif" font-size="14.00" fill="green">orientation</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.road.RoadValidationError -->
+<!-- pse.umlsl_editor.src.model.dataclasses.road.RoadValidationError -->
 <g id="node51" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.road.RoadValidationError</title>
 <polygon fill="none" stroke="black" points="11448.12,-29.25 11448.12,-78.25 11576.62,-78.25 11576.62,-29.25 11448.12,-29.25"/>
@@ -1115,7 +1115,7 @@
 <polygon fill="black" stroke="black" points="8505.05,-151.45 8503.33,-158.45 8496.21,-159.56 8497.92,-152.56 8505.05,-151.45"/>
 <text xml:space="preserve" text-anchor="middle" x="8557.7" y="-128.7" font-family="Times,serif" font-size="14.00" fill="green">roads_list</text>
 </g>
-<!-- pse.umlsl_editor.src.core.selection_model.SelectionModel -->
+<!-- pse.umlsl_editor.src.model.selection_model.SelectionModel -->
 <g id="node55" class="node">
 <title>pse.umlsl_editor.src.core.selection_model.SelectionModel</title>
 <polygon fill="none" stroke="black" points="11594.62,-2.5 11594.62,-105 11792.12,-105 11792.12,-2.5 11594.62,-2.5"/>
@@ -1233,7 +1233,7 @@
 <polygon fill="black" stroke="black" points="8822.26,-442.7 8821.14,-449.82 8814.13,-451.53 8815.26,-444.4 8822.26,-442.7"/>
 <text xml:space="preserve" text-anchor="middle" x="8859.11" y="-420.7" font-family="Times,serif" font-size="14.00" fill="green">scene</text>
 </g>
-<!-- pse.umlsl_editor.src.core.traffic_snapshot.TrafficSnapshot -->
+<!-- pse.umlsl_editor.src.model.traffic_snapshot.TrafficSnapshot -->
 <g id="node61" class="node">
 <title>pse.umlsl_editor.src.core.traffic_snapshot.TrafficSnapshot</title>
 <polygon fill="none" stroke="black" points="6416.12,-874.5 6416.12,-1379 6928.62,-1379 6928.62,-874.5 6416.12,-874.5"/>
@@ -1291,21 +1291,21 @@
 <text xml:space="preserve" text-anchor="start" x="6424.12" y="-880.2" font-family="Times,serif" font-style="italic" font-size="14.00">validate_lane</text>
 <text xml:space="preserve" text-anchor="start" x="6497.62" y="-880.2" font-family="Times,serif" font-size="14.00">(road: Road, lane_index: int, lane_direction: str): bool</text>
 </g>
-<!-- pse.umlsl_editor.src.core.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.controllers.command_controller.CommandController -->
+<!-- pse.umlsl_editor.src.model.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.controllers.command_controller.CommandController -->
 <g id="edge57" class="edge">
 <title>pse.umlsl_editor.src.core.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.controllers.command_controller.CommandController</title>
 <path fill="none" stroke="black" d="M6928.82,-1241.26C7064.08,-1301.13 7232.58,-1375.71 7382.24,-1441.95"/>
 <polygon fill="none" stroke="black" points="7382.1,-1441.89 7389.2,-1440.66 7393.07,-1446.75 7385.97,-1447.98 7382.1,-1441.89"/>
 <text xml:space="preserve" text-anchor="middle" x="7355.56" y="-1400.7" font-family="Times,serif" font-size="14.00" fill="green">traffic_snapshot</text>
 </g>
-<!-- pse.umlsl_editor.src.core.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.controllers.data_controller.DataController -->
+<!-- pse.umlsl_editor.src.model.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.controllers.data_controller.DataController -->
 <g id="edge58" class="edge">
 <title>pse.umlsl_editor.src.core.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.controllers.data_controller.DataController</title>
 <path fill="none" stroke="black" d="M6415.82,-1205.07C6288.04,-1253.81 6138.41,-1327.61 6031.38,-1432 5996.65,-1465.87 5973.1,-1516.15 5958.99,-1554.31"/>
 <polygon fill="none" stroke="black" points="5959.08,-1554.08 5960.83,-1561.08 5955.05,-1565.39 5953.29,-1558.39 5959.08,-1554.08"/>
 <text xml:space="preserve" text-anchor="middle" x="6102.84" y="-1400.7" font-family="Times,serif" font-size="14.00" fill="green">traffic_snapshot</text>
 </g>
-<!-- pse.umlsl_editor.src.core.traffic_snapshot_reader.TrafficSnapshotReader -->
+<!-- pse.umlsl_editor.src.model.traffic_snapshot_reader.TrafficSnapshotReader -->
 <g id="node62" class="node">
 <title>pse.umlsl_editor.src.core.traffic_snapshot_reader.TrafficSnapshotReader</title>
 <polygon fill="none" stroke="black" points="6416.12,-1550.75 6416.12,-1667.25 6928.62,-1667.25 6928.62,-1550.75 6416.12,-1550.75"/>
@@ -1325,13 +1325,13 @@
 <text xml:space="preserve" text-anchor="start" x="6424.12" y="-1556.45" font-family="Times,serif" font-style="italic" font-size="14.00">validate_lane</text>
 <text xml:space="preserve" text-anchor="start" x="6497.62" y="-1556.45" font-family="Times,serif" font-size="14.00">(road: Road, lane_index: int, lane_direction: str): bool</text>
 </g>
-<!-- pse.umlsl_editor.src.core.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.core.traffic_snapshot_reader.TrafficSnapshotReader -->
+<!-- pse.umlsl_editor.src.model.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.model.traffic_snapshot_reader.TrafficSnapshotReader -->
 <g id="edge8" class="edge">
 <title>pse.umlsl_editor.src.core.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.core.traffic_snapshot_reader.TrafficSnapshotReader</title>
 <path fill="none" stroke="black" d="M6672.38,-1379.48C6672.38,-1438.25 6672.38,-1496.09 6672.38,-1538.87"/>
 <polygon fill="none" stroke="black" points="6668.88,-1538.74 6672.38,-1548.74 6675.88,-1538.74 6668.88,-1538.74"/>
 </g>
-<!-- pse.umlsl_editor.src.core.traffic_snapshot_writer.TrafficSnapshotWriter -->
+<!-- pse.umlsl_editor.src.model.traffic_snapshot_writer.TrafficSnapshotWriter -->
 <g id="node64" class="node">
 <title>pse.umlsl_editor.src.core.traffic_snapshot_writer.TrafficSnapshotWriter</title>
 <polygon fill="none" stroke="black" points="6040.75,-1529.75 6040.75,-1688.25 6398,-1688.25 6398,-1529.75 6040.75,-1529.75"/>
@@ -1357,27 +1357,27 @@
 <text xml:space="preserve" text-anchor="start" x="6048.75" y="-1535.45" font-family="Times,serif" font-style="italic" font-size="14.00">update_umlsl_query</text>
 <text xml:space="preserve" text-anchor="start" x="6159" y="-1535.45" font-family="Times,serif" font-size="14.00">(umlsl_query_data: UMLSLQuery): None</text>
 </g>
-<!-- pse.umlsl_editor.src.core.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.core.traffic_snapshot_writer.TrafficSnapshotWriter -->
+<!-- pse.umlsl_editor.src.model.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.model.traffic_snapshot_writer.TrafficSnapshotWriter -->
 <g id="edge9" class="edge">
 <title>pse.umlsl_editor.src.core.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.core.traffic_snapshot_writer.TrafficSnapshotWriter</title>
 <path fill="none" stroke="black" d="M6434.93,-1379.48C6386.82,-1430.49 6339.36,-1480.8 6301.28,-1521.17"/>
 <polygon fill="none" stroke="black" points="6298.9,-1518.59 6294.58,-1528.27 6303.99,-1523.39 6298.9,-1518.59"/>
 </g>
-<!-- pse.umlsl_editor.src.core.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.controllers.view_controller.ViewController -->
+<!-- pse.umlsl_editor.src.model.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.controllers.view_controller.ViewController -->
 <g id="edge59" class="edge">
 <title>pse.umlsl_editor.src.core.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.controllers.view_controller.ViewController</title>
 <path fill="none" stroke="black" d="M6928.85,-1183.94C7195.44,-1240.56 7625.36,-1326.87 8000.38,-1379.5 8166.56,-1402.82 8209.25,-1398.85 8376.38,-1414 8421.04,-1418.05 8542.11,-1404.3 8577.38,-1432 8613.38,-1460.28 8627.9,-1511.23 8633.7,-1551.07"/>
 <polygon fill="none" stroke="black" points="8633.7,-1551.03 8638.42,-1556.48 8635.21,-1562.94 8630.48,-1557.49 8633.7,-1551.03"/>
 <text xml:space="preserve" text-anchor="middle" x="8419.88" y="-1400.7" font-family="Times,serif" font-size="14.00" fill="green">traffic_snapshot</text>
 </g>
-<!-- pse.umlsl_editor.src.core.traffic_snapshot_reader.TrafficSnapshotReader&#45;&gt;pse.umlsl_editor.src.commands.cars.add_car.AddCarCommand -->
+<!-- pse.umlsl_editor.src.model.traffic_snapshot_reader.TrafficSnapshotReader&#45;&gt;pse.umlsl_editor.src.commands.cars.add_car.AddCarCommand -->
 <g id="edge60" class="edge">
 <title>pse.umlsl_editor.src.core.traffic_snapshot_reader.TrafficSnapshotReader&#45;&gt;pse.umlsl_editor.src.commands.cars.add_car.AddCarCommand</title>
 <path fill="none" stroke="black" d="M6586.9,-1667.74C6505.19,-1722.93 6382.81,-1805.6 6302.04,-1860.16"/>
 <polygon fill="none" stroke="black" points="6302.11,-1860.11 6299.38,-1866.78 6292.17,-1866.83 6294.9,-1860.15 6302.11,-1860.11"/>
 <text xml:space="preserve" text-anchor="middle" x="6442.58" y="-1807.2" font-family="Times,serif" font-size="14.00" fill="green">traffic_snapshot_reader</text>
 </g>
-<!-- pse.umlsl_editor.src.core.traffic_snapshot.TrafficSnapshotValidationError -->
+<!-- pse.umlsl_editor.src.model.traffic_snapshot.TrafficSnapshotValidationError -->
 <g id="node63" class="node">
 <title>pse.umlsl_editor.src.core.traffic_snapshot.TrafficSnapshotValidationError</title>
 <polygon fill="none" stroke="black" points="11809.88,-29.25 11809.88,-78.25 11996.88,-78.25 11996.88,-29.25 11809.88,-29.25"/>
@@ -1386,7 +1386,7 @@
 <polyline fill="none" stroke="black" points="11809.88,-53.75 11996.88,-53.75"/>
 <text xml:space="preserve" text-anchor="start" x="11901.5" y="-36.45" font-family="Times,serif" font-size="14.00" fill="red"> </text>
 </g>
-<!-- pse.umlsl_editor.src.core.traffic_snapshot_writer.TrafficSnapshotWriter&#45;&gt;pse.umlsl_editor.src.commands.cars.add_car.AddCarCommand -->
+<!-- pse.umlsl_editor.src.model.traffic_snapshot_writer.TrafficSnapshotWriter&#45;&gt;pse.umlsl_editor.src.commands.cars.add_car.AddCarCommand -->
 <g id="edge61" class="edge">
 <title>pse.umlsl_editor.src.core.traffic_snapshot_writer.TrafficSnapshotWriter&#45;&gt;pse.umlsl_editor.src.commands.cars.add_car.AddCarCommand</title>
 <path fill="none" stroke="black" d="M6219.38,-1688.41C6219.38,-1736.64 6219.38,-1797.97 6219.38,-1844.81"/>
@@ -1415,7 +1415,7 @@
 <path fill="none" stroke="black" d="M4773.38,-1941.93C4718.12,-1959.77 4638.72,-1983.11 4567.38,-1995.5 3764.73,-2134.87 2767.47,-2143.15 2525.24,-2142.98"/>
 <polygon fill="none" stroke="black" points="2525.47,-2139.48 2515.46,-2142.97 2525.46,-2146.48 2525.47,-2139.48"/>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.turn_intent.TurnDirection -->
+<!-- pse.umlsl_editor.src.model.dataclasses.turn_intent.TurnDirection -->
 <g id="node67" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.turn_intent.TurnDirection</title>
 <polygon fill="none" stroke="black" points="5977.75,-2107 5977.75,-2180.5 6071,-2180.5 6071,-2107 5977.75,-2107"/>
@@ -1425,7 +1425,7 @@
 <polyline fill="none" stroke="black" points="5977.75,-2131.5 6071,-2131.5"/>
 <text xml:space="preserve" text-anchor="start" x="6022.5" y="-2114.2" font-family="Times,serif" font-size="14.00"> </text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.turn_intent.TurnIntent -->
+<!-- pse.umlsl_editor.src.model.dataclasses.turn_intent.TurnIntent -->
 <g id="node68" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.turn_intent.TurnIntent</title>
 <polygon fill="none" stroke="black" points="5833,-1839 5833,-1995 6083.75,-1995 6083.75,-1839 5833,-1839"/>
@@ -1440,21 +1440,21 @@
 <text xml:space="preserve" text-anchor="start" x="5841" y="-1862.7" font-family="Times,serif" font-size="14.00">to_dict(): dict[str, Any]</text>
 <text xml:space="preserve" text-anchor="start" x="5841" y="-1846.2" font-family="Times,serif" font-size="14.00">to_json(): str</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.turn_intent.TurnIntent&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.LaneDirection -->
+<!-- pse.umlsl_editor.src.model.dataclasses.turn_intent.TurnIntent&#45;&gt;pse.umlsl_editor.src.model.dataclasses.road.LaneDirection -->
 <g id="edge40" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.turn_intent.TurnIntent&#45;&gt;pse.umlsl_editor.src.core.dataclasses.road.LaneDirection</title>
 <path fill="none" stroke="black" d="M5891.58,-1995.34C5888.46,-2001.25 5885.75,-2007.33 5883.62,-2013.5 5874.62,-2039.63 5874.91,-2070.53 5877.64,-2095.56"/>
 <polygon fill="black" stroke="black" points="5878.89,-2105.4 5873.17,-2096.05 5878.41,-2101.65 5877.63,-2095.48 5877.63,-2095.48 5877.63,-2095.48 5878.41,-2101.65 5882.1,-2094.91 5878.89,-2105.4"/>
 <text xml:space="preserve" text-anchor="middle" x="5941" y="-2016.7" font-family="Times,serif" font-size="14.00" fill="green">target_lane_direction</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.turn_intent.TurnIntent&#45;&gt;pse.umlsl_editor.src.core.dataclasses.turn_intent.TurnDirection -->
+<!-- pse.umlsl_editor.src.model.dataclasses.turn_intent.TurnIntent&#45;&gt;pse.umlsl_editor.src.model.dataclasses.turn_intent.TurnDirection -->
 <g id="edge46" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.turn_intent.TurnIntent&#45;&gt;pse.umlsl_editor.src.core.dataclasses.turn_intent.TurnDirection</title>
 <path fill="none" stroke="black" d="M5996.01,-1995.25C5998.35,-2001.35 6000.51,-2007.48 6002.38,-2013.5 6010.63,-2040.18 6016.03,-2070.98 6019.41,-2095.82"/>
 <polygon fill="black" stroke="black" points="6020.67,-2105.57 6014.92,-2096.23 6020.18,-2101.82 6019.39,-2095.65 6019.39,-2095.65 6019.39,-2095.65 6020.18,-2101.82 6023.85,-2095.07 6020.67,-2105.57"/>
 <text xml:space="preserve" text-anchor="middle" x="6030.27" y="-2016.7" font-family="Times,serif" font-size="14.00" fill="green">direction</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.turn_intent.TurnIntentValidationError -->
+<!-- pse.umlsl_editor.src.model.dataclasses.turn_intent.TurnIntentValidationError -->
 <g id="node69" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.turn_intent.TurnIntentValidationError</title>
 <polygon fill="none" stroke="black" points="12014.5,-29.25 12014.5,-78.25 12172.25,-78.25 12172.25,-29.25 12014.5,-29.25"/>
@@ -1474,7 +1474,7 @@
 <text xml:space="preserve" text-anchor="start" x="12198.25" y="-32.45" font-family="Times,serif" font-size="14.00">compute_horizon(car: Car): float</text>
 <text xml:space="preserve" text-anchor="start" x="12198.25" y="-15.95" font-family="Times,serif" font-size="14.00">evaluate_query(latex_string: str, traffic_snapshot: TrafficSnapshot, car: Car): bool</text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.umlsl_query.UMLSLQuery -->
+<!-- pse.umlsl_editor.src.model.dataclasses.umlsl_query.UMLSLQuery -->
 <g id="node71" class="node">
 <title>pse.umlsl_editor.src.core.dataclasses.umlsl_query.UMLSLQuery</title>
 <polygon fill="none" stroke="black" points="4614.75,-1073.5 4614.75,-1180 4720,-1180 4720,-1073.5 4614.75,-1073.5"/>
@@ -1486,7 +1486,7 @@
 <polyline fill="none" stroke="black" points="4614.75,-1098 4720,-1098"/>
 <text xml:space="preserve" text-anchor="start" x="4665.5" y="-1080.7" font-family="Times,serif" font-size="14.00"> </text>
 </g>
-<!-- pse.umlsl_editor.src.core.dataclasses.umlsl_query.UMLSLQuery&#45;&gt;pse.umlsl_editor.src.core.dataclasses.car.Car -->
+<!-- pse.umlsl_editor.src.model.dataclasses.umlsl_query.UMLSLQuery&#45;&gt;pse.umlsl_editor.src.model.dataclasses.car.Car -->
 <g id="edge33" class="edge">
 <title>pse.umlsl_editor.src.core.dataclasses.umlsl_query.UMLSLQuery&#45;&gt;pse.umlsl_editor.src.core.dataclasses.car.Car</title>
 <path fill="none" stroke="black" d="M4667.38,-1180.06C4667.38,-1237.88 4667.38,-1334.32 4667.38,-1421.02"/>

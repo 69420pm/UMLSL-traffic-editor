@@ -1,6 +1,6 @@
-from pse.umlsl_editor.src.core.entities.car import Car
-from pse.umlsl_editor.src.core.entities.road import Road
-from pse.umlsl_editor.src.core.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.entities.car import Car
+from pse.umlsl_editor.src.model.entities.road import Road
+from pse.umlsl_editor.src.model.traffic_snapshot_reader import TrafficSnapshotReader
 
 
 class DataController:
