@@ -1,3 +1,6 @@
+# controllers/car_list_controller.py
+from PySide6.QtWidgets import QLabel, QPushButton # Assuming you have a database/list
+
 from pse.umlsl_editor.src.view.ui.dialogs.car_edit_dialog import CarEditDialog
 from pse.umlsl_editor.src.view.ui.lists.list_controller import ListController
 

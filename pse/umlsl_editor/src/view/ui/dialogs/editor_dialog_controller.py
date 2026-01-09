@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QPushButton
+from PySide6.QtWidgets import QDialog, QPushButton
 from PySide6.QtCore import Slot
 
 from pse.umlsl_editor.src.view.ui_utils import load_ui
