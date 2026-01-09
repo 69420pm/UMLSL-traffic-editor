@@ -9,7 +9,7 @@ from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Se
 class CrossingSegment(Segment):
     lane_horizontal: Lane
     lane_vertical: Lane
-    is_lane_segment = True
+    is_lane_segment = False
 
     def get_position(self) -> Position:
         """Return position of the top left corner of the crossing segment.
