@@ -1,4 +1,4 @@
-from pse.umlsl_editor.src.commands.command import Command, ReturnValue
+from pse.umlsl_editor.src.commands.command import Command
 
 
 class ToggleSafetyDistanceCommand(Command[None]):
