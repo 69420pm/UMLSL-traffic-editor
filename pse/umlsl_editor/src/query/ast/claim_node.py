@@ -15,14 +15,13 @@ def is_claimed_segment(view: View, segment: Segment, car: Car) -> bool:
     return False
 
 
-def is_claimed_crossing(traffic_snapshot: TrafficSnapshot, segments: list[Segment], car: Car) -> bool:
-    car_context = traffic_snapshot.get_car_context(car)
-    claimed_crossings = car_context.claimed_crossings
-    return all(map(lambda segment: segment.is_crossing_segment() and segment in claimed_crossings, segments))
+def is_claimed_crossing(segments: list[Segment], car: Car) -> bool:
+    claimed_crossings = car.claimed_crossings
+    return all(map(lambda segment: not segment.is_lane_segment and segment in claimed_crossings, segments))
 
 
-def evaluate_claim(traffic_snapshot: TrafficSnapshot, view: View, segments: list[Segment], car: Car):
-    return (is_claimed_crossing(traffic_snapshot, segments, car)
+def evaluate_claim(view: View, segments: list[Segment], car: Car):
+    return (is_claimed_crossing(segments, car)
             or is_claimed_segment(view, segments[0], car))
 
 
@@ -35,7 +34,7 @@ class ConstantClaimNode(NullaryNode):
         if len(view.seq_lanes) != 1:
             return False
         path = view.seq_lanes[0]
-        return evaluate_claim(traffic_snapshot, view, path.segments, self.car)
+        return evaluate_claim(view, path.segments, self.car)
 
 
 class VariableClaimNode(NullaryNode):
@@ -48,4 +47,4 @@ class VariableClaimNode(NullaryNode):
             return False
         path = view.seq_lanes[0]
         car = variable_car_map[self.variable]
-        return evaluate_claim(traffic_snapshot, view, path.segments, car)
+        return evaluate_claim(view, path.segments, car)
