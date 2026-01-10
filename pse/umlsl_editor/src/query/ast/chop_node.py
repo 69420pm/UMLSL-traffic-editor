@@ -23,8 +23,8 @@ class HorizontalChopNode(BinaryNode):
             view1 = View(view.seq_lanes, space_interval1, view.car)
             view2 = View(view.seq_lanes, space_interval2, view.car)
 
-            if (self.left.evaluate(traffic_snapshot, view1, variable_car_map)
-                    and self.right.evaluate(traffic_snapshot, view2, variable_car_map)):
+            if (self._left.evaluate(traffic_snapshot, view1, variable_car_map)
+                    and self._right.evaluate(traffic_snapshot, view2, variable_car_map)):
                 return True
 
             split_value += step_size
@@ -49,8 +49,8 @@ class VerticalChopNode(BinaryNode):
             view1 = View(smaller, view.space_interval, view.car)
             view2 = View(bigger, view.space_interval, view.car)
 
-            if (self.left.evaluate(traffic_snapshot, view1, variable_car_map)
-                    and self.right.evaluate(traffic_snapshot, view2, variable_car_map)):
+            if (self._left.evaluate(traffic_snapshot, view1, variable_car_map)
+                    and self._right.evaluate(traffic_snapshot, view2, variable_car_map)):
                 return True
 
         return False

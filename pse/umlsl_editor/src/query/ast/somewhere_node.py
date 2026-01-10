@@ -12,7 +12,7 @@ class SomewhereNode(UnaryNode):
         # todo: iterate through all sub-layers directly for performance optimization
         vertical_somewhere_node = VerticalChopNode(
             TrueNode(),
-            VerticalChopNode(self.child, TrueNode())
+            VerticalChopNode(self._child, TrueNode())
         )
         horizontal_somewhere_node = HorizontalChopNode(
             TrueNode(),

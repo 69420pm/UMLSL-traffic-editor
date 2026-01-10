@@ -22,7 +22,7 @@ def evaluate_reserve(view: View, segments: list[Segment], car: Car):
 class ReserveNode(AtomNode):
     def __init__(self, car_resolve: CarResolve):
         super().__init__("re")
-        self.car_resolve = car_resolve
+        self._car_resolve = car_resolve
 
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
         if len(view.seq_lanes) != 1 or view.space_interval.length() <= 0:
@@ -51,6 +51,4 @@ class ReserveNode(AtomNode):
 
             # todo: if not (view.space_interval subset of (union of
 
-            
-        
-        return evaluate_reserve(view, path.segments, self.car_resolve.resolve(variable_car_map))
+        return evaluate_reserve(view, path.segments, self._car_resolve.resolve(variable_car_map))
