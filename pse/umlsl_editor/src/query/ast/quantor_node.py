@@ -9,9 +9,7 @@ class ExistsNode(UnaryNode):
         self.variable = variable
 
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
-        if self.variable in variable_car_map:
-            raise SyntaxError(f"Variable {self.variable} appears twice")
-
+        # the AST parser guarantees that the variable is not already in the map
         for car in traffic_snapshot.get_cars():
             new_variable_map = variable_car_map.copy()
             new_variable_map[self.variable] = car
@@ -21,21 +19,5 @@ class ExistsNode(UnaryNode):
 
         return False
 
-
-class ForAllNode(UnaryNode):
-    def __init__(self, variable: str, child: ASTNode):
-        super().__init__(child)
-        self.variable = variable
-
-    def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
-        if self.variable in variable_car_map:
-            raise SyntaxError(f"Variable {self.variable} appears twice")
-
-        for car in traffic_snapshot.get_cars():
-            new_variable_map = variable_car_map.copy()
-            new_variable_map[self.variable] = car
-
-            if not self.child.evaluate(traffic_snapshot, view, new_variable_map):
-                return False
-
-        return True
+    def to_latex(self, child: str) -> str:
+        return f"\\exists {self.variable}: {child}"

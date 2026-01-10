@@ -21,7 +21,7 @@ def evaluate_reserve(view: View, segments: list[Segment], car: Car):
 
 class ReserveNode(NullaryNode):
     def __init__(self, car_resolve: CarResolve):
-        super().__init__()
+        super().__init__("re")
         self.car_resolve = car_resolve
 
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:

@@ -28,7 +28,7 @@ def evaluate_claim(view: View, segments: list[Segment], car: Car):
 
 class ClaimNode(NullaryNode):
     def __init__(self, car_resolve: CarResolve):
-        super().__init__()
+        super().__init__("cl")
         self.car_resolve = car_resolve
 
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
