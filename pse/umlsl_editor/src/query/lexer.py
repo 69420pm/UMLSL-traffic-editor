@@ -22,6 +22,7 @@ class TokenType(Enum):
     NEGATION = "\\neg"
     NEGATION_SHORT = "!"
     EXITS = "\\exists"
+    FORALL = "\\forall"
     TRUE = "true"
     LITERAL = "LITERAL"  # value "LITERAL" is a placeholder
 
@@ -66,6 +67,8 @@ _UNARY_OPS = {
     TokenType.NEGATION_SHORT,
     TokenType.CLAIM,
     TokenType.RESERVE,
+    TokenType.EXITS,
+    TokenType.FORALL
 }
 
 ### For tokens that correspond to operations and require 2 parameters, we specify whether they are infix ({p1} op {p2}) or
@@ -76,7 +79,6 @@ _INFIX_BINARY_OPS = {
     TokenType.CAR_EQUALS
 }
 _PREFIX_BINARY_OPS = {
-    TokenType.EXITS,
     TokenType.H_CHOP,
     TokenType.V_CHOP,
 }

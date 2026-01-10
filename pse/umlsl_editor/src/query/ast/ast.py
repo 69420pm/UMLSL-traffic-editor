@@ -9,7 +9,7 @@ from pse.umlsl_editor.src.query.view import View
 # Assigns a value to each AST Node
 # Higher value = binds tighter (evaluated first)
 class Precedence(IntEnum):
-    NULLARY = 50  # Nullary Nodes
+    ATOM = 50  # Nullary Nodes
     UNARY = 40
     BINARY_CONJUNCTION = 30  # And
     BINARY_DISJUNCTION = 20  # Or
@@ -17,7 +17,7 @@ class Precedence(IntEnum):
     LOWEST = 0
 
 
-class PrecedenceText:
+class LaTexFragment:
     def __init__(self, precedence: int, text: str):
         self.precedence = precedence
         self.text = text
@@ -30,19 +30,22 @@ class ASTNode(ABC):
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
         pass
 
+    def to_latex(self) -> str:
+        return self._render().text
+
     @abstractmethod
-    def to_precedence_latex(self) -> PrecedenceText:
+    def _render(self) -> LaTexFragment:
         pass
 
 
-class NullaryNode(ASTNode, ABC):
+class AtomNode(ASTNode, ABC):
     def __init__(self, latex_code):
-        self.precedence = Precedence.NULLARY
+        self.precedence = Precedence.ATOM
         self.latex_code = latex_code
         pass
 
-    def to_precedence_latex(self) -> PrecedenceText:
-        return PrecedenceText(self.precedence, self.latex_code)
+    def _render(self) -> LaTexFragment:
+        return LaTexFragment(self.precedence, self.latex_code)
 
 
 class UnaryNode(ASTNode, ABC):
@@ -50,12 +53,8 @@ class UnaryNode(ASTNode, ABC):
         self.precedence = Precedence.UNARY
         self.child = child
 
-    @abstractmethod
-    def to_latex(self, child: str) -> str:
-        pass
-
-    def to_precedence_latex(self) -> PrecedenceText:
-        child_precedence_text = self.child.to_precedence_latex()
+    def _render(self) -> LaTexFragment:
+        child_precedence_text = self.child._render()
         child_precedence = child_precedence_text.precedence
         child_text = child_precedence_text.text
 
@@ -63,7 +62,11 @@ class UnaryNode(ASTNode, ABC):
         if self.precedence > child_precedence:
             child_text = f"\\({child_text}\\)"
 
-        return PrecedenceText(self.precedence, self.to_latex(child_text))
+        return LaTexFragment(self.precedence, self._format(child_text))
+
+    @abstractmethod
+    def _format(self, child: str) -> str:
+        pass
 
 
 class BinaryNode(ASTNode, ABC):
@@ -72,9 +75,9 @@ class BinaryNode(ASTNode, ABC):
         self.left = left
         self.right = right
 
-    def to_precedence_latex(self) -> PrecedenceText:
-        left_precedence_text = self.left.to_precedence_latex()
-        right_precedence_text = self.right.to_precedence_latex()
+    def _render(self) -> LaTexFragment:
+        left_precedence_text = self.left._render()
+        right_precedence_text = self.right._render()
 
         left_text = left_precedence_text.text
         if self.precedence > left_precedence_text.precedence:
@@ -84,8 +87,8 @@ class BinaryNode(ASTNode, ABC):
         if self.precedence > right_precedence_text.precedence:
             right_text = f"\\({right_precedence_text.text}\\)"
 
-        return PrecedenceText(self.precedence, self.to_latex(left_text, right_text))
+        return LaTexFragment(self.precedence, self._format(left_text, right_text))
 
     @abstractmethod
-    def to_latex(self, left: str, right: str) -> str:
+    def _format(self, left: str, right: str) -> str:
         pass

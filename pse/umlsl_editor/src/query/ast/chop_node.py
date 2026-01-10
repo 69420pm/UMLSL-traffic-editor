@@ -1,6 +1,6 @@
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.view_models.traffic_snapshot import TrafficSnapshot
-from pse.umlsl_editor.src.query.ast.ast import View, BinaryNode, PrecedenceText, Precedence, ASTNode
+from pse.umlsl_editor.src.query.ast.ast import View, BinaryNode, LaTexFragment, Precedence, ASTNode
 from pse.umlsl_editor.src.query.interval import Interval
 
 # Determines in how many pieces we split a given space interval
@@ -31,7 +31,7 @@ class HorizontalChopNode(BinaryNode):
 
         return False
 
-    def to_latex(self, left: str, right: str) -> str:
+    def _format(self, left: str, right: str) -> str:
         return f"{left} \\smallfrown {right}"
 
 
@@ -55,5 +55,5 @@ class VerticalChopNode(BinaryNode):
 
         return False
 
-    def to_latex(self, left: str, right: str) -> str:
+    def _format(self, left: str, right: str) -> str:
         return f"_{left}^{right}"

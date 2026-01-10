@@ -13,9 +13,21 @@ class UMLSLEvaluator:
         self.braking_accel = braking_accel
         self.traffic_snapshot = traffic_snapshot
 
+    def _compute_horizon(self) -> float:
+        braking_distances = map(
+            lambda car: car.velocity * car.velocity / (2.0 * self.braking_accel),
+            self.traffic_snapshot.get_cars()
+        )
+        return max(braking_distances)
+
     def evaluate_query(self, latex_string: str, car: Car) -> bool:
         ast = self.parse_latex_string(latex_string)
-        views = self.compute_views(car)
+        horizon = self.compute_horizon()
+        horizontal_extension = Interval(
+            car.absolute_position() - horizon,
+            car.absolute_position() + horizon
+        )
+        views = self.compute_views(car, horizontal_extension)
 
         for view in views:
             if ast.evaluate(self.traffic_snapshot, view, car):
@@ -27,12 +39,11 @@ class UMLSLEvaluator:
         tokens = Lexer(latex_string).tokenize()
         return ASTParser(tokens, self.traffic_snapshot).parse_ast()
 
-    def compute_views(self, car: Car) -> list[View]:
+    def compute_horizon(self):
+        max_v = self.traffic_snapshot.get_max_velocity()
+        return max_v * max_v / (2.0 * self.braking_accel)
+
+    def compute_views(self, car: Car, horizontal_extension) -> list[View]:
         # todo: depending on next turn intent, compute multi-views (Fig 6 and Fig 3 in paper)
-        horizon = self.compute_horizon(car)
-        horizontal_extension = Interval(car.absolute_position() - horizon, car.absolute_position() + horizon)
         lanes = []  # todo
         return [View(lanes, horizontal_extension, car)]
-
-    def compute_horizon(self, car: Car) -> float:
-        return (car.velocity * car.velocity) / (2.0 * self.braking_accel)

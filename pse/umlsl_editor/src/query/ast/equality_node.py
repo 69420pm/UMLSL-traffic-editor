@@ -1,11 +1,11 @@
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.view_models.traffic_snapshot import TrafficSnapshot
-from pse.umlsl_editor.src.query.ast.ast import NullaryNode
+from pse.umlsl_editor.src.query.ast.ast import AtomNode
 from pse.umlsl_editor.src.query.ast.car_resolve import CarResolve
 from pse.umlsl_editor.src.query.view import View
 
 
-class EqualityCarNode(NullaryNode):
+class EqualityCarNode(AtomNode):
     def __init__(self, car_resolve1: CarResolve, car_resolve2: CarResolve):
         super().__init__(f"{car_resolve1.name} = {car_resolve2.name}")
         self.car_resolve1 = car_resolve1
@@ -15,7 +15,7 @@ class EqualityCarNode(NullaryNode):
         return self.car_resolve1.resolve(variable_car_map) is self.car_resolve2.resolve(variable_car_map)
 
 
-class EqualityHorizonNode(NullaryNode):
+class EqualityHorizonNode(AtomNode):
     def __init__(self, length: float):
         super().__init__(f"l = {length}")
         self.length = length

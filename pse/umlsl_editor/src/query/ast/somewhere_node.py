@@ -20,5 +20,5 @@ class SomewhereNode(UnaryNode):
         )
         return horizontal_somewhere_node.evaluate(traffic_snapshot, view, variable_car_map)
 
-    def to_latex(self, child: str) -> str:
+    def _format(self, child: str) -> str:
         return f"<{child}>"
