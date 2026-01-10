@@ -19,13 +19,20 @@ class UMLSLEvaluator:
 
     def evaluate_query(self, latex_string: str, traffic_snapshot: TrafficSnapshot, car: Car) -> bool:
         ast = parse_latex_string(latex_string)
+        views = self.compute_views(traffic_snapshot, car)
 
+        for view in views:
+            if ast.evaluate(traffic_snapshot, view, car):
+                return True
+
+        return False
+
+    def compute_views(self, traffic_snapshot: TrafficSnapshot, car: Car) -> list[View]:
+        # todo: depending on next turn intent, compute multi-views (Fig 6 and Fig 3 in paper)
         horizon = self.compute_horizon(car)
         horizontal_extension = Interval(car.absolute_position() - horizon, car.absolute_position() + horizon)
         lanes = []  # todo
-
-        view = View(lanes, horizontal_extension, car)
-        return ast.evaluate(traffic_snapshot, view)
+        return [View(lanes, horizontal_extension, car)]
 
     def compute_horizon(self, car: Car) -> float:
         return (car.velocity * car.velocity) / (2.0 * self.braking_accel)
