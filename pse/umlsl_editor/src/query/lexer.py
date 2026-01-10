@@ -124,7 +124,7 @@ class Lexer:
         token_patterns = []
         for t in TokenType:
             if t is not TokenType.LITERAL:
-                pattern = f"(?P<{t.name}>{re.escape(t.value)})"
+                pattern = f"(?P<{t.name}>{re.escape(t.value())})"
                 token_patterns.append(pattern)
 
         master_pattern = re.compile("|".join(token_patterns))
