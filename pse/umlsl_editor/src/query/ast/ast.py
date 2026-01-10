@@ -26,7 +26,6 @@ class PrecedenceText:
 class ASTNode(ABC):
     """Abstract Syntax Tree Base Node."""
 
-    # variable_car_map maps the car's variable to its value
     @abstractmethod
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
         pass
