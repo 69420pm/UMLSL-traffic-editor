@@ -29,10 +29,10 @@ def evaluate_claim(view: View, segments: list[Segment], car: Car):
 class ClaimNode(AtomNode):
     def __init__(self, car_resolve: CarResolve):
         super().__init__("cl")
-        self.car_resolve = car_resolve
+        self._car_resolve = car_resolve
 
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
         if len(view.seq_lanes) != 1 or view.space_interval.length() <= 0:
             return False
         path = view.seq_lanes[0]
-        return evaluate_claim(view, path.segments, self.car_resolve.resolve(variable_car_map))
+        return evaluate_claim(view, path.segments, self._car_resolve.resolve(variable_car_map))

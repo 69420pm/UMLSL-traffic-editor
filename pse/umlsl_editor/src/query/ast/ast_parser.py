@@ -15,19 +15,19 @@ from pse.umlsl_editor.src.query.lexer import Token, TokenType
 # todo: curly braces check
 class ASTParser:
     def __init__(self, tokens: list[Token], cars: list[Car]):
-        self.tokens = tokens
-        self.cars = cars
+        self._tokens = tokens
+        self._cars = cars
 
     def parse_ast(self):
-        if not self.tokens:
+        if not self._tokens:
             raise SyntaxError("Empty token list")
-        return self.parse_ast_rec(0, len(self.tokens) - 1, [])
+        return self.parse_ast_rec(0, len(self._tokens) - 1, [])
 
     def parse_ast_rec(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
         if start > end:
             raise SyntaxError("Unexpected end of expression")
 
-        tokens = self.tokens
+        tokens = self._tokens
 
         # todo: parse <phi> (Somewhere Node)
 
@@ -61,10 +61,10 @@ class ASTParser:
         return self.parse_prefix(start, end, declared_variables)
 
     def parse_infix(self, start: int, end: int, split_index: int, declared_variables: list[str]) -> ASTNode:
-        if not (0 <= start < split_index < end <= len(self.tokens) - 1):
+        if not (0 <= start < split_index < end <= len(self._tokens) - 1):
             raise SyntaxError("Invalid infix expression: expected operator between tokens")
 
-        token = self.tokens[split_index]
+        token = self._tokens[split_index]
         token_type = token.type
 
         if token_type == TokenType.CAR_EQUALS:
@@ -85,7 +85,7 @@ class ASTParser:
                     raise SyntaxError(f"Unknown binary operator {token_type}")
 
     def parse_prefix(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
-        token = self.tokens[start]
+        token = self._tokens[start]
         token_type = token.type
 
         if token_type.is_nullary_op:
@@ -128,19 +128,19 @@ class ASTParser:
                     raise NotImplementedError(f"Invalid unary operator {token_type}")
 
     def parse_binary_node(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
-        token = self.tokens[start]
+        token = self._tokens[start]
         token_type = token.type
 
         # todo: forall not parsed
         if token_type == TokenType.EXITS:
-            literal = self.tokens[start + 1]
+            literal = self._tokens[start + 1]
             if literal != TokenType.LITERAL:
                 raise SyntaxError("Exits operator requires exactly one literal argument (i.e. \\exists c:)")
             value = literal.value
             if not value.endswith(":"):
                 raise SyntaxError("Exists operator requires ':' after car-variable (i.e. \\exists c:)")
             variable = value[:-1]
-            if variable in map(lambda car: car.name, self.cars):
+            if variable in map(lambda car: car.name, self._cars):
                 raise SyntaxError(f"Variable {variable} is a car name and cannot be used in an exists expression")
             if variable in declared_variables:
                 raise SyntaxError(f"Variable {variable} declared twice in scope")
@@ -167,7 +167,7 @@ class ASTParser:
     def find_closing_argument_index(self, start_index: int, end_index: int) -> int:
         parentheses_depth = 0
         for i in range(start_index, end_index + 1):
-            token = self.tokens[i]
+            token = self._tokens[i]
             if token.type == TokenType.L_CURLY:
                 parentheses_depth += 1
             elif token.type == TokenType.R_CURLY:
@@ -177,14 +177,14 @@ class ASTParser:
         raise SyntaxError("Unbalanced curly braces")
 
     def parse_car(self, index: int, declared_variables: list[str]):
-        token = self.tokens[index]
+        token = self._tokens[index]
         if token.type != TokenType.LITERAL:
             raise SyntaxError("Car expression requires a literal token")
 
         value = token.value
 
         # check if value is a car
-        for car in self.cars:
+        for car in self._cars:
             if car.name == value:
                 return ConstantCarResolve(car)
 

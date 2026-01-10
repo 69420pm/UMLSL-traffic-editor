@@ -8,23 +8,23 @@ class CarResolve(ABC):
         self.name = name
 
     @abstractmethod
-    def resolve(self, variables: dict[str, Car]) -> Car:
+    def resolve(self, variable_car_map: dict[str, Car]) -> Car:
         pass
 
 
 class ConstantCarResolve(CarResolve):
     def __init__(self, car: Car):
         super().__init__(car.name)
-        self.car = car
+        self._car = car
 
-    def resolve(self, variables: dict[str, Car]) -> Car:
-        return self.car
+    def resolve(self, variable_car_map: dict[str, Car]) -> Car:
+        return self._car
 
 
 class VariableCarResolve(CarResolve):
     def __init__(self, car_variable: str):
         super().__init__(car_variable)
-        self.car_variable = car_variable
+        self._car_variable = car_variable
 
-    def resolve(self, variables: dict[str, Car]) -> Car:
-        return variables[self.car_variable]
+    def resolve(self, variable_car_map: dict[str, Car]) -> Car:
+        return variable_car_map[self._car_variable]

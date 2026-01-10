@@ -13,7 +13,7 @@ class TrueNode(AtomNode):
 
 class NegationNode(UnaryNode):
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
-        return not self.child.evaluate(traffic_snapshot, view, variable_car_map)
+        return not self._child.evaluate(traffic_snapshot, view, variable_car_map)
 
     def _format(self, child: str) -> str:
         return f"\\neg {child}"
@@ -21,8 +21,8 @@ class NegationNode(UnaryNode):
 
 class ConjunctionNode(BinaryNode):
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
-        return (self.left.evaluate(traffic_snapshot, view, variable_car_map)
-                and self.right.evaluate(traffic_snapshot, view, variable_car_map))
+        return (self._left.evaluate(traffic_snapshot, view, variable_car_map)
+                and self._right.evaluate(traffic_snapshot, view, variable_car_map))
 
     def _format(self, left: str, right: str) -> str:
         return f"{left} \\land {right}"
@@ -30,8 +30,8 @@ class ConjunctionNode(BinaryNode):
 
 class DisjunctionNode(BinaryNode):
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
-        return (self.left.evaluate(traffic_snapshot, view, variable_car_map)
-                or self.right.evaluate(traffic_snapshot, view, variable_car_map))
+        return (self._left.evaluate(traffic_snapshot, view, variable_car_map)
+                or self._right.evaluate(traffic_snapshot, view, variable_car_map))
 
     def _format(self, left: str, right: str) -> str:
         return f"{left} \\lor {right}"
