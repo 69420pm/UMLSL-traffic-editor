@@ -1,7 +1,7 @@
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.model.view_models.traffic_snapshot import TrafficSnapshot
-from pse.umlsl_editor.src.query.ast.ast import View, NullaryNode
+from pse.umlsl_editor.src.query.ast.ast import View, AtomNode
 from pse.umlsl_editor.src.query.ast.car_resolve import CarResolve
 from pse.umlsl_editor.src.query.visible_segments import SegmentView, VisibleSegment
 
@@ -26,13 +26,13 @@ def evaluate_claim(view: View, segments: list[Segment], car: Car):
             or is_claimed_segment(view, segments[0], car))
 
 
-class ClaimNode(NullaryNode):
+class ClaimNode(AtomNode):
     def __init__(self, car_resolve: CarResolve):
         super().__init__("cl")
         self.car_resolve = car_resolve
 
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
-        if len(view.seq_lanes) != 1:
+        if len(view.seq_lanes) != 1 or view.space_interval.length() <= 0:
             return False
         path = view.seq_lanes[0]
         return evaluate_claim(view, path.segments, self.car_resolve.resolve(variable_car_map))

@@ -131,6 +131,7 @@ class ASTParser:
         token = self.tokens[start]
         token_type = token.type
 
+        # todo: forall not parsed
         if token_type == TokenType.EXITS:
             literal = self.tokens[start + 1]
             if literal != TokenType.LITERAL:

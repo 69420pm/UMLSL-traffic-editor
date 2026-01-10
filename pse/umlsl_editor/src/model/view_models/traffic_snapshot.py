@@ -63,6 +63,9 @@ class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
     ) -> list[Road]:
         raise NotImplementedError
 
+    def get_max_velocity(self) -> float:
+        raise NotImplementedError
+
     def add_road(self, road: Road) -> None:
         raise NotImplementedError
 

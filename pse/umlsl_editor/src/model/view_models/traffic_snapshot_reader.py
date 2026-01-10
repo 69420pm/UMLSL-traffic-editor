@@ -31,7 +31,7 @@ class TrafficSnapshotReader(ABC):
 
     @abstractmethod
     def get_cars_in_rectangle(
-        self, x_min: float, y_min: float, x_max: float, y_max: float
+            self, x_min: float, y_min: float, x_max: float, y_max: float
     ) -> list[Car]:
         """
         Returns a list of cars that are located within the specified rectangular area.
@@ -40,13 +40,19 @@ class TrafficSnapshotReader(ABC):
 
     @abstractmethod
     def get_roads_in_rectangle(
-        self, x_min: float, y_min: float, x_max: float, y_max: float
+            self, x_min: float, y_min: float, x_max: float, y_max: float
     ) -> list[Road]:
         """
         Returns a list of roads that are located within the specified rectangular area.
         """
         pass
 
+    @abstractmethod
+    def get_max_velocity(self) -> float:
+        """
+        Returns the maximum velocity of all cars in the snapshot.
+        """
+        pass
 
     @abstractmethod
     def validate_lane(self, road: Road, lane_index: int, lane_direction: str) -> bool:
