@@ -8,6 +8,8 @@ class TokenType(Enum):
     R_PAREN = ")"
     L_CURLY = "{"
     R_CURLY = "}"
+    LESS_THAN = "<"
+    GREATER_THAN = ">"
     H_CHOP = "\\hchop"
     V_CHOP = "\\vchop"
     CLAIM = "\\cl"

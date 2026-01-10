@@ -5,6 +5,9 @@ from pse.umlsl_editor.src.query.visible_segments import VisibleSegment
 
 
 class FreeNode(NullaryNode):
+    def __init__(self):
+        super().__init__("free")
+
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
         return len(view.seq_lanes) == 1 and all(
             map(

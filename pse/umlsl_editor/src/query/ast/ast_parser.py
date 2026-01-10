@@ -29,6 +29,8 @@ class ASTParser:
 
         tokens = self.tokens
 
+        # todo: parse <phi> (Somewhere Node)
+
         height = 0
         split_index = -1
         min_precedence = int('inf')  # smallest int
@@ -186,7 +188,7 @@ class ASTParser:
                 return ConstantCarResolve(car)
 
         # value is not a car, try to resolve it as a variable
-        if value not in declared_variables:
-            raise SyntaxError(f"Car '{value}' neither refers to a defined car nor a declared variable")
-        else:
+        if value in declared_variables:
             return VariableCarResolve(value)
+
+        raise SyntaxError(f"Car '{value}' neither refers to a defined car nor a declared variable")
