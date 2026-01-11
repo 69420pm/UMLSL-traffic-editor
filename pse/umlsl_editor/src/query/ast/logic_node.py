@@ -1,6 +1,6 @@
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.view_models.traffic_snapshot import TrafficSnapshot
-from pse.umlsl_editor.src.query.ast.ast import View, UnaryNode, BinaryNode, AtomNode, ASTNode
+from pse.umlsl_editor.src.query.ast.ast import View, UnaryNode, BinaryNode, AtomNode, ASTNode, Precedence
 
 
 class TrueNode(AtomNode):
@@ -20,6 +20,9 @@ class NegationNode(UnaryNode):
 
 
 class ConjunctionNode(BinaryNode):
+    def __init__(self, left: ASTNode, right: ASTNode):
+        super().__init__(Precedence.BINARY_CONJUNCTION, left, right)
+
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
         return (self._left.evaluate(traffic_snapshot, view, variable_car_map)
                 and self._right.evaluate(traffic_snapshot, view, variable_car_map))
@@ -29,6 +32,9 @@ class ConjunctionNode(BinaryNode):
 
 
 class DisjunctionNode(BinaryNode):
+    def __init__(self, left: ASTNode, right: ASTNode):
+        super().__init__(Precedence.BINARY_DISJUNCTION, left, right)
+
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
         return (self._left.evaluate(traffic_snapshot, view, variable_car_map)
                 or self._right.evaluate(traffic_snapshot, view, variable_car_map))

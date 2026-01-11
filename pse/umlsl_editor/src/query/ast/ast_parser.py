@@ -88,7 +88,7 @@ class ASTParser:
         token = self._tokens[start]
         token_type = token.type
 
-        if token_type.is_nullary_op:
+        if token_type.is_atom_op:
             return self.parse_nullary_node(token_type, start, end)
         elif token_type.is_unary_op:
             return self.parse_unary_node(token_type, start, end, declared_variables)
@@ -178,10 +178,9 @@ class ASTParser:
 
     def parse_car(self, index: int, declared_variables: list[str]):
         token = self._tokens[index]
-        if token.type != TokenType.LITERAL:
+        value = token.value()
+        if value is None:
             raise SyntaxError("Car expression requires a literal token")
-
-        value = token.value
 
         # check if value is a car
         for car in self._cars:
