@@ -10,7 +10,7 @@ class UMLSLQueriesValidationError(Exception):
     pass
 
 @dataclass
-class UmlslQueries:
+class UMLSLQueries:
     queries: list[UMLSLQuery]
 
     umlsl_query_added = Signal(UMLSLQuery)

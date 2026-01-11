@@ -40,6 +40,7 @@ class CarParams:
     velocity: float
     length: float
     next_turn: TurnIntent | None
+    acceleration: float
 
 
 @dataclass()
