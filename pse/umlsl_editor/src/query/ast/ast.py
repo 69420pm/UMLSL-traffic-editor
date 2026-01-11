@@ -16,52 +16,47 @@ class Precedence(IntEnum):
     BINARY_DISJUNCTION = 10  # Or
 
 
-class LaTexFragment:
-    def __init__(self, precedence: int, text: str):
-        self.precedence = precedence
-        self.text = text
-
-
 class ASTNode(ABC):
     """Abstract Syntax Tree Base Node."""
+
+    def __init(self, precedence: Precedence):
+        self._precedence = precedence
 
     @abstractmethod
     def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
         pass
 
     def to_latex(self) -> str:
-        return self._render().text
+        return self._render()
 
     @abstractmethod
-    def _render(self) -> LaTexFragment:
+    def _render(self) -> str:
         pass
 
 
 class AtomNode(ASTNode, ABC):
     def __init__(self, latex_code):
-        self._precedence = Precedence.ATOM
+        super().__init__(Precedence.ATOM)
         self._latex_code = latex_code
         pass
 
-    def _render(self) -> LaTexFragment:
-        return LaTexFragment(self._precedence, self._latex_code)
+    def _render(self) -> str:
+        return self._latex_code
 
 
 class UnaryNode(ASTNode, ABC):
     def __init__(self, child: ASTNode):
-        self._precedence = Precedence.UNARY
+        super().__init__(Precedence.UNARY)
         self._child = child
 
-    def _render(self) -> LaTexFragment:
-        child_precedence_text = self._child._render()
-        child_precedence = child_precedence_text.precedence
-        child_text = child_precedence_text.text
+    def _render(self) -> str:
+        child_text = self._child._render()
 
         # For example, NOT (A AND B) -> NOT has precedence over AND -> add parentheses
-        if self._precedence > child_precedence:
+        if self._precedence > self._child._precedence:
             child_text = f"\\({child_text}\\)"
 
-        return LaTexFragment(self._precedence, self._format(child_text))
+        return self._format(child_text)
 
     @abstractmethod
     def _format(self, child: str) -> str:
@@ -69,24 +64,22 @@ class UnaryNode(ASTNode, ABC):
 
 
 class BinaryNode(ASTNode, ABC):
-    def __init__(self, precedence: int, left: ASTNode, right: ASTNode):
-        self._precedence = precedence
+    def __init__(self, precedence: Precedence, left: ASTNode, right: ASTNode):
+        super().__init__(precedence)
         self._left = left
         self._right = right
 
-    def _render(self) -> LaTexFragment:
-        left_precedence_text = self._left._render()
-        right_precedence_text = self._right._render()
+    def _render(self) -> str:
+        left_text = self._left._render()
+        right_text = self._right._render()
 
-        left_text = left_precedence_text.text
-        if self._precedence > left_precedence_text.precedence:
-            left_text = f"\\({left_precedence_text.text}\\)"
+        if self._precedence > self._left._precedence:
+            left_text = f"\\({left_text}\\)"
 
-        right_text = right_precedence_text.text
-        if self._precedence > right_precedence_text.precedence:
-            right_text = f"\\({right_precedence_text.text}\\)"
+        if self._precedence > self._right._precedence:
+            right_text = f"\\({right_text}\\)"
 
-        return LaTexFragment(self._precedence, self._format(left_text, right_text))
+        return self._format(left_text, right_text)
 
     @abstractmethod
     def _format(self, left: str, right: str) -> str:

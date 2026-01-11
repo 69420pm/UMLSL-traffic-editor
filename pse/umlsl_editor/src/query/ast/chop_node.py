@@ -1,6 +1,6 @@
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.view_models.traffic_snapshot import TrafficSnapshot
-from pse.umlsl_editor.src.query.ast.ast import View, BinaryNode, LaTexFragment, Precedence, ASTNode
+from pse.umlsl_editor.src.query.ast.ast import View, BinaryNode, Precedence, ASTNode
 from pse.umlsl_editor.src.query.interval import Interval
 
 # Determines in how many pieces we split a given space interval
