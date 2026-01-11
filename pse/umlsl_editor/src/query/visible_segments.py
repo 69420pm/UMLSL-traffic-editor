@@ -20,5 +20,5 @@ class VisibleSegment:
         pass
 
     # The sensor computes the size of the given car (depending on this view)
-    def sensor_size(self, car: Car):
+    def get_sensor_size(self, view: View, car: Car):
         return car.length
