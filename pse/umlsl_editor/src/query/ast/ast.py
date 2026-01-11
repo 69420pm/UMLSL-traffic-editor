@@ -11,10 +11,9 @@ from pse.umlsl_editor.src.query.view import View
 class Precedence(IntEnum):
     ATOM = 50  # Nullary Nodes
     UNARY = 40
-    BINARY_CONJUNCTION = 30  # And
-    BINARY_DISJUNCTION = 20  # Or
-    BINARY_CHOP = 10  # Horizontal Chop, Vertical Chop
-    LOWEST = 0
+    BINARY_CHOP = 30  # Horizontal Chop, Vertical Chop
+    BINARY_CONJUNCTION = 20  # And
+    BINARY_DISJUNCTION = 10  # Or
 
 
 class LaTexFragment:

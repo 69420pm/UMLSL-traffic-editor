@@ -17,8 +17,8 @@ class TokenType(Enum):
     RESERVE = "\\re"
     CAR_EQUALS = "="
     FREE = "\\free"
-    AND = "and"
-    OR = "or"
+    AND = "\\and"
+    OR = "\\or"
     NEGATION = "\\neg"
     NEGATION_SHORT = "!"
     EXITS = "\\exists"
@@ -104,22 +104,22 @@ class SimpleToken(Token):
 class Literal(Token):
     def __init__(self, literal_value: str):
         super().__init__(TokenType.LITERAL)
-        self.literal_value = literal_value
+        self._literal_value = literal_value
 
     def value(self) -> str:
-        return self.literal_value
+        return self._literal_value
 
     def __str__(self):
-        return f"{self.type.name}('{self.literal_value}')"
+        return f"{self.type.name}('{self._literal_value}')"
 
 
 class Lexer:
     def __init__(self, text: str):
-        self.text = text
+        self._input = text
 
     def tokenize(self) -> list[Token]:
         # Remove whitespace and tabs
-        text = self.text.replace(" ", "").replace("\t", "")
+        text = self._input.replace(" ", "").replace("\t", "")
 
         token_patterns = []
         for t in TokenType:
