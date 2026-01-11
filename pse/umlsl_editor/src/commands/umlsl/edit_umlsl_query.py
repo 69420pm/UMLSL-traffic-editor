@@ -1,0 +1,29 @@
+from pse.umlsl_editor.src.commands.command import Command
+from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQueryParams
+from pse.umlsl_editor.src.model.view_models.umlsl_queries import UMLSLQueries
+
+
+class EditUMLSLQuery(Command[None]):
+    """Edits an existing UMLSL query in the UMLSL editor."""
+
+    def __init__(self, query_id: str, umlsl_query_params: UMLSLQueryParams, umlsl_queries: UMLSLQueries):
+        """
+        Initialize the EditUMLSLQuery command with the query identifier and new content.
+
+        Args:
+            query_id: Unique identifier of the UMLSL query to be edited.
+            umlsl_query_params: New UMLSLQuery params to update the existing query.
+            umlsl_queries: UmlslQueries manager.
+        """
+        self.query_id = query_id
+        self.umlsl_query_params = umlsl_query_params
+        self._umlsl_queries = umlsl_queries
+
+    def execute(self) -> None:
+        """
+        Edits the specified UMLSL query in the UMLSL editor.
+
+        Raises:
+            CommandValidationError: If command validation fails.
+        """
+        raise NotImplementedError
