@@ -1,198 +1,128 @@
-from PySide6.QtWidgets import QGraphicsScene
+from typing import Any, Optional
 
+from PySide6.QtWidgets import QGraphicsScene, QGraphicsRectItem, QGraphicsPathItem, QGraphicsItem
+from PySide6.QtCore import QRectF
+
+from pse.umlsl_editor.src.view.view_constants import DIMENSION, COLORS, Z_LAYERS
+
+# --- Import Entities ---
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import Road
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import (
-    CrossingSegment,
-)
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
+
+# --- Import View Models ---
+from pse.umlsl_editor.src.view.view_models.car_view_model import CarViewModel
+from pse.umlsl_editor.src.view.view_models.crossing_view_model import CrossingViewModel
+from pse.umlsl_editor.src.view.view_models.road_view_model import RoadViewModel
+
+
+def _get_unique_id(data: Any) -> Optional[str]:
+    """Generates a stable string ID for any entity."""
+    if isinstance(data, Car):
+        return f"car_{data.name}"
+    elif isinstance(data, Road):
+        return f"road_{data.name}"
+    elif isinstance(data, CrossingSegment):
+        # Create a composite ID for the crossing based on the lanes it connects
+        h_lane = data.lane_horizontal
+        v_lane = data.lane_vertical
+        return f"cross_{h_lane.road_name}_{h_lane.lane_index}_x_{v_lane.road_name}_{v_lane.lane_index}"
+    return None
 
 
 class TrafficScene(QGraphicsScene):
-    """
-    A custom QGraphicsScene for rendering the traffic simulation.
-    Manages the graphical representation of cars, roads, and crossing segments.
-
-    Designer-based structure:
-    - This scene is intended to be paired with a QGraphicsView (e.g., a promoted
-      TrafficCanvasView) defined in a Qt Designer .ui file.
-    - The .ui should contain a QGraphicsView in the traffic_canvas area that is promoted
-      to TrafficCanvasView, with a stable objectName (e.g., 'trafficView').
-    - A UI binder (e.g., MainWindowUiBinder) should find that view by objectName
-      and set its scene to an instance of this TrafficScene.
-
-    Separation of concerns:
-    - TrafficScene: owns and manages QGraphicsItems (roads, cars, crossings).
-    - TrafficCanvasView: handles interaction (pan, zoom) and transformation.
-    - Designer .ui: defines layout and widget placement; objectNames enable binders
-      to locate and wire the scene and view at runtime.
-    - Controllers: connect model signals to view methods; rendering logic and item
-      updates are invoked via the TrafficView interface, not from within .ui binders.
-
-    Notes:
-    - Method bodies for adding/updating/removing items are kept as structure-only
-      placeholders to align with the requirement of not implementing methods.
-    - Coordinate system rendering, safety distance, and other overlays should be
-      toggled via settings and handled by the view/scene when those methods are
-      implemented later.
-    """
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super(TrafficScene, self).__init__(parent)
 
-        # Store mappings from data objects to graphics items
-        self._car_items = {}  # Map car name to QGraphicsItem
-        self._road_items = {}  # Map road name to QGraphicsItem
-        self._crossing_items = {}  # Map crossing segment to QGraphicsItem
+        # 1. Setup Scene Bounds (as discussed)
+        size = DIMENSION.SCENE_SIZE
+        self.setSceneRect(QRectF(-size / 2, -size / 2, size, size))
 
-        # Set scene background
-        # self.setBackgroundBrush(QBrush(QColor(240, 240, 240)))
+        # 2. Item Registry
+        # Maps unique ID -> (QGraphicsItem, ViewModel)
+        self._items: dict[str, tuple[QGraphicsItem, Any]] = {}
 
-    def add_car_item(self, car_data: Car) -> None:
-        """
-        Creates a graphical item for a new car and adds it to the scene.
-        """
-        # if car_data.name in self._car_items:
-        #     return
-        #
-        # # Create a simple rectangle to represent the car
-        # # Position calculation would depend on road geometry
-        # car_item = QGraphicsRectItem(0, 0, car_data.length * 10, 20)
-        # car_item.setBrush(QBrush(QColor(car_data.color)))
-        # car_item.setPen(QPen(Qt.GlobalColor.black, 1))
-        #
-        # # TODO: Calculate actual position based on assigned_road, lane_index, position_on_lane
-        # # For now, place it at a simple position
-        # car_item.setPos(car_data.position_on_lane * 10, car_data.lane_index * 30)
-        #
-        # self.addItem(car_item)
-        # self._car_items[car_data.name] = car_item
+        # 3. Road Data Cache (Acts as 'RoadAccessor' for ViewModels)
+        self._road_cache: dict[str, Road] = {}
 
-    def remove_car_item(self, car_data: Car) -> None:
-        """
-        Removes the graphical item corresponding to the given car from the scene.
-        """
-        # if car_data.name not in self._car_items:
-        #     return
-        #
-        # car_item = self._car_items[car_data.name]
-        # self.removeItem(car_item)
-        # del self._car_items[car_data.name]
+    # --- RoadAccessor Protocol Implementation ---
+    def get_road(self, road_name: str) -> Optional[Road]:
+        """Allows ViewModels (like CrossingViewModel) to ask for road geometry."""
+        return self._road_cache.get(road_name)
 
-    def update_car_item(self, car_data: Car) -> None:
+    # --- Main Draw / Update Logic ---
+    def update_entity(self, data_object: Any):
         """
-        Updates the properties (position, color, etc.) of an existing car item.
+        The single entry point for redrawing.
+        Detects the type of data (Car, Road, Crossing) and updates the UI accordingly.
         """
-        # if car_data.name not in self._car_items:
-        #     return
-        #
-        # car_item = self._car_items[car_data.name]
-        #
-        # # Update position
-        # car_item.setPos(car_data.position_on_lane * 10, car_data.lane_index * 30)
-        #
-        # # Update color
-        # car_item.setBrush(QBrush(QColor(car_data.color)))
+        uid = _get_unique_id(data_object)
+        if not uid:
+            return
 
-    def add_road_item(self, road_data: Road) -> None:
-        """
-        Creates a graphical item for a new road and adds it to the scene.
-        """
-        # if road_data.name in self._road_items:
-        #     return
-        #
-        # # Create a simple line/rectangle to represent the road
-        # # Road width based on number of lanes
-        # total_lanes = road_data.forward_lanes + road_data.backward_lanes
-        # road_width = total_lanes * 30
-        #
-        # # Draw road based on orientation
-        # # Roads are infinite lines, so we'll draw a large segment for visibility
-        # road_length = 2000  # Large enough for typical viewport
-        #
-        # if road_data.orientation == RoadOrientation.HORIZONTAL:
-        #     # Horizontal road: position is Y-coordinate, extend along X-axis
-        #     road_item = QGraphicsRectItem(
-        #         -road_length / 2,
-        #         road_data.position - road_width / 2,
-        #         road_length,
-        #         road_width
-        #     )
-        # else:  # VERTICAL
-        #     # Vertical road: position is X-coordinate, extend along Y-axis
-        #     road_item = QGraphicsRectItem(
-        #         road_data.position - road_width / 2,
-        #         -road_length / 2,
-        #         road_width,
-        #         road_length
-        #     )
-        #
-        # road_item.setBrush(QBrush(QColor(80, 80, 80)))
-        # road_item.setPen(QPen(Qt.GlobalColor.white, 2))
-        #
-        # self.addItem(road_item)
-        # self._road_items[road_data.name] = road_item
+        # 1. Update Cache if it's a road
+        if isinstance(data_object, Road):
+            self._road_cache[uid] = data_object
 
-    def remove_road_item(self, road_data: Road) -> None:
-        """
-        Removes the graphical item corresponding to the given road from the scene.
-        """
-        # if road_data.name not in self._road_items:
-        #     return
-        #
-        # road_item = self._road_items[road_data.name]
-        # self.removeItem(road_item)
-        # del self._road_items[road_data.name]
+        # 2. Create if not exists
+        if uid not in self._items:
+            self._create_item(uid, data_object)
 
-    def update_road_item(self, road_data: Road) -> None:
-        """
-        Updates the properties (geometry, lanes, etc.) of an existing road item.
-        """
-        # if road_data.name not in self._road_items:
-        #     return
-        #
-        # # For simplicity, remove and re-add the road item
-        # self.remove_road_item(road_data)
-        # self.add_road_item(road_data)
+        # 3. Update existing item
+        self._update_item_visuals(uid, data_object)
 
-    def add_crossing_segment_item(self, crossing: CrossingSegment) -> None:
-        """
-        Creates a graphical item for a crossing segment and adds it to the scene.
-        """
-        # crossing_id = id(crossing)
-        # if crossing_id in self._crossing_items:
-        #     return
-        #
-        # # Draw crossing as a circle/ellipse
-        # crossing_item = QGraphicsEllipseItem(
-        #     crossing.position.x - 25,
-        #     crossing.position.y - 25,
-        #     50, 50
-        # )
-        # crossing_item.setBrush(QBrush(QColor(200, 150, 100, 180)))
-        # crossing_item.setPen(QPen(Qt.GlobalColor.darkGray, 2))
-        #
-        # self.addItem(crossing_item)
-        # self._crossing_items[crossing_id] = crossing_item
+    def remove_entity(self, data_object: Any):
+        """Removes the entity from the scene."""
+        uid = _get_unique_id(data_object)
+        if uid in self._items:
+            item, _ = self._items[uid]
+            self.removeItem(item)
+            del self._items[uid]
 
-    def remove_crossing_segment_item(self, crossing: CrossingSegment) -> None:
-        """
-        Removes the graphical item for a crossing segment.
-        """
-        # crossing_id = id(crossing)
-        # if crossing_id not in self._crossing_items:
-        #     return
-        #
-        # crossing_item = self._crossing_items[crossing_id]
-        # self.removeItem(crossing_item)
-        # del self._crossing_items[crossing_id]
+            # Clean cache if needed
+            if isinstance(data_object, Road) and uid in self._road_cache:
+                del self._road_cache[uid]
 
-    def update_crossing_segment_item(self, crossing: CrossingSegment) -> None:
-        """
-        Updates the graphical item for a crossing segment.
-        """
-        # crossing_id = id(crossing)
-        # if crossing_id not in self._crossing_items:
-        #     return
-        #
-        # # For simplicity, remove and re-add
-        # self.remove_crossing_segment_item(crossing)
-        # self.add_crossing_segment_item(crossing)
+    # --- Internal Helpers ---
+
+    def _create_item(self, uid: str, data: Any):
+        """Factory method: Instantiates the correct ViewModel and QGraphicsItem."""
+        item = None
+        vm = None
+
+        if isinstance(data, Road):
+            vm = RoadViewModel(data)
+            item = QGraphicsRectItem()  # Roads are rectangles
+            item.setZValue(Z_LAYERS.ROAD)
+
+        elif isinstance(data, Car):
+            # Pass 'self' because TrafficScene acts as the RoadAccessor
+            vm = CarViewModel(data, road_accessor=self)
+            item = QGraphicsRectItem()
+            item.setZValue(Z_LAYERS.CAR)
+
+        elif isinstance(data, CrossingSegment):
+            vm = CrossingViewModel(data, road_accessor=self)
+            item = QGraphicsPathItem()  # Crossings are complex shapes (Paths)
+            item.setZValue(Z_LAYERS.CROSSING)
+
+        if item and vm:
+            self.addItem(item)
+            self._items[uid] = (item, vm)
+
+    def _update_item_visuals(self, uid: str, data: Any):
+        """Pushes data to ViewModel -> Pulls geometry to GraphicsItem."""
+        item, vm = self._items[uid]
+
+        # 1. Logic: Update the ViewModel (Recalculate Math)
+        vm.update(data)
+
+        # 2. Visuals: Apply calculated geometry to Qt Item
+        if isinstance(item, QGraphicsRectItem):
+            item.setRect(vm.bounding_rect)
+        elif isinstance(item, QGraphicsPathItem):
+            item.setPath(vm.shape)
+
+        # 3. Apply Styling
+        item.setBrush(vm.color)
+        # item.setPen(...) if you want borders
