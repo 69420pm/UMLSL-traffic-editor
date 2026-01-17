@@ -44,6 +44,13 @@ class _Dimension:
     LINE_WIDTH_ROAD_DIVIDER: float = 0.1
     LINE_WIDTH_GRID: int = 1
 
+    # Zoom sensitivity
+    TOUCHPAD_ZOOM_SENSITIVITY: float = 0.01
+    WHEEL_ZOOM_SENSITIVITY: float = 0.001
+
+    # Label drawing
+    LABEL_PADDING: int = 5
+
 
 @dataclass(frozen=True)
 class _Colors:
@@ -61,10 +68,6 @@ class _Colors:
 
     # Utility
     TRANSPARENT: QColor = field(default_factory=lambda: QColor(0, 0, 0, 0))
-
-    # Default entity colors
-    CAR_DEFAULT: QColor = field(default_factory=lambda: QColor("#FF0000"))
-
 
 @dataclass(frozen=True)
 class _UIPaths:
