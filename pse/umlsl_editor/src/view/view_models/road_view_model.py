@@ -137,5 +137,5 @@ class RoadViewModel(EntityViewModel[Road]):
         self._dashed_pen = QPen(COLORS.TEXT, DIMENSION.LINE_WIDTH_ROAD_DIVIDER)
         self._dashed_pen.setStyle(Qt.DashLine)
         pen_width = self._dashed_pen.widthF()
-        self._dashed_pen.setDashPattern([lane_width / pen_width, lane_width / pen_width])
+        self._dashed_pen.setDashPattern([4, 8])
         self._dashed_pen.setCosmetic(False)
