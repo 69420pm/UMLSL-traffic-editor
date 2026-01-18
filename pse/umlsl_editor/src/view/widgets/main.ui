@@ -33,7 +33,7 @@ QWidget {
     color: #F9F9F9;
 }
 
-QWidget#content {
+QWidget#c {	
 	background-color: transparent;
 }
 
@@ -57,23 +57,43 @@ QToolButton {
     text-align: center;
 }
 
-QToolButton#b_minus, #b_plus {
-    background-color: #011C26; 
-}
-
 QToolButton:hover {
     background-color: #314250; 
 }
 
 QToolButton:pressed {
-    background-color: #1A252E;
-}</string>
+    background-color: #032F40;
+}
+
+QToolButton#b_minus, #b_plus {
+    background-color: #011C26; 
+}
+QToolButton#b_minus:hover, #b_plus:hover {
+    background-color: #314250; 
+}
+QToolButton#b_minus:pressed, #b_plus:pressed {
+    background-color: #011C26; 
+}
+
+</string>
   </property>
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item>
      <widget class="QScrollArea" name="scrollArea">
       <property name="minimumSize">
@@ -94,13 +114,13 @@ QToolButton:pressed {
       <property name="widgetResizable">
        <bool>true</bool>
       </property>
-      <widget class="QWidget" name="content">
+      <widget class="QWidget" name="c">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>0</y>
          <width>350</width>
-         <height>403</height>
+         <height>427</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
