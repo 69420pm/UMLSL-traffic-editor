@@ -1,3 +1,5 @@
+from pse.umlsl_editor.src.view.widgets import resources_rc # noqa
+
 """
 UI utility functions for the UMLSL Traffic Editor.
 

@@ -19,27 +19,38 @@ def create_sample_scene() -> list:
     r1 = Road.from_params(RoadParams(
         name="R1",
         orientation=RoadOrientation.HORIZONTAL,
-        position=5.0,
-        forward_lanes=4,
+        position=2.0,
+        forward_lanes=0,
         backward_lanes=1
-    ))
-
-    # Vertical Road (North-South)
-    r3 = Road.from_params(RoadParams(
-        name="R3",
-        orientation=RoadOrientation.VERTICAL,
-        position=0.0,
-        forward_lanes=3,
-        backward_lanes=5
     ))
 
     # Second Horizontal Road
     r2 = Road.from_params(RoadParams(
         name="R2",
         orientation=RoadOrientation.HORIZONTAL,
-        position=10.0,
+        position=-3.0,
         forward_lanes=1,
-        backward_lanes=4
+        backward_lanes=2
     ))
 
-    return [r1, r2, r3]
+    # Vertical Road (North-South)
+    r3 = Road.from_params(RoadParams(
+        name="R3",
+        orientation=RoadOrientation.VERTICAL,
+        position=-2.0,
+        forward_lanes=2,
+        backward_lanes=2
+    ))
+
+    # Vertical Road (North-South)
+    r4 = Road.from_params(RoadParams(
+        name="R4",
+        orientation=RoadOrientation.VERTICAL,
+        position=5.0,
+        forward_lanes=1,
+        backward_lanes=1
+    ))
+
+
+
+    return [r1, r2, r3, r4]

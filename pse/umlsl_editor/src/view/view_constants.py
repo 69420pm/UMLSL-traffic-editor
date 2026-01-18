@@ -30,7 +30,8 @@ class _Dimension:
     # Zoom constraints
     MAX_ZOOM: float = 100.0
     MIN_ZOOM: float = 3.0
-    INITIAL_ZOOM: float = 40.0
+    INITIAL_ZOOM: float = 20.0
+    BUTTON_ZOOM_AMOUNT: float = 1.4
 
     # Zoom thresholds for detail levels
     LANE_LABEL_MIN_ZOOM: float = 20.0
@@ -42,7 +43,6 @@ class _Dimension:
 
     # Line widths
     LINE_WIDTH_ROAD_DIVIDER: float = 0.1
-    LINE_WIDTH_GRID: int = 1
 
     # Zoom sensitivity
     TOUCHPAD_ZOOM_SENSITIVITY: float = 0.01

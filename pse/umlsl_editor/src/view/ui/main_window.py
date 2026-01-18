@@ -3,9 +3,11 @@ Main window for the UMLSL Traffic Editor.
 
 Contains the primary application window setup and initialization.
 """
+from PySide6.QtCore import Qt
 from PySide6.QtUiTools import QUiLoader
 
 from pse.umlsl_editor.src.view.testing.sample_scene_generator import create_sample_scene
+from pse.umlsl_editor.src.view.ui.traffic_canvas.canvas_buttons import CanvasButtons
 from pse.umlsl_editor.src.view.ui.traffic_canvas.traffic_scene import TrafficScene
 from pse.umlsl_editor.src.view.ui.traffic_canvas.traffic_view import TrafficView
 from pse.umlsl_editor.src.view.ui_utils import load_ui
@@ -21,20 +23,28 @@ class MainWindow:
     """
 
     def __init__(self):
-        """Initialize the main window and all its components."""
         self.loader = QUiLoader()
         self.loader.registerCustomWidget(TrafficView)
 
+        # 1. Load the UI
         self.ui = load_ui(UI_PATHS.MAIN_WINDOW)
 
-        # Initialize traffic scene and view
+        # 1. REMOVE NATIVE TITLE BAR
+        #self.ui.setWindowFlags(Qt.FramelessWindowHint)
+        # 2. Make the background translucent (optional, for rounded corners)
+        #self.ui.setAttribute(Qt.WA_TranslucentBackground)
+
+        # 2. Get specific references
         self.traffic_scene = TrafficScene()
         self.traffic_view = self.ui.findChild(TrafficView, "trafficView")
         self.traffic_view.setScene(self.traffic_scene)
 
-        # Load sample scene for testing
-        self._load_sample_scene()
+        # 3. Initialize the Button Controller
+        # Pass both self.ui (to find the frame) and traffic_view (to be the parent)
+        self.canvas_buttons = CanvasButtons(self.ui, self.traffic_view)
+        self.canvas_buttons.setup_ui()
 
+        self._load_sample_scene()
         self.ui.show()
 
     def _load_sample_scene(self) -> None:

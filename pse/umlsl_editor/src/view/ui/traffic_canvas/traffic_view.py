@@ -7,7 +7,7 @@ import math
 
 from PySide6.QtCore import Qt, QRectF, QPointF
 from PySide6.QtGui import QPainter, QWheelEvent, QPen
-from PySide6.QtWidgets import QGraphicsView, QGraphicsScene
+from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QSizeGrip
 
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation
 from pse.umlsl_editor.src.view.view_constants import COLORS, DIMENSION
@@ -40,8 +40,6 @@ class TrafficView(QGraphicsView):
         self.setDragMode(QGraphicsView.ScrollHandDrag)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-        self.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
         self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
         self.setBackgroundBrush(COLORS.GREEN)
 
@@ -49,8 +47,21 @@ class TrafficView(QGraphicsView):
     # Zoom Handling
     # -------------------------------------------------------------------------
 
+    def button_zoom(self, amount: float) -> None:
+        #set anchor to center
+        self.setResizeAnchor(QGraphicsView.AnchorViewCenter)
+        self.setTransformationAnchor(QGraphicsView.AnchorViewCenter)
+
+        scale_factor = self._calculate_clamped_scale(amount)
+        self.scale(scale_factor, scale_factor)
+
+        self._enforce_zoom_constraints()
+
+
     def resizeEvent(self, event) -> None:
         """Maintain zoom constraints when window is resized."""
+        self.setResizeAnchor(QGraphicsView.AnchorViewCenter)
+        self.setTransformationAnchor(QGraphicsView.AnchorViewCenter)
         super().resizeEvent(event)
         self._enforce_zoom_constraints()
 
@@ -65,6 +76,8 @@ class TrafficView(QGraphicsView):
         sensitivity = DIMENSION.TOUCHPAD_ZOOM_SENSITIVITY if is_touchpad else DIMENSION.WHEEL_ZOOM_SENSITIVITY
         scale_factor = self._calculate_clamped_scale(1 + delta * sensitivity)
 
+        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+        self.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
         self.scale(scale_factor, scale_factor)
         event.accept()
 
@@ -107,7 +120,7 @@ class TrafficView(QGraphicsView):
     def drawBackground(self, painter: QPainter, rect: QRectF) -> None:
         """Draw the grid lines in the background."""
         super().drawBackground(painter, rect)
-        self._draw_grid(painter, QPen(COLORS.LAYER, DIMENSION.LINE_WIDTH_GRID))
+        self._draw_grid(painter, QPen(COLORS.LAYER, DIMENSION.LANE_WIDTH))
 
     def _draw_grid(self, painter: QPainter, pen: QPen) -> None:
         """Draw grid lines across the viewport."""
@@ -133,7 +146,7 @@ class TrafficView(QGraphicsView):
     def _get_grid_step(self) -> float:
         """Determine grid spacing based on current zoom level."""
         scale = self.transform().m11()
-        return DIMENSION.GRID_STEP_COARSE if scale < DIMENSION.GRID_FINE_THRESHOLD else DIMENSION.GRID_STEP_FINE
+        return DIMENSION.GRID_STEP_COARSE if scale <= DIMENSION.GRID_FINE_THRESHOLD else DIMENSION.GRID_STEP_FINE
 
     # -------------------------------------------------------------------------
     # Foreground Labels
@@ -175,7 +188,7 @@ class TrafficView(QGraphicsView):
         if not hasattr(scene, 'roads'):
             return
 
-        show_lane_labels = abs(self.transform().m11()) >= DIMENSION.LANE_LABEL_MIN_ZOOM
+        show_lane_labels = abs(self.transform().m11()) > DIMENSION.LANE_LABEL_MIN_ZOOM
 
         for road in scene.roads:
             self._draw_road_labels(painter, road, show_lane_labels)
