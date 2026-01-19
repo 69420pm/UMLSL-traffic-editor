@@ -74,7 +74,6 @@ class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
 
     def add_car(self, car: Car) -> None:
         self._cars[car.name] = car
-        raise NotImplementedError("Prototype Method")
 
     def remove_car(self, car_name: str) -> None:
         raise NotImplementedError
