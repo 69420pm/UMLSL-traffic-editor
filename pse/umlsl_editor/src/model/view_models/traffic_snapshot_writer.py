@@ -41,6 +41,8 @@ class TrafficSnapshotWriter(ABC):
         Raises:
             TrafficSnapshotValidationError: If the car is invalid in the context of the snapshot.
         """
+        # TODO: Add car to traffic snapshot (traffic snapshot instance from application controller required)
+        # Something like this: application_controller.traffic_snapshot.add_car(car)
         pass
 
     @abstractmethod
