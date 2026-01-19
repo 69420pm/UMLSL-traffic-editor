@@ -1,5 +1,5 @@
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.model.entities.car import CarParams
+from pse.umlsl_editor.src.model.entities.car import CarParams, Car
 from pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer import TrafficSnapshotWriter
 
@@ -34,5 +34,9 @@ class AddCarCommand(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        raise NotImplementedError
+        car = Car(self._traffic_snapshot_reader, self._traffic_snapshot_writer, self.car_params)
+        # TODO: Convert car_params to actual car arguments and get segments, only for demonstration now
+        self._traffic_snapshot_writer.add_car(car)
+        # TODO: Error Handling
+        raise NotImplementedError("Prototype Method")
 
