@@ -34,8 +34,7 @@ class AddCarCommand(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        car = Car(self._traffic_snapshot_reader, self._traffic_snapshot_writer, self.car_params)
-        # TODO: Convert car_params to actual car arguments and get segments, only for demonstration now
+        car = Car.from_params(self.car_params)
         self._traffic_snapshot_writer.add_car(car)
         # TODO: Error Handling
         raise NotImplementedError("Prototype Method")
