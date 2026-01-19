@@ -1,0 +1,1306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>340</width>
+    <height>817</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>300</width>
+    <height>570</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>16777215</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Edit Query</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QDialog {
+    background-color: #011C26; 
+}
+
+QWidget {	
+	font: 13pt &quot;Helvetica&quot;;
+    color: #F9F9F9;
+}
+
+QLabel[class=label] {	
+	font: 10pt;
+    color: #F9F9F9;
+}
+
+QWidget[class=container] {	
+    background: #042F40;
+	border-radius: 10px
+}
+
+QLabel[class=hint] {
+	color: #799582;
+}
+
+QLabel[class=title] {
+	font: 700 24pt;
+}
+
+QLineEdit, QTextEdit{
+	background-color: #011C26;
+	border: none;
+	border-radius: 6px;
+	
+}
+
+/* --- Main Box --- */
+QComboBox {
+    background-color: #011C26;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 10px;
+    color: #F9F9F9;
+    /* This helps selection color in some styles */
+    selection-background-color: #011C26; 
+}
+
+/* --- The Dropdown Frame --- */
+/* We target QListView specifically to override Mac defaults */
+QComboBox QListView {
+    background-color: #011C26;
+    border: 1px solid #042F40; /* Your custom border */
+    outline: 0px; /* Removes the dotted/blue focus line */
+    padding: 0px;
+}
+
+
+
+/* --- The Arrow Button Area --- */
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 24px;
+    border-left: 1px solid #042F40; /* Optional: adds a separator */
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+QComboBox::down-arrow {
+    image: url(:/icons/icons/down.svg);
+    width: 10px;
+    height: 10px;
+}
+
+/* --- Main Spinbox Styling (Applies to both) --- */
+QSpinBox, QDoubleSpinBox {
+    background-color: #011C26;
+    border: none;
+    border-radius: 6px;
+    color: #F9F9F9;
+    padding: 5px 10px;
+    padding-right: 15px; 
+}
+
+/* --- The Button Container Areas --- */
+QSpinBox::up-button, QDoubleSpinBox::up-button {
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+    width: 25px;
+    
+    border-left: 1px solid #042F40;
+    border-top-right-radius: 6px;
+    border-bottom: 1px solid #042F40;
+    
+    background-color: #011C26;
+}
+
+QSpinBox::down-button, QDoubleSpinBox::down-button {
+    subcontrol-origin: border;
+    subcontrol-position: bottom right;
+    width: 25px;
+    
+    border-left: 1px solid #042F40;
+    border-bottom-right-radius: 6px;
+    
+    background-color: #011C26;
+}
+
+/* --- Hover Effects --- */
+QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover,
+QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover, QComboBox::drop-down:hover {
+    background-color: #042F40;
+}
+
+/* --- The Arrow Icons --- */
+/* (Assuming you are using the CSS Arrow hack from before. 
+   If using images, replace these with your image: url(...) code) */
+
+QSpinBox::up-arrow, QDoubleSpinBox::up-arrow {
+    image: url(:/icons/icons/up.svg); /* You need to create this file */
+    width: 10px;
+    height: 10px;
+}
+
+QSpinBox::down-arrow, QDoubleSpinBox::down-arrow {
+    image: url(:/icons/icons/down.svg); /* You need to create this file */
+    width: 10px;
+    height: 10px;
+}
+
+QToolButton {
+    background-color: #032F40; 
+    border-radius: 16px;       
+    border: none;
+    text-align: center;
+}
+
+QToolButton:hover {
+    background-color: #314250; 
+}
+
+QToolButton:pressed {
+    background-color: #032F40;
+}
+
+QPushButton {
+	color: #011C26;
+	border-radius: 16px
+}
+
+QPushButton#b_save {
+	background-color: #799582
+}
+
+QPushButton#b_delete {
+	background-color: #D97855
+}</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="Title">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>8</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Edit Query</string>
+       </property>
+       <property name="scaledContents">
+        <bool>false</bool>
+       </property>
+       <property name="wordWrap">
+        <bool>false</bool>
+       </property>
+       <property name="class" stdset="0">
+        <string>title</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="b_close">
+       <property name="minimumSize">
+        <size>
+         <width>32</width>
+         <height>32</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>32</width>
+         <height>32</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/Close.svg</normaloff>:/icons/icons/Close.svg</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QWidget" name="widget" native="true">
+     <layout class="QVBoxLayout" name="General">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="sizeConstraint">
+       <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item alignment="Qt::AlignmentFlag::AlignLeft">
+       <widget class="QWidget" name="widget_3" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="leftMargin">
+          <number>8</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>4</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Preview</string>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <property name="class" stdset="0">
+            <string>label</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="widget" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="class" stdset="0">
+         <string>container</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout" columnstretch="0">
+         <property name="leftMargin">
+          <number>8</number>
+         </property>
+         <property name="topMargin">
+          <number>4</number>
+         </property>
+         <property name="rightMargin">
+          <number>4</number>
+         </property>
+         <property name="bottomMargin">
+          <number>4</number>
+         </property>
+         <property name="horizontalSpacing">
+          <number>4</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>8</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="l_preview">
+           <property name="text">
+            <string>Preview Label</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="widget_4" native="true">
+     <layout class="QVBoxLayout" name="General_2">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="sizeConstraint">
+       <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item alignment="Qt::AlignmentFlag::AlignLeft">
+       <widget class="QWidget" name="widget_5" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <property name="leftMargin">
+          <number>8</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>4</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Query</string>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <property name="class" stdset="0">
+            <string>label</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="widget_6" native="true">
+        <property name="class" stdset="0">
+         <string>container</string>
+        </property>
+        <layout class="QFormLayout" name="formLayout">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::FieldGrowthPolicy::AllNonFixedFieldsGrow</enum>
+         </property>
+         <property name="labelAlignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+         <property name="formAlignment">
+          <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+         <property name="horizontalSpacing">
+          <number>8</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>8</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_14">
+           <property name="text">
+            <string>Ego Car</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="c_car">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>24</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>24</height>
+            </size>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_32">
+           <property name="text">
+            <string>UMLSL</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QTextEdit" name="textEdit">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>100</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="widget" native="true">
+     <layout class="QVBoxLayout" name="Lanes">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="sizeConstraint">
+       <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QWidget" name="widget" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="spacing">
+          <number>8</number>
+         </property>
+         <property name="leftMargin">
+          <number>8</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>4</number>
+         </property>
+         <property name="bottomMargin">
+          <number>4</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label_3">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Help</string>
+           </property>
+           <property name="class" stdset="0">
+            <string>label</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="widget_2" native="true">
+        <property name="class" stdset="0">
+         <string>container</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <property name="leftMargin">
+          <number>16</number>
+         </property>
+         <property name="topMargin">
+          <number>8</number>
+         </property>
+         <property name="rightMargin">
+          <number>16</number>
+         </property>
+         <property name="bottomMargin">
+          <number>8</number>
+         </property>
+         <property name="horizontalSpacing">
+          <number>0</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>18</number>
+         </property>
+         <item row="9" column="0">
+          <widget class="QLabel" name="label_18">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>\neg 𝜙</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>&lt;𝜙&gt;</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLabel" name="label_8">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>No Car</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="1">
+          <widget class="QLabel" name="label_22">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>𝜙1 ∨ 𝜙2</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="1">
+          <widget class="QLabel" name="label_20">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>∀ / For All Cars c</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLabel" name="label_9">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Reserved Space</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="label_5">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Car c</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label_25">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>\hchop {𝜙1}{𝜙2}</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_11">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>cs</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="1">
+          <widget class="QLabel" name="label_26">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>𝜙1 ∧ 𝜙2</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="label_21">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>\vchop {𝜙1} {𝜙2}</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_16">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>cl(c)</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="13" column="0">
+          <widget class="QLabel" name="label_31">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>\forall c 𝜙</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_15">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>re(c)</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0">
+          <widget class="QLabel" name="label_28">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>𝜙1 \or 𝜙2</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QLabel" name="label_29">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>𝜙1 ⌢ 𝜙2</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QLabel" name="label_27">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>𝜙1</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0">
+          <widget class="QLabel" name="label_23">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>𝜙1 \and 𝜙2</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLabel" name="label_17">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Clainmed Space</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLabel" name="label_7">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Somewhere</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="label_6">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Crossing Segment</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_13">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>free</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_10">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>c</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="1">
+          <widget class="QLabel" name="label_24">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>¬ 𝜙</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="13" column="1">
+          <widget class="QLabel" name="label_33">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>∃ / Exists Car c</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="0">
+          <widget class="QLabel" name="label_19">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>\exists c 𝜙</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::TextFormat::MarkdownText</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="QLabel" name="label_30">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>13</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>𝜙2</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Orientation::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="Bottom">
+     <item>
+      <widget class="QPushButton" name="b_save">
+       <property name="minimumSize">
+        <size>
+         <width>32</width>
+         <height>32</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>32</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Save</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/Done_dark.svg</normaloff>:/icons/icons/Done_dark.svg</iconset>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="b_delete">
+       <property name="minimumSize">
+        <size>
+         <width>32</width>
+         <height>32</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>32</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Delete</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/Delete_dark.svg</normaloff>:/icons/icons/Delete_dark.svg</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>b_close</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>305</x>
+     <y>40</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>320</x>
+     <y>-13</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>b_delete</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>276</x>
+     <y>540</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>400</x>
+     <y>545</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>b_save</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>64</x>
+     <y>550</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>129</x>
+     <y>593</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

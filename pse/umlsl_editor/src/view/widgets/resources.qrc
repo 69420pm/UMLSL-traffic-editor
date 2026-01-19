@@ -1,5 +1,10 @@
 <RCC>
   <qresource prefix="/icons">
+    <file>icons/Checkmark.svg</file>
+    <file>icons/Delete_dark.svg</file>
+    <file>icons/Done_dark.svg</file>
+    <file>icons/down.svg</file>
+    <file>icons/up.svg</file>
     <file>icons/Add road.svg</file>
     <file>icons/add.svg</file>
     <file>icons/Arrow downward.svg</file>
