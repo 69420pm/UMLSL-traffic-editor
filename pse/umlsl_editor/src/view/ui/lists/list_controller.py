@@ -1,48 +1,93 @@
-# controllers/base_list_controller.py
+"""
+List controller base class for the UMLSL Traffic Editor.
+
+Provides base functionality for managing entity lists (cars, roads, queries).
+"""
 from PySide6.QtWidgets import QListWidget, QListWidgetItem
 from PySide6.QtCore import Slot, QObject
 
 from pse.umlsl_editor.src.view.ui_utils import load_ui
+from pse.umlsl_editor.src.view.view_constants import UI_PATHS
 
 
 class ListController(QObject):
-    def __init__(self, main_ui, list_widget_name, edit_dialog_class):
+    """
+    Base controller for entity list widgets.
+
+    Handles common list operations: refresh, add row, open editor.
+    Subclasses must implement setup_row_ui() to populate row content.
+    """
+
+    def __init__(self, main_ui, list_widget_name: str, edit_dialog_class):
+        """
+        Initialize the list controller.
+
+        Args:
+            main_ui: Reference to the main UI widget.
+            list_widget_name: Object name of the QListWidget in the UI.
+            edit_dialog_class: Dialog class to use for editing items.
+        """
         super().__init__()
         self.main_ui = main_ui
         self.list_widget = self.main_ui.findChild(QListWidget, list_widget_name)
 
-        # Store configuration
-        self.list_item_ui_path = "ui/list.ui"
-        self.EditDialogClass = edit_dialog_class  # We pass the CLASS itself, not an instance
+        self.list_item_ui_path = UI_PATHS.LIST_ITEM
+        self.EditDialogClass = edit_dialog_class
 
         self.refresh_list()
 
-    def refresh_list(self):
-        """Standard logic to clear and rebuild the list."""
+    def refresh_list(self) -> None:
+        """Clear and rebuild the list from data source."""
         self.list_widget.clear()
-        items = self.get_all_items()  # Abstract method: Child must implement this
+        items = self.get_all_items()
         for item_data in items:
             self.add_row(item_data)
 
-    def add_row(self, item_data):
-        """Standard logic to load a row widget and add it to the list."""
-        row_widget = load_ui(self.list_item_ui_path)
+    def add_row(self, item_data) -> None:
+        """
+        Add a row widget for the given item data.
 
-        # Hook for child classes to fill data (text, colors, etc.)
+        Args:
+            item_data: The entity data to display in the row.
+        """
+        row_widget = load_ui(self.list_item_ui_path)
         self.setup_row_ui(row_widget, item_data)
 
-        # Standard list insertion
         item = QListWidgetItem(self.list_widget)
         item.setSizeHint(row_widget.sizeHint())
         self.list_widget.setItemWidget(item, row_widget)
 
     @Slot()
-    def open_editor(self, item_data):
-        """Opens the dialog class provided in __init__."""
-        # Initialize the dialog class passed in the constructor
+    def open_editor(self, item_data) -> None:
+        """
+        Open the edit dialog for the given item.
+
+        Args:
+            item_data: The entity data to edit.
+        """
         dialog = self.EditDialogClass(item_data, self)
         if dialog.exec():
             self.refresh_list()
 
-    def setup_row_ui(self, row_widget, item_data):
+    def get_all_items(self) -> list:
+        """
+        Get all items to display in the list.
+
+        Must be implemented by subclasses.
+
+        Returns:
+            List of entity data objects.
+        """
+        raise NotImplementedError
+
+    def setup_row_ui(self, row_widget, item_data) -> None:
+        """
+        Populate a row widget with item data.
+
+        Must be implemented by subclasses.
+
+        Args:
+            row_widget: The widget for this row.
+            item_data: The entity data to display.
+        """
         raise NotImplementedError

@@ -4,7 +4,7 @@ from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class LaneSegment(Segment):
     assigned_road: Road
     lane_index: int
