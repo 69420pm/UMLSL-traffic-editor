@@ -11,31 +11,9 @@ from PySide6.QtCore import QRectF
 from pse.umlsl_editor.src.view.view_constants import DIMENSION, Z_LAYERS
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import Road
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.view.view_models.car_view_model import CarViewModel
 from pse.umlsl_editor.src.view.view_models.road_graphics_item import RoadGraphicsItem
 from pse.umlsl_editor.src.view.view_models.road_view_model import RoadViewModel
-
-
-def _get_unique_id(data: Any) -> Optional[str]:
-    """
-    Generate a stable string ID for any traffic entity.
-
-    Args:
-        data: The entity to generate an ID for.
-
-    Returns:
-        A unique string identifier, or None if the entity type is unknown.
-    """
-    if isinstance(data, Car):
-        return f"car_{data.name}"
-    elif isinstance(data, Road):
-        return f"road_{data.name}"
-    elif isinstance(data, CrossingSegment):
-        h_lane = data.lane_horizontal
-        v_lane = data.lane_vertical
-        return f"cross_{h_lane.road_name}_{h_lane.lane_index}_x_{v_lane.road_name}_{v_lane.lane_index}"
-    return None
 
 
 class TrafficScene(QGraphicsScene):
@@ -54,11 +32,7 @@ class TrafficScene(QGraphicsScene):
         size = DIMENSION.SCENE_SIZE
         self.setSceneRect(QRectF(-size / 2, -size / 2, size, size))
 
-        # Item registry: maps unique ID -> (QGraphicsItem, ViewModel)
-        self._items: dict[str, tuple[QGraphicsItem, Any]] = {}
 
-        # Road data cache (acts as RoadAccessor for ViewModels)
-        self._road_cache: dict[str, Road] = {}
 
     @property
     def roads(self) -> list[Road]:

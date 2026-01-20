@@ -4,9 +4,8 @@ from pse.umlsl_editor.src.view.ui_utils import load_ui
 
 
 class SettingsDialogController:
-    def __init__(self, parent: QWidget, settings_vgit iewmodel):
+    def __init__(self, parent: QWidget):
         self._parent = parent
-        self._settings_vm = settings_viewmodel
         self._dialog: QDialog | None = None
 
     def open(self) -> None:
