@@ -2,14 +2,10 @@ from abc import ABC, abstractmethod
 
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import Road
-<<<<<<<< HEAD:pse/umlsl_editor/src/model/traffic_snapshot_writer.py
-from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
-========
->>>>>>>> f5aa8be893b6cdb275c41e175b4b8127d5c941ae:pse/umlsl_editor/src/model/view_models/traffic_snapshot_writer.py
 
 
 class TrafficSnapshotWriter(ABC):
-    """Interface for writing data into the TrafficSnapshot. Use always this class to mutate the snapshot. NEVER mutate the data domain_models directly."""
+    """Interface for writing data into the TrafficSnapshot. Use always this class to mutate the snapshot. NEVER mutate the data graphic_items directly."""
 
     @abstractmethod
     def add_road(self, road: Road) -> None:

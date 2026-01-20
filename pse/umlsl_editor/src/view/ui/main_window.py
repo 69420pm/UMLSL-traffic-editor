@@ -3,7 +3,6 @@ Main window for the UMLSL Traffic Editor.
 
 Contains the primary application window setup and initialization.
 """
-from PySide6.QtCore import Qt
 from PySide6.QtUiTools import QUiLoader
 
 from pse.umlsl_editor.src.view.testing.sample_scene_generator import create_sample_scene
@@ -28,11 +27,6 @@ class MainWindow:
 
         # 1. Load the UI
         self.ui = load_ui(UI_PATHS.MAIN_WINDOW)
-
-        # 1. REMOVE NATIVE TITLE BAR
-        #self.ui.setWindowFlags(Qt.FramelessWindowHint)
-        # 2. Make the background translucent (optional, for rounded corners)
-        #self.ui.setAttribute(Qt.WA_TranslucentBackground)
 
         # 2. Get specific references
         self.traffic_scene = TrafficScene()
