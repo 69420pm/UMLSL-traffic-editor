@@ -5,7 +5,7 @@ from pse.umlsl_editor.src.model.entities.road import Road
 
 
 class TrafficSnapshotWriter(ABC):
-    """Interface for writing data into the TrafficSnapshot. Use always this class to mutate the snapshot. NEVER mutate the data view_models directly."""
+    """Interface for writing data into the TrafficSnapshot. Use always this class to mutate the snapshot. NEVER mutate the data graphic_items directly."""
 
     @abstractmethod
     def add_road(self, road: Road) -> None:

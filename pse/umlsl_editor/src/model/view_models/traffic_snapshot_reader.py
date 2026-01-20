@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class TrafficSnapshotReader(ABC):
-    """Interface for reading data out of the TrafficSnapshot. Use always this class to read data from the snapshot. NEVER access the data view_models directly."""
+    """Interface for reading data out of the TrafficSnapshot. Use always this class to read data from the snapshot. NEVER access the data graphic_items directly."""
 
     @abstractmethod
     def get_cars_on_road(self, road: Road) -> list[Car]:

@@ -1022,7 +1022,7 @@
 <polyline fill="none" stroke="black" points="12804.12,-207 12932.62,-207"/>
 <text xml:space="preserve" text-anchor="start" x="12866.5" y="-189.7" font-family="Times,serif" font-size="14.00" fill="red"> </text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.selection.Selection -->
+<!-- pse.umlsl_editor.src.model.graphic_items.selection.Selection -->
 <g id="node56" class="node">
 <title>pse.umlsl_editor.src.model.view_models.selection.Selection</title>
 <polygon fill="none" stroke="black" points="12950.62,-94 12950.62,-320 13148.12,-320 13148.12,-94 12950.62,-94"/>
@@ -1047,7 +1047,7 @@
 <text xml:space="preserve" text-anchor="start" x="12958.62" y="-99.7" font-family="Times,serif" font-style="italic" font-size="14.00">select_road</text>
 <text xml:space="preserve" text-anchor="start" x="13021.62" y="-99.7" font-family="Times,serif" font-size="14.00">(road: Road): None</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.settings.Settings -->
+<!-- pse.umlsl_editor.src.model.graphic_items.settings.Settings -->
 <g id="node57" class="node">
 <title>pse.umlsl_editor.src.model.view_models.settings.Settings</title>
 <polygon fill="none" stroke="black" points="8702.62,-529.25 8702.62,-718.25 9086.12,-718.25 9086.12,-529.25 8702.62,-529.25"/>
@@ -1064,14 +1064,14 @@
 <text xml:space="preserve" text-anchor="start" x="8710.62" y="-552.95" font-family="Times,serif" font-size="14.00">toggle_render_coordinate_system(render_coordinate_system: bool)</text>
 <text xml:space="preserve" text-anchor="start" x="8710.62" y="-536.45" font-family="Times,serif" font-size="14.00">toggle_render_safety_distance(render_safety_distance: bool)</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.settings.Settings&#45;&gt;pse.umlsl_editor.src.controllers.application_controller.ApplicationController -->
+<!-- pse.umlsl_editor.src.model.graphic_items.settings.Settings&#45;&gt;pse.umlsl_editor.src.controllers.application_controller.ApplicationController -->
 <g id="edge53" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.settings.Settings&#45;&gt;pse.umlsl_editor.src.controllers.application_controller.ApplicationController</title>
 <path fill="none" stroke="black" d="M8956.12,-718.7C8975.79,-753.37 8995.3,-793.89 9006.38,-833.5 9027.86,-910.37 9032.5,-1130.66 9033.34,-1255.97"/>
 <polygon fill="none" stroke="black" points="9033.34,-1256.01 9037.38,-1261.99 9033.42,-1268.01 9029.38,-1262.03 9033.34,-1256.01"/>
 <text xml:space="preserve" text-anchor="middle" x="9053.53" y="-1019.7" font-family="Times,serif" font-size="14.00" fill="green">settings</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.settings.Settings&#45;&gt;pse.umlsl_editor.src.controllers.event_controller.EventController -->
+<!-- pse.umlsl_editor.src.model.graphic_items.settings.Settings&#45;&gt;pse.umlsl_editor.src.controllers.event_controller.EventController -->
 <g id="edge54" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.settings.Settings&#45;&gt;pse.umlsl_editor.src.controllers.event_controller.EventController</title>
 <path fill="none" stroke="black" d="M8983.37,-718.51C9022.94,-761.62 9063.86,-808.62 9078.38,-833.5 9101.17,-872.57 9117.78,-920.74 9128.64,-958.83"/>
@@ -1208,7 +1208,7 @@
 <polygon fill="black" stroke="black" points="10216.72,-526.12 10216.93,-533.33 10210.36,-536.3 10210.14,-529.09 10216.72,-526.12"/>
 <text xml:space="preserve" text-anchor="middle" x="10305.24" y="-435.2" font-family="Times,serif" font-size="14.00" fill="green">traffic_scene</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot.TrafficSnapshot -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot.TrafficSnapshot -->
 <g id="node65" class="node">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot.TrafficSnapshot</title>
 <polygon fill="none" stroke="black" points="8267.12,-0.5 8267.12,-413.5 8779.62,-413.5 8779.62,-0.5 8267.12,-0.5"/>
@@ -1257,21 +1257,21 @@
 <text xml:space="preserve" text-anchor="start" x="8275.12" y="-6.2" font-family="Times,serif" font-style="italic" font-size="14.00">validate_lane</text>
 <text xml:space="preserve" text-anchor="start" x="8348.62" y="-6.2" font-family="Times,serif" font-size="14.00">(road: Road, lane_index: int, lane_direction: str): bool</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.controllers.application_controller.ApplicationController -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.controllers.application_controller.ApplicationController -->
 <g id="edge55" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.controllers.application_controller.ApplicationController</title>
 <path fill="none" stroke="black" d="M8780,-227.46C9091.35,-257.02 9588.88,-325.42 9702.38,-466.5 9933.11,-753.3 9442.18,-1104.24 9181.73,-1262.07"/>
 <polygon fill="none" stroke="black" points="9181.7,-1262.08 9178.63,-1268.61 9171.43,-1268.28 9174.5,-1261.76 9181.7,-1262.08"/>
 <text xml:space="preserve" text-anchor="middle" x="9748.67" y="-802.2" font-family="Times,serif" font-size="14.00" fill="green">traffic_snapshot</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.controllers.event_controller.EventController -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.controllers.event_controller.EventController -->
 <g id="edge56" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.controllers.event_controller.EventController</title>
 <path fill="none" stroke="black" d="M8779.8,-261.53C8894.98,-299.17 9021.36,-362.18 9095.38,-466.5 9109.42,-486.3 9131.43,-815.3 9140.38,-958.28"/>
 <polygon fill="none" stroke="black" points="9140.38,-958.23 9144.75,-963.97 9141.13,-970.21 9136.76,-964.47 9140.38,-958.23"/>
 <text xml:space="preserve" text-anchor="middle" x="9171.44" y="-618.7" font-family="Times,serif" font-size="14.00" fill="green">traffic_snapshot</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader.TrafficSnapshotReader -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_reader.TrafficSnapshotReader -->
 <g id="node66" class="node">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader.TrafficSnapshotReader</title>
 <polygon fill="none" stroke="black" points="7668.12,-565.5 7668.12,-682 8180.62,-682 8180.62,-565.5 7668.12,-565.5"/>
@@ -1291,13 +1291,13 @@
 <text xml:space="preserve" text-anchor="start" x="7676.12" y="-571.2" font-family="Times,serif" font-style="italic" font-size="14.00">validate_lane</text>
 <text xml:space="preserve" text-anchor="start" x="7749.62" y="-571.2" font-family="Times,serif" font-size="14.00">(road: Road, lane_index: int, lane_direction: str): bool</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader.TrafficSnapshotReader -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_reader.TrafficSnapshotReader -->
 <g id="edge8" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader.TrafficSnapshotReader</title>
 <path fill="none" stroke="black" d="M8266.74,-385.7C8177.88,-447.22 8083.88,-512.31 8016.91,-558.68"/>
 <polygon fill="none" stroke="black" points="8015.11,-555.67 8008.88,-564.24 8019.1,-561.42 8015.11,-555.67"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer.TrafficSnapshotWriter -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_writer.TrafficSnapshotWriter -->
 <g id="node68" class="node">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer.TrafficSnapshotWriter</title>
 <polygon fill="none" stroke="black" points="7170.38,-565.5 7170.38,-682 7390.38,-682 7390.38,-565.5 7170.38,-565.5"/>
@@ -1317,41 +1317,41 @@
 <text xml:space="preserve" text-anchor="start" x="7178.38" y="-571.2" font-family="Times,serif" font-style="italic" font-size="14.00">update_road</text>
 <text xml:space="preserve" text-anchor="start" x="7247.38" y="-571.2" font-family="Times,serif" font-size="14.00">(road_data: Road): None</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer.TrafficSnapshotWriter -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_writer.TrafficSnapshotWriter -->
 <g id="edge9" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot.TrafficSnapshot&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer.TrafficSnapshotWriter</title>
 <path fill="none" stroke="black" d="M8266.96,-277.42C8093.91,-326.05 7861.16,-394.92 7659.38,-466.5 7571.77,-497.58 7474.9,-537.61 7401.03,-569.38"/>
 <polygon fill="none" stroke="black" points="7399.95,-566.03 7392.15,-573.21 7402.72,-572.46 7399.95,-566.03"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader.TrafficSnapshotReader&#45;&gt;pse.umlsl_editor.src.commands.cars.add_car.AddCarCommand -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_reader.TrafficSnapshotReader&#45;&gt;pse.umlsl_editor.src.commands.cars.add_car.AddCarCommand -->
 <g id="edge57" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader.TrafficSnapshotReader&#45;&gt;pse.umlsl_editor.src.commands.cars.add_car.AddCarCommand</title>
 <path fill="none" stroke="black" d="M7739.5,-682.43C7639.23,-713.05 7512.92,-750.53 7399.38,-781 7335.81,-798.06 7320.63,-806.95 7255.38,-815.5 7216.53,-820.59 6582.78,-811.48 6550.38,-833.5 6509.12,-861.54 6488.78,-915.19 6478.82,-958.39"/>
 <polygon fill="none" stroke="black" points="6478.79,-958.51 6481.45,-965.22 6476.29,-970.25 6473.63,-963.55 6478.79,-958.51"/>
 <text xml:space="preserve" text-anchor="middle" x="7398.93" y="-802.2" font-family="Times,serif" font-size="14.00" fill="green">traffic_snapshot_reader</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader.TrafficSnapshotReader&#45;&gt;pse.umlsl_editor.src.commands.settings.change_breaking_acceleration.ChangeBreakingAcceleration -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_reader.TrafficSnapshotReader&#45;&gt;pse.umlsl_editor.src.commands.settings.change_breaking_acceleration.ChangeBreakingAcceleration -->
 <g id="edge58" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader.TrafficSnapshotReader&#45;&gt;pse.umlsl_editor.src.commands.settings.change_breaking_acceleration.ChangeBreakingAcceleration</title>
 <path fill="none" stroke="black" d="M7872.07,-682.11C7826.48,-727.68 7755.96,-788.13 7680.38,-815.5 7620.17,-837.3 7158.45,-799.2 7104.38,-833.5 7060.54,-861.3 7035.64,-915.6 7022.07,-959.1"/>
 <polygon fill="none" stroke="black" points="7022.11,-958.96 7024.25,-965.85 7018.72,-970.47 7016.58,-963.58 7022.11,-958.96"/>
 <text xml:space="preserve" text-anchor="middle" x="7774.85" y="-802.2" font-family="Times,serif" font-size="14.00" fill="green">traffic_snapshot_reader</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader.TrafficSnapshotReader&#45;&gt;pse.umlsl_editor.src.controllers.command_controller.CommandController -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_reader.TrafficSnapshotReader&#45;&gt;pse.umlsl_editor.src.controllers.command_controller.CommandController -->
 <g id="edge59" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader.TrafficSnapshotReader&#45;&gt;pse.umlsl_editor.src.controllers.command_controller.CommandController</title>
 <path fill="none" stroke="black" d="M7924.38,-682.34C7924.38,-719.35 7924.38,-769.86 7924.38,-820.68"/>
 <polygon fill="none" stroke="black" points="7924.38,-820.69 7928.38,-826.69 7924.38,-832.69 7920.38,-826.69 7924.38,-820.69"/>
 <text xml:space="preserve" text-anchor="middle" x="7988.12" y="-802.2" font-family="Times,serif" font-size="14.00" fill="green">traffic_snapshot_reader</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader.TrafficSnapshotReader&#45;&gt;pse.umlsl_editor.src.controllers.data_controller.DataController -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_reader.TrafficSnapshotReader&#45;&gt;pse.umlsl_editor.src.controllers.data_controller.DataController -->
 <g id="edge60" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader.TrafficSnapshotReader&#45;&gt;pse.umlsl_editor.src.controllers.data_controller.DataController</title>
 <path fill="none" stroke="black" d="M8180.88,-643.11C8353.16,-666.1 8578.19,-717.71 8744.38,-833.5 8786.09,-862.57 8818.62,-909.5 8840.83,-949.48"/>
 <polygon fill="none" stroke="black" points="8840.82,-949.48 8847.19,-952.85 8846.53,-960.03 8840.16,-956.66 8840.82,-949.48"/>
 <text xml:space="preserve" text-anchor="middle" x="8770.17" y="-802.2" font-family="Times,serif" font-size="14.00" fill="green">traffic_snapshot_reader</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot.TrafficSnapshotValidationError -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot.TrafficSnapshotValidationError -->
 <g id="node67" class="node">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot.TrafficSnapshotValidationError</title>
 <polygon fill="none" stroke="black" points="13545.88,-182.5 13545.88,-231.5 13732.88,-231.5 13732.88,-182.5 13545.88,-182.5"/>
@@ -1360,21 +1360,21 @@
 <polyline fill="none" stroke="black" points="13545.88,-207 13732.88,-207"/>
 <text xml:space="preserve" text-anchor="start" x="13637.5" y="-189.7" font-family="Times,serif" font-size="14.00" fill="red"> </text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer.TrafficSnapshotWriter&#45;&gt;pse.umlsl_editor.src.commands.cars.add_car.AddCarCommand -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_writer.TrafficSnapshotWriter&#45;&gt;pse.umlsl_editor.src.commands.cars.add_car.AddCarCommand -->
 <g id="edge61" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer.TrafficSnapshotWriter&#45;&gt;pse.umlsl_editor.src.commands.cars.add_car.AddCarCommand</title>
 <path fill="none" stroke="black" d="M7169.98,-627.66C7013.67,-637.49 6727.23,-677.31 6550.38,-833.5 6513.8,-865.8 6493.23,-917.44 6481.98,-958.78"/>
 <polygon fill="none" stroke="black" points="6481.98,-958.74 6484.37,-965.55 6479,-970.37 6476.62,-963.56 6481.98,-958.74"/>
 <text xml:space="preserve" text-anchor="middle" x="6644.76" y="-802.2" font-family="Times,serif" font-size="14.00" fill="green">traffic_snapshot_writer</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer.TrafficSnapshotWriter&#45;&gt;pse.umlsl_editor.src.commands.settings.change_breaking_acceleration.ChangeBreakingAcceleration -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_writer.TrafficSnapshotWriter&#45;&gt;pse.umlsl_editor.src.commands.settings.change_breaking_acceleration.ChangeBreakingAcceleration -->
 <g id="edge62" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer.TrafficSnapshotWriter&#45;&gt;pse.umlsl_editor.src.commands.settings.change_breaking_acceleration.ChangeBreakingAcceleration</title>
 <path fill="none" stroke="black" d="M7225.73,-682.18C7188.87,-722.59 7140.55,-779 7104.38,-833.5 7077.8,-873.53 7053.28,-921.79 7035.53,-959.68"/>
 <polygon fill="none" stroke="black" points="7035.67,-959.38 7036.78,-966.51 7030.63,-970.27 7029.52,-963.15 7035.67,-959.38"/>
 <text xml:space="preserve" text-anchor="middle" x="7188.61" y="-802.2" font-family="Times,serif" font-size="14.00" fill="green">traffic_snapshot_writer</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer.TrafficSnapshotWriter&#45;&gt;pse.umlsl_editor.src.controllers.command_controller.CommandController -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_writer.TrafficSnapshotWriter&#45;&gt;pse.umlsl_editor.src.controllers.command_controller.CommandController -->
 <g id="edge63" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer.TrafficSnapshotWriter&#45;&gt;pse.umlsl_editor.src.controllers.command_controller.CommandController</title>
 <path fill="none" stroke="black" d="M7358.76,-682.3C7412.83,-721.25 7486.87,-773.14 7554.38,-815.5 7560.57,-819.39 7566.85,-823.29 7573.19,-827.2"/>
@@ -1507,7 +1507,7 @@
 <text xml:space="preserve" text-anchor="start" x="13934.25" y="-185.7" font-family="Times,serif" font-size="14.00">compute_horizon(car: Car): float</text>
 <text xml:space="preserve" text-anchor="start" x="13934.25" y="-169.2" font-family="Times,serif" font-size="14.00">evaluate_query(latex_string: str, traffic_snapshot: TrafficSnapshot, car: Car): bool</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.umlsl_queries.UMLSLQueriesValidationError -->
+<!-- pse.umlsl_editor.src.model.graphic_items.umlsl_queries.UMLSLQueriesValidationError -->
 <g id="node75" class="node">
 <title>pse.umlsl_editor.src.model.view_models.umlsl_queries.UMLSLQueriesValidationError</title>
 <polygon fill="none" stroke="black" points="14406.12,-182.5 14406.12,-231.5 14594.62,-231.5 14594.62,-182.5 14406.12,-182.5"/>
@@ -1529,7 +1529,7 @@
 <polyline fill="none" stroke="black" points="14612.75,-170 14760,-170"/>
 <text xml:space="preserve" text-anchor="start" x="14684.5" y="-152.7" font-family="Times,serif" font-size="14.00"> </text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.umlsl_queries.UmlslQueries -->
+<!-- pse.umlsl_editor.src.model.graphic_items.umlsl_queries.UmlslQueries -->
 <g id="node77" class="node">
 <title>pse.umlsl_editor.src.model.view_models.umlsl_queries.UmlslQueries</title>
 <polygon fill="none" stroke="black" points="14777.75,-132.75 14777.75,-281.25 15135,-281.25 15135,-132.75 14777.75,-132.75"/>

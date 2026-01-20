@@ -69,25 +69,25 @@
 <path fill="none" stroke="black" d="M2114.99,-396.49C2186.65,-407.06 2268.34,-420.64 2302.88,-432 2336.49,-443.05 2340.43,-456.5 2373.88,-468 2420.67,-484.09 2473.79,-495.82 2520.52,-504.09"/>
 <polygon fill="black" stroke="black" points="2530.11,-505.75 2519.49,-508.48 2526.39,-505.11 2520.26,-504.05 2520.26,-504.05 2520.26,-504.05 2526.39,-505.11 2521.03,-499.61 2530.11,-505.75"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_reader -->
 <g id="node59" class="node">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader</title>
 <polygon fill="none" stroke="black" points="1905.63,-468 1534.13,-468 1534.13,-432 1905.63,-432 1905.63,-468"/>
 <text xml:space="preserve" text-anchor="start" x="1542.13" y="-444.95" font-family="Times,serif" font-size="14.00">pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader</text>
 </g>
-<!-- pse.umlsl_editor.src.commands.cars.add_car&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader -->
+<!-- pse.umlsl_editor.src.commands.cars.add_car&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_reader -->
 <g id="edge3" class="edge">
 <title>pse.umlsl_editor.src.commands.cars.add_car&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader</title>
 <path fill="none" stroke="black" d="M1920.2,-396.48C1882.78,-406.29 1835.94,-418.57 1796.96,-428.79"/>
 <polygon fill="black" stroke="black" points="1787.36,-431.31 1795.89,-424.42 1791.02,-430.35 1797.04,-428.77 1797.04,-428.77 1797.04,-428.77 1791.02,-430.35 1798.18,-433.13 1787.36,-431.31"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_writer -->
 <g id="node60" class="node">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer</title>
 <polygon fill="none" stroke="black" points="2293.88,-468 1923.88,-468 1923.88,-432 2293.88,-432 2293.88,-468"/>
 <text xml:space="preserve" text-anchor="start" x="1931.88" y="-444.95" font-family="Times,serif" font-size="14.00">pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer</text>
 </g>
-<!-- pse.umlsl_editor.src.commands.cars.add_car&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer -->
+<!-- pse.umlsl_editor.src.commands.cars.add_car&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_writer -->
 <g id="edge4" class="edge">
 <title>pse.umlsl_editor.src.commands.cars.add_car&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer</title>
 <path fill="none" stroke="black" d="M2017.36,-396.48C2033.05,-405.49 2052.38,-416.58 2069.22,-426.24"/>
@@ -225,13 +225,13 @@
 <path fill="none" stroke="black" d="M1435.38,-395.48C1275.37,-408.56 1056.05,-426.5 916.38,-437.92"/>
 <polygon fill="black" stroke="black" points="906.43,-438.73 916.03,-433.43 910.2,-438.43 916.4,-437.92 916.4,-437.92 916.4,-437.92 910.2,-438.43 916.76,-442.4 906.43,-438.73"/>
 </g>
-<!-- pse.umlsl_editor.src.commands.settings.change_breaking_acceleration&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader -->
+<!-- pse.umlsl_editor.src.commands.settings.change_breaking_acceleration&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_reader -->
 <g id="edge8" class="edge">
 <title>pse.umlsl_editor.src.commands.settings.change_breaking_acceleration&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader</title>
 <path fill="none" stroke="black" d="M1657.4,-396.3C1667.48,-404.8 1679.79,-415.19 1690.82,-424.49"/>
 <polygon fill="black" stroke="black" points="1698.38,-430.87 1687.84,-427.86 1695.49,-428.43 1690.74,-424.42 1690.74,-424.42 1690.74,-424.42 1695.49,-428.43 1693.64,-420.98 1698.38,-430.87"/>
 </g>
-<!-- pse.umlsl_editor.src.commands.settings.change_breaking_acceleration&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer -->
+<!-- pse.umlsl_editor.src.commands.settings.change_breaking_acceleration&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_writer -->
 <g id="edge9" class="edge">
 <title>pse.umlsl_editor.src.commands.settings.change_breaking_acceleration&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer</title>
 <path fill="none" stroke="black" d="M1754.77,-396.48C1823.47,-406.67 1910.15,-419.53 1980.56,-429.97"/>
@@ -345,25 +345,25 @@
 <path fill="none" stroke="black" d="M1330.84,-252.48C1358.14,-262.04 1392.16,-273.95 1420.9,-284"/>
 <polygon fill="black" stroke="black" points="1430.07,-287.22 1419.15,-288.16 1426.5,-285.97 1420.63,-283.91 1420.63,-283.91 1420.63,-283.91 1426.5,-285.97 1422.12,-279.66 1430.07,-287.22"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.settings -->
+<!-- pse.umlsl_editor.src.model.graphic_items.settings -->
 <g id="node57" class="node">
 <title>pse.umlsl_editor.src.model.view_models.settings</title>
 <polygon fill="none" stroke="black" points="1417.51,-396 1132.26,-396 1132.26,-360 1417.51,-360 1417.51,-396"/>
 <text xml:space="preserve" text-anchor="start" x="1140.26" y="-372.95" font-family="Times,serif" font-size="14.00">pse.umlsl_editor.src.model.view_models.settings</text>
 </g>
-<!-- pse.umlsl_editor.src.controllers.application_controller&#45;&gt;pse.umlsl_editor.src.model.view_models.settings -->
+<!-- pse.umlsl_editor.src.controllers.application_controller&#45;&gt;pse.umlsl_editor.src.model.graphic_items.settings -->
 <g id="edge18" class="edge">
 <title>pse.umlsl_editor.src.controllers.application_controller&#45;&gt;pse.umlsl_editor.src.model.view_models.settings</title>
 <path fill="none" stroke="black" d="M1280.15,-252.41C1279.13,-276.5 1277.28,-320.25 1276.07,-348.97"/>
 <polygon fill="black" stroke="black" points="1275.66,-358.67 1271.59,-348.49 1275.82,-354.89 1276.08,-348.68 1276.08,-348.68 1276.08,-348.68 1275.82,-354.89 1280.58,-348.87 1275.66,-358.67"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot -->
 <g id="node58" class="node">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot</title>
 <polygon fill="none" stroke="black" points="3297.38,-396 2966.38,-396 2966.38,-360 3297.38,-360 3297.38,-396"/>
 <text xml:space="preserve" text-anchor="start" x="2974.38" y="-372.95" font-family="Times,serif" font-size="14.00">pse.umlsl_editor.src.model.view_models.traffic_snapshot</text>
 </g>
-<!-- pse.umlsl_editor.src.controllers.application_controller&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot -->
+<!-- pse.umlsl_editor.src.controllers.application_controller&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot -->
 <g id="edge19" class="edge">
 <title>pse.umlsl_editor.src.controllers.application_controller&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot</title>
 <path fill="none" stroke="black" d="M1436.31,-249.22C1640.04,-267.64 2008.56,-300.21 2323.88,-324 2541.08,-340.39 2791.34,-356.35 2955.09,-366.4"/>
@@ -399,13 +399,13 @@
 <path fill="none" stroke="black" d="M1003.18,-396.47C1052.63,-416.7 1138.38,-449.59 1214.88,-468 1478.05,-531.33 1791.5,-565.18 1978.19,-581.1"/>
 <polygon fill="black" stroke="black" points="1987.99,-581.92 1977.64,-585.56 1984.22,-581.6 1978.02,-581.08 1978.02,-581.08 1978.02,-581.08 1984.22,-581.6 1978.4,-576.6 1987.99,-581.92"/>
 </g>
-<!-- pse.umlsl_editor.src.controllers.command_controller&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader -->
+<!-- pse.umlsl_editor.src.controllers.command_controller&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_reader -->
 <g id="edge23" class="edge">
 <title>pse.umlsl_editor.src.controllers.command_controller&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader</title>
 <path fill="none" stroke="black" d="M1114.42,-395.17C1117.26,-395.45 1120.09,-395.73 1122.88,-396 1162.18,-399.82 1364.69,-417.74 1523.1,-431.69"/>
 <polygon fill="black" stroke="black" points="1532.73,-432.54 1522.37,-436.15 1528.96,-432.21 1522.77,-431.66 1522.77,-431.66 1522.77,-431.66 1528.96,-432.21 1523.16,-427.18 1532.73,-432.54"/>
 </g>
-<!-- pse.umlsl_editor.src.controllers.command_controller&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer -->
+<!-- pse.umlsl_editor.src.controllers.command_controller&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_writer -->
 <g id="edge24" class="edge">
 <title>pse.umlsl_editor.src.controllers.command_controller&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer</title>
 <path fill="none" stroke="black" d="M1114.4,-395.34C1117.25,-395.57 1120.08,-395.79 1122.88,-396 1470.65,-422.24 1561.44,-408.9 1912.56,-431.86"/>
@@ -423,19 +423,19 @@
 <path fill="none" stroke="black" d="M2283.99,-396.43C2290.44,-406.44 2298.03,-419.48 2302.88,-432 2317.5,-469.71 2321.88,-480.55 2321.88,-521 2321.88,-521 2321.88,-521 2321.88,-595 2321.88,-634.26 2321.88,-679.62 2321.88,-708.31"/>
 <polygon fill="black" stroke="black" points="2321.88,-718.29 2317.38,-708.29 2321.88,-714.51 2321.88,-708.29 2321.88,-708.29 2321.88,-708.29 2321.88,-714.51 2326.38,-708.29 2321.88,-718.29"/>
 </g>
-<!-- pse.umlsl_editor.src.controllers.data_controller&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader -->
+<!-- pse.umlsl_editor.src.controllers.data_controller&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_reader -->
 <g id="edge27" class="edge">
 <title>pse.umlsl_editor.src.controllers.data_controller&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader</title>
 <path fill="none" stroke="black" d="M2135.44,-396.3C2054.47,-406.57 1951.75,-419.6 1868.7,-430.13"/>
 <polygon fill="black" stroke="black" points="1858.85,-431.38 1868.2,-425.66 1862.6,-430.9 1868.77,-430.12 1868.77,-430.12 1868.77,-430.12 1862.6,-430.9 1869.33,-434.58 1858.85,-431.38"/>
 </g>
-<!-- pse.umlsl_editor.src.controllers.event_controller&#45;&gt;pse.umlsl_editor.src.model.view_models.settings -->
+<!-- pse.umlsl_editor.src.controllers.event_controller&#45;&gt;pse.umlsl_editor.src.model.graphic_items.settings -->
 <g id="edge28" class="edge">
 <title>pse.umlsl_editor.src.controllers.event_controller&#45;&gt;pse.umlsl_editor.src.model.view_models.settings</title>
 <path fill="none" stroke="black" d="M1429.43,-324.48C1401.18,-334.08 1365.96,-346.05 1336.28,-356.14"/>
 <polygon fill="black" stroke="black" points="1327.19,-359.23 1335.21,-351.75 1330.77,-358.01 1336.66,-356.01 1336.66,-356.01 1336.66,-356.01 1330.77,-358.01 1338.11,-360.27 1327.19,-359.23"/>
 </g>
-<!-- pse.umlsl_editor.src.controllers.event_controller&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot -->
+<!-- pse.umlsl_editor.src.controllers.event_controller&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot -->
 <g id="edge29" class="edge">
 <title>pse.umlsl_editor.src.controllers.event_controller&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot</title>
 <path fill="none" stroke="black" d="M1620.94,-312.94C1920.89,-325.66 2624.9,-355.5 2955.08,-369.5"/>
@@ -555,7 +555,7 @@
 <polygon fill="none" stroke="black" points="3028.01,-324 2691.76,-324 2691.76,-288 3028.01,-288 3028.01,-324"/>
 <text xml:space="preserve" text-anchor="start" x="2699.76" y="-300.95" font-family="Times,serif" font-size="14.00">pse.umlsl_editor.src.model.persistence.persistence_service</text>
 </g>
-<!-- pse.umlsl_editor.src.model.persistence.persistence_service&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot -->
+<!-- pse.umlsl_editor.src.model.persistence.persistence_service&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot -->
 <g id="edge36" class="edge">
 <title>pse.umlsl_editor.src.model.persistence.persistence_service&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot</title>
 <path fill="none" stroke="black" d="M2927.82,-324.48C2966.02,-334.31 3013.86,-346.63 3053.63,-356.86"/>
@@ -621,109 +621,109 @@
 <path fill="none" stroke="black" d="M2163.96,-612.41C2195.89,-637.6 2255.1,-684.32 2291.25,-712.83"/>
 <polygon fill="black" stroke="black" points="2298.96,-718.91 2288.32,-716.25 2295.99,-716.57 2291.11,-712.72 2291.11,-712.72 2291.11,-712.72 2295.99,-716.57 2293.89,-709.19 2298.96,-718.91"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models -->
+<!-- pse.umlsl_editor.src.model.graphic_items -->
 <g id="node55" class="node">
 <title>pse.umlsl_editor.src.model.view_models</title>
 <polygon fill="none" stroke="black" points="10428.01,-36 10187.76,-36 10187.76,0 10428.01,0 10428.01,-36"/>
 <text xml:space="preserve" text-anchor="start" x="10195.76" y="-12.95" font-family="Times,serif" font-size="14.00">pse.umlsl_editor.src.model.view_models</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.selection -->
+<!-- pse.umlsl_editor.src.model.graphic_items.selection -->
 <g id="node56" class="node">
 <title>pse.umlsl_editor.src.model.view_models.selection</title>
 <polygon fill="none" stroke="black" points="1515.88,-468 1223.88,-468 1223.88,-432 1515.88,-432 1515.88,-468"/>
 <text xml:space="preserve" text-anchor="start" x="1231.88" y="-444.95" font-family="Times,serif" font-size="14.00">pse.umlsl_editor.src.model.view_models.selection</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.selection&#45;&gt;pse.umlsl_editor.src.model.entities.car -->
+<!-- pse.umlsl_editor.src.model.graphic_items.selection&#45;&gt;pse.umlsl_editor.src.model.entities.car -->
 <g id="edge44" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.selection&#45;&gt;pse.umlsl_editor.src.model.entities.car</title>
 <path fill="none" stroke="black" d="M1516.31,-467.3C1519.19,-467.55 1522.05,-467.78 1524.88,-468 1885.52,-496.28 2312.75,-511.43 2519.86,-517.61"/>
 <polygon fill="black" stroke="black" points="2529.85,-517.91 2519.72,-522.11 2526.07,-517.8 2519.85,-517.61 2519.85,-517.61 2519.85,-517.61 2526.07,-517.8 2519.99,-513.11 2529.85,-517.91"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.selection&#45;&gt;pse.umlsl_editor.src.model.entities.road -->
+<!-- pse.umlsl_editor.src.model.graphic_items.selection&#45;&gt;pse.umlsl_editor.src.model.entities.road -->
 <g id="edge45" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.selection&#45;&gt;pse.umlsl_editor.src.model.entities.road</title>
 <path fill="none" stroke="black" d="M1404.12,-468.41C1491.55,-512.08 1731.22,-626.87 1943.88,-684 2025.62,-705.96 2119.89,-719.2 2193.83,-726.95"/>
 <polygon fill="black" stroke="black" points="2203.38,-727.93 2192.97,-731.39 2199.62,-727.55 2193.43,-726.91 2193.43,-726.91 2193.43,-726.91 2199.62,-727.55 2193.89,-722.44 2203.38,-727.93"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.entities.car -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.entities.car -->
 <g id="edge46" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.entities.car</title>
 <path fill="none" stroke="black" d="M3072.17,-396.41C2981.96,-422.72 2811.28,-472.48 2715.19,-500.5"/>
 <polygon fill="black" stroke="black" points="2705.88,-503.22 2714.22,-496.1 2709.51,-502.16 2715.48,-500.42 2715.48,-500.42 2715.48,-500.42 2709.51,-502.16 2716.74,-504.74 2705.88,-503.22"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.entities.road -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.entities.road -->
 <g id="edge47" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.entities.road</title>
 <path fill="none" stroke="black" d="M3297.74,-383.87C3703.56,-395.88 4714.12,-426.34 4720.88,-432 4751.9,-457.96 4739.88,-480.55 4739.88,-521 4739.88,-521 4739.88,-521 4739.88,-595 4739.88,-710.77 2950.07,-732.44 2450.18,-736.24"/>
 <polygon fill="black" stroke="black" points="2440.55,-736.31 2450.51,-731.74 2444.33,-736.28 2450.55,-736.24 2450.55,-736.24 2450.55,-736.24 2444.33,-736.28 2450.58,-740.74 2440.55,-736.31"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.entities.umlsl_query -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.entities.umlsl_query -->
 <g id="edge48" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.entities.umlsl_query</title>
 <path fill="none" stroke="black" d="M3297.63,-383.76C3534.6,-391.4 3944.35,-407.99 3966.88,-432 3977.83,-443.67 3973.86,-453.6 3966.88,-468 3961.34,-479.46 3951.98,-489.2 3941.98,-497.07"/>
 <polygon fill="black" stroke="black" points="3934.1,-502.8 3939.55,-493.28 3937.16,-500.57 3942.19,-496.92 3942.19,-496.92 3942.19,-496.92 3937.16,-500.57 3944.84,-500.56 3934.1,-502.8"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.helper.observables -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.helper.observables -->
 <g id="edge49" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.helper.observables</title>
 <path fill="none" stroke="black" d="M3131.88,-396.3C3131.88,-403.68 3131.88,-412.48 3131.88,-420.75"/>
 <polygon fill="black" stroke="black" points="3131.88,-430.68 3127.38,-420.68 3131.88,-426.9 3131.88,-420.68 3131.88,-420.68 3131.88,-420.68 3131.88,-426.9 3136.38,-420.68 3131.88,-430.68"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.value_objects.segments.crossing_segment -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.value_objects.segments.crossing_segment -->
 <g id="edge50" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.value_objects.segments.crossing_segment</title>
 <path fill="none" stroke="black" d="M3297.64,-383.31C3625.11,-392.22 4325.06,-413.38 4342.88,-432 4428.38,-521.32 4021.95,-563.89 3758.95,-581.8"/>
 <polygon fill="black" stroke="black" points="3749.32,-582.45 3758.99,-577.28 3753.09,-582.19 3759.29,-581.77 3759.29,-581.77 3759.29,-581.77 3753.09,-582.19 3759.6,-586.26 3749.32,-582.45"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_reader -->
 <g id="edge51" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader</title>
 <path fill="none" stroke="black" d="M2965.92,-383.94C2733.77,-391.37 2298.65,-407.17 1916.91,-431.89"/>
 <polygon fill="black" stroke="black" points="1907.13,-432.52 1916.82,-427.38 1910.9,-432.28 1917.11,-431.87 1917.11,-431.87 1917.11,-431.87 1910.9,-432.28 1917.4,-436.36 1907.13,-432.52"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_writer -->
 <g id="edge52" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer</title>
 <path fill="none" stroke="black" d="M2966.1,-390.34C2785.48,-402.7 2496.76,-422.46 2305.01,-435.58"/>
 <polygon fill="black" stroke="black" points="2295.17,-436.25 2304.83,-431.08 2298.94,-436 2305.14,-435.57 2305.14,-435.57 2305.14,-435.57 2298.94,-436 2305.45,-440.06 2295.17,-436.25"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader&#45;&gt;pse.umlsl_editor.src.model.entities.car -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_reader&#45;&gt;pse.umlsl_editor.src.model.entities.car -->
 <g id="edge120" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader&#45;&gt;pse.umlsl_editor.src.model.entities.car</title>
 <path fill="none" stroke="black" stroke-dasharray="5,2" d="M1905.92,-467.28C1908.93,-467.52 1911.92,-467.76 1914.88,-468 2127.22,-484.96 2374.49,-502.44 2519.89,-512.48"/>
 <polygon fill="black" stroke="black" points="2529.83,-513.16 2519.54,-516.96 2526.06,-512.9 2519.85,-512.48 2519.85,-512.48 2519.85,-512.48 2526.06,-512.9 2520.16,-507.99 2529.83,-513.16"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader&#45;&gt;pse.umlsl_editor.src.model.entities.road -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_reader&#45;&gt;pse.umlsl_editor.src.model.entities.road -->
 <g id="edge121" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader&#45;&gt;pse.umlsl_editor.src.model.entities.road</title>
 <path fill="none" stroke="black" stroke-dasharray="5,2" d="M1735.36,-468.25C1775.99,-512.33 1890.98,-629.44 2012.88,-684 2069.24,-709.22 2136.33,-722.5 2193.57,-729.46"/>
 <polygon fill="black" stroke="black" points="2203.29,-730.59 2192.84,-733.91 2199.54,-730.16 2193.36,-729.44 2193.36,-729.44 2193.36,-729.44 2199.54,-730.16 2193.88,-724.97 2203.29,-730.59"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer&#45;&gt;pse.umlsl_editor.src.model.entities.car -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_writer&#45;&gt;pse.umlsl_editor.src.model.entities.car -->
 <g id="edge53" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer&#45;&gt;pse.umlsl_editor.src.model.entities.car</title>
 <path fill="none" stroke="black" d="M2242.76,-468.48C2327.78,-479.59 2437.06,-493.86 2520.24,-504.72"/>
 <polygon fill="black" stroke="black" points="2530.07,-506.01 2519.57,-509.17 2526.32,-505.52 2520.16,-504.71 2520.16,-504.71 2520.16,-504.71 2526.32,-505.52 2520.74,-500.25 2530.07,-506.01"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer&#45;&gt;pse.umlsl_editor.src.model.entities.road -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_writer&#45;&gt;pse.umlsl_editor.src.model.entities.road -->
 <g id="edge54" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer&#45;&gt;pse.umlsl_editor.src.model.entities.road</title>
 <path fill="none" stroke="black" d="M2076.88,-468.32C2027.66,-497.23 1942.85,-557.55 1980.88,-612 2028.63,-680.36 2118.05,-711.45 2193.34,-725.53"/>
 <polygon fill="black" stroke="black" points="2203.14,-727.28 2192.51,-729.96 2199.42,-726.62 2193.3,-725.53 2193.3,-725.53 2193.3,-725.53 2199.42,-726.62 2194.08,-721.1 2203.14,-727.28"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer&#45;&gt;pse.umlsl_editor.src.model.entities.umlsl_query -->
+<!-- pse.umlsl_editor.src.model.graphic_items.traffic_snapshot_writer&#45;&gt;pse.umlsl_editor.src.model.entities.umlsl_query -->
 <g id="edge55" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer&#45;&gt;pse.umlsl_editor.src.model.entities.umlsl_query</title>
 <path fill="none" stroke="black" d="M2294.23,-458.24C2650.14,-472.15 3422.89,-502.36 3749.41,-515.12"/>
 <polygon fill="black" stroke="black" points="3759.15,-515.5 3748.98,-519.61 3755.37,-515.35 3749.16,-515.11 3749.16,-515.11 3749.16,-515.11 3755.37,-515.35 3749.33,-510.61 3759.15,-515.5"/>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.umlsl_queries -->
+<!-- pse.umlsl_editor.src.model.graphic_items.umlsl_queries -->
 <g id="node61" class="node">
 <title>pse.umlsl_editor.src.model.view_models.umlsl_queries</title>
 <polygon fill="none" stroke="black" points="4334.13,-468 4013.63,-468 4013.63,-432 4334.13,-432 4334.13,-468"/>
 <text xml:space="preserve" text-anchor="start" x="4021.63" y="-444.95" font-family="Times,serif" font-size="14.00">pse.umlsl_editor.src.model.view_models.umlsl_queries</text>
 </g>
-<!-- pse.umlsl_editor.src.model.view_models.umlsl_queries&#45;&gt;pse.umlsl_editor.src.model.entities.umlsl_query -->
+<!-- pse.umlsl_editor.src.model.graphic_items.umlsl_queries&#45;&gt;pse.umlsl_editor.src.model.entities.umlsl_query -->
 <g id="edge56" class="edge">
 <title>pse.umlsl_editor.src.model.view_models.umlsl_queries&#45;&gt;pse.umlsl_editor.src.model.entities.umlsl_query</title>
 <path fill="none" stroke="black" d="M4105.45,-468.48C4066.97,-478.31 4018.77,-490.63 3978.72,-500.86"/>
@@ -753,7 +753,7 @@
 <path fill="none" stroke="black" d="M3389.21,-252.36C3407.14,-260.22 3424.19,-271.59 3434.88,-288 3491.08,-374.24 3422.3,-410.78 3303.88,-468 3197.19,-519.55 2889.78,-492.13 2771.88,-504 2771.21,-504.07 2770.53,-504.14 2769.86,-504.21"/>
 <polygon fill="black" stroke="black" points="2759.95,-505.26 2769.41,-499.73 2763.71,-504.86 2769.89,-504.2 2769.89,-504.2 2769.89,-504.2 2763.71,-504.86 2770.37,-508.68 2759.95,-505.26"/>
 </g>
-<!-- pse.umlsl_editor.src.query.ast.ast&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot -->
+<!-- pse.umlsl_editor.src.query.ast.ast&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot -->
 <g id="edge58" class="edge">
 <title>pse.umlsl_editor.src.query.ast.ast&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot</title>
 <path fill="none" stroke="black" d="M3282.48,-252.34C3265.38,-262.02 3244.38,-274.77 3226.88,-288 3200.98,-307.59 3174.21,-333.24 3155.72,-351.97"/>
@@ -819,7 +819,7 @@
 <path fill="none" stroke="black" d="M3925.45,-180.28C3950.02,-222.91 4004.82,-334.14 3948.88,-396 3895.41,-455.14 3670.81,-420.68 3591.88,-432 3505.51,-444.39 3485.47,-457.2 3398.88,-468 3150.08,-499.04 3085.89,-484.88 2835.88,-504 2814.52,-505.63 2791.82,-507.52 2769.81,-509.43"/>
 <polygon fill="black" stroke="black" points="2759.93,-510.29 2769.51,-504.94 2763.7,-509.96 2769.9,-509.42 2769.9,-509.42 2769.9,-509.42 2763.7,-509.96 2770.29,-513.91 2759.93,-510.29"/>
 </g>
-<!-- pse.umlsl_editor.src.query.ast.chop_node&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot -->
+<!-- pse.umlsl_editor.src.query.ast.chop_node&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot -->
 <g id="edge64" class="edge">
 <title>pse.umlsl_editor.src.query.ast.chop_node&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot</title>
 <path fill="none" stroke="black" d="M3902.98,-180.34C3876.46,-218.4 3812.29,-307.24 3779.88,-324 3738.92,-345.19 3486.1,-360.93 3308.65,-369.54"/>
@@ -855,7 +855,7 @@
 <path fill="none" stroke="black" d="M3621.92,-106.59C3626.29,-107.07 3630.63,-107.55 3634.88,-108 3680.36,-112.84 4013.99,-110.28 4044.88,-144 4074.99,-176.86 4112.74,-283.64 3972.88,-396 3913.14,-444 3705.03,-416.92 3629.88,-432 3575.29,-442.95 3564.74,-458.45 3509.88,-468 3214.35,-519.46 3135.11,-482.7 2835.88,-504 2814.51,-505.52 2791.8,-507.35 2769.79,-509.24"/>
 <polygon fill="black" stroke="black" points="2759.92,-510.1 2769.49,-504.75 2763.69,-509.77 2769.88,-509.23 2769.88,-509.23 2769.88,-509.23 2763.69,-509.77 2770.27,-513.72 2759.92,-510.1"/>
 </g>
-<!-- pse.umlsl_editor.src.query.ast.claim_node&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot -->
+<!-- pse.umlsl_editor.src.query.ast.claim_node&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot -->
 <g id="edge68" class="edge">
 <title>pse.umlsl_editor.src.query.ast.claim_node&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot</title>
 <path fill="none" stroke="black" d="M3489.09,-108.2C3483.66,-118.35 3477.16,-131.6 3472.88,-144 3446.23,-221.3 3493.7,-267.2 3434.88,-324 3415.44,-342.78 3363.98,-355 3308.87,-362.9"/>
@@ -891,7 +891,7 @@
 <path fill="none" stroke="black" d="M2144.18,-180.43C2226.74,-208.1 2382.27,-268.51 2487.88,-360 2531.86,-398.1 2520.08,-427.53 2561.88,-468 2573.66,-479.4 2588.26,-489.7 2601.91,-498.11"/>
 <polygon fill="black" stroke="black" points="2610.12,-503.01 2599.23,-501.75 2606.87,-501.07 2601.53,-497.89 2601.53,-497.89 2601.53,-497.89 2606.87,-501.07 2603.84,-494.02 2610.12,-503.01"/>
 </g>
-<!-- pse.umlsl_editor.src.query.ast.crossing_node&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot -->
+<!-- pse.umlsl_editor.src.query.ast.crossing_node&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot -->
 <g id="edge72" class="edge">
 <title>pse.umlsl_editor.src.query.ast.crossing_node&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot</title>
 <path fill="none" stroke="black" d="M2217.84,-178.95C2473.53,-210.5 3018.85,-278.61 3036.88,-288 3056.14,-298.02 3054.27,-308.92 3069.88,-324 3079.99,-333.76 3091.58,-343.92 3101.98,-352.7"/>
@@ -915,7 +915,7 @@
 <path fill="none" stroke="black" d="M2785.69,-180.43C2741.76,-199.46 2678.84,-234.55 2649.88,-288 2614.16,-353.94 2627.55,-446.55 2637.66,-492.63"/>
 <polygon fill="black" stroke="black" points="2639.91,-502.38 2633.27,-493.65 2639.06,-498.69 2637.66,-492.63 2637.66,-492.63 2637.66,-492.63 2639.06,-498.69 2642.04,-491.62 2639.91,-502.38"/>
 </g>
-<!-- pse.umlsl_editor.src.query.ast.equality_node&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot -->
+<!-- pse.umlsl_editor.src.query.ast.equality_node&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot -->
 <g id="edge75" class="edge">
 <title>pse.umlsl_editor.src.query.ast.equality_node&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot</title>
 <path fill="none" stroke="black" d="M2915.4,-180.42C2976.99,-197.62 3058.68,-230.02 3107.88,-288 3122.21,-304.87 3128.06,-329.49 3130.41,-348.56"/>
@@ -945,7 +945,7 @@
 <path fill="none" stroke="black" d="M3880.11,-98.1C3954.62,-105.02 4041.7,-118.43 4068.88,-144 4153.05,-223.18 4106.82,-341.57 4004.88,-396 3870.06,-467.99 3810.34,-391.79 3662.88,-432 3625.66,-442.15 3621.38,-458.91 3583.88,-468 3422.15,-507.21 3001.91,-492.62 2835.88,-504 2814.5,-505.47 2791.8,-507.27 2769.79,-509.15"/>
 <polygon fill="black" stroke="black" points="2759.91,-510 2769.49,-504.66 2763.68,-509.67 2769.88,-509.14 2769.88,-509.14 2769.88,-509.14 2763.68,-509.67 2770.26,-513.62 2759.91,-510"/>
 </g>
-<!-- pse.umlsl_editor.src.query.ast.free_node&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot -->
+<!-- pse.umlsl_editor.src.query.ast.free_node&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot -->
 <g id="edge79" class="edge">
 <title>pse.umlsl_editor.src.query.ast.free_node&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot</title>
 <path fill="none" stroke="black" d="M3763.1,-108.32C3763.57,-127.52 3761.64,-158.58 3746.88,-180 3675.23,-284.01 3621.09,-282.26 3501.88,-324 3440.79,-345.39 3371.12,-358.16 3308.84,-365.78"/>
@@ -969,7 +969,7 @@
 <path fill="none" stroke="black" d="M2561.85,-180.43C2557.47,-207.14 2549.88,-259.88 2549.88,-305 2549.88,-305 2549.88,-305 2549.88,-379 2549.88,-426.58 2587.18,-470.28 2615.04,-496.29"/>
 <polygon fill="black" stroke="black" points="2622.42,-502.96 2611.99,-499.6 2619.62,-500.43 2615,-496.26 2615,-496.26 2615,-496.26 2619.62,-500.43 2618.02,-492.92 2622.42,-502.96"/>
 </g>
-<!-- pse.umlsl_editor.src.query.ast.logic_node&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot -->
+<!-- pse.umlsl_editor.src.query.ast.logic_node&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot -->
 <g id="edge83" class="edge">
 <title>pse.umlsl_editor.src.query.ast.logic_node&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot</title>
 <path fill="none" stroke="black" d="M2672.49,-180.47C2800.82,-202.87 3006.03,-244.08 3069.88,-288 3092.35,-303.45 3109.23,-329.89 3119.66,-349.94"/>
@@ -993,7 +993,7 @@
 <path fill="none" stroke="black" d="M3004.41,-180.46C2892.79,-201.45 2725.32,-239.93 2682.88,-288 2656.48,-317.91 2648.26,-437.12 2645.84,-492.48"/>
 <polygon fill="black" stroke="black" points="2645.44,-502.35 2641.34,-492.18 2645.59,-498.57 2645.84,-492.36 2645.84,-492.36 2645.84,-492.36 2645.59,-498.57 2650.34,-492.54 2645.44,-502.35"/>
 </g>
-<!-- pse.umlsl_editor.src.query.ast.quantor_node&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot -->
+<!-- pse.umlsl_editor.src.query.ast.quantor_node&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot -->
 <g id="edge86" class="edge">
 <title>pse.umlsl_editor.src.query.ast.quantor_node&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot</title>
 <path fill="none" stroke="black" d="M3116.19,-180.18C3129.34,-209.38 3152.8,-270.74 3145.88,-324 3144.82,-332.21 3142.86,-340.96 3140.74,-348.94"/>
@@ -1017,7 +1017,7 @@
 <path fill="none" stroke="black" d="M2006.73,-107.64C1953.38,-120.33 1909.19,-142.33 1935.88,-180 2005.86,-278.74 2352.22,-288.53 2449.88,-360 2498.3,-395.43 2484.28,-430.21 2530.88,-468 2546.48,-480.64 2565.58,-491.04 2583.65,-499.17"/>
 <polygon fill="black" stroke="black" points="2592.73,-503.1 2581.77,-503.26 2589.26,-501.6 2583.55,-499.13 2583.55,-499.13 2583.55,-499.13 2589.26,-501.6 2585.34,-495 2592.73,-503.1"/>
 </g>
-<!-- pse.umlsl_editor.src.query.ast.reserve_node&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot -->
+<!-- pse.umlsl_editor.src.query.ast.reserve_node&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot -->
 <g id="edge89" class="edge">
 <title>pse.umlsl_editor.src.query.ast.reserve_node&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot</title>
 <path fill="none" stroke="black" d="M2022.63,-108.43C1967.77,-121.83 1919.11,-144.26 1948.88,-180 1977.23,-214.02 2101.4,-207.64 2144.88,-216 2384.38,-262.03 2442.03,-285.67 2682.88,-324 2772.19,-338.21 2872.04,-350.36 2954.87,-359.43"/>
@@ -1047,7 +1047,7 @@
 <path fill="none" stroke="black" d="M2318.78,-34.89C2315.78,-35.27 2312.81,-35.64 2309.88,-36 2228.54,-45.94 2005.28,-18.88 1942.88,-72 1905.77,-103.59 1908.89,-133.63 1923.88,-180 1936.03,-217.56 1943.7,-229.15 1975.88,-252 2067.39,-316.95 2108.73,-297.97 2217.88,-324 2305.31,-344.85 2340.55,-312.55 2416.88,-360 2442.25,-375.77 2472.9,-450.2 2496.88,-468 2515.34,-481.7 2537.67,-492.12 2559.33,-499.94"/>
 <polygon fill="black" stroke="black" points="2568.74,-503.18 2557.82,-504.18 2565.16,-501.95 2559.28,-499.92 2559.28,-499.92 2559.28,-499.92 2565.16,-501.95 2560.74,-495.67 2568.74,-503.18"/>
 </g>
-<!-- pse.umlsl_editor.src.query.evaluator&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot -->
+<!-- pse.umlsl_editor.src.query.evaluator&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot -->
 <g id="edge93" class="edge">
 <title>pse.umlsl_editor.src.query.evaluator&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot</title>
 <path fill="none" stroke="black" d="M2318.77,-34.82C2315.78,-35.22 2312.81,-35.62 2309.88,-36 2171.48,-54.12 2121.22,-6.63 1997.88,-72 1948.98,-97.92 1903.75,-134.94 1935.88,-180 1992.93,-259.99 2050.24,-225.63 2144.88,-252 2291.59,-292.87 2329.23,-301.78 2479.88,-324 2639.84,-347.59 2823.54,-361.33 2955.1,-368.89"/>
@@ -1083,7 +1083,7 @@
 <path fill="none" stroke="black" d="M3330.91,-324.42C3329.89,-358.79 3322.12,-434.85 3274.88,-468 3229.02,-500.19 2827.62,-498.28 2771.88,-504 2771.21,-504.07 2770.53,-504.14 2769.86,-504.21"/>
 <polygon fill="black" stroke="black" points="2759.95,-505.28 2769.41,-499.73 2763.71,-504.88 2769.89,-504.21 2769.89,-504.21 2769.89,-504.21 2763.71,-504.88 2770.38,-508.68 2759.95,-505.28"/>
 </g>
-<!-- pse.umlsl_editor.src.query.view&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot -->
+<!-- pse.umlsl_editor.src.query.view&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot -->
 <g id="edge99" class="edge">
 <title>pse.umlsl_editor.src.query.view&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot</title>
 <path fill="none" stroke="black" d="M3281.18,-324.48C3254.01,-334.04 3220.17,-345.95 3191.57,-356"/>
@@ -1101,7 +1101,7 @@
 <path fill="none" stroke="black" d="M3603.01,-180.12C3579.08,-236.88 3493.13,-418.06 3352.88,-468 3244.39,-506.63 2950.69,-494.89 2835.88,-504 2814.52,-505.69 2791.82,-507.61 2769.82,-509.53"/>
 <polygon fill="black" stroke="black" points="2759.94,-510.4 2769.51,-505.04 2763.71,-510.07 2769.9,-509.52 2769.9,-509.52 2769.9,-509.52 2763.71,-510.07 2770.3,-514.01 2759.94,-510.4"/>
 </g>
-<!-- pse.umlsl_editor.src.query.visible_segments&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot -->
+<!-- pse.umlsl_editor.src.query.visible_segments&#45;&gt;pse.umlsl_editor.src.model.graphic_items.traffic_snapshot -->
 <g id="edge102" class="edge">
 <title>pse.umlsl_editor.src.query.visible_segments&#45;&gt;pse.umlsl_editor.src.model.view_models.traffic_snapshot</title>
 <path fill="none" stroke="black" d="M3590.31,-180.27C3579.25,-190.34 3565.38,-203.48 3553.88,-216 3512.39,-261.2 3520.91,-293.12 3467.88,-324 3439.97,-340.26 3374.54,-352.3 3308.77,-360.76"/>
