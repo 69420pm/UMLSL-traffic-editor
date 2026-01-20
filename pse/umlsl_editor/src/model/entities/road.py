@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 
+from pse.umlsl_editor.src.model.entities.entity import Entity
 
 
 class RoadOrientation(Enum):
@@ -59,7 +60,7 @@ class RoadParams:
 
 
 @dataclass
-class Road():
+class Road(Entity):
     """
     Represents a road in the traffic simulation system.
 

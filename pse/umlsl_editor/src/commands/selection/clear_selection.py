@@ -1,5 +1,5 @@
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.model.view_models.selection import Selection
+from pse.umlsl_editor.src.model.domain_models.selection import Selection
 
 
 class ClearSelection(Command[None]):

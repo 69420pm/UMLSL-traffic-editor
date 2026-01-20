@@ -9,7 +9,7 @@ from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 
 
 class TrafficSnapshotWriter(ABC):
-    """Interface for writing data into the TrafficSnapshot. Use always this class to mutate the snapshot. NEVER mutate the data view_models directly."""
+    """Interface for writing data into the TrafficSnapshot. Use always this class to mutate the snapshot. NEVER mutate the data domain_models directly."""
 
     @abstractmethod
     def add_road(self, road: Road) -> None:

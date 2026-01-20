@@ -1,5 +1,8 @@
 from dataclasses import dataclass
 
+from pse.umlsl_editor.src.model.entities.entity import Entity
+
+
 @dataclass(frozen=True)
 class UMLSLQueryParams:
     """
@@ -15,7 +18,7 @@ class UMLSLQueryParams:
     validation: bool
 
 @dataclass()
-class UMLSLQuery:
+class UMLSLQuery(Entity):
     """Dataclass representing a UMLSL query.
 
     Attributes:

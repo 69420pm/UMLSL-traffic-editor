@@ -7,8 +7,9 @@ from pse.umlsl_editor.src.controllers.data_controller import DataController
 from pse.umlsl_editor.src.controllers.event_controller import EventController
 from pse.umlsl_editor.src.controllers.command_controller import CommandController
 from pse.umlsl_editor.src.controllers.view_event_contract import ViewEventHandler
-from pse.umlsl_editor.src.model.view_models.settings import Settings
-from pse.umlsl_editor.src.model.view_models.traffic_snapshot import TrafficSnapshot
+from pse.umlsl_editor.src.model.domain_models.settings import Settings
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot import TrafficSnapshot
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries import UMLSLQueries
 
 
 class ApplicationController:
@@ -18,7 +19,7 @@ class ApplicationController:
     - CommandController: Handles command execution and undo/redo
     """
 
-    def __init__(self, traffic_snapshot: TrafficSnapshot, view: ViewEventHandler, settings: Settings):
+    def __init__(self, traffic_snapshot: TrafficSnapshot, view: ViewEventHandler, settings: Settings, umlsl_queries: UMLSLQueries):
         """
         Initialize the application controller with its sub-controllers.
 
@@ -29,6 +30,7 @@ class ApplicationController:
         self.traffic_snapshot = traffic_snapshot
         self.view = view
         self.settings = settings
+        self.umlsl_queries = umlsl_queries
         self.event_controller = EventController(traffic_snapshot=traffic_snapshot, view=view, settings=settings)
         self.command_controller = CommandController(traffic_snapshot_reader=traffic_snapshot, traffic_snapshot_writer=traffic_snapshot)
         self.data_controller = DataController(traffic_snapshot_reader=traffic_snapshot)

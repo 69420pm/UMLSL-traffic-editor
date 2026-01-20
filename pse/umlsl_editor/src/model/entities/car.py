@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from pse.umlsl_editor.src.model.entities.entity import Entity
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
@@ -44,7 +45,7 @@ class CarParams:
 
 
 @dataclass()
-class Car:
+class Car(Entity):
     """
     Represents a car/vehicle in the traffic simulation.
 

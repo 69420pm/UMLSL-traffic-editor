@@ -1,5 +1,5 @@
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.model.view_models.umlsl_queries import UMLSLQueries
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries import UMLSLQueries
 
 
 class DeleteUMLSLQuery(Command[None]):

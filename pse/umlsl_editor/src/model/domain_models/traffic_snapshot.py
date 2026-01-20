@@ -6,8 +6,8 @@ from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment 
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 from pse.umlsl_editor.src.model.helper.observables import ObservableDict, ObservableList, Observable
 from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
-from pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer import TrafficSnapshotWriter
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
 
 
 class TrafficSnapshotValidationError(ValueError):

@@ -1,6 +1,6 @@
 from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.model.entities.road import Road
-from pse.umlsl_editor.src.model.view_models.settings import Settings
+from pse.umlsl_editor.src.model.domain_models.settings import Settings
 
 
 class ToggleCoordinateSystem(Command[None]):

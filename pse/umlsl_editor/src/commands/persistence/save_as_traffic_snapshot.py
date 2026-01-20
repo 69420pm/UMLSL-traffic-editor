@@ -1,7 +1,7 @@
 from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.controllers import ApplicationController
-from pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.view_models.umlsl_queries import UMLSLQueries
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries import UMLSLQueries
 
 
 class SaveAsTrafficSnapshot(Command[None]):

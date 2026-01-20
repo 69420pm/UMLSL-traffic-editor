@@ -2,7 +2,7 @@ from abc import abstractmethod, ABC
 from enum import IntEnum
 
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.view_models.traffic_snapshot import TrafficSnapshot
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot import TrafficSnapshot
 from pse.umlsl_editor.src.query.view import View
 
 

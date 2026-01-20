@@ -1,4 +1,4 @@
-from pse.umlsl_editor.src.model.view_models.traffic_snapshot import TrafficSnapshot
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot import TrafficSnapshot
 
 
 class PersistenceService:

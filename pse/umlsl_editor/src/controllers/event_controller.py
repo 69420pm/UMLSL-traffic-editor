@@ -3,9 +3,9 @@ from enum import Enum
 
 from pse.umlsl_editor.src.controllers.view_event_contract import ViewEventHandler
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
-from pse.umlsl_editor.src.model.view_models.traffic_snapshot import TrafficSnapshot
-from pse.umlsl_editor.src.model.view_models.settings import Settings
-from pse.umlsl_editor.src.model.view_models.umlsl_queries import UMLSLQueries
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot import TrafficSnapshot
+from pse.umlsl_editor.src.model.domain_models.settings import Settings
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries import UMLSLQueries
 from pse.umlsl_editor.src.model.helper.event_types import (
     TrafficSnapshotEventType,
     SettingsEventType,
