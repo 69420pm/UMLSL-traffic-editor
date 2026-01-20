@@ -1,12 +1,11 @@
 from typing import Any, Optional
 
-from PySide6.QtCore import QObject, Signal
-
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import Road
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
-from pse.umlsl_editor.src.model.helper.observables import ObservableDict, ObservableList
+from pse.umlsl_editor.src.model.helper.observables import ObservableDict, ObservableList, Observable
+from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
 from pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer import TrafficSnapshotWriter
 
@@ -14,12 +13,25 @@ from pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer import Traff
 class TrafficSnapshotValidationError(ValueError):
     pass
 
-class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
+class TrafficSnapshot(Observable, TrafficSnapshotReader, TrafficSnapshotWriter):
     """
     Represents the complete state of a traffic simulation.
 
     Serves as the single source of truth for all roads and cars. Implements both
     TrafficSnapshotReader and TrafficSnapshotWriter interfaces for read/write access.
+
+    Uses Observable pattern to notify observers of changes without PySide dependencies.
+
+    Events:
+        - TrafficSnapshotEventType.CAR_ADDED: Fired when a car is added (data: Car)
+        - TrafficSnapshotEventType.CAR_REMOVED: Fired when a car is removed (data: Car)
+        - TrafficSnapshotEventType.CAR_UPDATED: Fired when a car is updated (data: Car)
+        - TrafficSnapshotEventType.ROAD_ADDED: Fired when a road is added (data: Road)
+        - TrafficSnapshotEventType.ROAD_REMOVED: Fired when a road is removed (data: Road)
+        - TrafficSnapshotEventType.ROAD_UPDATED: Fired when a road is updated (data: Road)
+        - TrafficSnapshotEventType.CROSSING_SEGMENT_ADDED: Fired when a crossing segment is added (data: CrossingSegment)
+        - TrafficSnapshotEventType.CROSSING_SEGMENT_REMOVED: Fired when a crossing segment is removed (data: CrossingSegment)
+        - TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED: Fired when a crossing segment is updated (data: CrossingSegment)
     """
 
     def update_road(self, road_data: Road) -> None:
@@ -28,18 +40,6 @@ class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
     def update_car(self, car_data: Car) -> None:
         raise NotImplementedError
 
-    # Define Signals for Model Changes
-    car_added = Signal(Car)
-    car_removed = Signal(Car)
-    car_updated = Signal(Car)
-
-    road_added = Signal(Road)
-    road_removed = Signal(Road)
-    road_updated = Signal(Road)
-
-    crossing_segment_added = Signal(CrossingSegment)
-    crossing_segment_removed = Signal(CrossingSegment)
-    crossing_segment_updated = Signal(CrossingSegment)
 
     def validate_lane(self, road: Road, lane_index: int, lane_direction: str) -> bool:
         raise NotImplementedError
@@ -82,27 +82,26 @@ class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
             self,
             roads: Optional[ObservableDict[str, Road]] = None,
             cars: Optional[ObservableDict[str, Car]] = None,
-            queries: Optional[ObservableDict[str, UMLSLQuery]] = None,
             crossing_segments: Optional[ObservableList[CrossingSegment]] = None,
     ):
         super().__init__()
 
         self._roads = ObservableDict[str,Road](
-            on_add=self.road_added.emit,
-            on_remove=self.road_removed.emit,
-            on_update=self.road_updated.emit
+            on_add=lambda road: self.notify(TrafficSnapshotEventType.ROAD_ADDED, road),
+            on_remove=lambda road: self.notify(TrafficSnapshotEventType.ROAD_REMOVED, road),
+            on_update=lambda road: self.notify(TrafficSnapshotEventType.ROAD_UPDATED, road)
         ) if roads is not None else {}
 
         self._cars = ObservableDict[str, Car](
-            on_add=self.car_added.emit,
-            on_remove=self.car_removed.emit,
-            on_update=self.car_updated.emit
+            on_add=lambda car: self.notify(TrafficSnapshotEventType.CAR_ADDED, car),
+            on_remove=lambda car: self.notify(TrafficSnapshotEventType.CAR_REMOVED, car),
+            on_update=lambda car: self.notify(TrafficSnapshotEventType.CAR_UPDATED, car)
         ) if cars is not None else {}
 
         self._crossing_segments = ObservableList[CrossingSegment](
-            on_add=self.crossing_segment_added.emit,
-            on_remove=self.crossing_segment_removed.emit,
-            on_update=self.crossing_segment_updated.emit
+            on_add=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_ADDED, segment),
+            on_remove=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_REMOVED, segment),
+            on_update=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED, segment)
         ) if cars is not None else {}
 
     def to_dict(self) -> dict[str, Any]:
