@@ -1,11 +1,19 @@
 from dataclasses import dataclass
 from typing import Optional
 
+<<<<<<<< HEAD:pse/umlsl_editor/src/core/entities/car.py
 from pse.umlsl_editor.src.core.value_objects.lane import Lane
 from pse.umlsl_editor.src.core.value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.core.value_objects.segments.lane_segment import LaneSegment
 from pse.umlsl_editor.src.core.value_objects.segments import Path
 from pse.umlsl_editor.src.core.value_objects.turn_intent import TurnIntent
+========
+from pse.umlsl_editor.src.model.value_objects.lane import Lane
+from pse.umlsl_editor.src.model.value_objects.segments.crossing_segment import CrossingSegment
+from pse.umlsl_editor.src.model.value_objects.segments.lane_segment import LaneSegment
+from pse.umlsl_editor.src.model.value_objects.segments import Path
+from pse.umlsl_editor.src.model.value_objects.turn_intent import TurnIntent
+>>>>>>>> 83e486a70109dc9a73cb47ad2fbf2eaa9e93b535:pse/umlsl_editor/src/model/entities/car.py
 
 
 class CarValidationError(ValueError):

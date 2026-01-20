@@ -1,6 +1,7 @@
 class DeletionConfirmationDialog:
     def __init__(self, confirmation_text:str):
         self.confirmation_text = confirmation_text
+        pass
 
     def setup_ui(self):
         pass

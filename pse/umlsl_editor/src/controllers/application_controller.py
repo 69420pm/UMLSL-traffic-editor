@@ -6,8 +6,8 @@ Provides a unified interface for the application's controller layer.
 from pse.umlsl_editor.src.controllers.data_controller import DataController
 from pse.umlsl_editor.src.controllers.event_controller import EventController
 from pse.umlsl_editor.src.controllers.command_controller import CommandController
-from pse.umlsl_editor.src.core.view_models.settings import Settings
-from pse.umlsl_editor.src.core.view_models.traffic_snapshot import TrafficSnapshot
+from pse.umlsl_editor.src.model.view_models.settings import Settings
+from pse.umlsl_editor.src.model.view_models.traffic_snapshot import TrafficSnapshot
 from pse.umlsl_editor.src.view.traffic_view import TrafficView
 
 

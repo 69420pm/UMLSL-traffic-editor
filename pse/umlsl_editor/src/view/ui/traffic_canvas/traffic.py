@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from pse.umlsl_editor.src.core.entities.car import Car
-from pse.umlsl_editor.src.core.entities.road import Road
-from pse.umlsl_editor.src.core.value_objects.segments.crossing_segment import CrossingSegment
-from pse.umlsl_editor.src.core.entities.umlsl_query import UMLSLQuery
+from pse.umlsl_editor.src.model.entities.car import Car
+from pse.umlsl_editor.src.model.entities.road import Road
+from pse.umlsl_editor.src.model.value_objects.segments.crossing_segment import CrossingSegment
+from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 
 
 class TrafficView(ABC):
