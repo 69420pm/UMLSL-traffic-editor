@@ -51,6 +51,18 @@ def create_sample_scene() -> list:
         backward_lanes=1
     ))
 
+    c1 = Car.from_params(CarParams(
+        name= "C1",
+        lane= Lane(),
+        color= "#FF0000",
+        position_on_lane= 0.0,
+        transition= 0.0,
+        velocity= 0.0,
+        acceleration=0.0,
+        length=2,
+        next_turn= None,
+    ))
+
 
 
     return [r1, r2, r3, r4]
