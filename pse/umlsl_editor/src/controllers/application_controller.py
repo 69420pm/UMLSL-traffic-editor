@@ -6,9 +6,9 @@ Provides a unified interface for the application's controller layer.
 from pse.umlsl_editor.src.controllers.data_controller import DataController
 from pse.umlsl_editor.src.controllers.event_controller import EventController
 from pse.umlsl_editor.src.controllers.command_controller import CommandController
+from pse.umlsl_editor.src.controllers.view_event_contract import ViewEventHandler
 from pse.umlsl_editor.src.model.view_models.settings import Settings
 from pse.umlsl_editor.src.model.view_models.traffic_snapshot import TrafficSnapshot
-from pse.umlsl_editor.src.view.ui.traffic_canvas.traffic import TrafficView
 
 
 class ApplicationController:
@@ -18,7 +18,7 @@ class ApplicationController:
     - CommandController: Handles command execution and undo/redo
     """
 
-    def __init__(self, traffic_snapshot: TrafficSnapshot, view: TrafficView, settings: Settings):
+    def __init__(self, traffic_snapshot: TrafficSnapshot, view: ViewEventHandler, settings: Settings):
         """
         Initialize the application controller with its sub-controllers.
 
