@@ -1,6 +1,7 @@
 from pse.umlsl_editor.src.commands.command import Command, ReturnValue
-from pse.umlsl_editor.src.model.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.traffic_snapshot_writer import TrafficSnapshotWriter
+from pse.umlsl_editor.src.model.view_models.settings import Settings
+from pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer import TrafficSnapshotWriter
 
 
 class ChangeBreakingAcceleration(Command[None]):
@@ -10,24 +11,23 @@ class ChangeBreakingAcceleration(Command[None]):
 
     def __init__(
             self,
-            traffic_snapshot_reader: TrafficSnapshotReader,
-            traffic_snapshot_writer: TrafficSnapshotWriter,
+            settings: Settings,
             value: int
     ):
         """
         Initialize the AddCarCommand with car parameters.
 
         Args:
-            traffic_snapshot_reader: Interface to read from the traffic snapshot.
-            traffic_snapshot_writer: Interface to write to the traffic snapshot.
+            settings: Settings object.
             value: Breaking acceleration value .
         """
-        self.traffic_snapshot_reader = traffic_snapshot_reader
-        self.traffic_snapshot_writer = traffic_snapshot_writer
         self.value = value
+        self._settings = settings
 
     def execute(self) -> ReturnValue:
         """
         Changes the breaking acceleration.
+        Raises:
+            CommandValidationError: If command validation fails.
         """
         raise NotImplementedError

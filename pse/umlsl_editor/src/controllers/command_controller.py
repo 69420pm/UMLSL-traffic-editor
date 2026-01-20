@@ -3,10 +3,13 @@
 from typing import Optional
 
 from pse.umlsl_editor.src.commands.command import Command
+from pse.umlsl_editor.src.model.entities.car import CarParams
 from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection
-from pse.umlsl_editor.src.model.value_objects.turn_intent import TurnIntent
-from pse.umlsl_editor.src.model.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.traffic_snapshot_writer import TrafficSnapshotWriter
+from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
+from pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer import TrafficSnapshotWriter
+from pse.umlsl_editor.src.commands.cars import add_car
+from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 
 
 class CommandController:
@@ -117,7 +120,12 @@ class CommandController:
         Returns:
             True if the car was successfully added, False otherwise.
         """
-        raise NotImplementedError("Method not implemented yet.")
+        acceleration : float = 1
+        lane = Lane(assigned_road.name, lane_index, lane_direction)
+        car_params = CarParams(name, lane, color, position_on_lane, transition, velocity, length, next_turn, acceleration)
+        add_car_command = add_car.AddCarCommand(self.traffic_snapshot_reader, self.traffic_snapshot_writer, car_params)
+        add_car_command.execute()
+        raise NotImplementedError("Prototype Method")
 
     def remove_car(self, car_name: str) -> bool:
         """

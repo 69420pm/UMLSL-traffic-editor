@@ -1,18 +1,13 @@
 from dataclasses import dataclass
 
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Signal, QObject
 
-<<<<<<<< HEAD:pse/umlsl_editor/src/core/view_models/selection.py
-from pse.umlsl_editor.src.core.entities.car import Car
-from pse.umlsl_editor.src.core.entities.road import Road
-========
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import Road
->>>>>>>> 83e486a70109dc9a73cb47ad2fbf2eaa9e93b535:pse/umlsl_editor/src/model/view_models/selection.py
 
 
 @dataclass
-class Selection:
+class Selection(QObject):
     """A model to manage selection of cars and roads in a traffic simulation."""
     selected_car: Car | None = None
     selected_road: Road | None = None

@@ -1,5 +1,5 @@
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.view_models.traffic_snapshot import Segment
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.query.ast.ast import View
 from pse.umlsl_editor.src.query.interval import Interval
 
@@ -19,10 +19,6 @@ class VisibleSegment:
         # todo: extract visible lanes based on the space_interval and call the other method
         pass
 
-    def compute_visible_segments_virtual_views(self, virtual_view: list[Segment], car: Car) -> list[SegmentView]:
-        # todo: Algorithm 2 from paper
-        pass
-
     # The sensor computes the size of the given car (depending on this view)
-    def sensor_size(self, car: Car):
+    def get_sensor_size(self, view: View, car: Car):
         return car.length

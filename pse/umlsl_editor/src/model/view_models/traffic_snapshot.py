@@ -2,23 +2,13 @@ from typing import Any, Optional
 
 from PySide6.QtCore import QObject, Signal
 
-<<<<<<<< HEAD:pse/umlsl_editor/src/core/view_models/traffic_snapshot.py
-from pse.umlsl_editor.src.core.entities.car import Car
-from pse.umlsl_editor.src.core.entities.road import Road
-from pse.umlsl_editor.src.core.value_objects.segments.crossing_segment import CrossingSegment
-from pse.umlsl_editor.src.core.entities.umlsl_query import UMLSLQuery
-from pse.umlsl_editor.src.core.helper.observables import ObservableDict, ObservableList
-from pse.umlsl_editor.src.core.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.core.traffic_snapshot_writer import TrafficSnapshotWriter
-========
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import Road
-from pse.umlsl_editor.src.model.value_objects.segments.crossing_segment import CrossingSegment
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 from pse.umlsl_editor.src.model.helper.observables import ObservableDict, ObservableList
-from pse.umlsl_editor.src.model.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.traffic_snapshot_writer import TrafficSnapshotWriter
->>>>>>>> 83e486a70109dc9a73cb47ad2fbf2eaa9e93b535:pse/umlsl_editor/src/model/view_models/traffic_snapshot.py
+from pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.view_models.traffic_snapshot_writer import TrafficSnapshotWriter
 
 
 class TrafficSnapshotValidationError(ValueError):
@@ -38,8 +28,6 @@ class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
     def update_car(self, car_data: Car) -> None:
         raise NotImplementedError
 
-
-
     # Define Signals for Model Changes
     car_added = Signal(Car)
     car_removed = Signal(Car)
@@ -52,8 +40,6 @@ class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
     crossing_segment_added = Signal(CrossingSegment)
     crossing_segment_removed = Signal(CrossingSegment)
     crossing_segment_updated = Signal(CrossingSegment)
-
-
 
     def validate_lane(self, road: Road, lane_index: int, lane_direction: str) -> bool:
         raise NotImplementedError
@@ -77,6 +63,9 @@ class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
     ) -> list[Road]:
         raise NotImplementedError
 
+    def get_max_velocity(self) -> float:
+        raise NotImplementedError
+
     def add_road(self, road: Road) -> None:
         raise NotImplementedError
 
@@ -84,7 +73,7 @@ class TrafficSnapshot(QObject, TrafficSnapshotReader, TrafficSnapshotWriter):
         raise NotImplementedError
 
     def add_car(self, car: Car) -> None:
-        raise NotImplementedError
+        self._cars[car.name] = car
 
     def remove_car(self, car_name: str) -> None:
         raise NotImplementedError

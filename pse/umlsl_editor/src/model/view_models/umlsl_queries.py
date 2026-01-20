@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 from PySide6.QtCore import Signal
 
@@ -9,7 +10,7 @@ class UMLSLQueriesValidationError(Exception):
     pass
 
 @dataclass
-class UmlslQueries:
+class UMLSLQueries:
     queries: list[UMLSLQuery]
 
     umlsl_query_added = Signal(UMLSLQuery)
@@ -36,5 +37,38 @@ class UmlslQueries:
 
         Raises:
             UMLSLQueriesValidationError: If the updated UMLSL query is invalid in the context of the snapshot.
+        """
+        raise NotImplementedError
+
+    def to_dict(self) -> dict[str, Any]:
+        """
+        Serializes the UMLSL_queries instance to a dictionary suitable for JSON encoding.
+        """
+        raise NotImplementedError
+
+    def to_json(self) -> str:
+        """
+        Serializes the UMLSL_queries instance to a JSON string.
+        """
+        raise NotImplementedError
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "UMLSLQuery":
+        """
+        Creates a UMLSL_queries instance from a dictionary.
+
+        Args:
+            data: A dictionary containing the queries.
+        """
+        raise NotImplementedError
+
+    @classmethod
+    def from_json(cls, json_string: str) -> "UMLSLQuery":
+        """
+        Creates a UMLSLQuery instance from a JSON string.
+
+        Args:
+            json_string: A JSON-formatted string containing umlsl query data.
+
         """
         raise NotImplementedError

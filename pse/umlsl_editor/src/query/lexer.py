@@ -1,60 +1,130 @@
 import re
+from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Optional
 
 
 class TokenType(Enum):
-    AND = "\\and"
-    OR = "\\or"
-    NOT = "\\not"
-    H_CHOP = "\\hchop"
-    V_CHOP = "\\vchop"
-    L_PAREN = "\\("
-    R_PAREN = "\\)"
-    NEGATION = "\\neg"
-    EXITS = "\\"
-    TOP = "^"
-    DOWN = "_"
+    L_PAREN = "("
+    R_PAREN = ")"
     L_CURLY = "{"
     R_CURLY = "}"
-    LITERAL = "LITERAL"  # placeholder
+    LESS_THAN = "<"
+    GREATER_THAN = ">"
+    H_CHOP = "\\hchop"
+    V_CHOP = "\\vchop"
+    CLAIM = "\\cl"
+    CROSSING = "\\cs"
+    RESERVE = "\\re"
+    CAR_EQUALS = "="
+    FREE = "\\free"
+    AND = "\\and"
+    OR = "\\or"
+    NEGATION = "\\neg"
+    NEGATION_SHORT = "!"
+    EXITS = "\\exists"
+    FORALL = "\\forall"
+    TRUE = "true"
+    LITERAL = "LITERAL"  # value "LITERAL" is a placeholder
 
-    def exact_match(self) -> Optional[str]:
-        if self == TokenType.LITERAL:
-            return None
-        return self.name
+    @property
+    def is_infix_binary_op(self):
+        return self in _INFIX_BINARY_OPS
 
-    def left_bracket(self):
-        return self == TokenType.L_PAREN or self == TokenType.L_CURLY
+    @property
+    def is_prefix_binary_op(self):
+        return self in _PREFIX_BINARY_OPS
 
-    def right_bracket(self):
-        return self == TokenType.R_PAREN or self == TokenType.R_CURLY
+    @property
+    def is_binary_op(self):
+        return self.is_infix_binary_op or self.is_prefix_binary_op
+
+    @property
+    def is_unary_op(self):
+        return self in _UNARY_OPS
+
+    @property
+    def is_atom_op(self):
+        return self in _ATOM_OPS
+
+    def get_infix_binary_op_precedence(self):
+        if not self.is_infix_binary_op:
+            raise ValueError(f"Token {self} is not an infix binary operation.")
+        return _INFIX_BINARY_OPS_PRECEDENCE[self]
 
 
-class Token:
-    def __init__(self, type: TokenType, value: str):
+_ATOM_OPS = {
+    TokenType.TRUE,
+    TokenType.FREE,
+    TokenType.CROSSING
+}
+_UNARY_OPS = {
+    TokenType.NEGATION,
+    TokenType.NEGATION_SHORT,
+    TokenType.CLAIM,
+    TokenType.RESERVE,
+    TokenType.EXITS,
+    TokenType.FORALL
+}
+
+### For tokens that correspond to operations and require 2 parameters, we specify whether they are infix ({p1} op {p2}) or
+### prefix (op {p1}{p2})
+_INFIX_BINARY_OPS = {
+    TokenType.AND,
+    TokenType.OR,
+    TokenType.CAR_EQUALS
+}
+_PREFIX_BINARY_OPS = {
+    TokenType.H_CHOP,
+    TokenType.V_CHOP,
+}
+_INFIX_BINARY_OPS_PRECEDENCE = {
+    TokenType.AND: 2,
+    TokenType.OR: 1,
+    TokenType.CAR_EQUALS: 3  # irrelevant since equality requires parameters to be cars ({and, or} return booleans)
+}
+
+
+class Token(ABC):
+    def __init__(self, type: TokenType):
         self.type = type
-        self.value = value
+
+    @abstractmethod
+    def value(self) -> str | None:
+        pass
+
+
+class SimpleToken(Token):
+    def value(self) -> None:
+        return None
 
     def __str__(self):
-        if self.type == TokenType.LITERAL:
-            return f"{self.type}('{self.value}')"
-        else:
-            return f"{self.type}"
+        return f"{self.type.name}"
+
+
+class Literal(Token):
+    def __init__(self, literal_value: str):
+        super().__init__(TokenType.LITERAL)
+        self._literal_value = literal_value
+
+    def value(self) -> str:
+        return self._literal_value
+
+    def __str__(self):
+        return f"{self.type.name}('{self._literal_value}')"
 
 
 class Lexer:
     def __init__(self, text: str):
-        self.text = text
+        self._input = text
 
     def tokenize(self) -> list[Token]:
         # Remove whitespace and tabs
-        text = self.text.replace(" ", "").replace("\t", "")
+        text = self._input.replace(" ", "").replace("\t", "")
 
         token_patterns = []
         for t in TokenType:
-            if t.exact_match():
-                pattern = f"(?P<{t.name}>{re.escape(t.value)})"
+            if t is not TokenType.LITERAL:
+                pattern = f"(?P<{t.name}>{re.escape(t.value())})"
                 token_patterns.append(pattern)
 
         master_pattern = re.compile("|".join(token_patterns))
@@ -65,16 +135,16 @@ class Lexer:
         for match in master_pattern.finditer(text):
             if match.start() > last_pos:
                 literal_text = text[last_pos:match.start()]
-                tokens.append(Token(TokenType.LITERAL, literal_text))
+                tokens.append(Literal(literal_text))
 
             kind = match.lastgroup
             value = match.group()
-            tokens.append(Token(TokenType[kind], value))
+            # todo: value should be token_type?
+            tokens.append(SimpleToken(TokenType[kind]))
 
             last_pos = match.end()
 
         if last_pos < len(text):
-            tokens.append(Token(TokenType.LITERAL, text[last_pos:]))
+            tokens.append(Literal(text[last_pos:]))
 
         return tokens
-
