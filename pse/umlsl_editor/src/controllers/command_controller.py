@@ -3,10 +3,14 @@
 from typing import Optional
 
 from pse.umlsl_editor.src.commands.command import Command
+from pse.umlsl_editor.src.commands.roads.add_road import AddRoad
+from pse.umlsl_editor.src.commands.umlsl.add_umlsl_query import AddUMLSLQuery
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 from pse.umlsl_editor.src.model.entities.car import CarParams
-from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection
+from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection, RoadParams, RoadOrientation
+from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery, UMLSLQueryParams
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
 from pse.umlsl_editor.src.commands.cars import add_car
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
@@ -18,7 +22,7 @@ class CommandController:
     Provides high-level API for modifying the traffic snapshot.
     """
 
-    def __init__(self, traffic_snapshot_reader: TrafficSnapshotReader, traffic_snapshot_writer: TrafficSnapshotWriter):
+    def __init__(self, traffic_snapshot_reader: TrafficSnapshotReader, traffic_snapshot_writer: TrafficSnapshotWriter, umlsl_queries_model: UMLSLQueriesModel):
         """
         Initialize the command controller.
 
@@ -27,6 +31,7 @@ class CommandController:
         """
         self.traffic_snapshot_reader = traffic_snapshot_reader
         self.traffic_snapshot_writer = traffic_snapshot_writer
+        self.umlsl_queries_model = umlsl_queries_model
         # self._command_history = []  # TODO: Implement undo/redo stack
         # self._history_position = -1  # Current position in history
 
@@ -120,6 +125,7 @@ class CommandController:
         Returns:
             True if the car was successfully added, False otherwise.
         """
+        #TODO: Change acceleration variable to actual acceleration
         acceleration : float = 1
         lane = Lane(assigned_road.name, lane_index, lane_direction)
         car_params = CarParams(name, lane, color, position_on_lane, transition, velocity, length, next_turn, acceleration)
@@ -193,7 +199,12 @@ class CommandController:
         Returns:
             True if the road was successfully added, False otherwise.
         """
-        raise NotImplementedError("Method not implemented yet.")
+        #TODO: Cast string to actual road orientation, how does this work?
+        road_orientation = RoadOrientation(orientation)
+        road_params = RoadParams(name, road_orientation, position, forward_lanes, backward_lanes)
+        add_road_command = AddRoad(self.traffic_snapshot_writer, self.traffic_snapshot_reader, road_params)
+        add_road_command.execute()
+        raise NotImplementedError("Prototype Method")
 
     def remove_road(self, road_name: str) -> bool:
         """
@@ -245,7 +256,12 @@ class CommandController:
         Returns:
             True if the query was successfully added, False otherwise.
         """
-        raise NotImplementedError("Method not implemented yet.")
+        #TODO: Add real validation parameter
+        validation: bool = True
+        umlsl_query_params = UMLSLQueryParams(latex, assigned_car_name, validation)
+        add_umlsl_query = AddUMLSLQuery(umlsl_query_params, self.umlsl_queries_model)
+        add_umlsl_query.execute()
+        raise NotImplementedError("Prototype Method")
 
     def remove_umlsl_query(self, query_id: str) -> bool:
         """
