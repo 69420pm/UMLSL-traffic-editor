@@ -149,7 +149,7 @@ class CommandController:
         """
         remove_car_command = DeleteCar(self.traffic_snapshot_writer, self.traffic_snapshot_reader, car_name)
         remove_car_command.execute()
-        raise NotImplementedError("Method not implemented yet.")
+        raise NotImplementedError("Prototype Method")
 
     def edit_car(
         self,
