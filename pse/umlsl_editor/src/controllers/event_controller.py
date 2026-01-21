@@ -2,6 +2,7 @@
 from enum import Enum
 
 from pse.umlsl_editor.src.controllers.view_event_contract import ViewEventHandler
+from pse.umlsl_editor.src.model.domain_models.selection_model import SelectionModel
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
@@ -20,7 +21,12 @@ class EventController:
     Uses Observable pattern instead of PySide signals for backend independence.
     """
 
-    def __init__(self, view: ViewEventHandler, traffic_snapshot: TrafficSnapshotModel, settings: SettingsModel, umlsl_queries: UMLSLQueriesModel) -> None:
+    def __init__(self,
+                 view: ViewEventHandler,
+                 traffic_snapshot: TrafficSnapshotModel,
+                 settings: SettingsModel,
+                 umlsl_queries: UMLSLQueriesModel,
+                 selection: SelectionModel,) -> None:
         """
         Initialize the view controller.
 
@@ -34,6 +40,8 @@ class EventController:
         self._view = view
         self._settings = settings
         self._umlsl_queries = umlsl_queries
+        self._selection = selection
+
         self._setup_event_listeners()
 
 
@@ -44,6 +52,7 @@ class EventController:
         self._traffic_snapshot.attach(self._on_traffic_snapshot_event)
         self._settings.attach(self._on_settings_event)
         self._umlsl_queries.attach(self._on_umlsl_query_event)
+        self._selection.attach(self._on_selection_event)
 
     def _on_traffic_snapshot_event(self, event_type: Enum, data) -> None:
         """

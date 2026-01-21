@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from pse.umlsl_editor.src.model.entities.entity import Entity
+from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
@@ -115,6 +116,7 @@ class Car(Entity):
             A new Car instance with attributes from the params.
         """
         return cls(
+            uid=generate_uid(),
             name=params.name,
             lane=params.lane,
             color=params.color,
@@ -167,12 +169,3 @@ class Car(Entity):
     def absolute_position(self)-> float:
         return self.lane.road_name.position + self.position_on_lane
 
-    def __eq__(self, other):
-        """Checks equality based only on the unique identifier (name) of the Car."""
-        if not isinstance(other, Car):
-            return NotImplemented
-        return self.name == other.name
-
-    def __hash__(self):
-        """Generates a hash based only on the unique identifier (name) of the Car."""
-        return hash(self.name)
