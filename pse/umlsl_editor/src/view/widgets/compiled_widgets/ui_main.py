@@ -1,0 +1,307 @@
+# -*- coding: utf-8 -*-
+
+################################################################################
+## Form generated from reading UI file 'main.ui'
+##
+## Created by: Qt User Interface Compiler version 6.10.1
+##
+## WARNING! All changes made in this file will be lost when recompiling UI file!
+################################################################################
+
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
+    QCursor, QFont, QFontDatabase, QGradient,
+    QIcon, QImage, QKeySequence, QLinearGradient,
+    QPainter, QPalette, QPixmap, QRadialGradient,
+    QTransform)
+from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
+    QListWidget, QListWidgetItem, QMainWindow, QMenu,
+    QMenuBar, QScrollArea, QSizePolicy, QToolButton,
+    QVBoxLayout, QWidget)
+
+from pse.umlsl_editor.src.view.ui.traffic_canvas.traffic_view import TrafficView
+from . import resources_rc
+
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        if not MainWindow.objectName():
+            MainWindow.setObjectName(u"MainWindow")
+        MainWindow.resize(1076, 771)
+        MainWindow.setStyleSheet(u"QMainWindow {\n"
+"    background-color: #011C26; \n"
+"}\n"
+"\n"
+"QScrollArea {\n"
+"    background-color: transparent;\n"
+"    border: none;\n"
+"}\n"
+"\n"
+"QListView {\n"
+"	background-color: transparent;\n"
+"    border: none;\n"
+"}\n"
+"\n"
+"QWidget {	\n"
+"	font: 13pt \"Helvetica\";\n"
+"    color: #F9F9F9;\n"
+"}\n"
+"\n"
+"QWidget#c {	\n"
+"	background-color: transparent;\n"
+"}\n"
+"\n"
+"QFrame#zoom_buttons {\n"
+"	background-color: transparent;\n"
+"	border: none;\n"
+"}\n"
+"\n"
+"QLabel#list_titel,#list_titel_2, #list_titel_3 {\n"
+"	font: 700 32pt;\n"
+"	color: #F9F9F9;\n"
+"	QToolButton {\n"
+"		background-color: red\n"
+"	}\n"
+"}\n"
+"\n"
+"QToolButton {\n"
+"    background-color: #032F40; \n"
+"    border-radius: 16px;       \n"
+"    border: none;\n"
+"    text-align: center;\n"
+"}\n"
+"\n"
+"QToolButton#b_sidebar_toggle {\n"
+"    border-top-left-radius: 0px;\n"
+"    border-top-right-radius: 16px;\n"
+"    border-bottom-left-radius: 0px;\n"
+"    border-bottom-right-radius: 16px;   \n"
+"}\n"
+"\n"
+"QToolButton:hover {\n"
+"    ba"
+                        "ckground-color: #314250; \n"
+"}\n"
+"\n"
+"QToolButton:pressed {\n"
+"    background-color: #032F40;\n"
+"}\n"
+"\n"
+"QToolButton#b_minus, #b_plus, #b_sidebar_toggle {\n"
+"    background-color: #011C26; \n"
+"}\n"
+"QToolButton#b_minus:hover, #b_plus:hover, #b_sidebar_toggle:hover {\n"
+"    background-color: #314250; \n"
+"}\n"
+"QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {\n"
+"    background-color: #011C26; \n"
+"}\n"
+"\n"
+"")
+        MainWindow.setUnifiedTitleAndToolBarOnMac(False)
+        self.actionSave = QAction(MainWindow)
+        self.actionSave.setObjectName(u"actionSave")
+        icon = QIcon()
+        icon.addFile(u":/icons/icons/Save.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.actionSave.setIcon(icon)
+        self.actionSave_As = QAction(MainWindow)
+        self.actionSave_As.setObjectName(u"actionSave_As")
+        icon1 = QIcon()
+        icon1.addFile(u":/icons/icons/Save as.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.actionSave_As.setIcon(icon1)
+        self.actionOpen = QAction(MainWindow)
+        self.actionOpen.setObjectName(u"actionOpen")
+        icon2 = QIcon()
+        icon2.addFile(u":/icons/icons/File open.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.actionOpen.setIcon(icon2)
+        self.actionSettings = QAction(MainWindow)
+        self.actionSettings.setObjectName(u"actionSettings")
+        icon3 = QIcon()
+        icon3.addFile(u":/icons/icons/Settings.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.actionSettings.setIcon(icon3)
+        self.centralwidget = QWidget(MainWindow)
+        self.centralwidget.setObjectName(u"centralwidget")
+        self.horizontalLayout = QHBoxLayout(self.centralwidget)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.sidebar = QScrollArea(self.centralwidget)
+        self.sidebar.setObjectName(u"sidebar")
+        self.sidebar.setMinimumSize(QSize(300, 0))
+        self.sidebar.setMaximumSize(QSize(300, 16777215))
+        self.sidebar.setStyleSheet(u"")
+        self.sidebar.setWidgetResizable(True)
+        self.c = QWidget()
+        self.c.setObjectName(u"c")
+        self.c.setGeometry(QRect(0, 0, 300, 741))
+        self.verticalLayout = QVBoxLayout(self.c)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setContentsMargins(16, 16, 0, 0)
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.list_titel_3 = QLabel(self.c)
+        self.list_titel_3.setObjectName(u"list_titel_3")
+
+        self.horizontalLayout_2.addWidget(self.list_titel_3)
+
+        self.b_add_road = QToolButton(self.c)
+        self.b_add_road.setObjectName(u"b_add_road")
+        self.b_add_road.setMinimumSize(QSize(32, 32))
+        self.b_add_road.setMaximumSize(QSize(32, 32))
+        icon4 = QIcon()
+        icon4.addFile(u":/icons/icons/add.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.b_add_road.setIcon(icon4)
+        self.b_add_road.setIconSize(QSize(20, 20))
+
+        self.horizontalLayout_2.addWidget(self.b_add_road)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_2)
+
+        self.l_roads = QListWidget(self.c)
+        self.l_roads.setObjectName(u"l_roads")
+
+        self.verticalLayout.addWidget(self.l_roads)
+
+        self.horizontalLayout_3 = QHBoxLayout()
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.list_titel_2 = QLabel(self.c)
+        self.list_titel_2.setObjectName(u"list_titel_2")
+
+        self.horizontalLayout_3.addWidget(self.list_titel_2)
+
+        self.b_add_car = QToolButton(self.c)
+        self.b_add_car.setObjectName(u"b_add_car")
+        self.b_add_car.setMinimumSize(QSize(32, 32))
+        self.b_add_car.setMaximumSize(QSize(32, 32))
+        self.b_add_car.setIcon(icon4)
+        self.b_add_car.setIconSize(QSize(20, 20))
+
+        self.horizontalLayout_3.addWidget(self.b_add_car)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_3)
+
+        self.l_cars = QListWidget(self.c)
+        self.l_cars.setObjectName(u"l_cars")
+
+        self.verticalLayout.addWidget(self.l_cars)
+
+        self.horizontalLayout_4 = QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.list_titel = QLabel(self.c)
+        self.list_titel.setObjectName(u"list_titel")
+
+        self.horizontalLayout_4.addWidget(self.list_titel)
+
+        self.b_add_query = QToolButton(self.c)
+        self.b_add_query.setObjectName(u"b_add_query")
+        self.b_add_query.setMinimumSize(QSize(32, 32))
+        self.b_add_query.setMaximumSize(QSize(32, 32))
+        self.b_add_query.setIcon(icon4)
+        self.b_add_query.setIconSize(QSize(20, 20))
+
+        self.horizontalLayout_4.addWidget(self.b_add_query)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_4)
+
+        self.l_queries = QListWidget(self.c)
+        self.l_queries.setObjectName(u"l_queries")
+
+        self.verticalLayout.addWidget(self.l_queries)
+
+        self.sidebar.setWidget(self.c)
+
+        self.horizontalLayout.addWidget(self.sidebar)
+
+        self.trafficView = TrafficView(self.centralwidget)
+        self.trafficView.setObjectName(u"trafficView")
+
+        self.horizontalLayout.addWidget(self.trafficView)
+
+        self.b_sidebar_toggle = QToolButton(self.centralwidget)
+        self.b_sidebar_toggle.setObjectName(u"b_sidebar_toggle")
+        self.b_sidebar_toggle.setMinimumSize(QSize(32, 32))
+        self.b_sidebar_toggle.setMaximumSize(QSize(32, 32))
+        icon5 = QIcon()
+        icon5.addFile(u":/icons/icons/Menu.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.b_sidebar_toggle.setIcon(icon5)
+
+        self.horizontalLayout.addWidget(self.b_sidebar_toggle)
+
+        self.zoom_buttons = QFrame(self.centralwidget)
+        self.zoom_buttons.setObjectName(u"zoom_buttons")
+        self.zoom_buttons.setMinimumSize(QSize(32, 0))
+        self.zoom_buttons.setMaximumSize(QSize(32, 16777215))
+        self.zoom_buttons.setStyleSheet(u"")
+        self.zoom_buttons.setFrameShape(QFrame.Shape.StyledPanel)
+        self.zoom_buttons.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_2 = QVBoxLayout(self.zoom_buttons)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.b_plus = QToolButton(self.zoom_buttons)
+        self.b_plus.setObjectName(u"b_plus")
+        self.b_plus.setMinimumSize(QSize(32, 32))
+        self.b_plus.setMaximumSize(QSize(32, 32))
+        self.b_plus.setIcon(icon4)
+
+        self.verticalLayout_2.addWidget(self.b_plus)
+
+        self.b_minus = QToolButton(self.zoom_buttons)
+        self.b_minus.setObjectName(u"b_minus")
+        self.b_minus.setMinimumSize(QSize(32, 32))
+        self.b_minus.setMaximumSize(QSize(32, 32))
+        icon6 = QIcon()
+        icon6.addFile(u":/icons/icons/Remove.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.b_minus.setIcon(icon6)
+
+        self.verticalLayout_2.addWidget(self.b_minus)
+
+
+        self.horizontalLayout.addWidget(self.zoom_buttons)
+
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.menuBar = QMenuBar(MainWindow)
+        self.menuBar.setObjectName(u"menuBar")
+        self.menuBar.setGeometry(QRect(0, 0, 1076, 30))
+        self.menuBar.setDefaultUp(False)
+        self.menuBar.setNativeMenuBar(True)
+        self.menuFile = QMenu(self.menuBar)
+        self.menuFile.setObjectName(u"menuFile")
+        self.menuSettings = QMenu(self.menuBar)
+        self.menuSettings.setObjectName(u"menuSettings")
+        MainWindow.setMenuBar(self.menuBar)
+
+        self.menuBar.addAction(self.menuFile.menuAction())
+        self.menuBar.addAction(self.menuSettings.menuAction())
+        self.menuFile.addAction(self.actionSave)
+        self.menuFile.addAction(self.actionSave_As)
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionOpen)
+        self.menuSettings.addAction(self.actionSettings)
+
+        self.retranslateUi(MainWindow)
+
+        QMetaObject.connectSlotsByName(MainWindow)
+    # setupUi
+
+    def retranslateUi(self, MainWindow):
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"UMLSL Traffic Editor", None))
+        self.actionSave.setText(QCoreApplication.translate("MainWindow", u"Save", None))
+        self.actionSave_As.setText(QCoreApplication.translate("MainWindow", u"Save As", None))
+        self.actionOpen.setText(QCoreApplication.translate("MainWindow", u"Open", None))
+        self.actionSettings.setText(QCoreApplication.translate("MainWindow", u"Open Settings", None))
+        self.list_titel_3.setText(QCoreApplication.translate("MainWindow", u"Roads", None))
+        self.b_add_road.setText("")
+        self.list_titel_2.setText(QCoreApplication.translate("MainWindow", u"Cars", None))
+        self.b_add_car.setText("")
+        self.list_titel.setText(QCoreApplication.translate("MainWindow", u"Queries", None))
+        self.b_add_query.setText("")
+        self.b_sidebar_toggle.setText("")
+        self.b_plus.setText("")
+        self.b_minus.setText("")
+        self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
+        self.menuSettings.setTitle(QCoreApplication.translate("MainWindow", u"Settings", None))
+    # retranslateUi
+

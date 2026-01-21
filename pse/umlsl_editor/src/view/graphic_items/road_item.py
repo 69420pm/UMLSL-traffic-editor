@@ -61,11 +61,13 @@ class RoadItem(SelectableGraphicsItem):
 
         # Create new road object
         new_road = Road(
+            uid=self._road.uid,
             name=self._road.name,
             orientation=self._road.orientation,
             position=new_position,
             forward_lanes=self._road.forward_lanes,
             backward_lanes=self._road.backward_lanes
+
         )
         self.update_data(new_road)
 

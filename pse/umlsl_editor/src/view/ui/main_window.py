@@ -1,45 +1,33 @@
-"""
-Main window for the UMLSL Traffic Editor.
-
-Contains the primary application window setup and initialization.
-"""
-from PySide6.QtUiTools import QUiLoader
+from PySide6.QtWidgets import QMainWindow
 
 from pse.umlsl_editor.src.view.testing.sample_scene_generator import create_sample_scene
+from pse.umlsl_editor.src.view.ui.global_controlls import GlobalControls
+from pse.umlsl_editor.src.view.ui.lists.sidebar_controller import SidebarController
 from pse.umlsl_editor.src.view.ui.traffic_canvas.canvas_buttons import CanvasButtons
 from pse.umlsl_editor.src.view.ui.traffic_canvas.traffic_scene import TrafficScene
-from pse.umlsl_editor.src.view.ui.traffic_canvas.traffic_view import TrafficView
-from pse.umlsl_editor.src.view.ui_utils import load_ui
-from pse.umlsl_editor.src.view.view_constants import UI_PATHS
+from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_main import Ui_MainWindow
 
 
-class MainWindow:
-    """
-    Main application window that coordinates all UI components.
-
-    Manages the traffic scene, view, and auxiliary controllers for
-    cars, roads, queries, and global controls.
-    """
-
+class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
-        self.loader = QUiLoader()
-        self.loader.registerCustomWidget(TrafficView)
+        super().__init__()
 
-        # 1. Load the UI
-        self.ui = load_ui(UI_PATHS.MAIN_WINDOW)
+        self.setupUi(self)
 
-        # 2. Get specific references
         self.traffic_scene = TrafficScene()
-        self.traffic_view = self.ui.findChild(TrafficView, "trafficView")
-        self.traffic_view.setScene(self.traffic_scene)
+        self.trafficView.setScene(self.traffic_scene)
 
-        # 3. Initialize the Button Controller
-        # Pass both self.ui (to find the frame) and traffic_view (to be the parent)
-        self.canvas_buttons = CanvasButtons(self.ui, self.traffic_view)
+        self.canvas_buttons = CanvasButtons(self)
         self.canvas_buttons.setup_ui()
 
+        self.sidebar_controller = SidebarController(self)
+        self.sidebar_controller.setup_ui()
+
+        self.global_controls = GlobalControls(self)
+        self.global_controls.setup_ui()
+
         self._load_sample_scene()
-        self.ui.show()
+        self.show()
 
     def _load_sample_scene(self) -> None:
         """Load a sample scene for testing purposes."""

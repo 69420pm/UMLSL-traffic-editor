@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>Edit_Query_Dialog</class>
+ <widget class="QDialog" name="Edit_Query_Dialog">
   <property name="enabled">
    <bool>true</bool>
   </property>
@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>340</width>
-    <height>817</height>
+    <width>329</width>
+    <height>570</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -192,67 +192,6 @@ QPushButton#b_delete {
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <layout class="QHBoxLayout" name="Title">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
-      <number>8</number>
-     </property>
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Edit Query</string>
-       </property>
-       <property name="scaledContents">
-        <bool>false</bool>
-       </property>
-       <property name="wordWrap">
-        <bool>false</bool>
-       </property>
-       <property name="class" stdset="0">
-        <string>title</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="b_close">
-       <property name="minimumSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/Close.svg</normaloff>:/icons/icons/Close.svg</iconset>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
    <item>
     <widget class="QWidget" name="widget" native="true">
      <layout class="QVBoxLayout" name="General">
@@ -1183,19 +1122,6 @@ QPushButton#b_delete {
     </widget>
    </item>
    <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Orientation::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="Bottom">
      <item>
       <widget class="QPushButton" name="b_save">
@@ -1255,25 +1181,9 @@ QPushButton#b_delete {
  </resources>
  <connections>
   <connection>
-   <sender>b_close</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>305</x>
-     <y>40</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>320</x>
-     <y>-13</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>b_delete</sender>
    <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>Edit_Query_Dialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1289,7 +1199,7 @@ QPushButton#b_delete {
   <connection>
    <sender>b_save</sender>
    <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>Edit_Query_Dialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
