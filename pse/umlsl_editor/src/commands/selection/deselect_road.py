@@ -1,6 +1,6 @@
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.model.view_models.selection import Selection
-from pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.domain_models.selection import Selection
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 
 
 class DeselectRoad(Command[None]):

@@ -1,12 +1,12 @@
 from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery, UMLSLQueryParams
-from pse.umlsl_editor.src.model.view_models.umlsl_queries import UMLSLQueries
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 
 
 class AddUMLSLQuery(Command[None]):
     """Adds a new UMLSL query to the UMLSL editor."""
 
-    def __init__(self, umlsl_query_params: UMLSLQueryParams, umlsl_queries: UMLSLQueries):
+    def __init__(self, umlsl_query_params: UMLSLQueryParams, umlsl_queries: UMLSLQueriesModel):
         """
         Initialize the AddUMLSLQuery command with the query and the list of UMLSL queries.
 

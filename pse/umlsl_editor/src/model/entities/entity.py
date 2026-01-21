@@ -1,0 +1,20 @@
+from abc import ABC
+from dataclasses import dataclass
+
+
+@dataclass
+class Entity(ABC):
+    """Abstract base class for all entities in the UMLSL editor."""
+    uid: str
+
+
+    def __eq__(self, other):
+        """Checks equality based only on the unique identifier (name) of the Car."""
+        if not isinstance(other, Entity):
+            return False
+        return self.uid == other.uid
+
+
+    def __hash__(self):
+        """Generates a hash based only on the unique identifier (name) of the Car."""
+        return hash(self.uid)

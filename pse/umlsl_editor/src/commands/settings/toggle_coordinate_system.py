@@ -1,6 +1,6 @@
 from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.model.entities.road import Road
-from pse.umlsl_editor.src.model.view_models.settings import Settings
+from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 
 
 class ToggleCoordinateSystem(Command[None]):
@@ -8,7 +8,7 @@ class ToggleCoordinateSystem(Command[None]):
     Toggles between different coordinate systems in the UMLSL editor.
     """
 
-    def __init__(self, settings: Settings):
+    def __init__(self, settings: SettingsModel):
         """
         Initialize the ToggleCoordinateSystem command with the settings.
 

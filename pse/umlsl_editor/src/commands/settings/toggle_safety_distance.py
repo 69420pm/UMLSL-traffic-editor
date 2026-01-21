@@ -1,12 +1,12 @@
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.model.view_models.settings import Settings
+from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 
 
 class ToggleSafetyDistanceCommand(Command[None]):
     """
     Toggles weather the safety distance of the cars in the visual editor should be rendered.
     """
-    def __init__(self, settings: Settings):
+    def __init__(self, settings: SettingsModel):
         """
         Initialize the ToggleSafetyDistanceCommand with the settings.
 

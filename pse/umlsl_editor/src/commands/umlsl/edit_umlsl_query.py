@@ -1,12 +1,12 @@
 from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQueryParams
-from pse.umlsl_editor.src.model.view_models.umlsl_queries import UMLSLQueries
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 
 
 class EditUMLSLQuery(Command[None]):
     """Edits an existing UMLSL query in the UMLSL editor."""
 
-    def __init__(self, query_id: str, umlsl_query_params: UMLSLQueryParams, umlsl_queries: UMLSLQueries):
+    def __init__(self, query_id: str, umlsl_query_params: UMLSLQueryParams, umlsl_queries: UMLSLQueriesModel):
         """
         Initialize the EditUMLSLQuery command with the query identifier and new content.
 

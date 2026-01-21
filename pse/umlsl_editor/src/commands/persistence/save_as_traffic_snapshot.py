@@ -1,13 +1,13 @@
 from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.controllers import ApplicationController
-from pse.umlsl_editor.src.model.view_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.view_models.umlsl_queries import UMLSLQueries
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 
 
 class SaveAsTrafficSnapshot(Command[None]):
     """Saves the current traffic snapshot to a specified file path."""
 
-    def __init__(self, file_path: str, traffic_snapshot_reader:TrafficSnapshotReader, umlsl_queries: UMLSLQueries):
+    def __init__(self, file_path: str, traffic_snapshot_reader:TrafficSnapshotReader, umlsl_queries: UMLSLQueriesModel):
         """
         Initialize the SaveAsTrafficSnapshot command with the target file path.
 

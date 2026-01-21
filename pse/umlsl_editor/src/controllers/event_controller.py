@@ -1,55 +1,132 @@
 """Controller responsible for synchronizing the model state to the view layer."""
+from enum import Enum
 
-from pse.umlsl_editor.src.model.view_models.traffic_snapshot import TrafficSnapshot
-from pse.umlsl_editor.src.model.view_models.settings import Settings
-from pse.umlsl_editor.src.view.ui.traffic_canvas.traffic import TrafficView
+from pse.umlsl_editor.src.controllers.view_event_contract import ViewEventHandler
+from pse.umlsl_editor.src.model.domain_models.selection_model import SelectionModel
+from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
+from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
+from pse.umlsl_editor.src.model.helper.event_types import (
+    TrafficSnapshotEventType,
+    SettingsEventType,
+    UMLSLQueriesEventType, SelectionEventType
+)
 
 
 class EventController:
     """
-    Connects TrafficSnapshot model signals directly to TrafficView methods.
+    Connects TrafficSnapshot model events to TrafficView methods.
     Handles all model-to-view synchronization without intermediate logic.
+    Uses Observable pattern instead of PySide signals for backend independence.
     """
 
-    def __init__(self, traffic_snapshot: TrafficSnapshot, view: TrafficView, settings: Settings):
+    def __init__(self,
+                 view: ViewEventHandler,
+                 traffic_snapshot: TrafficSnapshotModel,
+                 settings: SettingsModel,
+                 umlsl_queries: UMLSLQueriesModel,
+                 selection: SelectionModel,) -> None:
         """
         Initialize the view controller.
 
         Args:
-            traffic_snapshot: The model that emits signals when data changes.
-            view: The view that displays the traffic simulation.
+            view: The view that implements ViewEventHandler interface.
+            traffic_snapshot: The model that notifies observers when data changes.
+            settings: The settings model that notifies observers when settings change.
+            umlsl_queries: The UMLSL queries model that notifies observers when queries change.
         """
-        self.traffic_snapshot = traffic_snapshot
-        self.view = view
-        self.settings = settings
+        self._traffic_snapshot = traffic_snapshot
+        self._view = view
+        self._settings = settings
+        self._umlsl_queries = umlsl_queries
+        self._selection = selection
+
         self._setup_event_listeners()
+
 
     def _setup_event_listeners(self) -> None:
         """
-        Connects TrafficSnapshot signals directly to TrafficView methods.
+        Connects TrafficSnapshot events to TrafficView methods using Observable pattern.
         """
-        # Connect Car signals directly to view methods
-        self.traffic_snapshot.car_added.connect(self.view.add_car_view)
-        self.traffic_snapshot.car_removed.connect(self.view.remove_car_view)
-        self.traffic_snapshot.car_updated.connect(self.view.update_car_view)
+        self._traffic_snapshot.attach(self._on_traffic_snapshot_event)
+        self._settings.attach(self._on_settings_event)
+        self._umlsl_queries.attach(self._on_umlsl_query_event)
+        self._selection.attach(self._on_selection_event)
 
-        # Connect Road signals directly to view methods
-        self.traffic_snapshot.road_added.connect(self.view.add_road_view)
-        self.traffic_snapshot.road_removed.connect(self.view.remove_road_view)
-        self.traffic_snapshot.road_updated.connect(self.view.update_road_view)
+    def _on_traffic_snapshot_event(self, event_type: Enum, data) -> None:
+        """
+        Handle events from the traffic snapshot model.
 
-        # Connect Crossing Segment signals directly to view methods
-        self.traffic_snapshot.crossing_segment_added.connect(self.view.add_crossing_segment_view)
-        self.traffic_snapshot.crossing_segment_removed.connect(self.view.remove_crossing_segment_view)
-        self.traffic_snapshot.crossing_segment_updated.connect(self.view.update_crossing_segment_view)
+        Args:
+            event_type: The type of event (TrafficSnapshotEventType enum)
+            data: The data associated with the event (Car, Road, CrossingSegment, etc.)
+        """
+        # Route events to appropriate view methods
+        if event_type == TrafficSnapshotEventType.CAR_ADDED:
+            self._view.add_car_view(data)
+        elif event_type == TrafficSnapshotEventType.CAR_REMOVED:
+            self._view.remove_car_view(data)
+        elif event_type == TrafficSnapshotEventType.CAR_UPDATED:
+            self._view.update_car_view(data)
+        elif event_type == TrafficSnapshotEventType.ROAD_ADDED:
+            self._view.add_road_view(data)
+        elif event_type == TrafficSnapshotEventType.ROAD_REMOVED:
+            self._view.remove_road_view(data)
+        elif event_type == TrafficSnapshotEventType.ROAD_UPDATED:
+            self._view.update_road_view(data)
+        elif event_type == TrafficSnapshotEventType.CROSSING_SEGMENT_ADDED:
+            self._view.add_crossing_segment_view(data)
+        elif event_type == TrafficSnapshotEventType.CROSSING_SEGMENT_REMOVED:
+            self._view.remove_crossing_segment_view(data)
+        elif event_type == TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED:
+            self._view.update_crossing_segment_view(data)
 
-        # Connect UMLSL Query signals directly to view methods
-        self.traffic_snapshot.umlsl_query_added.connect(self.view.add_query_view)
-        self.traffic_snapshot.umlsl_query_removed.connect(self.view.remove_query_view)
-        self.traffic_snapshot.umlsl_query_updated.connect(self.view.update_query_view)
+    def _on_settings_event(self, event_type: Enum, data) -> None:
+        """
+        Handle events from the settings model.
 
-        # Connect Setting signals directly to view methods
-        self.settings.change_breaking_acceleration.connect(self.view.change_breaking_acceleration)
-        self.settings.toggle_coordinate_system.connect(self.view.toggle_coordinate_system)
-        self.settings.toggle_safety_distance.connect(self.view.toggle_safety_distance)
+        Args:
+            event_type: The type of event (SettingsEventType enum)
+            data: The data associated with the event
+        """
+        # Route events to appropriate view methods
+        if event_type == SettingsEventType.CHANGE_BREAKING_ACCELERATION:
+            self._view.change_breaking_acceleration(data)
+        elif event_type == SettingsEventType.TOGGLE_COORDINATE_SYSTEM:
+            self._view.toggle_coordinate_system(data)
+        elif event_type == SettingsEventType.TOGGLE_SAFETY_DISTANCE:
+            self._view.toggle_safety_distance(data)
+
+    def _on_umlsl_query_event(self, event_type: Enum, data) -> None:
+        """
+        Handle events from the UMLSL queries model.
+
+        Args:
+            event_type: The type of event (UMLSLQueriesEventType enum)
+            data: The data associated with the event (UMLSLQuery)
+        """
+        # Route events to appropriate view methods
+        if event_type == UMLSLQueriesEventType.UMLSL_QUERY_ADDED:
+            self._view.add_query_view(data)
+        elif event_type == UMLSLQueriesEventType.UMLSL_QUERY_REMOVED:
+            self._view.remove_query_view(data)
+        elif event_type == UMLSLQueriesEventType.UMLSL_QUERY_UPDATED:
+            self._view.update_query_view(data)
+
+    def _on_selection_event(self, event_type: Enum, data) -> None:
+        """
+        Handle events from the selection model.
+
+        Args:
+            event_type: The type of event (SelectionEventType enum)
+            data: The data associated with the event (Entity)
+        """
+        # Route events to appropriate view methods
+        if event_type == SelectionEventType.ENTITY_SELECTED:
+            self._view.select_entity_view(data)
+        elif event_type == SelectionEventType.ENTITY_DESELECTED:
+            self._view.deselect_entity_view(data)
+        elif event_type == SelectionEventType.SELECTION_CLEARED:
+            self._view.clear_selection_view()
 

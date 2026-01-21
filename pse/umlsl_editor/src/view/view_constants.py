@@ -11,7 +11,7 @@ from PySide6.QtGui import QColor
 @dataclass(frozen=True)
 class _ZLayers:
     """Controls the drawing order (Z-Index) for scene items."""
-    ROAD: int = 0
+    ROAD: int = 101
     CROSSING: int = 1
     CAR: int = 10
     OVERLAY: int = 100
@@ -34,7 +34,7 @@ class _Dimension:
     BUTTON_ZOOM_AMOUNT: float = 1.4
 
     # Zoom thresholds for detail levels
-    LANE_LABEL_MIN_ZOOM: float = 20.0
+    LANE_LABEL_MIN_ZOOM: float = 0
     GRID_FINE_THRESHOLD: float = 20.0
 
     # Grid spacing

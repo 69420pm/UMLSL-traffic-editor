@@ -4,8 +4,6 @@ Sample scene generator for the UMLSL Traffic Editor.
 Provides utilities for creating test traffic scenarios.
 """
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation, RoadParams
-from pse.umlsl_editor.src.model.entities.car import Car, CarParams
-from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane, LaneDirection
 
 
 def create_sample_scene() -> list:
