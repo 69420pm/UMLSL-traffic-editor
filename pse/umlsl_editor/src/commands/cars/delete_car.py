@@ -30,4 +30,6 @@ class DeleteCar(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        raise NotImplementedError
+        #TODO: Error Handling
+        self._traffic_snapshot_writer.remove_car(self.car_id)
+        raise NotImplementedError("Prototype Method")

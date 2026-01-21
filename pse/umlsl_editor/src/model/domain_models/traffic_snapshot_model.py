@@ -85,7 +85,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self._roads[road.name] = road
 
     def remove_road(self, road_name: str) -> None:
-        pass
+        self._roads.pop(road_name)
 
     def update_road(self, road_data: Road) -> None:
         pass
@@ -94,7 +94,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self._cars[car.name] = car
 
     def remove_car(self, car_name: str) -> None:
-        pass
+        self._cars.pop(car_name)
 
     def update_car(self, car_data: Car) -> None:
         pass

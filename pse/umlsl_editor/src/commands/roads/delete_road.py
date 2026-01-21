@@ -31,4 +31,6 @@ class DeleteRoad(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        raise NotImplementedError
+        #TODO: Error Handling
+        self._traffic_snapshot_writer.remove_road(self.road_name)
+        raise NotImplementedError("Prototype Method")
