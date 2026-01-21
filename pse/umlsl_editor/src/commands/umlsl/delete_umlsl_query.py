@@ -1,11 +1,11 @@
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.model.domain_models.umlsl_queries import UMLSLQueries
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 
 
 class DeleteUMLSLQuery(Command[None]):
     """Deletes a UMLSL query from the UMLSL editor."""
 
-    def __init__(self, query_id: str, umlsl_queries: UMLSLQueries):
+    def __init__(self, query_id: str, umlsl_queries: UMLSLQueriesModel):
         """
         Initialize the DeleteUMLSLQuery command with the query identifier.
 

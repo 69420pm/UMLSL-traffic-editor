@@ -1,6 +1,6 @@
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot import TrafficSnapshot
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.query.ast.ast import View, AtomNode
 from pse.umlsl_editor.src.query.ast.car_resolve import CarResolve
 from pse.umlsl_editor.src.query.visible_segments import SegmentView, VisibleSegment
@@ -24,7 +24,7 @@ class ReserveNode(AtomNode):
         super().__init__("re")
         self._car_resolve = car_resolve
 
-    def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
+    def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         if len(view.seq_lanes) != 1 or view.space_interval.length() <= 0:
             return False
         path = view.seq_lanes[0]

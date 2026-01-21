@@ -2,7 +2,7 @@ from abc import abstractmethod, ABC
 from enum import IntEnum
 
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot import TrafficSnapshot
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.query.view import View
 
 
@@ -23,7 +23,7 @@ class ASTNode(ABC):
         self._precedence = precedence
 
     @abstractmethod
-    def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
+    def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         pass
 
     def to_latex(self) -> str:

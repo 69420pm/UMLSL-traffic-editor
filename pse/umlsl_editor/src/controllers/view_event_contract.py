@@ -2,6 +2,7 @@
 from abc import ABC, abstractmethod
 
 from pse.umlsl_editor.src.model.entities.car import Car
+from pse.umlsl_editor.src.model.entities.entity import Entity
 from pse.umlsl_editor.src.model.entities.road import Road
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
@@ -168,6 +169,33 @@ class ViewEventHandler(ABC):
 
         Args:
             render_safety_distance: Whether to render safety distances.
+        """
+        pass
+
+    @abstractmethod
+    def select_entity_view(self, entity: Entity) -> None:
+        """
+        Handle the selection of an entity.
+
+        Args:
+            entity: The entity that was selected.
+        """
+        pass
+
+    @abstractmethod
+    def deselect_entity_view(self, entity: Entity) -> None:
+        """
+        Handle the deselection of an entity.
+
+        Args:
+            entity: The entity that was deselected.
+        """
+        pass
+
+    @abstractmethod
+    def clear_selection_view(self) -> None:
+        """
+        Handle the clearing of the current selection.
         """
         pass
 

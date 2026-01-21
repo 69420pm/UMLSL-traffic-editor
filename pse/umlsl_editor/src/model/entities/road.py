@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from pse.umlsl_editor.src.model.entities.entity import Entity
+from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 
 
 class RoadOrientation(Enum):
@@ -101,6 +102,7 @@ class Road(Entity):
         """
         return cls(
             name=params.name,
+            uid=generate_uid(),
             orientation=params.orientation,
             position=params.position,
             forward_lanes=params.forward_lanes,

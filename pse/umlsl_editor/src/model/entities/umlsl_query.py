@@ -27,7 +27,6 @@ class UMLSLQuery(Entity):
         assigned_car_name (str): The name of the car associated with the query.
         validation (bool): A flag indicating whether the query is true of false in the current context.
     """
-    uid: str
     latex: str
     assigned_car_name: str
     validation: bool
@@ -40,6 +39,7 @@ class UMLSLQuery(Entity):
         Args:
             params: UMLSLQueryParams instance containing all UMLSL query attributes.
         """
+        raise NotImplementedError
 
     def __eq__(self, other):
         """Checks equality based only on the unique identifier (uid) of the UMLSL query."""

@@ -4,7 +4,7 @@ from pse.umlsl_editor.src.model.helper.observables import Observable
 from pse.umlsl_editor.src.model.helper.event_types import SettingsEventType
 
 @dataclass
-class Settings(Observable):
+class SettingsModel(Observable):
     """
     Application settings model using Observable pattern.
 

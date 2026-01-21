@@ -1,5 +1,5 @@
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot import TrafficSnapshot
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.query.ast.ast import AtomNode
 from pse.umlsl_editor.src.query.ast.car_resolve import CarResolve
 from pse.umlsl_editor.src.query.view import View
@@ -11,7 +11,7 @@ class EqualityCarNode(AtomNode):
         self._car_resolve1 = car_resolve1
         self._car_resolve2 = car_resolve2
 
-    def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
+    def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         return self._car_resolve1.resolve(variable_car_map) is self._car_resolve2.resolve(variable_car_map)
 
 
@@ -20,5 +20,5 @@ class EqualityHorizonNode(AtomNode):
         super().__init__(f"l = {length}")
         self._length = length
 
-    def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
+    def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         return view.space_interval.length() == self._length

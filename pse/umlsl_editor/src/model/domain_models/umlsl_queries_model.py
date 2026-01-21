@@ -11,7 +11,7 @@ class UMLSLQueriesValidationError(Exception):
     pass
 
 @dataclass
-class UMLSLQueries(Observable):
+class UMLSLQueriesModel(Observable):
     """
     UMLSL queries model using Observable pattern.
 

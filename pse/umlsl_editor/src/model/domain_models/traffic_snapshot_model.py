@@ -13,7 +13,7 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import Tra
 class TrafficSnapshotValidationError(ValueError):
     pass
 
-class TrafficSnapshot(Observable, TrafficSnapshotReader, TrafficSnapshotWriter):
+class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWriter):
     """
     Represents the complete state of a traffic simulation.
 
@@ -117,7 +117,7 @@ class TrafficSnapshot(Observable, TrafficSnapshotReader, TrafficSnapshotWriter):
         raise NotImplementedError
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "TrafficSnapshot":
+    def from_dict(cls, data: dict[str, Any]) -> "TrafficSnapshotModel":
         """
         Creates a TrafficSnapshot instance from a dictionary.
 
@@ -127,7 +127,7 @@ class TrafficSnapshot(Observable, TrafficSnapshotReader, TrafficSnapshotWriter):
         raise NotImplementedError
 
     @classmethod
-    def from_json(cls, json_string: str) -> "TrafficSnapshot":
+    def from_json(cls, json_string: str) -> "TrafficSnapshotModel":
         """
         Creates a TrafficSnapshot instance from a JSON string.
 
