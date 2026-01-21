@@ -34,50 +34,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         - TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED: Fired when a crossing segment is updated (data: CrossingSegment)
     """
 
-    def update_road(self, road_data: Road) -> None:
-        raise NotImplementedError
-
-    def update_car(self, car_data: Car) -> None:
-        raise NotImplementedError
-
-
-    def validate_lane(self, road: Road, lane_index: int, lane_direction: str) -> bool:
-        raise NotImplementedError
-
-    def get_cars_on_road(self, road: Road) -> list[Car]:
-        raise NotImplementedError
-
-    def get_cars(self) -> list[Car]:
-        raise NotImplementedError
-
-    def get_roads(self) -> list[Road]:
-        raise NotImplementedError
-
-    def get_cars_in_rectangle(
-            self, x_min: float, y_min: float, x_max: float, y_max: float
-    ) -> list[Car]:
-        raise NotImplementedError
-
-    def get_roads_in_rectangle(
-            self, x_min: float, y_min: float, x_max: float, y_max: float
-    ) -> list[Road]:
-        raise NotImplementedError
-
-    def get_max_velocity(self) -> float:
-        raise NotImplementedError
-
-    def add_road(self, road: Road) -> None:
-        raise NotImplementedError
-
-    def remove_road(self, road_name: str) -> None:
-        raise NotImplementedError
-
-    def add_car(self, car: Car) -> None:
-        self._cars[car.name] = car
-
-    def remove_car(self, car_name: str) -> None:
-        raise NotImplementedError
-
     def __init__(
             self,
             roads: Optional[ObservableDict[str, Road]] = None,
@@ -103,6 +59,45 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             on_remove=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_REMOVED, segment),
             on_update=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED, segment)
         ) if cars is not None else {}
+
+    def get_cars_on_road(self, road: Road) -> list[Car]:
+        pass
+
+    def get_cars(self) -> list[Car]:
+        pass
+
+    def get_roads(self) -> list[Road]:
+        pass
+
+    def get_cars_in_rectangle(self, x_min: float, y_min: float, x_max: float, y_max: float) -> list[Car]:
+        pass
+
+    def get_roads_in_rectangle(self, x_min: float, y_min: float, x_max: float, y_max: float) -> list[Road]:
+        pass
+
+    def get_max_velocity(self) -> float:
+        pass
+
+    def validate_lane(self, road: Road, lane_index: int, lane_direction: str) -> bool:
+        pass
+
+    def add_road(self, road: Road) -> None:
+        pass
+
+    def remove_road(self, road_name: str) -> None:
+        pass
+
+    def update_road(self, road_data: Road) -> None:
+        pass
+
+    def add_car(self, car: Car) -> None:
+        pass
+
+    def remove_car(self, car_name: str) -> None:
+        pass
+
+    def update_car(self, car_data: Car) -> None:
+        pass
 
     def to_dict(self) -> dict[str, Any]:
         """

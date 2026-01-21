@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
+import re
 
 from pse.umlsl_editor.src.model.entities.entity import Entity
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
@@ -130,7 +131,7 @@ class Car(Entity):
             reserved_crossings=[],
             claimed_crossings=[],
             path=Path(segments=[]),
-            acceleration=0.0,
+            acceleration=params.acceleration,
         )
 
     def __post_init__(self) -> None:
@@ -152,7 +153,30 @@ class Car(Entity):
         Raises:
             CarValidationError: If any validation check fails.
         """
-    pass
+        if not isinstance(self.name, str) or not self.name.strip():
+            raise CarValidationError("Name must be a non-empty string.")
+
+        if not isinstance(self.lane, Lane):
+            raise CarValidationError("Lane must be a Lane instance.")
+
+        if not isinstance(self.color, str) or not re.match(r'^#(?:[0-9a-fA-F]{3}){1,2}$', self.color):
+            raise CarValidationError("Color must be a valid hex color code.")
+
+        if self.position_on_lane < 0:
+            raise CarValidationError("Position on lane must be non-negative.")
+
+        # Transition bounds check (-1.0, 1.0) exclusive
+        if not (-1.0 < self.transition < 1.0):
+            raise CarValidationError("Transition must be in the range (-1.0, 1.0) exclusive.")
+
+        if not isinstance(self.velocity, (int, float)):
+            raise CarValidationError("Velocity must be a number.")
+
+        if self.length <= 0:
+            raise CarValidationError("Length must be a positive number.")
+
+        if self.next_turn is not None and not isinstance(self.next_turn, TurnIntent):
+            raise CarValidationError("Next turn must be None or a TurnIntent instance.")
 
     def update_from_params(self, params: CarParams) -> None:
         """
@@ -164,8 +188,17 @@ class Car(Entity):
         Raises:
             CarValidationError: If any validation check fails.
         """
-        raise NotImplementedError()
+        self.name = params.name
+        self.lane = params.lane
+        self.color = params.color
+        self.position_on_lane = params.position_on_lane
+        self.transition = params.transition
+        self.velocity = params.velocity
+        self.length = params.length
+        self.next_turn = params.next_turn
+        self.acceleration = params.acceleration
+        self.__post_init__()
 
     def absolute_position(self)-> float:
-        return self.lane.road_name.position + self.position_on_lane
-
+        raise NotImplementedError
+        # return self.lane.road_name.position + self.position_on_lane

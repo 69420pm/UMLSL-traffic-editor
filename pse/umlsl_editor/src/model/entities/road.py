@@ -119,7 +119,12 @@ class Road(Entity):
         Raises:
             RoadValidationError: If any validation check fails.
         """
-        raise NotImplementedError()
+        self.name = params.name
+        self.orientation = params.orientation
+        self.position = params.position
+        self.forward_lanes = params.forward_lanes
+        self.backward_lanes = params.backward_lanes
+        self.__post_init__()
 
     def __post_init__(self) -> None:
         """
@@ -134,13 +139,20 @@ class Road(Entity):
         Raises:
             RoadValidationError: If any validation check fails.
         """
+        if not isinstance(self.name, str) or not self.name.strip():
+            raise RoadValidationError("Name must be a non-empty string.")
 
-    def __eq__(self, other):
-        """Checks equality based only on the unique identifier (uid) of the Road."""
-        if not isinstance(other, Road):
-            return NotImplemented
-        return self.name == other.name
+        if not isinstance(self.orientation, RoadOrientation):
+            raise RoadValidationError("Orientation must be a RoadOrientation enum member.")
 
-    def __hash__(self):
-        """Generates a hash based only on the unique identifier (name) of the Road."""
-        return hash(self.name)
+        if not isinstance(self.position, (int, float)):
+            raise RoadValidationError("Position must be a number.")
+
+        if not isinstance(self.forward_lanes, int) or self.forward_lanes < 0:
+            raise RoadValidationError("Forward lanes must be a non-negative integer.")
+
+        if not isinstance(self.backward_lanes, int) or self.backward_lanes < 0:
+            raise RoadValidationError("Backward lanes must be a non-negative integer.")
+
+        if self.forward_lanes == 0 and self.backward_lanes == 0:
+            raise RoadValidationError("Road must have at least one lane.")

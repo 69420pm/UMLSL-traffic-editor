@@ -1,6 +1,14 @@
 from dataclasses import dataclass
 
 from pse.umlsl_editor.src.model.entities.entity import Entity
+from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
+
+
+class UMLSLQueryValidationError(ValueError):
+    """
+    Custom exception raised when UMLSLQuery validation fails.
+    """
+    pass
 
 
 @dataclass(frozen=True)
@@ -26,6 +34,9 @@ class UMLSLQuery(Entity):
         latex (str): The UMLSL query in LaTeX format.
         assigned_car_name (str): The name of the car associated with the query.
         validation (bool): A flag indicating whether the query is true of false in the current context.
+
+    Raises:
+        UMLSLQueryValidationError: If any validation check fails.
     """
     latex: str
     assigned_car_name: str
@@ -39,14 +50,38 @@ class UMLSLQuery(Entity):
         Args:
             params: UMLSLQueryParams instance containing all UMLSL query attributes.
         """
-        raise NotImplementedError
+        return cls(
+            uid=generate_uid(),
+            latex=params.latex,
+            assigned_car_name=params.assigned_car_name,
+            validation=params.validation
+        )
 
-    def __eq__(self, other):
-        """Checks equality based only on the unique identifier (uid) of the UMLSL query."""
-        if not isinstance(other, UMLSLQuery):
-            return NotImplemented
-        return self.uid == other.uid
+    def update_from_params(self, params: UMLSLQueryParams) -> None:
+        """
+        Updates the UMLSLQuery instance's attributes based on a UMLSLQueryParams object.
 
-    def __hash__(self):
-        """Generates a hash based only on the unique identifier (uid) of the UMLSL query."""
-        return hash(self.uid)
+        Args:
+            params: An instance of UMLSLQueryParams containing the new UMLSL query attributes.
+        """
+        self.latex = params.latex
+        self.assigned_car_name = params.assigned_car_name
+        self.validation = params.validation
+        self.__post_init__()
+
+    def __post_init__(self) -> None:
+        """
+        Validates the UMLSLQuery instance after initialization.
+
+        Raises:
+            UMLSLQueryValidationError: If any validation check fails.
+        """
+        if not isinstance(self.latex, str) or not self.latex.strip():
+            raise UMLSLQueryValidationError("Latex query must be a non-empty string.")
+
+        if not isinstance(self.assigned_car_name, str) or not self.assigned_car_name.strip():
+            raise UMLSLQueryValidationError("Assigned car name must be a non-empty string.")
+
+        if not isinstance(self.validation, bool):
+            raise UMLSLQueryValidationError("Validation must be a boolean.")
+
