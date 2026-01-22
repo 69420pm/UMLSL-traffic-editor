@@ -2,11 +2,22 @@
 
 from typing import Optional
 
+from pse.umlsl_editor.src.commands.cars.delete_car import DeleteCar
 from pse.umlsl_editor.src.commands.command import Command
+from pse.umlsl_editor.src.commands.roads.add_road import AddRoad
+from pse.umlsl_editor.src.commands.roads.delete_road import DeleteRoad
+from pse.umlsl_editor.src.commands.settings.change_breaking_acceleration import ChangeBreakingAccelerationCommand
+from pse.umlsl_editor.src.commands.settings.toggle_coordinate_system import ToggleCoordinateSystemCommand
+from pse.umlsl_editor.src.commands.settings.toggle_safety_distance import ToggleSafetyDistanceCommand
+from pse.umlsl_editor.src.commands.umlsl.add_umlsl_query import AddUMLSLQuery
+from pse.umlsl_editor.src.commands.umlsl.delete_umlsl_query import DeleteUMLSLQuery
+from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 from pse.umlsl_editor.src.model.entities.car import CarParams
-from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection
+from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection, RoadParams, RoadOrientation
+from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery, UMLSLQueryParams
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
 from pse.umlsl_editor.src.commands.cars import add_car
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
@@ -18,7 +29,7 @@ class CommandController:
     Provides high-level API for modifying the traffic snapshot.
     """
 
-    def __init__(self, traffic_snapshot_reader: TrafficSnapshotReader, traffic_snapshot_writer: TrafficSnapshotWriter):
+    def __init__(self, traffic_snapshot_reader: TrafficSnapshotReader, traffic_snapshot_writer: TrafficSnapshotWriter, umlsl_queries_model: UMLSLQueriesModel, settings_model : SettingsModel):
         """
         Initialize the command controller.
 
@@ -27,6 +38,8 @@ class CommandController:
         """
         self.traffic_snapshot_reader = traffic_snapshot_reader
         self.traffic_snapshot_writer = traffic_snapshot_writer
+        self.umlsl_queries_model = umlsl_queries_model
+        self.settings_model = settings_model
         # self._command_history = []  # TODO: Implement undo/redo stack
         # self._history_position = -1  # Current position in history
 
@@ -120,6 +133,7 @@ class CommandController:
         Returns:
             True if the car was successfully added, False otherwise.
         """
+        #TODO: Change acceleration variable to actual acceleration
         acceleration : float = 1
         lane = Lane(assigned_road.name, lane_index, lane_direction)
         car_params = CarParams(name, lane, color, position_on_lane, transition, velocity, length, next_turn, acceleration)
@@ -137,7 +151,9 @@ class CommandController:
         Returns:
             True if the car was successfully removed, False otherwise.
         """
-        raise NotImplementedError("Method not implemented yet.")
+        remove_car_command = DeleteCar(self.traffic_snapshot_writer, self.traffic_snapshot_reader, car_name)
+        remove_car_command.execute()
+        raise NotImplementedError("Prototype Method")
 
     def edit_car(
         self,
@@ -193,7 +209,12 @@ class CommandController:
         Returns:
             True if the road was successfully added, False otherwise.
         """
-        raise NotImplementedError("Method not implemented yet.")
+        #TODO: Cast string to actual road orientation, how does this work?
+        road_orientation = RoadOrientation(orientation)
+        road_params = RoadParams(name, road_orientation, position, forward_lanes, backward_lanes)
+        add_road_command = AddRoad(self.traffic_snapshot_writer, self.traffic_snapshot_reader, road_params)
+        add_road_command.execute()
+        raise NotImplementedError("Prototype Method")
 
     def remove_road(self, road_name: str) -> bool:
         """
@@ -205,7 +226,9 @@ class CommandController:
         Returns:
             True if the road was successfully removed, False otherwise.
         """
-        raise NotImplementedError("Method not implemented yet.")
+        remove_road_command = DeleteRoad(self.traffic_snapshot_writer, self.traffic_snapshot_reader, road_name)
+        remove_road_command.execute()
+        raise NotImplementedError("Prototype Method")
 
     def edit_road(
         self,
@@ -245,7 +268,12 @@ class CommandController:
         Returns:
             True if the query was successfully added, False otherwise.
         """
-        raise NotImplementedError("Method not implemented yet.")
+        #TODO: Add real validation parameter
+        validation: bool = True
+        umlsl_query_params = UMLSLQueryParams(latex, assigned_car_name, validation)
+        add_umlsl_query = AddUMLSLQuery(umlsl_query_params, self.umlsl_queries_model)
+        add_umlsl_query.execute()
+        raise NotImplementedError("Prototype Method")
 
     def remove_umlsl_query(self, query_id: str) -> bool:
         """
@@ -257,7 +285,9 @@ class CommandController:
         Returns:
             True if the query was successfully removed, False otherwise.
         """
-        raise NotImplementedError("Method not implemented yet.")
+        remove_umlsl_query_command = DeleteUMLSLQuery(query_id, self.umlsl_queries_model)
+        remove_umlsl_query_command.execute()
+        raise NotImplementedError("Prototype Method")
 
     def edit_umlsl_query(
         self,
@@ -339,14 +369,22 @@ class CommandController:
         """
         Changes the breaking acceleration of the cars.
         """
-        raise NotImplementedError("Method not implemented yet.")
+        change_breaking_acceleration_command = ChangeBreakingAccelerationCommand(self.settings_model, value)
+        change_breaking_acceleration_command.execute()
+        raise NotImplementedError("Prototype Method")
+
     def toggle_coordinate_system(self) -> None:
         """
         Toggles weather the coordinate system in the visual editor should be rendered.
         """
-        raise NotImplementedError("Method not implemented yet.")
+        toggle_coordinate_system_command = ToggleCoordinateSystemCommand(self.settings_model)
+        toggle_coordinate_system_command.execute()
+        raise NotImplementedError("Prototype Method")
+
     def toggle_safety_distance(self) -> None:
         """
         Toggles weather the safety distance of the cars in the visual editor should be rendered.
         """
-        raise NotImplementedError("Method not implemented yet.")
+        toggle_safety_distance_command = ToggleSafetyDistanceCommand(self.settings_model)
+        toggle_safety_distance_command.execute()
+        raise NotImplementedError("Prototype Method")

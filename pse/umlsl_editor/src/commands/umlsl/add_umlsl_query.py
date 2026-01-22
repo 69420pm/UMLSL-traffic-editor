@@ -6,7 +6,11 @@ from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQu
 class AddUMLSLQuery(Command[None]):
     """Adds a new UMLSL query to the UMLSL editor."""
 
-    def __init__(self, umlsl_query_params: UMLSLQueryParams, umlsl_queries: UMLSLQueriesModel):
+    def __init__(
+            self,
+            umlsl_query_params: UMLSLQueryParams,
+            umlsl_queries: UMLSLQueriesModel
+    ):
         """
         Initialize the AddUMLSLQuery command with the query and the list of UMLSL queries.
 
@@ -14,7 +18,7 @@ class AddUMLSLQuery(Command[None]):
             umlsl_query_params: UMLSLQuery params to create an object.
             umlsl_queries: UmlslQueries manager.
         """
-        self._umlsl_query = umlsl_query_params
+        self._umlsl_query_params = umlsl_query_params
         self._umlsl_queries = umlsl_queries
 
     def execute(self) -> None:
@@ -24,4 +28,6 @@ class AddUMLSLQuery(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        raise NotImplementedError
+        umlsl_query = UMLSLQuery.from_params(self._umlsl_query_params)
+        self._umlsl_queries.add_umlsl_query(umlsl_query)
+        raise NotImplementedError("Prototype Method")

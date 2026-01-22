@@ -23,4 +23,6 @@ class DeleteUMLSLQuery(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        raise NotImplementedError
+        #TODO: Error Handling
+        self._umlsl_queries.remove_umlsl_query(self._query_id)
+        raise NotImplementedError("Prototype Method")

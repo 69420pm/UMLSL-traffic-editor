@@ -1,5 +1,5 @@
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.model.entities.road import RoadParams
+from pse.umlsl_editor.src.model.entities.road import RoadParams, Road
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
 
@@ -32,4 +32,7 @@ class AddRoad(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        raise NotImplementedError
+        road = Road.from_params(self.road_params)
+        self._traffic_snapshot_writer.add_road(road)
+        # TODO: Error Handling
+        raise NotImplementedError("Prototype Method")

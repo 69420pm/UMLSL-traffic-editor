@@ -25,10 +25,10 @@ class SettingsModel(Observable):
         self.breaking_acceleration = breaking_acceleration
         self.notify(SettingsEventType.CHANGE_BREAKING_ACCELERATION, breaking_acceleration)
 
-    def toggle_render_coordinate_system(self, render_coordinate_system: bool):
-        self.render_coordinate_system = render_coordinate_system
-        self.notify(SettingsEventType.TOGGLE_COORDINATE_SYSTEM, render_coordinate_system)
+    def toggle_render_coordinate_system(self):
+        self.render_coordinate_system = not self.render_coordinate_system
+        self.notify(SettingsEventType.TOGGLE_COORDINATE_SYSTEM, self.render_coordinate_system)
 
-    def toggle_render_safety_distance(self, render_safety_distance: bool):
-        self.render_safety_distance = render_safety_distance
-        self.notify(SettingsEventType.TOGGLE_SAFETY_DISTANCE, render_safety_distance)
+    def toggle_render_safety_distance(self):
+        self.render_safety_distance = not self.render_safety_distance
+        self.notify(SettingsEventType.TOGGLE_SAFETY_DISTANCE, self.render_safety_distance)

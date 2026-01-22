@@ -40,11 +40,11 @@ class UMLSLQueriesModel(Observable):
         """
         self._queries[umlsl_query.uid] = umlsl_query
 
-    def remove_umlsl_query(self, umlsl_query: UMLSLQuery) -> None:
+    def remove_umlsl_query(self, query_id: str) -> None:
         """
         Removes a UMLSL query from the snapshot.
         """
-        self._queries.pop(umlsl_query.uid, None)
+        self._queries.pop(query_id)
 
     def update_umlsl_query(self, umlsl_query_data: UMLSLQuery) -> None:
         """
