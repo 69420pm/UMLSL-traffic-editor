@@ -24,7 +24,7 @@ class Ui_Settings_Dialog(object):
     def setupUi(self, Settings_Dialog):
         if not Settings_Dialog.objectName():
             Settings_Dialog.setObjectName(u"Settings_Dialog")
-        Settings_Dialog.resize(320, 249)
+        Settings_Dialog.resize(320, 196)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -234,7 +234,7 @@ class Ui_Settings_Dialog(object):
         self.General.setSpacing(0)
         self.General.setObjectName(u"General")
         self.General.setSizeConstraint(QLayout.SizeConstraint.SetDefaultConstraint)
-        self.General.setContentsMargins(0, 0, 0, 0)
+        self.General.setContentsMargins(0, 8, 0, 0)
         self.widget_3 = QWidget(self.widget)
         self.widget_3.setObjectName(u"widget_3")
         self.horizontalLayout = QHBoxLayout(self.widget_3)
@@ -376,10 +376,6 @@ class Ui_Settings_Dialog(object):
 
 
         self.verticalLayout_3.addWidget(self.widget2)
-
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.verticalLayout_3.addItem(self.verticalSpacer)
 
 
         self.retranslateUi(Settings_Dialog)

@@ -26,14 +26,14 @@ class Ui_Edit_Car_Dialog(object):
         if not Edit_Car_Dialog.objectName():
             Edit_Car_Dialog.setObjectName(u"Edit_Car_Dialog")
         Edit_Car_Dialog.setEnabled(True)
-        Edit_Car_Dialog.resize(310, 562)
+        Edit_Car_Dialog.resize(320, 524)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Edit_Car_Dialog.sizePolicy().hasHeightForWidth())
         Edit_Car_Dialog.setSizePolicy(sizePolicy)
-        Edit_Car_Dialog.setMinimumSize(QSize(0, 0))
-        Edit_Car_Dialog.setMaximumSize(QSize(99999, 999999))
+        Edit_Car_Dialog.setMinimumSize(QSize(320, 0))
+        Edit_Car_Dialog.setMaximumSize(QSize(320, 999999))
         Edit_Car_Dialog.setStyleSheet(u"QDialog {\n"
 "    background-color: #011C26; \n"
 "}\n"
@@ -188,9 +188,24 @@ class Ui_Edit_Car_Dialog(object):
 "QPushButton#b_save {\n"
 "	background-color: #799582\n"
 "}\n"
+"QPushButton#b_save:hover {\n"
+"    background-color: rgb(155, 191, 168); \n"
+"}\n"
+"QPushButton#b_save:pressed {\n"
+"    background-color: #799582; \n"
+"}\n"
 "\n"
 "QPushButton#b_delete {\n"
-"	background-color: #D97855\n"
+"	background-color: #042F40;\n"
+"	color: #F9F9F9;\n"
+"}\n"
+"\n"
+"QPushButton#b_delete:hover {\n"
+"    background-color: #314250; \n"
+""
+                        "}\n"
+"QPushButton#b_delete:pressed {\n"
+"    background-color: #042F40; \n"
 "}")
         self.verticalLayout = QVBoxLayout(Edit_Car_Dialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
@@ -200,7 +215,7 @@ class Ui_Edit_Car_Dialog(object):
         self.General.setSpacing(0)
         self.General.setObjectName(u"General")
         self.General.setSizeConstraint(QLayout.SizeConstraint.SetDefaultConstraint)
-        self.General.setContentsMargins(0, 0, 0, 0)
+        self.General.setContentsMargins(0, 8, 0, 0)
         self.widget_3 = QWidget(self.widget)
         self.widget_3.setObjectName(u"widget_3")
         self.horizontalLayout = QHBoxLayout(self.widget_3)
@@ -272,6 +287,7 @@ class Ui_Edit_Car_Dialog(object):
         self.t_name.setObjectName(u"t_name")
         self.t_name.setMinimumSize(QSize(0, 24))
         self.t_name.setMaximumSize(QSize(16777215, 24))
+        self.t_name.setCursorPosition(0)
 
         self.gridLayout.addWidget(self.t_name, 0, 2, 1, 1)
 
@@ -312,6 +328,18 @@ class Ui_Edit_Car_Dialog(object):
         self.doubleSpinBox.setMaximum(100.000000000000000)
 
         self.gridLayout.addWidget(self.doubleSpinBox, 5, 2, 1, 1)
+
+        self.label = QLabel(self.widget1)
+        self.label.setObjectName(u"label")
+        self.label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout.addWidget(self.label, 4, 1, 1, 1)
+
+        self.label_20 = QLabel(self.widget1)
+        self.label_20.setObjectName(u"label_20")
+        self.label_20.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout.addWidget(self.label_20, 5, 1, 1, 1)
 
         self.gridLayout.setColumnStretch(0, 1)
         self.gridLayout.setColumnStretch(1, 1)
@@ -522,12 +550,9 @@ class Ui_Edit_Car_Dialog(object):
 
         self.verticalLayout.addWidget(self.widget2)
 
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.verticalLayout.addItem(self.verticalSpacer)
-
         self.Bottom = QHBoxLayout()
         self.Bottom.setObjectName(u"Bottom")
+        self.Bottom.setContentsMargins(-1, 8, -1, -1)
         self.b_save = QPushButton(Edit_Car_Dialog)
         self.b_save.setObjectName(u"b_save")
         self.b_save.setMinimumSize(QSize(32, 32))
@@ -543,7 +568,7 @@ class Ui_Edit_Car_Dialog(object):
         self.b_delete.setMinimumSize(QSize(32, 32))
         self.b_delete.setMaximumSize(QSize(16777215, 32))
         icon1 = QIcon()
-        icon1.addFile(u":/icons/icons/Delete_dark.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon1.addFile(u":/icons/icons/Delete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.b_delete.setIcon(icon1)
 
         self.Bottom.addWidget(self.b_delete)
@@ -576,9 +601,14 @@ class Ui_Edit_Car_Dialog(object):
         self.label_16.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"hint", None))
         self.label_8.setText(QCoreApplication.translate("Edit_Car_Dialog", u"unique", None))
         self.label_8.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"hint", None))
+        self.t_name.setPlaceholderText("")
         self.label_6.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Length", None))
         self.label_5.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Name", None))
         self.label_18.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Acceleration", None))
+        self.label.setText(QCoreApplication.translate("Edit_Car_Dialog", u"u/s", None))
+        self.label.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"hint", None))
+        self.label_20.setText(QCoreApplication.translate("Edit_Car_Dialog", u"u/s^2", None))
+        self.label_20.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"hint", None))
         self.label_4.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Location", None))
         self.label_4.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"label", None))
         self.widget_6.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"container", None))

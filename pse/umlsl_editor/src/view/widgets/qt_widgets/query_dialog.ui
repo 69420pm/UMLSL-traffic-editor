@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>329</width>
+    <width>320</width>
     <height>570</height>
    </rect>
   </property>
@@ -21,13 +21,13 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>300</width>
+    <width>320</width>
     <height>570</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>16777215</width>
+    <width>320</width>
     <height>16777215</height>
    </size>
   </property>
@@ -186,9 +186,23 @@ QPushButton {
 QPushButton#b_save {
 	background-color: #799582
 }
+QPushButton#b_save:hover {
+    background-color: rgb(155, 191, 168); 
+}
+QPushButton#b_save:pressed {
+    background-color: #799582; 
+}
 
 QPushButton#b_delete {
-	background-color: #D97855
+	background-color: #042F40;
+	color: #F9F9F9;
+}
+
+QPushButton#b_delete:hover {
+    background-color: #314250; 
+}
+QPushButton#b_delete:pressed {
+    background-color: #042F40; 
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -205,7 +219,7 @@ QPushButton#b_delete {
        <number>0</number>
       </property>
       <property name="topMargin">
-       <number>0</number>
+       <number>8</number>
       </property>
       <property name="rightMargin">
        <number>0</number>
@@ -1123,6 +1137,9 @@ QPushButton#b_delete {
    </item>
    <item>
     <layout class="QHBoxLayout" name="Bottom">
+     <property name="topMargin">
+      <number>8</number>
+     </property>
      <item>
       <widget class="QPushButton" name="b_save">
        <property name="minimumSize">
@@ -1168,7 +1185,7 @@ QPushButton#b_delete {
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/Delete_dark.svg</normaloff>:/icons/icons/Delete_dark.svg</iconset>
+         <normaloff>:/icons/icons/Delete.svg</normaloff>:/icons/icons/Delete.svg</iconset>
        </property>
       </widget>
      </item>

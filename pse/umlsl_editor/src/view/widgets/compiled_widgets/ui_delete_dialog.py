@@ -23,7 +23,9 @@ class Ui_Delete_Dialog(object):
     def setupUi(self, Delete_Dialog):
         if not Delete_Dialog.objectName():
             Delete_Dialog.setObjectName(u"Delete_Dialog")
-        Delete_Dialog.resize(318, 111)
+        Delete_Dialog.resize(320, 118)
+        Delete_Dialog.setMinimumSize(QSize(320, 0))
+        Delete_Dialog.setMaximumSize(QSize(320, 16777215))
         Delete_Dialog.setStyleSheet(u"QDialog {\n"
 "    background-color: #011C26; \n"
 "}\n"
@@ -180,8 +182,23 @@ class Ui_Delete_Dialog(object):
 "	color: #F9F9F9\n"
 "}\n"
 "\n"
+"QPushButton#b_cancel:hover {\n"
+"    background-color: #314250; \n"
+"}\n"
+"QPushButton#b_cancel:pressed {\n"
+"    background-color: #042F40; \n"
+"}\n"
+"\n"
 "QPushButton#b_delete {\n"
 "	background-color: #D97855\n"
+"}\n"
+"\n"
+"QPushButton#b_delete:hover {\n"
+"    background-color: rgb(244, 13"
+                        "5, 96); \n"
+"}\n"
+"QPushButton#b_delete:pressed {\n"
+"    background-color: #D97855; \n"
 "}")
         self.verticalLayout = QVBoxLayout(Delete_Dialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
@@ -197,6 +214,7 @@ class Ui_Delete_Dialog(object):
 
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(-1, 8, -1, -1)
         self.b_delete = QPushButton(Delete_Dialog)
         self.b_delete.setObjectName(u"b_delete")
         self.b_delete.setMinimumSize(QSize(32, 32))
@@ -234,7 +252,7 @@ class Ui_Delete_Dialog(object):
     # setupUi
 
     def retranslateUi(self, Delete_Dialog):
-        Delete_Dialog.setWindowTitle(QCoreApplication.translate("Delete_Dialog", u"Dialog", None))
+        Delete_Dialog.setWindowTitle(QCoreApplication.translate("Delete_Dialog", u"Confirm Action", None))
         self.label.setText(QCoreApplication.translate("Delete_Dialog", u"Are you shure?", None))
         self.label.setProperty(u"class", QCoreApplication.translate("Delete_Dialog", u"title", None))
         self.l_content.setText(QCoreApplication.translate("Delete_Dialog", u"This Action can not be undone.", None))

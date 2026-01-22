@@ -26,14 +26,14 @@ class Ui_Edit_Query_Dialog(object):
         if not Edit_Query_Dialog.objectName():
             Edit_Query_Dialog.setObjectName(u"Edit_Query_Dialog")
         Edit_Query_Dialog.setEnabled(True)
-        Edit_Query_Dialog.resize(329, 570)
+        Edit_Query_Dialog.resize(320, 570)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Edit_Query_Dialog.sizePolicy().hasHeightForWidth())
         Edit_Query_Dialog.setSizePolicy(sizePolicy)
-        Edit_Query_Dialog.setMinimumSize(QSize(300, 570))
-        Edit_Query_Dialog.setMaximumSize(QSize(16777215, 16777215))
+        Edit_Query_Dialog.setMinimumSize(QSize(320, 570))
+        Edit_Query_Dialog.setMaximumSize(QSize(320, 16777215))
         Edit_Query_Dialog.setStyleSheet(u"QDialog {\n"
 "    background-color: #011C26; \n"
 "}\n"
@@ -188,9 +188,24 @@ class Ui_Edit_Query_Dialog(object):
 "QPushButton#b_save {\n"
 "	background-color: #799582\n"
 "}\n"
+"QPushButton#b_save:hover {\n"
+"    background-color: rgb(155, 191, 168); \n"
+"}\n"
+"QPushButton#b_save:pressed {\n"
+"    background-color: #799582; \n"
+"}\n"
 "\n"
 "QPushButton#b_delete {\n"
-"	background-color: #D97855\n"
+"	background-color: #042F40;\n"
+"	color: #F9F9F9;\n"
+"}\n"
+"\n"
+"QPushButton#b_delete:hover {\n"
+"    background-color: #"
+                        "314250; \n"
+"}\n"
+"QPushButton#b_delete:pressed {\n"
+"    background-color: #042F40; \n"
 "}")
         self.verticalLayout = QVBoxLayout(Edit_Query_Dialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
@@ -200,7 +215,7 @@ class Ui_Edit_Query_Dialog(object):
         self.General.setSpacing(0)
         self.General.setObjectName(u"General")
         self.General.setSizeConstraint(QLayout.SizeConstraint.SetDefaultConstraint)
-        self.General.setContentsMargins(0, 0, 0, 0)
+        self.General.setContentsMargins(0, 8, 0, 0)
         self.widget_3 = QWidget(self.widget)
         self.widget_3.setObjectName(u"widget_3")
         self.horizontalLayout = QHBoxLayout(self.widget_3)
@@ -559,6 +574,7 @@ class Ui_Edit_Query_Dialog(object):
 
         self.Bottom = QHBoxLayout()
         self.Bottom.setObjectName(u"Bottom")
+        self.Bottom.setContentsMargins(-1, 8, -1, -1)
         self.b_save = QPushButton(Edit_Query_Dialog)
         self.b_save.setObjectName(u"b_save")
         self.b_save.setMinimumSize(QSize(32, 32))
@@ -574,7 +590,7 @@ class Ui_Edit_Query_Dialog(object):
         self.b_delete.setMinimumSize(QSize(32, 32))
         self.b_delete.setMaximumSize(QSize(16777215, 32))
         icon1 = QIcon()
-        icon1.addFile(u":/icons/icons/Delete_dark.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon1.addFile(u":/icons/icons/Delete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.b_delete.setIcon(icon1)
 
         self.Bottom.addWidget(self.b_delete)

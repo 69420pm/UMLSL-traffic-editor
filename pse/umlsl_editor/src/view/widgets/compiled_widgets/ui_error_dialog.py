@@ -24,7 +24,9 @@ class Ui_Error_Dialog(object):
     def setupUi(self, Error_Dialog):
         if not Error_Dialog.objectName():
             Error_Dialog.setObjectName(u"Error_Dialog")
-        Error_Dialog.resize(322, 150)
+        Error_Dialog.resize(320, 152)
+        Error_Dialog.setMinimumSize(QSize(320, 0))
+        Error_Dialog.setMaximumSize(QSize(320, 16777215))
         Error_Dialog.setStyleSheet(u"QDialog {\n"
 "    background-color: #011C26; \n"
 "}\n"
@@ -176,13 +178,16 @@ class Ui_Error_Dialog(object):
 "	border-radius: 16px;\n"
 "}\n"
 "\n"
-"QPushButton#b_cancel {\n"
+"QPushButton#b_close {\n"
 "	background-color: #042F40;\n"
 "	color: #F9F9F9\n"
 "}\n"
 "\n"
-"QPushButton#b_delete {\n"
-"	background-color: #D97855\n"
+"QPushButton#b_close:hover {\n"
+"    background-color: #314250; \n"
+"}\n"
+"QPushButton#b_close:pressed {\n"
+"    background-color: #042F40; \n"
 "}")
         self.verticalLayout = QVBoxLayout(Error_Dialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
@@ -198,6 +203,7 @@ class Ui_Error_Dialog(object):
 
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(-1, 8, -1, -1)
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
