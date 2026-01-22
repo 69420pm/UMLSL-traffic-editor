@@ -6,9 +6,12 @@ from pse.umlsl_editor.src.commands.cars.delete_car import DeleteCar
 from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.commands.roads.add_road import AddRoad
 from pse.umlsl_editor.src.commands.roads.delete_road import DeleteRoad
+from pse.umlsl_editor.src.commands.settings.change_breaking_acceleration import ChangeBreakingAccelerationCommand
+from pse.umlsl_editor.src.commands.settings.toggle_coordinate_system import ToggleCoordinateSystemCommand
+from pse.umlsl_editor.src.commands.settings.toggle_safety_distance import ToggleSafetyDistanceCommand
 from pse.umlsl_editor.src.commands.umlsl.add_umlsl_query import AddUMLSLQuery
 from pse.umlsl_editor.src.commands.umlsl.delete_umlsl_query import DeleteUMLSLQuery
-from pse.umlsl_editor.src.model.domain_models import traffic_snapshot_writer
+from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
@@ -26,7 +29,7 @@ class CommandController:
     Provides high-level API for modifying the traffic snapshot.
     """
 
-    def __init__(self, traffic_snapshot_reader: TrafficSnapshotReader, traffic_snapshot_writer: TrafficSnapshotWriter, umlsl_queries_model: UMLSLQueriesModel):
+    def __init__(self, traffic_snapshot_reader: TrafficSnapshotReader, traffic_snapshot_writer: TrafficSnapshotWriter, umlsl_queries_model: UMLSLQueriesModel, settings_model : SettingsModel):
         """
         Initialize the command controller.
 
@@ -36,6 +39,7 @@ class CommandController:
         self.traffic_snapshot_reader = traffic_snapshot_reader
         self.traffic_snapshot_writer = traffic_snapshot_writer
         self.umlsl_queries_model = umlsl_queries_model
+        self.settings_model = settings_model
         # self._command_history = []  # TODO: Implement undo/redo stack
         # self._history_position = -1  # Current position in history
 
@@ -365,14 +369,22 @@ class CommandController:
         """
         Changes the breaking acceleration of the cars.
         """
-        raise NotImplementedError("Method not implemented yet.")
+        change_breaking_acceleration_command = ChangeBreakingAccelerationCommand(self.settings_model, value)
+        change_breaking_acceleration_command.execute()
+        raise NotImplementedError("Prototype Method")
+
     def toggle_coordinate_system(self) -> None:
         """
         Toggles weather the coordinate system in the visual editor should be rendered.
         """
-        raise NotImplementedError("Method not implemented yet.")
+        toggle_coordinate_system_command = ToggleCoordinateSystemCommand(self.settings_model)
+        toggle_coordinate_system_command.execute()
+        raise NotImplementedError("Prototype Method")
+
     def toggle_safety_distance(self) -> None:
         """
         Toggles weather the safety distance of the cars in the visual editor should be rendered.
         """
-        raise NotImplementedError("Method not implemented yet.")
+        toggle_safety_distance_command = ToggleSafetyDistanceCommand(self.settings_model)
+        toggle_safety_distance_command.execute()
+        raise NotImplementedError("Prototype Method")

@@ -4,7 +4,7 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import Tra
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
 
 
-class ChangeBreakingAcceleration(Command[None]):
+class ChangeBreakingAccelerationCommand(Command[None]):
     """
     Changes the breaking acceleration of the cars based on the provided parameters.
     """
@@ -30,4 +30,6 @@ class ChangeBreakingAcceleration(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        raise NotImplementedError
+        #TODO: Error Handling
+        self._settings.set_breaking_acceleration(self.value)
+        raise NotImplementedError("Prototype Method")

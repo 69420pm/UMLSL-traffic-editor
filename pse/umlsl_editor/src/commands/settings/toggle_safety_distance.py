@@ -22,4 +22,5 @@ class ToggleSafetyDistanceCommand(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        raise NotImplementedError
+        self._settings.toggle_render_safety_distance()
+        raise NotImplementedError("Prototype Method")
