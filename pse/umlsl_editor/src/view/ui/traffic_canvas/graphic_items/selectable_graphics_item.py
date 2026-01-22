@@ -23,7 +23,7 @@ class SelectableGraphicsItem(QGraphicsItem):
 
     def __init__(self, movement_constraint=AXIS_FREE):
         super().__init__()
-        self._is_selected = False
+        self.is_selected = False
         self._movement_constraint = movement_constraint
 
         # State tracking
@@ -55,13 +55,13 @@ class SelectableGraphicsItem(QGraphicsItem):
         self._is_panning_active = False
 
         # 2. Logic: Only allow ITEM movement if selected.
-        self.setFlag(QGraphicsItem.ItemIsMovable, self._is_selected)
+        self.setFlag(QGraphicsItem.ItemIsMovable, self.is_selected)
 
         super().mousePressEvent(event)
         event.accept()
 
     def mouseMoveEvent(self, event):
-        if self._is_selected:
+        if self.is_selected:
             # --- Scenario A: Selected -> Move Item ---
 
             super().mouseMoveEvent(event)
@@ -101,7 +101,7 @@ class SelectableGraphicsItem(QGraphicsItem):
         has_moved_visually = self.pos().manhattanLength() > 0
 
         # --- CASE: Item Drag Committed (Selected & Moved) ---
-        if was_item_dragged and self._is_selected and has_moved_visually:
+        if was_item_dragged and self.is_selected and has_moved_visually:
             self.on_move_committed(self.x(), self.y())
             self.setPos(0, 0)
 
@@ -112,8 +112,8 @@ class SelectableGraphicsItem(QGraphicsItem):
                 self.setPos(0, 0)
 
             # Toggle Selection
-            self._is_selected = not self._is_selected
-            self.on_selection_changed(self._is_selected)
+            self.is_selected = not self.is_selected
+            self.on_selection_changed(self.is_selected)
             self.update()
 
         super().mouseReleaseEvent(event)

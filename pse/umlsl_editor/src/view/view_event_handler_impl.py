@@ -18,7 +18,7 @@ class ViewEventHandlerImplementation(ViewEventHandler):
         self.view_models.car_list_model.remove_entity(car)
 
     def update_car_view(self, car: Car) -> None:
-        self.view_models.car_list_model.update_entity(car)
+        self.view_models.car_list_model.add_entity(car)
 
     def add_road_view(self, road: Road) -> None:
         self.view_models.road_list_model.add_entity(road)
@@ -27,7 +27,7 @@ class ViewEventHandlerImplementation(ViewEventHandler):
         self.view_models.road_list_model.remove_entity(road)
 
     def update_road_view(self, road: Road) -> None:
-        self.view_models.road_list_model.update_entity(road)
+        self.view_models.road_list_model.add_entity(road)
 
     def add_crossing_segment_view(self, crossing_segment: CrossingSegment) -> None:
         pass

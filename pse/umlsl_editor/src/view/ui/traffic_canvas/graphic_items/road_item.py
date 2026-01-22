@@ -1,10 +1,11 @@
-# --- Concrete Road Item ---
+# traffic_canvas/graphic_items/road_item.py
+
 from PySide6.QtCore import QRectF, Qt
 from PySide6.QtGui import QPainterPath, QPen, QBrush, QPainter
-from PySide6.QtWidgets import QStyleOptionGraphicsItem, QWidget
+from PySide6.QtWidgets import QStyleOptionGraphicsItem, QWidget, QGraphicsItem
 
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation, Road
-from pse.umlsl_editor.src.view.graphic_items.selectable_graphics_item import SelectableGraphicsItem
+from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.selectable_graphics_item import SelectableGraphicsItem
 from pse.umlsl_editor.src.view.view_constants import Z_LAYERS, COLORS, DIMENSION
 
 
@@ -23,7 +24,9 @@ class RoadItem(SelectableGraphicsItem):
 
         super().__init__(movement_constraint=constraint)
 
-        self._road = road
+        self._position_listeners = []
+
+        self.setData(0, road)
         self._bounding_rect = QRectF()
         self._center_line = QPainterPath()
         self._dashed_lines = QPainterPath()
@@ -32,9 +35,9 @@ class RoadItem(SelectableGraphicsItem):
         self._recalculate_geometry()
 
     def _setup_styles(self):
-        self.setZValue(Z_LAYERS.ROAD)
+        self.setZValue(Z_LAYERS.SELECTED_ROAD if self.is_selected else Z_LAYERS.ROAD)
         # Use parent's selection state
-        color = COLORS.LAYER.lighter() if self._is_selected else COLORS.LAYER
+        color = COLORS.LAYER.lighter() if self.is_selected else COLORS.LAYER
         self._asphalt_brush = QBrush(color)
 
         self._center_pen = QPen(COLORS.TEXT, DIMENSION.LINE_WIDTH_ROAD_DIVIDER)
@@ -53,23 +56,42 @@ class RoadItem(SelectableGraphicsItem):
 
     def on_move_committed(self, delta_x: float, delta_y: float):
         # Calculate new position based on the delta
-        # Note: Because of axis locking, one of these deltas will be 0 (or very close)
-        if self._road.orientation == RoadOrientation.HORIZONTAL:
-            new_position = self._road.position + delta_y
+        current_road = self.data(0)
+
+        if current_road.orientation == RoadOrientation.HORIZONTAL:
+            new_position = current_road.position + delta_y
         else:
-            new_position = self._road.position + delta_x
+            new_position = current_road.position + delta_x
 
         # Create new road object
         new_road = Road(
-            uid=self._road.uid,
-            name=self._road.name,
-            orientation=self._road.orientation,
+            uid=current_road.uid,
+            name=current_road.name,
+            orientation=current_road.orientation,
             position=new_position,
-            forward_lanes=self._road.forward_lanes,
-            backward_lanes=self._road.backward_lanes
-
+            forward_lanes=current_road.forward_lanes,
+            backward_lanes=current_road.backward_lanes
         )
         self.update_data(new_road)
+
+    # --- Update Crossings Logic ---
+
+    def add_position_listener(self, listener):
+        """Registers an object to be notified when this road moves."""
+        if listener not in self._position_listeners:
+            self._position_listeners.append(listener)
+
+    def _notify_listeners(self):
+        for listener in self._position_listeners:
+            listener.refresh_geometry()
+
+    def itemChange(self, change, value):
+        """Override to notify listeners on position change."""
+        # FIX: Use ItemPositionHasChanged (fired AFTER update) instead of ItemPositionChange (fired BEFORE)
+        if change == QGraphicsItem.ItemPositionHasChanged:
+            self._notify_listeners()
+
+        return super().itemChange(change, value)
 
     # --- Standard Graphics Logic ---
 
@@ -89,7 +111,7 @@ class RoadItem(SelectableGraphicsItem):
         painter.drawPath(self._dashed_lines)
 
     def update_data(self, road: Road):
-        self._road = road
+        self.setData(0, road)
 
         # Update constraint in case orientation changed
         new_constraint = (
@@ -98,13 +120,15 @@ class RoadItem(SelectableGraphicsItem):
             else SelectableGraphicsItem.AXIS_X_ONLY
         )
         self.set_movement_constraint(new_constraint)
-
         self.prepareGeometryChange()
         self._recalculate_geometry()
         self.update()
 
+        # Notify listeners because the model data (absolute position) changed
+        self._notify_listeners()
+
     def _recalculate_geometry(self) -> None:
-        road = self._road
+        road = self.data(0)
         scene_size = DIMENSION.SCENE_SIZE
         lane_width = DIMENSION.LANE_WIDTH
 

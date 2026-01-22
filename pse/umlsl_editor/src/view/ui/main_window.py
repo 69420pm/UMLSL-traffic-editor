@@ -33,4 +33,4 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """Load a sample scene for testing purposes."""
         entities = create_sample_scene()
         for entity in entities:
-            self.traffic_scene.update_entity(entity)
+            self.traffic_scene.add_entity(entity)
