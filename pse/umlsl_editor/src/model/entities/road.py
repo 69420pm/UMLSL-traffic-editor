@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from pse.umlsl_editor.src.model.entities.entity import Entity
+from pse.umlsl_editor.src.model.errors.road_errors import RoadValidationError
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 
 
@@ -31,12 +32,6 @@ class LaneDirection(Enum):
     BACKWARD = "bn"
 
 
-class RoadValidationError(ValueError):
-    """
-    Custom exception raised when Road validation fails.
-    """
-
-    pass
 
 @dataclass
 class RoadParams:
@@ -140,19 +135,19 @@ class Road(Entity):
             RoadValidationError: If any validation check fails.
         """
         if not isinstance(self.name, str) or not self.name.strip():
-            raise RoadValidationError("Name must be a non-empty string.")
+            raise RoadValidationError(content="Name must be a non-empty string.")
 
         if not isinstance(self.orientation, RoadOrientation):
-            raise RoadValidationError("Orientation must be a RoadOrientation enum member.")
+            raise RoadValidationError(content="Orientation must be a RoadOrientation enum member.")
 
         if not isinstance(self.position, (int, float)):
-            raise RoadValidationError("Position must be a number.")
+            raise RoadValidationError(content="Position must be a number.")
 
         if not isinstance(self.forward_lanes, int) or self.forward_lanes < 0:
-            raise RoadValidationError("Forward lanes must be a non-negative integer.")
+            raise RoadValidationError(content="Forward lanes must be a non-negative integer.")
 
         if not isinstance(self.backward_lanes, int) or self.backward_lanes < 0:
-            raise RoadValidationError("Backward lanes must be a non-negative integer.")
+            raise RoadValidationError(content="Backward lanes must be a non-negative integer.")
 
         if self.forward_lanes == 0 and self.backward_lanes == 0:
-            raise RoadValidationError("Road must have at least one lane.")
+            raise RoadValidationError(content="Road must have at least one lane.")

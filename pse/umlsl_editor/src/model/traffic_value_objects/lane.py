@@ -7,7 +7,7 @@ from pse.umlsl_editor.src.model.entities.road import LaneDirection
 class Lane:
     """Represents a lane on a road, this is an immutable data structure and should act like a tuple.
     It's not a full entity as it doesn't have an identity beyond its road, index and direction."""
-    road_name: str
+    road_uid: str
     lane_index: int
     lane_direction: LaneDirection
 
