@@ -13,6 +13,7 @@ class TrafficSnapshotEventType(Enum):
     CROSSING_SEGMENT_ADDED = auto()
     CROSSING_SEGMENT_REMOVED = auto()
     CROSSING_SEGMENT_UPDATED = auto()
+    TRAFFIC_SNAPSHOT_WARNING = auto()
 
 
 class SettingsEventType(Enum):
@@ -27,6 +28,7 @@ class UMLSLQueriesEventType(Enum):
     UMLSL_QUERY_ADDED = auto()
     UMLSL_QUERY_REMOVED = auto()
     UMLSL_QUERY_UPDATED = auto()
+    UMLSL_QUERY_WARNING = auto()
 
 class SelectionEventType(Enum):
     """Event types emitted by SelectionModel."""

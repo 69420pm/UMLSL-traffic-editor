@@ -76,6 +76,15 @@ class UMLSLQuery(Entity):
         Raises:
             UMLSLQueryValidationError: If any validation check fails.
         """
+        self.validate()
+        self._initialized = True
+
+    def __setattr__(self, name: str, value: object) -> None:
+        super().__setattr__(name, value)
+        if getattr(self, "_initialized", False):
+            self.validate()
+
+    def validate(self) -> None:
         if not isinstance(self.latex, str) or not self.latex.strip():
             raise UMLSLQueryValidationError("Latex query must be a non-empty string.")
 

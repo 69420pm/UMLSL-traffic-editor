@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from pse.umlsl_editor.src.model.entities.road import LaneDirection
+from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 
 
 class TurnDirection(Enum):
@@ -18,14 +18,6 @@ class TurnDirection(Enum):
     RIGHT = "right"
 
 
-class TurnIntentValidationError(ValueError):
-    """
-    Custom exception raised when a TurnIntent validation fails.
-    """
-
-    pass
-
-
 @dataclass(frozen=True)
 class TurnIntent:
     """
@@ -37,8 +29,7 @@ class TurnIntent:
 
     Attributes:
         direction: The direction of the intended turn (LEFT or RIGHT).
-        target_lane_index: The index of the target lane the car wants to enter after the turn.
-        target_lane_direction: The direction of the target lane (FORWARD or BACKWARD).
+        target_lane: The lane the car intends to occupy after the turn.
 
     Raises:
         CarValidationError: If direction is not a TurnDirection or target_lane is not a Lane.
@@ -46,8 +37,7 @@ class TurnIntent:
 
     direction: TurnDirection
 
-    target_lane_index: int
-    target_lane_direction: LaneDirection
+    target_lane: Lane
 
     def __post_init__(self) -> None:
         """
@@ -55,10 +45,9 @@ class TurnIntent:
 
         Performs the following validation checks:
         - direction must be a valid TurnDirection enum value
-        - target_lane_index must be a positive integer
-        - target_lane_direction must be a valid LaneDirection enum value
-
-        Raises:
-            TurnIntentValidationError: If any validation check fails.
+        - target_lane must be a valid Lane instance
         """
-        raise NotImplementedError()
+        if not isinstance(self.direction, TurnDirection):
+            raise ValueError("direction must be a TurnDirection")
+        if not isinstance(self.target_lane, Lane):
+            raise ValueError("target_lane must be a Lane")

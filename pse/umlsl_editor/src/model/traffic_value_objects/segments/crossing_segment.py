@@ -11,9 +11,15 @@ class CrossingSegment(Segment):
     lane_vertical: Lane
     is_lane_segment = False
 
+    def __post_init__(self) -> None:
+        if not isinstance(self.lane_horizontal, Lane):
+            raise ValueError("lane_horizontal must be a Lane")
+        if not isinstance(self.lane_vertical, Lane):
+            raise ValueError("lane_vertical must be a Lane")
+        if not isinstance(self.length, (int, float)) or self.length <= 0:
+            raise ValueError("length must be a positive number")
+
     def get_position(self) -> Position:
         """Return position of the top left corner of the crossing segment.
         It gets calculated from the position of the two lanes."""
         raise NotImplementedError()
-
-

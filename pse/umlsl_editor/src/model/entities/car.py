@@ -132,21 +132,18 @@ class Car(Entity):
         """
         Validates the Car attributes after initialization without checking them in the TrafficSnapshot context.
 
-        Performs the following validation checks:
-        - name must be a non-empty string
-        - assigned_road must be a Road instance
-        - lane_index must be a positive integer
-        - lane_direction must be a LaneDirection enum value
-        - color must be a valid hex color code
-        - position_on_lane must be a non-negative number
-        - transition must be in the range (-1.0, 1.0) exclusive
-        - velocity must be a number
-        - length must be a positive number
-        - next_turn must be None or a TurnIntent instance
-
         Raises:
             CarValidationError: If any validation check fails.
         """
+        self.validate()
+        self._initialized = True
+
+    def __setattr__(self, name: str, value: object) -> None:
+        super().__setattr__(name, value)
+        if getattr(self, "_initialized", False):
+            self.validate()
+
+    def validate(self) -> None:
         if not isinstance(self.name, str) or not self.name.strip():
             raise CarValidationError(content="Name must be a non-empty string.")
 

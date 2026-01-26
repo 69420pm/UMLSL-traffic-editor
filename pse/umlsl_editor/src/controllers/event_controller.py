@@ -81,6 +81,8 @@ class EventController:
             self._view.remove_crossing_segment_view(data)
         elif event_type == TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED:
             self._view.update_crossing_segment_view(data)
+        elif event_type == TrafficSnapshotEventType.TRAFFIC_SNAPSHOT_WARNING:
+            self._view.display_warning(data)
 
     def _on_settings_event(self, event_type: Enum, data) -> None:
         """
@@ -113,6 +115,8 @@ class EventController:
             self._view.remove_query_view(data)
         elif event_type == UMLSLQueriesEventType.UMLSL_QUERY_UPDATED:
             self._view.update_query_view(data)
+        elif event_type == UMLSLQueriesEventType.UMLSL_QUERY_WARNING:
+            self._view.display_warning(data)
 
     def _on_selection_event(self, event_type: Enum, data) -> None:
         """

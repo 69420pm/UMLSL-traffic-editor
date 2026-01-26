@@ -125,15 +125,18 @@ class Road(Entity):
         """
         Validates the Road instance after initialization.
 
-        Performs the following validation checks:
-        - name must be a non-empty string
-        - orientation must be a valid RoadOrientation enum value
-        - position must be a valid number (int or float)
-        - forward_lanes and backward_lanes must be non-negative integers
-
         Raises:
             RoadValidationError: If any validation check fails.
         """
+        self.validate()
+        self._initialized = True
+
+    def __setattr__(self, name: str, value: object) -> None:
+        super().__setattr__(name, value)
+        if getattr(self, "_initialized", False):
+            self.validate()
+
+    def validate(self) -> None:
         if not isinstance(self.name, str) or not self.name.strip():
             raise RoadValidationError(content="Name must be a non-empty string.")
 
