@@ -3,19 +3,13 @@ from typing import Optional
 import re
 
 from pse.umlsl_editor.src.model.entities.entity import Entity
+from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Path
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
-
-
-class CarValidationError(ValueError):
-    """
-    Custom exception raised when a Car validation fails.
-    """
-    pass
 
 @dataclass
 class CarParams:
@@ -154,29 +148,29 @@ class Car(Entity):
             CarValidationError: If any validation check fails.
         """
         if not isinstance(self.name, str) or not self.name.strip():
-            raise CarValidationError("Name must be a non-empty string.")
+            raise CarValidationError(content="Name must be a non-empty string.")
 
         if not isinstance(self.lane, Lane):
-            raise CarValidationError("Lane must be a Lane instance.")
+            raise CarValidationError(content="Lane must be a Lane instance.")
 
         if not isinstance(self.color, str) or not re.match(r'^#(?:[0-9a-fA-F]{3}){1,2}$', self.color):
-            raise CarValidationError("Color must be a valid hex color code.")
+            raise CarValidationError(content="Color must be a valid hex color code.")
 
         if self.position_on_lane < 0:
-            raise CarValidationError("Position on lane must be non-negative.")
+            raise CarValidationError(content="Position on lane must be non-negative.")
 
         # Transition bounds check (-1.0, 1.0) exclusive
         if not (-1.0 < self.transition < 1.0):
-            raise CarValidationError("Transition must be in the range (-1.0, 1.0) exclusive.")
+            raise CarValidationError(content="Transition must be in the range (-1.0, 1.0) exclusive.")
 
         if not isinstance(self.velocity, (int, float)):
-            raise CarValidationError("Velocity must be a number.")
+            raise CarValidationError(content="Velocity must be a number.")
 
         if self.length <= 0:
-            raise CarValidationError("Length must be a positive number.")
+            raise CarValidationError(content="Length must be a positive number.")
 
         if self.next_turn is not None and not isinstance(self.next_turn, TurnIntent):
-            raise CarValidationError("Next turn must be None or a TurnIntent instance.")
+            raise CarValidationError(content="Next turn must be None or a TurnIntent instance.")
 
     def update_from_params(self, params: CarParams) -> None:
         """

@@ -114,7 +114,7 @@ class CommandController:
         velocity: float,
         length: float,
         next_turn: Optional[TurnIntent]
-    ) -> bool:
+    ) -> None:
         """
         Adds a car to the traffic snapshot based on the given parameters.
 
@@ -130,8 +130,6 @@ class CommandController:
             length: Physical length
             next_turn: Turn intent at intersection
 
-        Returns:
-            True if the car was successfully added, False otherwise.
         """
         #TODO: Change acceleration variable to actual acceleration
         acceleration : float = 1
@@ -141,15 +139,13 @@ class CommandController:
         add_car_command.execute()
         raise NotImplementedError("Prototype Method")
 
-    def remove_car(self, car_name: str) -> bool:
+    def remove_car(self, car_name: str) -> None:
         """
         Removes a car from the traffic snapshot.
 
         Args:
             car_name: The unique identifier of the car to remove.
 
-        Returns:
-            True if the car was successfully removed, False otherwise.
         """
         remove_car_command = DeleteCar(self.traffic_snapshot_writer, self.traffic_snapshot_reader, car_name)
         remove_car_command.execute()
@@ -167,7 +163,7 @@ class CommandController:
         velocity: Optional[float] = None,
         length: Optional[float] = None,
         next_turn: Optional[TurnIntent] = None
-    ) -> bool:
+    ) -> None:
         """
         Edits properties of an existing car.
 
@@ -183,8 +179,6 @@ class CommandController:
             length: New length (if provided).
             next_turn: New turn intent (if provided).
 
-        Returns:
-            True if the car was successfully edited, False otherwise.
         """
         raise NotImplementedError("Method not implemented yet.")
 
@@ -195,7 +189,7 @@ class CommandController:
         orientation: str,
         forward_lanes: int,
         backward_lanes: int
-    ) -> bool:
+    ) -> None:
         """
         Adds a road to the traffic snapshot.
 
@@ -206,8 +200,6 @@ class CommandController:
             forward_lanes: Number of lanes in forward direction.
             backward_lanes: Number of lanes in backward direction.
 
-        Returns:
-            True if the road was successfully added, False otherwise.
         """
         #TODO: Cast string to actual road orientation, how does this work?
         road_orientation = RoadOrientation(orientation)
@@ -216,15 +208,13 @@ class CommandController:
         add_road_command.execute()
         raise NotImplementedError("Prototype Method")
 
-    def remove_road(self, road_name: str) -> bool:
+    def remove_road(self, road_name: str) -> None:
         """
         Removes a road from the traffic snapshot.
 
         Args:
             road_name: The unique identifier of the road to remove.
 
-        Returns:
-            True if the road was successfully removed, False otherwise.
         """
         remove_road_command = DeleteRoad(self.traffic_snapshot_writer, self.traffic_snapshot_reader, road_name)
         remove_road_command.execute()
@@ -237,7 +227,7 @@ class CommandController:
         orientation: Optional[str] = None,
         forward_lanes: Optional[int] = None,
         backward_lanes: Optional[int] = None
-    ) -> bool:
+    ) -> None:
         """
         Edits properties of an existing road.
 
@@ -248,8 +238,6 @@ class CommandController:
             forward_lanes: New forward lane count (if provided).
             backward_lanes: New backward lane count (if provided).
 
-        Returns:
-            True if the road was successfully edited, False otherwise.
         """
         raise NotImplementedError("Method not implemented yet.")
 
@@ -257,7 +245,7 @@ class CommandController:
         self,
         assigned_car_name: str,
         latex: str
-    ) -> bool:
+    ) -> None:
         """
         Adds a UMLSL query associated with a car.
 
@@ -265,8 +253,6 @@ class CommandController:
             assigned_car_name: The car this query is assigned to.
             latex: The LaTeX representation of the query.
 
-        Returns:
-            True if the query was successfully added, False otherwise.
         """
         #TODO: Add real validation parameter
         validation: bool = True
@@ -275,15 +261,13 @@ class CommandController:
         add_umlsl_query.execute()
         raise NotImplementedError("Prototype Method")
 
-    def remove_umlsl_query(self, query_id: str) -> bool:
+    def remove_umlsl_query(self, query_id: str) -> None:
         """
         Removes a UMLSL query.
 
         Args:
             query_id: The unique identifier of the query to remove.
 
-        Returns:
-            True if the query was successfully removed, False otherwise.
         """
         remove_umlsl_query_command = DeleteUMLSLQuery(query_id, self.umlsl_queries_model)
         remove_umlsl_query_command.execute()
@@ -294,7 +278,7 @@ class CommandController:
         query_id: str,
         assigned_car_name: Optional[str] = None,
         latex: Optional[str] = None
-    ) -> bool:
+    ) -> None:
         """
         Edits an existing UMLSL query.
 
@@ -303,8 +287,6 @@ class CommandController:
             assigned_car_name: New assigned car (if provided).
             latex: New LaTeX representation (if provided).
 
-        Returns:
-            True if the query was successfully edited, False otherwise.
         """
         raise NotImplementedError("Method not implemented yet.")
 
