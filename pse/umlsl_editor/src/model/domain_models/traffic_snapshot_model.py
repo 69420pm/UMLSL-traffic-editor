@@ -1,17 +1,14 @@
-from typing import Any, Optional, MutableMapping
+from types import MappingProxyType
+from typing import Any, Optional
 
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.entities.entity import Entity
-from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection, RoadOrientation
-from pse.umlsl_editor.src.model.errors.car_errors import CarTrafficSnapshotContextValidationError
-from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
+from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
-from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 from pse.umlsl_editor.src.model.helper.observables import ObservableDict, ObservableList, Observable
 from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
-from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_validator import TrafficSnapshotValidator
 
 
 class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWriter):
@@ -59,6 +56,13 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             on_remove=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_REMOVED, segment),
             on_update=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED, segment)
         ) if cars is not None else {}
+
+        self._read_only_roads = MappingProxyType(self._roads)
+        """Read-only view of the roads dictionary."""
+        self._read_only_cars = MappingProxyType(self._cars)
+        """Read-only view of the cars dictionary."""
+
+        self.validator = TrafficSnapshotValidator(self)
 
     def get_cars_on_road(self, road: Road) -> list[Car]:
         pass
@@ -135,115 +139,28 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     def _validate_car_on_instantiation(self, car: Car) -> None:
         """
         Validates a Car instance within the context of the TrafficSnapshot and throw errors if invalid.
-
-        Args:
-            car: The Car instance to validate.
-
-        Raises:
-            CarTrafficSnapshotContextValidationError: If any validation check fails.
+        Delegates to TrafficSnapshotValidator.
         """
-        assert self._check_uid_unique(car.uid)
-        if not self._check_car_name_unique(car.name):
-            raise CarTrafficSnapshotContextValidationError(
-                content=f"Car name '{car.name}' is not unique in the traffic snapshot.")
-        if not self._check_lane_valid(car.lane):
-            raise CarTrafficSnapshotContextValidationError(
-                content=f"Car '{car.name}' has an invalid lane: {car.lane}.")
-        if not self._check_transition_valid(car.transition, car.lane):
-            raise CarTrafficSnapshotContextValidationError(
-                content=f"Car '{car.name}' has an invalid transition: {car.transition} from lane {car.lane}.")
+        self.validator.validate_car_on_instantiation(car)
 
     def _validate_car_and_autocorrect(self, car: Car) -> bool:
         """
         Validates a Car instance within the context of the TrafficSnapshot and autocorrects if possible.
-
-        Returns:
-            True if the car is still valid, False if the car is no longer able to be in the traffic snapshot and should
-            get removed.
-
-        Args:
-            car: The Car instance to validate.
+        Delegates to TrafficSnapshotValidator.
         """
-        if not self._check_lane_valid(car.lane):
-            return False
-        if not self._check_transition_valid(car.transition, car.lane, car.velocity < 0):
-            car.transition = 0.0
-        if car.next_turn is not None and not self._check_turn_intent_valid(car.next_turn):
-            car.next_turn = None
-        return True
-
+        return self.validator.validate_car_and_autocorrect(car)
 
     def _validate_road_on_instantiation(self, road: Road) -> None:
         """
         Validates a Road instance within the context of the TrafficSnapshot.
-
-        Args:
-            road: The Road instance to validate.
-
-        Raises:
-            RoadTrafficSnapshotContextValidationError: If any validation check fails.
+        Delegates to TrafficSnapshotValidator.
         """
-        assert self._check_uid_unique(road.uid)
-        if not self._check_road_name_unique(road.name):
-            raise CarTrafficSnapshotContextValidationError(
-                content=f"Road name '{road.name}' is not unique in the traffic snapshot.")
+        self.validator.validate_road_on_instantiation(road)
 
+    @property
+    def cars(self):
+        return self._read_only_cars
 
-
-    def _check_car_name_unique(self, car_name: str) -> bool:
-        for car in self._cars.values():
-            if car.name == car_name:
-                return False
-        return True
-
-    def _check_road_name_unique(self, road_name: str) -> bool:
-        for road in self._roads.values():
-            if road.name == road_name:
-                return False
-        return True
-
-    def _check_uid_unique(self, uid: str) -> None:
-        assert uid not in [self._cars.keys()] + [self._roads.keys()]
-
-    def _check_lane_valid(self, lane: Lane) -> bool:
-        if lane.road_uid not in self._roads:
-            return False
-        if lane.lane_direction is LaneDirection.FORWARD:
-            if lane.lane_index > self._roads[lane.road_uid].forward_lanes:
-                return False
-        elif lane.lane_direction is LaneDirection.BACKWARD:
-            if lane.lane_index > self._roads[lane.road_uid].backward_lanes:
-                return False
-        else:
-            return False
-        return True
-
-    def _check_transition_valid(self, transition: float, lane: Lane, car_driving_backwards: bool) -> bool:
-        """Check if the transition value is valid for the given lane. It is not valid if the car changes out of the road,
-        because right or left of the road is no lane. The transition value is aligned after the car
-        (right is positive transition, left is negative) not the lane direction."""
-
-        road = self._roads[lane.road_uid]
-        if road is None:
-            return False
-
-        lane_index_to_check = lane.lane_index + (1 if transition > 0 else lane.lane_index - 1) * (
-            -1 if car_driving_backwards else 1)
-
-        if lane.lane_direction is LaneDirection.FORWARD:
-            if lane_index_to_check >= road.forward_lanes or (
-                    (lane_index_to_check is 0) and road.backward_lanes >= 1):
-                return False
-        elif lane.lane_direction is LaneDirection.BACKWARD:
-            if lane_index_to_check >= road.backward_lanes_lanes or (
-                    (lane_index_to_check is 0) and road.forward_lanes_lanes >= 1):
-                return False
-        return True
-
-    def _check_turn_intent_valid(self, turn_intent: TurnIntent) -> bool:
-        target_lane = turn_intent.target_lane
-        return self._check_lane_valid(target_lane)
-
-
-
-
+    @property
+    def roads(self):
+        return self._read_only_roads
