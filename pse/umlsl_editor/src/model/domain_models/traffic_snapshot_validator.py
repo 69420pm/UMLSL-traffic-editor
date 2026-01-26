@@ -20,22 +20,24 @@ class TrafficSnapshotValidator:
     def __init__(self, model: TrafficSnapshotModel):
         self._model = model
 
-    def validate_car_on_instantiation(self, car: Car) -> None:
+    def validate_car(self, car: Car, new_instantiation: bool) -> None:
         """
         Validates a Car instance within the context of the TrafficSnapshot and throw errors if invalid.
 
         Args:
             car: The Car instance to validate.
+            new_instantiation: Whether the car is being newly instantiated (True) or updated (False).
 
         Raises:
             CarTrafficSnapshotContextValidationError: If any validation check fails.
         """
-        if not self._check_uid_unique(car.uid):
-             raise CarTrafficSnapshotContextValidationError(
-                 content=f"Car UID '{car.uid}' is not unique in the traffic snapshot.")
-        if not self._check_car_name_unique(car.name):
-            raise CarTrafficSnapshotContextValidationError(
-                content=f"Car name '{car.name}' is not unique in the traffic snapshot.")
+        if new_instantiation:
+            if not self._check_uid_unique(car.uid):
+                raise CarTrafficSnapshotContextValidationError(
+                    content=f"Car UID '{car.uid}' is not unique in the traffic snapshot.")
+            if not self._check_car_name_unique(car.name):
+                raise CarTrafficSnapshotContextValidationError(
+                    content=f"Car name '{car.name}' is not unique in the traffic snapshot.")
         if not self._check_lane_valid(car.lane):
             raise CarTrafficSnapshotContextValidationError(
                 content=f"Car '{car.name}' has an invalid lane: {car.lane}.")
@@ -62,22 +64,24 @@ class TrafficSnapshotValidator:
             car.next_turn = None
         return True
 
-    def validate_road_on_instantiation(self, road: Road) -> None:
+    def validate_road(self, road: Road, new_instantiation: bool) -> None:
         """
         Validates a Road instance within the context of the TrafficSnapshot.
 
         Args:
             road: The Road instance to validate.
+            new_instantiation: Whether the road is being newly instantiated (True) or updated (False).
 
         Raises:
             RoadTrafficSnapshotContextValidationError: If any validation check fails.
         """
-        if not self._check_uid_unique(road.uid):
-            raise RoadTrafficSnapshotContextValidationError(
-                content=f"Road UID '{road.uid}' is not unique in the traffic snapshot.")
-        if not self._check_road_name_unique(road.name):
-            raise RoadTrafficSnapshotContextValidationError(
-                content=f"Road name '{road.name}' is not unique in the traffic snapshot.")
+        if new_instantiation:
+            if not self._check_uid_unique(road.uid):
+                raise RoadTrafficSnapshotContextValidationError(
+                    content=f"Road UID '{road.uid}' is not unique in the traffic snapshot.")
+            if not self._check_road_name_unique(road.name):
+                raise RoadTrafficSnapshotContextValidationError(
+                    content=f"Road name '{road.name}' is not unique in the traffic snapshot.")
 
     def _check_car_name_unique(self, car_name: str) -> bool:
         return car_name not in self._model.cars

@@ -86,21 +86,25 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         pass
 
     def add_road(self, road: Road) -> None:
+        self.validator.validate_road(road, True)
         self._roads[road.name] = road
 
     def remove_road(self, road_name: str) -> None:
         self._roads.pop(road_name)
 
     def update_road(self, road_data: Road) -> None:
+        self.validator.validate_road(road_data, False)
         pass
 
     def add_car(self, car: Car) -> None:
+        self.validator.validate_car(car, True)
         self._cars[car.name] = car
 
     def remove_car(self, car_name: str) -> None:
         self._cars.pop(car_name)
 
     def update_car(self, car_data: Car) -> None:
+        self.validator.validate_car(car_data, False)
         pass
 
     def to_dict(self) -> dict[str, Any]:
@@ -135,27 +139,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
         """
         raise NotImplementedError
-
-    def _validate_car_on_instantiation(self, car: Car) -> None:
-        """
-        Validates a Car instance within the context of the TrafficSnapshot and throw errors if invalid.
-        Delegates to TrafficSnapshotValidator.
-        """
-        self.validator.validate_car_on_instantiation(car)
-
-    def _validate_car_and_autocorrect(self, car: Car) -> bool:
-        """
-        Validates a Car instance within the context of the TrafficSnapshot and autocorrects if possible.
-        Delegates to TrafficSnapshotValidator.
-        """
-        return self.validator.validate_car_and_autocorrect(car)
-
-    def _validate_road_on_instantiation(self, road: Road) -> None:
-        """
-        Validates a Road instance within the context of the TrafficSnapshot.
-        Delegates to TrafficSnapshotValidator.
-        """
-        self.validator.validate_road_on_instantiation(road)
 
     @property
     def cars(self):
