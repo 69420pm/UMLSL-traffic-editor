@@ -99,6 +99,8 @@ class Car(Entity):
 
     acceleration: float
 
+    _should_validate: bool = False
+
     @classmethod
     def from_params(cls, params: CarParams) -> "Car":
         """
@@ -132,21 +134,18 @@ class Car(Entity):
         """
         Validates the Car attributes after initialization without checking them in the TrafficSnapshot context.
 
-        Performs the following validation checks:
-        - name must be a non-empty string
-        - assigned_road must be a Road instance
-        - lane_index must be a positive integer
-        - lane_direction must be a LaneDirection enum value
-        - color must be a valid hex color code
-        - position_on_lane must be a non-negative number
-        - transition must be in the range (-1.0, 1.0) exclusive
-        - velocity must be a number
-        - length must be a positive number
-        - next_turn must be None or a TurnIntent instance
-
         Raises:
             CarValidationError: If any validation check fails.
         """
+        self.validate()
+        self._should_validate = True
+
+    def __setattr__(self, name: str, value: object) -> None:
+        super().__setattr__(name, value)
+        if getattr(self, "_initialized", False) and getattr(self, "_should_validate", True):
+            self.validate()
+
+    def validate(self) -> None:
         if not isinstance(self.name, str) or not self.name.strip():
             raise CarValidationError(content="Name must be a non-empty string.")
 
@@ -182,6 +181,7 @@ class Car(Entity):
         Raises:
             CarValidationError: If any validation check fails.
         """
+        self._should_validate = False
         self.name = params.name
         self.lane = params.lane
         self.color = params.color
@@ -192,6 +192,7 @@ class Car(Entity):
         self.next_turn = params.next_turn
         self.acceleration = params.acceleration
         self.__post_init__()
+
 
     def absolute_position(self)-> float:
         raise NotImplementedError

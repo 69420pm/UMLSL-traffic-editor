@@ -1,17 +1,60 @@
-from typing import Any, Optional, MutableMapping
+from typing import Any, Optional, Mapping, Iterator, KeysView, ValuesView, ItemsView
 
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.entities.entity import Entity
-from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection, RoadOrientation
-from pse.umlsl_editor.src.model.errors.car_errors import CarTrafficSnapshotContextValidationError
-from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
+from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
-from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 from pse.umlsl_editor.src.model.helper.observables import ObservableDict, ObservableList, Observable
 from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
-from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_validator import TrafficSnapshotValidator
+
+
+class ReadOnlyDictView(Mapping[str, Any]):
+    """
+    A read-only view over an ObservableDict that properly wraps its internal dictionary.
+    
+    This provides a true read-only Mapping interface by delegating to the internal
+    _data dict of the ObservableDict, ensuring immutability while maintaining
+    compatibility with the Observable pattern.
+    """
+    
+    def __init__(self, observable_dict: ObservableDict):
+        """
+        Initialize a read-only view.
+        
+        Args:
+            observable_dict: The ObservableDict to create a read-only view over
+        """
+        self._observable_dict = observable_dict
+    
+    def __getitem__(self, key: str) -> Any:
+        """Get an item by key from the underlying dict."""
+        return self._observable_dict._data[key]
+    
+    def __iter__(self) -> Iterator[str]:
+        """Iterate over keys in the underlying dict."""
+        return iter(self._observable_dict._data)
+    
+    def __len__(self) -> int:
+        """Return the number of items in the underlying dict."""
+        return len(self._observable_dict._data)
+    
+    def __contains__(self, key: object) -> bool:
+        """Check if key exists in the underlying dict."""
+        return key in self._observable_dict._data
+    
+    def keys(self) -> KeysView[str]:
+        """Return keys view of the underlying dict."""
+        return self._observable_dict._data.keys()
+    
+    def values(self) -> ValuesView[Any]:
+        """Return values view of the underlying dict."""
+        return self._observable_dict._data.values()
+    
+    def items(self) -> ItemsView[str, Any]:
+        """Return items view of the underlying dict."""
+        return self._observable_dict._data.items()
 
 
 class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWriter):
@@ -42,23 +85,30 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     ):
         super().__init__()
 
-        self._roads = ObservableDict[str,Road](
+        self._roads = roads if roads is not None else ObservableDict[str, Road](
             on_add=lambda road: self.notify(TrafficSnapshotEventType.ROAD_ADDED, road),
             on_remove=lambda road: self.notify(TrafficSnapshotEventType.ROAD_REMOVED, road),
             on_update=lambda road: self.notify(TrafficSnapshotEventType.ROAD_UPDATED, road)
-        ) if roads is not None else {}
+        )
 
-        self._cars = ObservableDict[str, Car](
+        self._cars = cars if cars is not None else ObservableDict[str, Car](
             on_add=lambda car: self.notify(TrafficSnapshotEventType.CAR_ADDED, car),
             on_remove=lambda car: self.notify(TrafficSnapshotEventType.CAR_REMOVED, car),
             on_update=lambda car: self.notify(TrafficSnapshotEventType.CAR_UPDATED, car)
-        ) if cars is not None else {}
+        )
 
         self._crossing_segments = ObservableList[CrossingSegment](
             on_add=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_ADDED, segment),
             on_remove=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_REMOVED, segment),
             on_update=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED, segment)
-        ) if cars is not None else {}
+        )
+
+        self._read_only_roads = ReadOnlyDictView(self._roads)
+        """Read-only view of the roads dictionary."""
+        self._read_only_cars = ReadOnlyDictView(self._cars)
+        """Read-only view of the cars dictionary."""
+
+        self.validator = TrafficSnapshotValidator(self)
 
     def get_cars_on_road(self, road: Road) -> list[Car]:
         pass
@@ -82,21 +132,25 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         pass
 
     def add_road(self, road: Road) -> None:
+        self.validator.validate_road(road, True)
         self._roads[road.name] = road
 
     def remove_road(self, road_name: str) -> None:
         self._roads.pop(road_name)
 
     def update_road(self, road_data: Road) -> None:
+        self.validator.validate_road(road_data, False)
         pass
 
     def add_car(self, car: Car) -> None:
+        self.validator.validate_car(car, True)
         self._cars[car.name] = car
 
     def remove_car(self, car_name: str) -> None:
         self._cars.pop(car_name)
 
     def update_car(self, car_data: Car) -> None:
+        self.validator.validate_car(car_data, False)
         pass
 
     def to_dict(self) -> dict[str, Any]:
@@ -132,81 +186,10 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         """
         raise NotImplementedError
 
-    def _validate_car(self, car: Car) -> None:
-        """
-        Validates a Car instance within the context of the TrafficSnapshot.
+    @property
+    def cars(self):
+        return self._read_only_cars
 
-        Args:
-            car: The Car instance to validate.
-
-        Raises:
-            CarTrafficSnapshotContextValidationError: If any validation check fails.
-        """
-        self._check_uid_unique(car.uid)
-        if not self._check_car_name_unique(car.name):
-            raise CarTrafficSnapshotContextValidationError(content=f"Car name '{car.name}' is not unique in the traffic snapshot.")
-        self._check_lane_valid(car.lane)
-        self._check_transition_valid(car.transition, car.lane)
-
-
-
-
-
-    def _validate_road(self, road: Road) -> None:
-        """
-        Validates a Road instance within the context of the TrafficSnapshot.
-
-        Args:
-            road: The Road instance to validate.
-
-        Raises:
-            RoadTrafficSnapshotContextValidationError: If any validation check fails.
-        """
-        raise NotImplementedError
-
-    def _check_car_name_unique(self, car_name: str) -> bool:
-        for car in self._cars.values():
-            if car.name == car_name:
-                return False
-        return True
-
-    def _check_road_name_unique(self, road_name: str) -> bool:
-        for road in self._roads.values():
-            if road.name == road_name:
-                return False
-        return True
-
-    def _check_uid_unique(self, uid: str) -> None:
-        assert uid not in [self._cars.keys()] + [self._roads.keys()]
-
-    def _check_lane_valid(self, lane: Lane) -> bool:
-        if lane.road_uid not in self._roads:
-            return False
-        if lane.lane_direction is LaneDirection.FORWARD:
-            if lane.lane_index > self._roads[lane.road_uid].forward_lanes:
-                return False
-        elif lane.lane_direction is LaneDirection.BACKWARD:
-            if lane.lane_index > self._roads[lane.road_uid].backward_lanes:
-                return False
-        else :
-            return False
-        return True
-
-    def _check_transition_valid(self, transition: float, lane: Lane) -> bool:
-        """Check if the transition value is valid for the given lane. It is not valid if the car changes out of the road,
-        because right or left of the road is no lane."""
-
-        raise NotImplementedError
-        # road = self._roads[lane.road_uid]
-        # if road is None:
-        #     return False
-        #
-        # if lane.lane_direction is LaneDirection.FORWARD:
-        #
-        #
-        # elif lane.lane_direction is LaneDirection.BACKWARD:
-        #
-        # return True
-
-    def _check_turn_intent_valid(self, turn_intent: TurnIntent, lane: Lane) -> bool:
-
+    @property
+    def roads(self):
+        return self._read_only_roads

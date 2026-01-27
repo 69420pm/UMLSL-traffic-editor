@@ -85,6 +85,8 @@ class Road(Entity):
     forward_lanes: int
     backward_lanes: int
 
+    _should_validate: bool = False
+
     @classmethod
     def from_params(cls, params: RoadParams) -> "Road":
         """
@@ -114,6 +116,7 @@ class Road(Entity):
         Raises:
             RoadValidationError: If any validation check fails.
         """
+        self._should_validate = False
         self.name = params.name
         self.orientation = params.orientation
         self.position = params.position
@@ -125,15 +128,19 @@ class Road(Entity):
         """
         Validates the Road instance after initialization.
 
-        Performs the following validation checks:
-        - name must be a non-empty string
-        - orientation must be a valid RoadOrientation enum value
-        - position must be a valid number (int or float)
-        - forward_lanes and backward_lanes must be non-negative integers
-
         Raises:
             RoadValidationError: If any validation check fails.
         """
+        self.validate()
+        self._initialized = True
+        self._should_validate = True
+
+    def __setattr__(self, name: str, value: object) -> None:
+        super().__setattr__(name, value)
+        if getattr(self, "_initialized", False) and getattr(self, "_should_validate", True):
+            self.validate()
+
+    def validate(self) -> None:
         if not isinstance(self.name, str) or not self.name.strip():
             raise RoadValidationError(content="Name must be a non-empty string.")
 

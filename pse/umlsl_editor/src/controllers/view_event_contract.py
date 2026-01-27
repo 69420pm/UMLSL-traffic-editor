@@ -5,6 +5,7 @@ from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.entity import Entity
 from pse.umlsl_editor.src.model.entities.road import Road
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
+from pse.umlsl_editor.src.model.errors.errors import BaseWarning
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 
 
@@ -196,6 +197,15 @@ class ViewEventHandler(ABC):
     def clear_selection_view(self) -> None:
         """
         Handle the clearing of the current selection.
+        """
+        pass
+
+    @abstractmethod
+    def display_warning(self, warning: BaseWarning):
+        """
+        Handle the display of a warning message.
+        Args:
+            warning: The warning message to be displayed.
         """
         pass
 
