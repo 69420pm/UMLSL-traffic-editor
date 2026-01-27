@@ -17,7 +17,7 @@ class TrafficSnapshotValidator:
     Separated to keep the model clean and focused on state management.
     """
 
-    def __init__(self, model: TrafficSnapshotModel):
+    def __init__(self, model: "TrafficSnapshotModel"):
         self._model = model
 
     def validate_car(self, car: Car, new_instantiation: bool) -> None:
