@@ -124,7 +124,7 @@ class Car(Entity):
             claimed_lanes=[],
             reserved_crossings=[],
             claimed_crossings=[],
-            path=Path(segments=[]),
+            path=Path(segments=()),
             acceleration=params.acceleration,
         )
 

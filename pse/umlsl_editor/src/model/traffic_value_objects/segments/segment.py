@@ -10,7 +10,7 @@ class Segment(ABC):
 
 @dataclass
 class Path:
-    segments: list[Segment]
+    segments: tuple[Segment, ...]
 
     def __post_init__(self) -> None:
         self.validate()
@@ -22,8 +22,8 @@ class Path:
             self.validate()
 
     def validate(self) -> None:
-        if not isinstance(self.segments, list):
-            raise ValueError("segments must be a list")
+        if not isinstance(self.segments, tuple):
+            raise ValueError("segments must be a tuple")
         for s in self.segments:
             if not isinstance(s, Segment):
                 raise ValueError("All elements in segments must be Segment instances")
