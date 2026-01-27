@@ -1,5 +1,4 @@
-from types import MappingProxyType
-from typing import Any, Optional
+from typing import Any, Optional, Mapping, Iterator
 
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection
@@ -9,6 +8,53 @@ from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventTy
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_validator import TrafficSnapshotValidator
+
+
+class ReadOnlyDictView(Mapping[str, Any]):
+    """
+    A read-only view over an ObservableDict that properly wraps its internal dictionary.
+    
+    This provides a true read-only Mapping interface by delegating to the internal
+    _data dict of the ObservableDict, ensuring immutability while maintaining
+    compatibility with the Observable pattern.
+    """
+    
+    def __init__(self, observable_dict: ObservableDict):
+        """
+        Initialize a read-only view.
+        
+        Args:
+            observable_dict: The ObservableDict to create a read-only view over
+        """
+        self._observable_dict = observable_dict
+    
+    def __getitem__(self, key: str) -> Any:
+        """Get an item by key from the underlying dict."""
+        return self._observable_dict._data[key]
+    
+    def __iter__(self) -> Iterator[str]:
+        """Iterate over keys in the underlying dict."""
+        return iter(self._observable_dict._data)
+    
+    def __len__(self) -> int:
+        """Return the number of items in the underlying dict."""
+        return len(self._observable_dict._data)
+    
+    def __contains__(self, key: object) -> bool:
+        """Check if key exists in the underlying dict."""
+        return key in self._observable_dict._data
+    
+    def keys(self):
+        """Return keys view of the underlying dict."""
+        return self._observable_dict._data.keys()
+    
+    def values(self):
+        """Return values view of the underlying dict."""
+        return self._observable_dict._data.values()
+    
+    def items(self):
+        """Return items view of the underlying dict."""
+        return self._observable_dict._data.items()
 
 
 class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWriter):
@@ -39,17 +85,17 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     ):
         super().__init__()
 
-        self._roads = ObservableDict[str, Road](
+        self._roads = roads if roads is not None else ObservableDict[str, Road](
             on_add=lambda road: self.notify(TrafficSnapshotEventType.ROAD_ADDED, road),
             on_remove=lambda road: self.notify(TrafficSnapshotEventType.ROAD_REMOVED, road),
             on_update=lambda road: self.notify(TrafficSnapshotEventType.ROAD_UPDATED, road)
-        ) if roads is not None else {}
+        )
 
-        self._cars = ObservableDict[str, Car](
+        self._cars = cars if cars is not None else ObservableDict[str, Car](
             on_add=lambda car: self.notify(TrafficSnapshotEventType.CAR_ADDED, car),
             on_remove=lambda car: self.notify(TrafficSnapshotEventType.CAR_REMOVED, car),
             on_update=lambda car: self.notify(TrafficSnapshotEventType.CAR_UPDATED, car)
-        ) if cars is not None else {}
+        )
 
         self._crossing_segments = ObservableList[CrossingSegment](
             on_add=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_ADDED, segment),
@@ -57,9 +103,9 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             on_update=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED, segment)
         )
 
-        self._read_only_roads = MappingProxyType(self._roads)
+        self._read_only_roads = ReadOnlyDictView(self._roads)
         """Read-only view of the roads dictionary."""
-        self._read_only_cars = MappingProxyType(self._cars)
+        self._read_only_cars = ReadOnlyDictView(self._cars)
         """Read-only view of the cars dictionary."""
 
         self.validator = TrafficSnapshotValidator(self)
