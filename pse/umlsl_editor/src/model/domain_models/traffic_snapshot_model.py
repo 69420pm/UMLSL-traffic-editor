@@ -1,4 +1,4 @@
-from typing import Any, Optional, Mapping, Iterator
+from typing import Any, Optional, Mapping, Iterator, KeysView, ValuesView, ItemsView
 
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection
@@ -44,15 +44,15 @@ class ReadOnlyDictView(Mapping[str, Any]):
         """Check if key exists in the underlying dict."""
         return key in self._observable_dict._data
     
-    def keys(self):
+    def keys(self) -> KeysView[str]:
         """Return keys view of the underlying dict."""
         return self._observable_dict._data.keys()
     
-    def values(self):
+    def values(self) -> ValuesView[Any]:
         """Return values view of the underlying dict."""
         return self._observable_dict._data.values()
     
-    def items(self):
+    def items(self) -> ItemsView[str, Any]:
         """Return items view of the underlying dict."""
         return self._observable_dict._data.items()
 
