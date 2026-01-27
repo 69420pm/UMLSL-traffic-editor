@@ -80,36 +80,36 @@ class ViewEventHandler(ABC):
         """
         pass
 
-    # Crossing segment-related events
-    @abstractmethod
-    def add_crossing_segment_view(self, crossing_segment: CrossingSegment) -> None:
-        """
-        Handle the addition of a crossing segment to the traffic snapshot.
-
-        Args:
-            crossing_segment: The crossing segment that was added.
-        """
-        pass
-
-    @abstractmethod
-    def remove_crossing_segment_view(self, crossing_segment: CrossingSegment) -> None:
-        """
-        Handle the removal of a crossing segment from the traffic snapshot.
-
-        Args:
-            crossing_segment: The crossing segment that was removed.
-        """
-        pass
-
-    @abstractmethod
-    def update_crossing_segment_view(self, crossing_segment: CrossingSegment) -> None:
-        """
-        Handle the update of a crossing segment in the traffic snapshot.
-
-        Args:
-            crossing_segment: The crossing segment that was updated.
-        """
-        pass
+    # # Crossing segment-related events
+    # @abstractmethod
+    # def add_crossing_segment_view(self, crossing_segment: CrossingSegment) -> None:
+    #     """
+    #     Handle the addition of a crossing segment to the traffic snapshot.
+    #
+    #     Args:
+    #         crossing_segment: The crossing segment that was added.
+    #     """
+    #     pass
+    #
+    # @abstractmethod
+    # def remove_crossing_segment_view(self, crossing_segment: CrossingSegment) -> None:
+    #     """
+    #     Handle the removal of a crossing segment from the traffic snapshot.
+    #
+    #     Args:
+    #         crossing_segment: The crossing segment that was removed.
+    #     """
+    #     pass
+    #
+    # @abstractmethod
+    # def update_crossing_segment_view(self, crossing_segment: CrossingSegment) -> None:
+    #     """
+    #     Handle the update of a crossing segment in the traffic snapshot.
+    #
+    #     Args:
+    #         crossing_segment: The crossing segment that was updated.
+    #     """
+    #     pass
 
     # UMLSL Query-related events
     @abstractmethod

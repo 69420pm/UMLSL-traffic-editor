@@ -75,12 +75,12 @@ class EventController:
             self._view.remove_road_view(data)
         elif event_type == TrafficSnapshotEventType.ROAD_UPDATED:
             self._view.update_road_view(data)
-        elif event_type == TrafficSnapshotEventType.CROSSING_SEGMENT_ADDED:
-            self._view.add_crossing_segment_view(data)
-        elif event_type == TrafficSnapshotEventType.CROSSING_SEGMENT_REMOVED:
-            self._view.remove_crossing_segment_view(data)
-        elif event_type == TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED:
-            self._view.update_crossing_segment_view(data)
+        # elif event_type == TrafficSnapshotEventType.CROSSING_SEGMENT_ADDED:
+        #     self._view.add_crossing_segment_view(data)
+        # elif event_type == TrafficSnapshotEventType.CROSSING_SEGMENT_REMOVED:
+        #     self._view.remove_crossing_segment_view(data)
+        # elif event_type == TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED:
+        #     self._view.update_crossing_segment_view(data)
         elif event_type == TrafficSnapshotEventType.TRAFFIC_SNAPSHOT_WARNING:
             self._view.display_warning(data)
 

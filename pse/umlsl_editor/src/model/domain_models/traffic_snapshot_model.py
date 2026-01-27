@@ -1,60 +1,17 @@
 from typing import Any, Optional, Mapping, Iterator, KeysView, ValuesView, ItemsView
 
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection
+from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection, RoadOrientation
+from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
-from pse.umlsl_editor.src.model.helper.observables import ObservableDict, ObservableList, Observable
+from pse.umlsl_editor.src.model.helper.observables import ObservableDict, ObservableList, Observable, ReadOnlyDictView
 from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_validator import TrafficSnapshotValidator
 
 
-class ReadOnlyDictView(Mapping[str, Any]):
-    """
-    A read-only view over an ObservableDict that properly wraps its internal dictionary.
-    
-    This provides a true read-only Mapping interface by delegating to the internal
-    _data dict of the ObservableDict, ensuring immutability while maintaining
-    compatibility with the Observable pattern.
-    """
-    
-    def __init__(self, observable_dict: ObservableDict):
-        """
-        Initialize a read-only view.
-        
-        Args:
-            observable_dict: The ObservableDict to create a read-only view over
-        """
-        self._observable_dict = observable_dict
-    
-    def __getitem__(self, key: str) -> Any:
-        """Get an item by key from the underlying dict."""
-        return self._observable_dict._data[key]
-    
-    def __iter__(self) -> Iterator[str]:
-        """Iterate over keys in the underlying dict."""
-        return iter(self._observable_dict._data)
-    
-    def __len__(self) -> int:
-        """Return the number of items in the underlying dict."""
-        return len(self._observable_dict._data)
-    
-    def __contains__(self, key: object) -> bool:
-        """Check if key exists in the underlying dict."""
-        return key in self._observable_dict._data
-    
-    def keys(self) -> KeysView[str]:
-        """Return keys view of the underlying dict."""
-        return self._observable_dict._data.keys()
-    
-    def values(self) -> ValuesView[Any]:
-        """Return values view of the underlying dict."""
-        return self._observable_dict._data.values()
-    
-    def items(self) -> ItemsView[str, Any]:
-        """Return items view of the underlying dict."""
-        return self._observable_dict._data.items()
+
 
 
 class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWriter):
@@ -73,9 +30,9 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         - TrafficSnapshotEventType.ROAD_ADDED: Fired when a road is added (data: Road)
         - TrafficSnapshotEventType.ROAD_REMOVED: Fired when a road is removed (data: Road)
         - TrafficSnapshotEventType.ROAD_UPDATED: Fired when a road is updated (data: Road)
-        - TrafficSnapshotEventType.CROSSING_SEGMENT_ADDED: Fired when a crossing segment is added (data: CrossingSegment)
-        - TrafficSnapshotEventType.CROSSING_SEGMENT_REMOVED: Fired when a crossing segment is removed (data: CrossingSegment)
-        - TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED: Fired when a crossing segment is updated (data: CrossingSegment)
+        # - TrafficSnapshotEventType.CROSSING_SEGMENT_ADDED: Fired when a crossing segment is added (data: CrossingSegment)
+        # - TrafficSnapshotEventType.CROSSING_SEGMENT_REMOVED: Fired when a crossing segment is removed (data: CrossingSegment)
+        # - TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED: Fired when a crossing segment is updated (data: CrossingSegment)
     """
 
     def __init__(
@@ -86,9 +43,9 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         super().__init__()
 
         self._roads = roads if roads is not None else ObservableDict[str, Road](
-            on_add=lambda road: self.notify(TrafficSnapshotEventType.ROAD_ADDED, road),
-            on_remove=lambda road: self.notify(TrafficSnapshotEventType.ROAD_REMOVED, road),
-            on_update=lambda road: self.notify(TrafficSnapshotEventType.ROAD_UPDATED, road)
+            on_add=self._on_road_added,
+            on_remove=self._on_road_removed,
+            on_update=self._on_road_updated,
         )
 
         self._cars = cars if cars is not None else ObservableDict[str, Car](
@@ -97,11 +54,12 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             on_update=lambda car: self.notify(TrafficSnapshotEventType.CAR_UPDATED, car)
         )
 
-        self._crossing_segments = ObservableList[CrossingSegment](
-            on_add=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_ADDED, segment),
-            on_remove=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_REMOVED, segment),
-            on_update=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED, segment)
-        )
+        # self._crossing_segments = ObservableList[CrossingSegment](
+        #     on_add=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_ADDED, segment),
+        #     on_remove=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_REMOVED, segment),
+        #     on_update=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED, segment)
+        # )
+        self._crossing_segments = list[CrossingSegment]
 
         self._read_only_roads = ReadOnlyDictView(self._roads)
         """Read-only view of the roads dictionary."""
@@ -109,6 +67,29 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         """Read-only view of the cars dictionary."""
 
         self.validator = TrafficSnapshotValidator(self)
+
+    @property
+    def cars(self):
+        return self._read_only_cars
+
+    @property
+    def roads(self):
+        return self._read_only_roads
+
+    def _on_road_added(self, road: Road):
+        self.notify(TrafficSnapshotEventType.ROAD_ADDED, road)
+        self._validate_cars()
+        self._recalculate_crossing_segments()
+
+    def _on_road_removed(self, road: Road):
+        self.notify(TrafficSnapshotEventType.ROAD_REMOVED, road)
+        self._validate_cars()
+        self._recalculate_crossing_segments()
+
+    def _on_road_updated(self, road: Road):
+        self.notify(TrafficSnapshotEventType.ROAD_UPDATED, road)
+        self._validate_cars()
+        self._recalculate_crossing_segments()
 
     def get_cars_on_road(self, road: Road) -> list[Car]:
         pass
@@ -135,8 +116,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self.validator.validate_road(road, True)
         self._roads[road.name] = road
 
-    def remove_road(self, road_name: str) -> None:
-        self._roads.pop(road_name)
+    def remove_road(self, road_uid: str) -> None:
+        self._roads.pop(road_uid)
 
     def update_road(self, road_data: Road) -> None:
         self.validator.validate_road(road_data, False)
@@ -152,6 +133,51 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     def update_car(self, car_data: Car) -> None:
         self.validator.validate_car(car_data, False)
         pass
+
+    def _validate_cars(self):
+        """Validates all cars in the snapshot and autocorrects them if possible. When instance cannot be longer maintained,
+        it gets removed from the snapshot."""
+        for car in self._cars.values():
+            if not self.validator.validate_car_and_autocorrect(car):
+                self.remove_car(car.name)
+
+    def _recalculate_crossing_segments(self) -> None:
+        """Recalculates the crossing segments based on the current roads in the snapshot."""
+        horizontal_roads = [road for road in self._roads.values() if road.orientation == RoadOrientation.HORIZONTAL]
+        vertical_roads = [road for road in self._roads.values() if road.orientation == RoadOrientation.VERTICAL]
+
+        horizontal_lanes: list[Lane] = []
+        vertical_lanes: list[Lane] = []
+
+        for horizontal_road in horizontal_roads:
+            for i in range(1, horizontal_road.forward_lanes + 1):
+                forward_lanes = Lane(road_uid=horizontal_road.uid,lane_index= i, lane_direction=LaneDirection.FORWARD)
+                horizontal_lanes.append(forward_lanes)
+            for i in range(1, horizontal_road.backward_lanes + 1):
+                backward_lanes = Lane(road_uid=horizontal_road.uid,lane_index= i, lane_direction=LaneDirection.BACKWARD)
+                horizontal_lanes.append(backward_lanes)
+
+        for vertical_road in vertical_roads:
+            for i in range(1, vertical_road.forward_lanes + 1):
+                forward_lanes = Lane(road_uid=vertical_road.uid,lane_index= i, lane_direction=LaneDirection.FORWARD)
+                vertical_lanes.append(forward_lanes)
+            for i in range(1, vertical_road.backward_lanes + 1):
+                backward_lanes = Lane(road_uid=vertical_road.uid,lane_index= i, lane_direction=LaneDirection.BACKWARD)
+                vertical_lanes.append(backward_lanes)
+
+        self._crossing_segments = []
+        for horizontal_lane in horizontal_lanes:
+            for vertical_lane in vertical_lanes:
+                crossing_segment = CrossingSegment(
+                    lane_horizontal=horizontal_lane,
+                    lane_vertical=vertical_lane
+                )
+                self._crossing_segments.append(crossing_segment)
+
+
+    def _recalculate_segments(self, car: Car) -> None:
+        """Recalculates the segments for a given car based on its current position."""
+        raise NotImplementedError
 
     def to_dict(self) -> dict[str, Any]:
         """
@@ -186,10 +212,4 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         """
         raise NotImplementedError
 
-    @property
-    def cars(self):
-        return self._read_only_cars
 
-    @property
-    def roads(self):
-        return self._read_only_roads

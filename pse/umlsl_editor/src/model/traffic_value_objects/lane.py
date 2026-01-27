@@ -25,4 +25,3 @@ class Lane:
             raise ValueError("lane_index must be a positive integer")
         if not isinstance(self.lane_direction, LaneDirection):
             raise ValueError("lane_direction must be a LaneDirection")
-

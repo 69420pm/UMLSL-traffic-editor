@@ -1,4 +1,5 @@
-from typing import TypeVar, MutableMapping, Iterator, MutableSequence, Callable, Optional
+from typing import TypeVar, MutableMapping, Iterator, MutableSequence, Callable, Optional, Any, KeysView, ValuesView, \
+    ItemsView, Mapping
 from enum import Enum
 
 Key = TypeVar("Key")
@@ -168,3 +169,49 @@ class ObservableList(MutableSequence[T]):
         if self._on_add:
             self._on_add(value)
 
+
+class ReadOnlyDictView(Mapping[str, Any]):
+    """
+    A read-only view over an ObservableDict that properly wraps its internal dictionary.
+
+    This provides a true read-only Mapping interface by delegating to the internal
+    _data dict of the ObservableDict, ensuring immutability while maintaining
+    compatibility with the Observable pattern.
+    """
+
+    def __init__(self, observable_dict: ObservableDict):
+        """
+        Initialize a read-only view.
+
+        Args:
+            observable_dict: The ObservableDict to create a read-only view over
+        """
+        self._observable_dict = observable_dict
+
+    def __getitem__(self, key: str) -> Any:
+        """Get an item by key from the underlying dict."""
+        return self._observable_dict[key]
+
+    def __iter__(self) -> Iterator[str]:
+        """Iterate over keys in the underlying dict."""
+        return iter(self._observable_dict)
+
+    def __len__(self) -> int:
+        """Return the number of items in the underlying dict."""
+        return len(self._observable_dict)
+
+    def __contains__(self, key: object) -> bool:
+        """Check if key exists in the underlying dict."""
+        return key in self._observable_dict
+
+    def keys(self) -> KeysView[str]:
+        """Return keys view of the underlying dict."""
+        return self._observable_dict.keys()
+
+    def values(self) -> ValuesView[Any]:
+        """Return values view of the underlying dict."""
+        return self._observable_dict.values()
+
+    def items(self) -> ItemsView[str, Any]:
+        """Return items view of the underlying dict."""
+        return self._observable_dict.items()

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.position import Position
@@ -9,15 +9,14 @@ from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Se
 class CrossingSegment(Segment):
     lane_horizontal: Lane
     lane_vertical: Lane
-    is_lane_segment = False
+    is_lane_segment: bool = field(default=False, init=False)
+
 
     def __post_init__(self) -> None:
         if not isinstance(self.lane_horizontal, Lane):
             raise ValueError("lane_horizontal must be a Lane")
         if not isinstance(self.lane_vertical, Lane):
             raise ValueError("lane_vertical must be a Lane")
-        if not isinstance(self.length, (int, float)) or self.length <= 0:
-            raise ValueError("length must be a positive number")
 
     def get_position(self) -> Position:
         """Return position of the top left corner of the crossing segment.

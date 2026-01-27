@@ -208,15 +208,15 @@ class CommandController:
         add_road_command.execute()
         raise NotImplementedError("Prototype Method")
 
-    def remove_road(self, road_name: str) -> None:
+    def remove_road(self, road_uid: str) -> None:
         """
         Removes a road from the traffic snapshot.
 
         Args:
-            road_name: The unique identifier of the road to remove.
+            road_uid: The unique identifier of the road to remove.
 
         """
-        remove_road_command = DeleteRoad(self.traffic_snapshot_writer, self.traffic_snapshot_reader, road_name)
+        remove_road_command = DeleteRoad(self.traffic_snapshot_writer, self.traffic_snapshot_reader, road_uid)
         remove_road_command.execute()
         raise NotImplementedError("Prototype Method")
 
