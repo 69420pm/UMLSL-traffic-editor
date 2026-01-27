@@ -99,6 +99,8 @@ class Car(Entity):
 
     acceleration: float
 
+    _should_validate: bool = False
+
     @classmethod
     def from_params(cls, params: CarParams) -> "Car":
         """
@@ -136,11 +138,11 @@ class Car(Entity):
             CarValidationError: If any validation check fails.
         """
         self.validate()
-        self._initialized = True
+        self._should_validate = True
 
     def __setattr__(self, name: str, value: object) -> None:
         super().__setattr__(name, value)
-        if getattr(self, "_initialized", False):
+        if getattr(self, "_initialized", False) and getattr(self, "_should_validate", True):
             self.validate()
 
     def validate(self) -> None:
@@ -179,6 +181,7 @@ class Car(Entity):
         Raises:
             CarValidationError: If any validation check fails.
         """
+        self._should_validate = False
         self.name = params.name
         self.lane = params.lane
         self.color = params.color
@@ -189,6 +192,7 @@ class Car(Entity):
         self.next_turn = params.next_turn
         self.acceleration = params.acceleration
         self.__post_init__()
+
 
     def absolute_position(self)-> float:
         raise NotImplementedError

@@ -133,7 +133,7 @@ class CommandController:
         """
         #TODO: Change acceleration variable to actual acceleration
         acceleration : float = 1
-        lane = Lane(assigned_road.name, lane_index, lane_direction)
+        lane = Lane(road_uid=assigned_road.uid , lane_index=lane_index, lane_direction= lane_direction)
         car_params = CarParams(name, lane, color, position_on_lane, transition, velocity, length, next_turn, acceleration)
         add_car_command = add_car.AddCarCommand(self.traffic_snapshot_reader, self.traffic_snapshot_writer, car_params)
         add_car_command.execute()

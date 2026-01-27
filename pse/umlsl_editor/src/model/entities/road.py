@@ -85,6 +85,8 @@ class Road(Entity):
     forward_lanes: int
     backward_lanes: int
 
+    _should_validate: bool = False
+
     @classmethod
     def from_params(cls, params: RoadParams) -> "Road":
         """
@@ -114,6 +116,7 @@ class Road(Entity):
         Raises:
             RoadValidationError: If any validation check fails.
         """
+        self._should_validate = False
         self.name = params.name
         self.orientation = params.orientation
         self.position = params.position
@@ -130,10 +133,11 @@ class Road(Entity):
         """
         self.validate()
         self._initialized = True
+        self._should_validate = True
 
     def __setattr__(self, name: str, value: object) -> None:
         super().__setattr__(name, value)
-        if getattr(self, "_initialized", False):
+        if getattr(self, "_initialized", False) and getattr(self, "_should_validate", True):
             self.validate()
 
     def validate(self) -> None:
