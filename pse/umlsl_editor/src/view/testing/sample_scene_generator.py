@@ -35,7 +35,7 @@ r3 = Road.from_params(RoadParams(
     orientation=RoadOrientation.VERTICAL,
     position=-2.0,
     forward_lanes=2,
-    backward_lanes=2
+    backward_lanes=4
 ))
 
 # Vertical Road (North-South)

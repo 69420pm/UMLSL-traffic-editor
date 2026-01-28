@@ -80,9 +80,25 @@ class TrafficView(QGraphicsView):
         sensitivity = DIMENSION.TOUCHPAD_ZOOM_SENSITIVITY if is_touchpad else DIMENSION.WHEEL_ZOOM_SENSITIVITY
         scale_factor = self._calculate_clamped_scale(1 + delta * sensitivity)
 
-        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-        self.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
+        # FIX: Disable automatic anchoring which breaks with flipped Y-axis
+        self.setTransformationAnchor(QGraphicsView.NoAnchor)
+        self.setResizeAnchor(QGraphicsView.NoAnchor)
+
+        # 1. Get the mouse position in scene coordinates BEFORE scaling
+        # (Using position() for high-res touchpad precision)
+        old_pos = self.mapToScene(event.position().toPoint())
+
+        # 2. Apply the scale
         self.scale(scale_factor, scale_factor)
+
+        # 3. Get the new position of the mouse in scene coordinates
+        new_pos = self.mapToScene(event.position().toPoint())
+
+        # 4. Translate to align the new position with the old one
+        # This manually replicates "AnchorUnderMouse" without the axis flip bug
+        delta_scene = new_pos - old_pos
+        self.translate(delta_scene.x(), delta_scene.y())
+
         event.accept()
 
     def _calculate_clamped_scale(self, scale_factor: float) -> float:

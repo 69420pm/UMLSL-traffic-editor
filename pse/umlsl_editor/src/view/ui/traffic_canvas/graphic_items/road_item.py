@@ -120,10 +120,6 @@ class RoadItem(SelectableGraphicsItem):
         transform = painter.worldTransform()
         lod = option.levelOfDetailFromTransform(transform)
 
-        # Optimization: Don't render text if we are too zoomed out
-        if lod < 0.1:
-            return
-
         # 2. Map Screen (0,0) to Item Coordinates
         #    We don't need 'option.widget' to know where (0,0) is.
         #    We just invert the matrix that maps Item->Screen.
@@ -167,6 +163,28 @@ class RoadItem(SelectableGraphicsItem):
             painter.drawText(-rect.width() / 2, rect.height() / 4, text)
             painter.restore()
 
+
+        # --- Draw Road Name ---
+        font.setBold(True)
+        painter.setFont(font)
+
+        vertical_offset = 8 * text_scale
+        horizontal_offset = 16 * text_scale
+
+        if is_horizontal:
+            name_y = road.position + vertical_offset + (road.backward_lanes * lane_width)
+            draw_sticky_label(road.name, visible_left, name_y)
+        else:
+            name_x = road.position - (road.backward_lanes*lane_width) - horizontal_offset
+            draw_sticky_label(road.name, name_x, visible_top)
+
+        painter.restore()
+
+        # Don't render lane labels if we are too zoomed out
+        if lod <= DIMENSION.GRID_FINE_THRESHOLD:
+            return
+
+
         # --- Draw Lane Labels ---
 
         # Forward Lanes
@@ -177,7 +195,7 @@ class RoadItem(SelectableGraphicsItem):
                 draw_sticky_label(f"f{i + 1}", visible_left, road.position - lane_offset)
             else:
                 # Stick Y to visible_top, Keep X centered on lane
-                draw_sticky_label(f"f{i + 1}", road.position - lane_offset, visible_top)
+                draw_sticky_label(f"f{i + 1}", road.position + lane_offset, visible_top)
 
         # Backward Lanes
         for i in range(road.backward_lanes):
@@ -185,23 +203,7 @@ class RoadItem(SelectableGraphicsItem):
             if is_horizontal:
                 draw_sticky_label(f"b{i + 1}", visible_left, road.position + lane_offset)
             else:
-                draw_sticky_label(f"b{i + 1}", road.position + lane_offset, visible_top)
-
-        # --- Draw Road Name ---
-        font.setBold(True)
-        painter.setFont(font)
-
-        total_lanes_width = (road.forward_lanes * lane_width)
-        label_offset = 20 * text_scale
-
-        if is_horizontal:
-            name_y = road.position - total_lanes_width - label_offset
-            draw_sticky_label(road.name, visible_left, name_y)
-        else:
-            name_x = road.position - total_lanes_width - label_offset
-            draw_sticky_label(road.name, name_x, visible_top)
-
-        painter.restore()
+                draw_sticky_label(f"b{i + 1}", road.position - lane_offset, visible_top)
 
     def update_data(self, road: Road) -> None:
         """Update the road data and refresh all visual elements."""
