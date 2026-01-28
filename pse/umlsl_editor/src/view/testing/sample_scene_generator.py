@@ -3,10 +3,13 @@ Sample scene generator for the UMLSL Traffic Editor.
 
 Provides utilities for creating test traffic scenarios.
 """
-from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation, RoadParams
+from pse.umlsl_editor.src.model.entities.car import CarParams, Car
+from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation, RoadParams, LaneDirection
+from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
+from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent, TurnDirection
 
 
-def create_sample_scene() -> list:
+def create_sample_scene():
     """
     Create a sample cross intersection with roads.
 
@@ -49,6 +52,21 @@ def create_sample_scene() -> list:
         backward_lanes=1
     ))
 
+    l1 = Lane(road_uid=r1.uid, lane_index=1, lane_direction=LaneDirection.FORWARD)
+    l2 = Lane(road_uid=r3.uid, lane_index=1, lane_direction=LaneDirection.BACKWARD)
+
+    c1 = Car.from_params(CarParams(
+        name="C1",
+        lane=l2,
+        color="#1F2335",
+        position_on_lane=10.0,
+        transition=0.0,
+        velocity=10.0,
+        length=2.0,
+        next_turn=TurnIntent(direction=TurnDirection.LEFT, target_lane=l1),
+        acceleration=10.0,
+    ))
 
 
-    return [r1, r2, r3, r4]
+
+    return [r1, r3], [c1]

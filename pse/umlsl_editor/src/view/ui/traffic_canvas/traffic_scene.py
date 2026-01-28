@@ -8,6 +8,9 @@ from typing import Any, Dict
 from PySide6.QtWidgets import QGraphicsScene, QGraphicsItem
 from PySide6.QtCore import QRectF
 
+from pse.umlsl_editor.src.model.entities.car import Car
+from pse.umlsl_editor.src.model.entities.road import Road
+from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.car_item import CarItem
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.crossing_item import CrossingItem
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import RoadItem
 from pse.umlsl_editor.src.view.view_constants import DIMENSION
@@ -31,27 +34,35 @@ class TrafficScene(QGraphicsScene):
         self.setSceneRect(QRectF(-size / 2, -size / 2, size, size))
 
         # Registry to track graphics items by entity ID
-        self._items_registry: Dict[str, QGraphicsItem] = {}
+        self.roads: Dict[str, RoadItem] = {}
 
     def remove_entity(self, data_object: Any) -> None:
         pass
 
-    def add_entity(self, data_object: Any) -> None:
+    def add_road(self, road: Road) -> None:
         # Create the new road item
-        new_road_item = RoadItem(data_object)
+        new_road_item = RoadItem(road)
         self.addItem(new_road_item)
-        self._items_registry[data_object.uid] = new_road_item
+        self.roads[road.uid] = new_road_item
 
         print("Added road:", new_road_item)
 
         # NEW: Check for intersections with existing roads
         self._check_and_create_crossings(new_road_item)
 
+    def add_car(self, car: Car) -> None:
+        # Create the new road item
+        new_car_item = CarItem(car, self.roads)
+        self.addItem(new_car_item)
+        self.roads[car.lane.road_uid].add_position_listener(new_car_item)
+
+        print("Added car:", new_car_item)
+
     def _check_and_create_crossings(self, new_road_item: RoadItem):
         """Finds perpendicular roads and creates crossings."""
         new_orientation = new_road_item.data(0).orientation
 
-        for existing_road in self._items_registry.values():
+        for existing_road in self.roads.values():
             print(existing_road)
             # Only create crossing if orientations differ (one H, one V)
             if existing_road.data(0).orientation != new_orientation:

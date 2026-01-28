@@ -31,6 +31,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def _load_sample_scene(self) -> None:
         """Load a sample scene for testing purposes."""
-        entities = create_sample_scene()
-        for entity in entities:
-            self.traffic_scene.add_entity(entity)
+        roads, cars = create_sample_scene()
+        for road in roads:
+            self.traffic_scene.add_road(road)
+
+        for car in cars:
+            self.traffic_scene.add_car(car)

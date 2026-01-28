@@ -12,10 +12,11 @@ from PySide6.QtGui import QColor
 class _ZLayers:
     """Controls the drawing order (Z-Index) for scene items."""
     ROAD: int = 0
-    SELECTED_ROAD: int = 2
     CROSSING: int = 1
-    SELECTED_CROSSING: int = 3
-    CAR: int = 20
+    CAR: int = 2
+    SELECTED_ROAD: int = 3
+    SELECTED_CROSSING: int = 4
+    SELECTED_CAR: int = 5
     OVERLAY: int = 100
 
 
