@@ -21,7 +21,7 @@ class Lane:
         """
         if not isinstance(self.road_uid, str) or not self.road_uid:
             raise ValueError("road_uid must be a non-empty string")
-        if not isinstance(self.lane_index, int) or self.lane_index < 1:
-            raise ValueError("lane_index must be a positive integer")
+        if not isinstance(self.lane_index, int):
+            raise ValueError("lane_index must be a integer")
         if not isinstance(self.lane_direction, LaneDirection):
             raise ValueError("lane_direction must be a LaneDirection")

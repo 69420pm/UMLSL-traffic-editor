@@ -16,9 +16,10 @@ class CarItem(SelectableGraphicsItem):
 
     def __init__(self, car: Car, roads: dict[str, RoadItem]):
         # Determine initial constraint based on orientation
+        self._orientation = roads[car.lane.road_uid].data(0).orientation
         constraint = (
             SelectableGraphicsItem.AXIS_X_ONLY
-            if roads[car.lane.road_uid].data(0).orientation == RoadOrientation.HORIZONTAL
+            if self._orientation == RoadOrientation.HORIZONTAL
             else SelectableGraphicsItem.AXIS_Y_ONLY
         )
 
@@ -27,6 +28,7 @@ class CarItem(SelectableGraphicsItem):
         self._position_listeners = []
         self.setData(0, car)
         self.setData(1, roads)
+
 
         self._bounding_rect = QRectF()
 
@@ -46,8 +48,15 @@ class CarItem(SelectableGraphicsItem):
         self._setup_styles()
 
     def on_move_committed(self, delta_x: float, delta_y: float):
-        # Calculate new position based on the delta
-        pass
+        car = self.data(0)
+
+        if self._orientation == RoadOrientation.VERTICAL:
+            car.position_on_lane += delta_y
+        else:
+            car.position_on_lane += delta_x
+
+        # Create new road object
+        self.update_data(car)
 
     # --- Update Crossings Logic ---
 
@@ -80,26 +89,27 @@ class CarItem(SelectableGraphicsItem):
 
     def update_data(self, car: Car):
         self.setData(0, car)
-        self.prepareGeometryChange()
         self.refresh_geometry()
-        self.update()
 
         # Notify listeners because the model data (absolute position) changed
         self._notify_listeners()
 
     def refresh_geometry(self) -> None:
+        self.prepareGeometryChange()
         car = self.data(0)
         road = self.data(1)[car.lane.road_uid].data(0)
 
         lane_width = DIMENSION.LANE_WIDTH
+        car_width = DIMENSION.CAR_WIDTH
 
         x = car.position_on_lane
-        y = road.position + lane_width * car.lane.lane_index
+        y = road.position + lane_width * car.lane.lane_index + (lane_width-car_width)/2.0
 
 
         if road.orientation == RoadOrientation.HORIZONTAL:
-            rect = QRectF(x,y,car.length, lane_width*.9)
+            rect = QRectF(x,y,car.length, car_width)
         else:
-            rect = QRectF(y, x, lane_width*.9, car.length)
+            rect = QRectF(y, x, car_width, car.length)
 
         self._bounding_rect = rect
+        self.update()

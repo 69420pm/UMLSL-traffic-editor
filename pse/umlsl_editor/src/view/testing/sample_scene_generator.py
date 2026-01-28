@@ -52,8 +52,8 @@ def create_sample_scene():
         backward_lanes=1
     ))
 
-    l1 = Lane(road_uid=r1.uid, lane_index=1, lane_direction=LaneDirection.FORWARD)
-    l2 = Lane(road_uid=r3.uid, lane_index=1, lane_direction=LaneDirection.BACKWARD)
+    l1 = Lane(road_uid=r1.uid, lane_index=0, lane_direction=LaneDirection.FORWARD)
+    l2 = Lane(road_uid=r3.uid, lane_index=-1, lane_direction=LaneDirection.BACKWARD)
 
     c1 = Car.from_params(CarParams(
         name="C1",

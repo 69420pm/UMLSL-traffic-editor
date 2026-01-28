@@ -64,15 +64,8 @@ class RoadItem(SelectableGraphicsItem):
             new_position = current_road.position + delta_x
 
         # Create new road object
-        new_road = Road(
-            uid=current_road.uid,
-            name=current_road.name,
-            orientation=current_road.orientation,
-            position=new_position,
-            forward_lanes=current_road.forward_lanes,
-            backward_lanes=current_road.backward_lanes
-        )
-        self.update_data(new_road)
+        self.data(0).position = new_position
+        self.update_data(self.data(0))
 
     # --- Update Crossings Logic ---
 
