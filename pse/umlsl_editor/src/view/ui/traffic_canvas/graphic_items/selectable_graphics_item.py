@@ -1,5 +1,5 @@
 # view/ui/traffic_canvas/graphic_items/selectable_graphics_item.py
-
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QGraphicsItem, QGraphicsView
 
 
@@ -19,6 +19,7 @@ class SelectableGraphicsItem(QGraphicsItem):
     def __init__(self, movement_constraint: int = AXIS_FREE):
         super().__init__()
         self.is_selected = False
+        self.is_hovered = False
         self._movement_constraint = movement_constraint
 
         # State tracking
@@ -28,6 +29,7 @@ class SelectableGraphicsItem(QGraphicsItem):
 
         self.setFlag(QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QGraphicsItem.ItemSendsGeometryChanges, True)
+        self.setAcceptHoverEvents(True)
 
     def set_movement_constraint(self, constraint: int) -> None:
         """Set the axis constraint for item movement."""
@@ -48,17 +50,56 @@ class SelectableGraphicsItem(QGraphicsItem):
 
         return super().itemChange(change, value)
 
+        # --- Hover Events ---
+
+    def hoverEnterEvent(self, event) -> None:
+        """Update cursor and state when mouse enters."""
+        self.is_hovered = True
+        self._update_cursor_state()
+        self.on_hover_changed(True)
+        super().hoverEnterEvent(event)
+
+    def hoverLeaveEvent(self, event) -> None:
+        """Reset cursor and state when mouse leaves."""
+        self.is_hovered = False
+        self.setCursor(Qt.ArrowCursor)  # Reset to default
+        self.on_hover_changed(False)
+        super().hoverLeaveEvent(event)
+
+    def _update_cursor_state(self) -> None:
+        """Set the cursor based on the current selection state."""
+        if self.is_selected:
+            # Indicates the item is ready to be moved
+            self.setCursor(Qt.OpenHandCursor)
+        else:
+            # Indicates the item is clickable (to select) but not immediately movable
+            self.setCursor(Qt.PointingHandCursor)
+
     def mousePressEvent(self, event) -> None:
-        """Initialize drag/pan tracking state on mouse press."""
+        """Initialize drag/pan and set 'Grabbing' cursor."""
         self._drag_start_pos = event.scenePos()
         self._pan_start_screen_pos = event.screenPos()
         self._is_panning = False
+
+        # Visual feedback: We are now grabbing the item or the canvas
+        self.setCursor(Qt.ClosedHandCursor)
 
         # Only allow item movement if already selected
         self.setFlag(QGraphicsItem.ItemIsMovable, self.is_selected)
 
         super().mousePressEvent(event)
         event.accept()
+
+    def mouseReleaseEvent(self, event) -> None:
+        """Handle release and restore the appropriate hover cursor."""
+        if self._is_panning:
+            self._finish_panning()
+        else:
+            self._handle_drag_or_click(event)
+
+        # Restore cursor (OpenHand if selected, PointingHand if not)
+        self._update_cursor_state()
+        super().mouseReleaseEvent(event)
 
     def mouseMoveEvent(self, event) -> None:
         """Handle item dragging (if selected) or view panning (if not selected)."""
@@ -91,15 +132,6 @@ class SelectableGraphicsItem(QGraphicsItem):
         h_scroll.setValue(h_scroll.value() - delta.x())
         v_scroll.setValue(v_scroll.value() - delta.y())
 
-    def mouseReleaseEvent(self, event) -> None:
-        """Handle drag commit or selection toggle on mouse release."""
-        if self._is_panning:
-            self._finish_panning()
-        else:
-            self._handle_drag_or_click(event)
-
-        super().mouseReleaseEvent(event)
-
     def _finish_panning(self) -> None:
         if self._has_moved():
             self.setPos(0, 0)
@@ -131,6 +163,7 @@ class SelectableGraphicsItem(QGraphicsItem):
 
         self.is_selected = not self.is_selected
         self.on_selection_changed(self.is_selected)
+        self._update_cursor_state()
         self.update()
 
     # --- Hooks for Subclasses ---
@@ -141,4 +174,8 @@ class SelectableGraphicsItem(QGraphicsItem):
 
     def on_selection_changed(self, is_selected: bool) -> None:
         """Called when selection state changes. Override in subclasses."""
+        pass
+
+    def on_hover_changed(self, is_hovered: bool) -> None:
+        """Called when hover state changes. Override in subclasses."""
         pass

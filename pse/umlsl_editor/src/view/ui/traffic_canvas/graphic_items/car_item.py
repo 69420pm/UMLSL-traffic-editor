@@ -42,11 +42,15 @@ class CarItem(SelectableGraphicsItem):
         return SelectableGraphicsItem.AXIS_Y_ONLY
 
     def _setup_styles(self) -> None:
-        """Configure visual styles based on selection state."""
+        """Configure visual styles based on selection and hover state."""
         self.setZValue(Z_LAYERS.SELECTED_CAR if self.is_selected else Z_LAYERS.CAR)
 
         car_color = QColor(self.data(0).color)
         color = car_color.lighter() if self.is_selected else car_color
+
+        # Apply hover effect (110% brightness of current state)
+        if self.is_hovered:
+            color = color.lighter(110)
 
         self._body_brush = QBrush(color)
         self._body_pen = QPen(color.lighter(), 0.1)
@@ -56,11 +60,15 @@ class CarItem(SelectableGraphicsItem):
     def on_selection_changed(self, is_selected: bool) -> None:
         self._setup_styles()
 
+    def on_hover_changed(self, is_hovered: bool) -> None:
+        self._setup_styles()
+
     def on_move_committed(self, delta_x: float, delta_y: float) -> None:
         car = self.data(0)
         delta = delta_y if self._orientation == RoadOrientation.VERTICAL else delta_x
         car.position_on_lane += delta
         self.update_data(car)
+
 
     # --- Position Listener Pattern ---
 

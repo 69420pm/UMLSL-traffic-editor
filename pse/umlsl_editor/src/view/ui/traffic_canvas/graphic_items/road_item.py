@@ -42,10 +42,15 @@ class RoadItem(SelectableGraphicsItem):
         return SelectableGraphicsItem.AXIS_X_ONLY
 
     def _setup_styles(self) -> None:
-        """Configure visual styles based on selection state."""
+        """Configure visual styles based on selection and hover state."""
         self.setZValue(Z_LAYERS.SELECTED_ROAD if self.is_selected else Z_LAYERS.ROAD)
 
         color = COLORS.LAYER.lighter() if self.is_selected else COLORS.LAYER
+
+        # Apply hover effect (110% brightness of current state)
+        if self.is_hovered:
+            color = color.lighter(110)
+
         self._asphalt_brush = QBrush(color)
 
         self._center_pen = QPen(COLORS.TEXT, DIMENSION.LINE_WIDTH_ROAD_DIVIDER)
@@ -59,6 +64,9 @@ class RoadItem(SelectableGraphicsItem):
     # --- Hooks from SelectableGraphicsItem ---
 
     def on_selection_changed(self, is_selected: bool) -> None:
+        self._setup_styles()
+
+    def on_hover_changed(self, is_hovered: bool) -> None:
         self._setup_styles()
 
     def on_move_committed(self, delta_x: float, delta_y: float) -> None:
