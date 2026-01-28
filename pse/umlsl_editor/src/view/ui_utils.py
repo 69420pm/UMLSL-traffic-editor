@@ -1,5 +1,3 @@
-from pse.umlsl_editor.src.view.widgets import resources_rc # noqa
-
 """
 UI utility functions for the UMLSL Traffic Editor.
 
@@ -16,7 +14,7 @@ def load_ui(path: str, parent: Optional[QWidget] = None) -> Optional[QWidget]:
     Load a Qt Designer UI file and return the corresponding widget.
 
     Args:
-        path: Path to the .ui file to load.
+        path: Path to the .compiled_widgets file to load.
         parent: Optional parent widget for the loaded UI.
 
     Returns:

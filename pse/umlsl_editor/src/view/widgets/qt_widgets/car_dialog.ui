@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>Edit_Car_Dialog</class>
+ <widget class="QDialog" name="Edit_Car_Dialog">
   <property name="enabled">
    <bool>true</bool>
   </property>
@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>317</width>
-    <height>613</height>
+    <width>320</width>
+    <height>524</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,13 +21,13 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>0</width>
+    <width>320</width>
     <height>0</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>99999</width>
+    <width>320</width>
     <height>999999</height>
    </size>
   </property>
@@ -186,73 +186,26 @@ QPushButton {
 QPushButton#b_save {
 	background-color: #799582
 }
+QPushButton#b_save:hover {
+    background-color: rgb(155, 191, 168); 
+}
+QPushButton#b_save:pressed {
+    background-color: #799582; 
+}
 
 QPushButton#b_delete {
-	background-color: #D97855
+	background-color: #042F40;
+	color: #F9F9F9;
+}
+
+QPushButton#b_delete:hover {
+    background-color: #314250; 
+}
+QPushButton#b_delete:pressed {
+    background-color: #042F40; 
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <layout class="QHBoxLayout" name="Title">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
-      <number>8</number>
-     </property>
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Edit Car</string>
-       </property>
-       <property name="scaledContents">
-        <bool>false</bool>
-       </property>
-       <property name="wordWrap">
-        <bool>false</bool>
-       </property>
-       <property name="class" stdset="0">
-        <string>title</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="b_close">
-       <property name="minimumSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/Close.svg</normaloff>:/icons/icons/Close.svg</iconset>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
    <item>
     <widget class="QWidget" name="widget" native="true">
      <layout class="QVBoxLayout" name="General">
@@ -266,7 +219,7 @@ QPushButton#b_delete {
        <number>0</number>
       </property>
       <property name="topMargin">
-       <number>0</number>
+       <number>8</number>
       </property>
       <property name="rightMargin">
        <number>0</number>
@@ -449,6 +402,12 @@ QPushButton#b_delete {
              <height>24</height>
             </size>
            </property>
+           <property name="cursorPosition">
+            <number>0</number>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
           </widget>
          </item>
          <item row="2" column="0">
@@ -537,6 +496,32 @@ QPushButton#b_delete {
            </property>
            <property name="maximum">
             <double>100.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>u/s</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+           </property>
+           <property name="class" stdset="0">
+            <string>hint</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLabel" name="label_20">
+           <property name="text">
+            <string>u/s^2</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+           </property>
+           <property name="class" stdset="0">
+            <string>hint</string>
            </property>
           </widget>
          </item>
@@ -1010,20 +995,10 @@ QPushButton#b_delete {
     </widget>
    </item>
    <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Orientation::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="Bottom">
+     <property name="topMargin">
+      <number>8</number>
+     </property>
      <item>
       <widget class="QPushButton" name="b_save">
        <property name="minimumSize">
@@ -1069,7 +1044,7 @@ QPushButton#b_delete {
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/Delete_dark.svg</normaloff>:/icons/icons/Delete_dark.svg</iconset>
+         <normaloff>:/icons/icons/Delete.svg</normaloff>:/icons/icons/Delete.svg</iconset>
        </property>
       </widget>
      </item>
@@ -1082,25 +1057,9 @@ QPushButton#b_delete {
  </resources>
  <connections>
   <connection>
-   <sender>b_close</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>305</x>
-     <y>40</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>320</x>
-     <y>-13</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>b_delete</sender>
    <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>Edit_Car_Dialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1116,7 +1075,7 @@ QPushButton#b_delete {
   <connection>
    <sender>b_save</sender>
    <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>Edit_Car_Dialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">

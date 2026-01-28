@@ -86,16 +86,43 @@ class Car(Entity):
 
     next_turn: Optional[TurnIntent]
 
+    #class: Path
+        # Descriptions: all segments that lay in view of car, only single lane
+        #segments: list[Segment]
+
+    #class LaneInterval:
+        #segment: LaneSegment
+        #start: float
+        #end: float
+
+    #class LaneSegment:
+        #on_lane: Lane
+        #start_road: str
+        #end_road: str
+
+    #class CrossingSegment:
+        #laneA: Lane
+        #laneB: Lane
+
+
+    #reserved_lanes: list[laneIntervalls]
     reserved_lanes: list[LaneSegment]
 
+    #passt
+    reserved_crossings: list[CrossingSegment]
+
+    #clamied_intervalls: list[laneIntervalls]
     claimed_lanes: list[LaneSegment]
 
-    reserved_crossings: list[CrossingSegment]
+    # Dont need these?, sonst passt
     # todo: curr : I → Z such that curr(C ) is (the index - we save the object) of the path element of pth(C) currently occupied by the rear of C
     claimed_crossings: list[CrossingSegment]
 
-    # todo: path pursued by car
+
+    # passt
     path: Path
+
+    #view_segments: list[LaneInterval and Crossings]
 
     acceleration: float
 
@@ -154,9 +181,6 @@ class Car(Entity):
 
         if not isinstance(self.color, str) or not re.match(r'^#(?:[0-9a-fA-F]{3}){1,2}$', self.color):
             raise CarValidationError(content="Color must be a valid hex color code.")
-
-        if self.position_on_lane < 0:
-            raise CarValidationError(content="Position on lane must be non-negative.")
 
         # Transition bounds check (-1.0, 1.0) exclusive
         if not (-1.0 < self.transition < 1.0):
