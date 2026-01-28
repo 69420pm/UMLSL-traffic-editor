@@ -60,7 +60,7 @@ class Ui_Road_List_Item(object):
 
         self.i_road = QLabel(Road_List_Item)
         self.i_road.setObjectName(u"i_road")
-        self.i_road.setPixmap(QPixmap(u":/icons/icons/Add road.svg"))
+        self.i_road.setPixmap(QPixmap(u":/icons/icons/add_road.svg"))
         self.i_road.setWordWrap(False)
 
         self.horizontalLayout.addWidget(self.i_road)

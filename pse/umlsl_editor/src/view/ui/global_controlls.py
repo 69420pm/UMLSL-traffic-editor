@@ -15,6 +15,8 @@ class GlobalControls(QObject):
         self.open_button = self.window.actionOpen
         self.open_settings_button = self.window.actionSettings
 
+        self.setup_ui()
+
     def setup_ui(self) -> None:
         """Connect button click signals."""
         self.save_button.triggered.connect(self.on_save_clicked)

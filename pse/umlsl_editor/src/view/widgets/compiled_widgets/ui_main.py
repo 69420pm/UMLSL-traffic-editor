@@ -16,17 +16,18 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
+from PySide6.QtQuickWidgets import QQuickWidget
 from PySide6.QtWidgets import (QApplication, QFrame, QGraphicsView, QHBoxLayout,
-    QLabel, QListWidget, QListWidgetItem, QMainWindow,
-    QMenu, QMenuBar, QScrollArea, QSizePolicy,
-    QToolButton, QVBoxLayout, QWidget)
+    QLabel, QMainWindow, QMenu, QMenuBar,
+    QScrollArea, QSizePolicy, QToolButton, QVBoxLayout,
+    QWidget)
 from . import resources_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1076, 771)
+        MainWindow.resize(983, 713)
         MainWindow.setStyleSheet(u"QMainWindow {\n"
 "    background-color: #011C26; \n"
 "}\n"
@@ -131,7 +132,7 @@ class Ui_MainWindow(object):
         self.sidebar.setWidgetResizable(True)
         self.c = QWidget()
         self.c.setObjectName(u"c")
-        self.c.setGeometry(QRect(0, 0, 300, 741))
+        self.c.setGeometry(QRect(0, 0, 300, 683))
         self.verticalLayout = QVBoxLayout(self.c)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(16, 16, 0, 0)
@@ -156,10 +157,11 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addLayout(self.horizontalLayout_2)
 
-        self.l_roads = QListWidget(self.c)
-        self.l_roads.setObjectName(u"l_roads")
+        self.q_roads = QQuickWidget(self.c)
+        self.q_roads.setObjectName(u"q_roads")
+        self.q_roads.setResizeMode(QQuickWidget.ResizeMode.SizeRootObjectToView)
 
-        self.verticalLayout.addWidget(self.l_roads)
+        self.verticalLayout.addWidget(self.q_roads)
 
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
@@ -180,10 +182,11 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addLayout(self.horizontalLayout_3)
 
-        self.l_cars = QListWidget(self.c)
-        self.l_cars.setObjectName(u"l_cars")
+        self.q_cars = QQuickWidget(self.c)
+        self.q_cars.setObjectName(u"q_cars")
+        self.q_cars.setResizeMode(QQuickWidget.ResizeMode.SizeRootObjectToView)
 
-        self.verticalLayout.addWidget(self.l_cars)
+        self.verticalLayout.addWidget(self.q_cars)
 
         self.horizontalLayout_4 = QHBoxLayout()
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
@@ -204,10 +207,11 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addLayout(self.horizontalLayout_4)
 
-        self.l_queries = QListWidget(self.c)
-        self.l_queries.setObjectName(u"l_queries")
+        self.q_queries = QQuickWidget(self.c)
+        self.q_queries.setObjectName(u"q_queries")
+        self.q_queries.setResizeMode(QQuickWidget.ResizeMode.SizeRootObjectToView)
 
-        self.verticalLayout.addWidget(self.l_queries)
+        self.verticalLayout.addWidget(self.q_queries)
 
         self.sidebar.setWidget(self.c)
 
@@ -262,7 +266,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menuBar = QMenuBar(MainWindow)
         self.menuBar.setObjectName(u"menuBar")
-        self.menuBar.setGeometry(QRect(0, 0, 1076, 30))
+        self.menuBar.setGeometry(QRect(0, 0, 983, 30))
         self.menuBar.setDefaultUp(False)
         self.menuBar.setNativeMenuBar(True)
         self.menuFile = QMenu(self.menuBar)

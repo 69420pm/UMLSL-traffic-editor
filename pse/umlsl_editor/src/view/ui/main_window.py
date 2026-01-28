@@ -24,12 +24,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
         self.canvas_buttons = CanvasButtons(self)
-        self.canvas_buttons.setup_ui()
 
         self.sidebar_controller = SidebarController(self)
-        self.sidebar_controller.setup_ui()
 
         self.global_controls = GlobalControls(self)
-        self.global_controls.setup_ui()
 
         self.show()

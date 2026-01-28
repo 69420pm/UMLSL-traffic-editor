@@ -68,7 +68,7 @@ class Ui_Car_List_Item(object):
 "    border: none;\n"
 "    text-align: center;\n"
 "")
-        self.i_car.setPixmap(QPixmap(u":/icons/icons/Directions car.svg"))
+        self.i_car.setPixmap(QPixmap(u":/icons/icons/car.svg"))
         self.i_car.setScaledContents(False)
         self.i_car.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.i_car.setWordWrap(False)

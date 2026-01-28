@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1076</width>
-    <height>771</height>
+    <width>983</width>
+    <height>713</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -127,7 +127,7 @@ QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
          <x>0</x>
          <y>0</y>
          <width>300</width>
-         <height>741</height>
+         <height>683</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -184,7 +184,11 @@ QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
          </layout>
         </item>
         <item>
-         <widget class="QListWidget" name="l_roads"/>
+         <widget class="QQuickWidget" name="q_roads">
+          <property name="resizeMode">
+           <enum>QQuickWidget::ResizeMode::SizeRootObjectToView</enum>
+          </property>
+         </widget>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -227,7 +231,11 @@ QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
          </layout>
         </item>
         <item>
-         <widget class="QListWidget" name="l_cars"/>
+         <widget class="QQuickWidget" name="q_cars">
+          <property name="resizeMode">
+           <enum>QQuickWidget::ResizeMode::SizeRootObjectToView</enum>
+          </property>
+         </widget>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -270,7 +278,11 @@ QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
          </layout>
         </item>
         <item>
-         <widget class="QListWidget" name="l_queries"/>
+         <widget class="QQuickWidget" name="q_queries">
+          <property name="resizeMode">
+           <enum>QQuickWidget::ResizeMode::SizeRootObjectToView</enum>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -394,7 +406,7 @@ QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1076</width>
+     <width>983</width>
      <height>30</height>
     </rect>
    </property>
@@ -459,6 +471,13 @@ QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QQuickWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">QtQuickWidgets/QQuickWidget</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="resources.qrc"/>
  </resources>
