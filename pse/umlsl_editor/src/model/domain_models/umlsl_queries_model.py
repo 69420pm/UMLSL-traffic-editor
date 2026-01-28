@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 from typing import Any
 
-from pse.umlsl_editor.src.commands.umlsl import add_umlsl_query
-from pse.umlsl_editor.src.model.helper.observables import Observable, ObservableList, ObservableDict
+from pse.umlsl_editor.src.model.helper.observables import Observable, ObservableDict
 from pse.umlsl_editor.src.model.helper.event_types import UMLSLQueriesEventType
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 

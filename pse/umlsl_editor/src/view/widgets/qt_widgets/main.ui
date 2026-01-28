@@ -277,7 +277,7 @@ QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
      </widget>
     </item>
     <item>
-     <widget class="TrafficView" name="trafficView"/>
+     <widget class="QGraphicsView" name="graphicsView"/>
     </item>
     <item>
      <widget class="QToolButton" name="b_sidebar_toggle">
@@ -459,13 +459,6 @@ QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>TrafficView</class>
-   <extends>QGraphicsView</extends>
-   <header location="global">pse.umlsl_editor.src.view.ui.traffic_canvas.traffic_view</header>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="resources.qrc"/>
  </resources>

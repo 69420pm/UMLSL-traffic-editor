@@ -16,12 +16,10 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
-    QListWidget, QListWidgetItem, QMainWindow, QMenu,
-    QMenuBar, QScrollArea, QSizePolicy, QToolButton,
-    QVBoxLayout, QWidget)
-
-from pse.umlsl_editor.src.view.ui.traffic_canvas.traffic_view import TrafficView
+from PySide6.QtWidgets import (QApplication, QFrame, QGraphicsView, QHBoxLayout,
+    QLabel, QListWidget, QListWidgetItem, QMainWindow,
+    QMenu, QMenuBar, QScrollArea, QSizePolicy,
+    QToolButton, QVBoxLayout, QWidget)
 from . import resources_rc
 
 class Ui_MainWindow(object):
@@ -215,10 +213,10 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.sidebar)
 
-        self.trafficView = TrafficView(self.centralwidget)
-        self.trafficView.setObjectName(u"trafficView")
+        self.graphicsView = QGraphicsView(self.centralwidget)
+        self.graphicsView.setObjectName(u"graphicsView")
 
-        self.horizontalLayout.addWidget(self.trafficView)
+        self.horizontalLayout.addWidget(self.graphicsView)
 
         self.b_sidebar_toggle = QToolButton(self.centralwidget)
         self.b_sidebar_toggle.setObjectName(u"b_sidebar_toggle")
