@@ -35,7 +35,7 @@ class _Dimension:
     # Zoom constraints
     MAX_ZOOM: float = 100.0
     MIN_ZOOM: float = 3.0
-    INITIAL_ZOOM: float = 20.0
+    INITIAL_ZOOM: float = 40.0
     BUTTON_ZOOM_AMOUNT: float = 1.4
 
     # Zoom thresholds for detail levels

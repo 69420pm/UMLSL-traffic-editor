@@ -10,7 +10,7 @@ from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import 
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.selectable_graphics_item import (
     SelectableGraphicsItem,
 )
-from pse.umlsl_editor.src.view.view_constants import DIMENSION, Z_LAYERS
+from pse.umlsl_editor.src.view.view_constants import DIMENSION, Z_LAYERS, COLORS
 
 
 class CarItem(SelectableGraphicsItem):
@@ -94,6 +94,51 @@ class CarItem(SelectableGraphicsItem):
         painter.setPen(self._body_pen)
         painter.setBrush(self._body_brush)
         painter.drawPolygon(self.polygon)
+
+        # Draw Label
+        self._paint_label(painter, option)
+
+    def _paint_label(self, painter: QPainter, option: QStyleOptionGraphicsItem) -> None:
+        """Draws the car ID centered exactly within the car body."""
+        # 1. Check Level of Detail to optimize performance
+        transform = painter.worldTransform()
+        lod = option.levelOfDetailFromTransform(transform)
+        if lod <= DIMENSION.GRID_FINE_THRESHOLD: return
+
+        text_scale = 1.0 / lod
+        car = self.data(0)
+        text = str(car.name)
+
+        painter.save()
+        font = painter.font()
+        font.setBold(True)
+        painter.setFont(font)
+        painter.setPen(COLORS.BACKGROUND)
+
+        # 2. Move to the visual center of the car
+        #    Using the polygon bounding rect ensures we find the middle of the shape
+        center = self.polygon.boundingRect().center()
+        painter.translate(center.x(), center.y())
+
+        # 3. Scale and Flip
+        #    We scale by (1, -1) to counteract the View's Y-flip.
+        #    This ensures standard 'Screen Coordinates' for text drawing.
+        painter.scale(text_scale, -text_scale)
+
+        # 4. Calculate Exact Centering
+        #    Get the tight bounding box of the text string (e.g., "C1")
+        fm = painter.fontMetrics()
+        text_rect = fm.boundingRect(text)
+
+        #    Calculate the position that places the center of text_rect at (0,0)
+        #    text_rect.center() is usually something like (width/2, -height/2) relative to baseline.
+        #    We negate it to shift the drawing origin.
+        x_pos = -text_rect.center().x()
+        y_pos = -text_rect.center().y()
+
+        painter.drawText(x_pos, y_pos, text)
+
+        painter.restore()
 
     def update_data(self, car: Car) -> None:
         """Update the car data and refresh all visual elements."""
