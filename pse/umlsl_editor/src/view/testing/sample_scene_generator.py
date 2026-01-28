@@ -69,4 +69,4 @@ def create_sample_scene():
 
 
 
-    return [r1, r3], [c1]
+    return [r1,r2,r4, r3], [c1]

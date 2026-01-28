@@ -86,16 +86,43 @@ class Car(Entity):
 
     next_turn: Optional[TurnIntent]
 
+    #class: Path
+        # Descriptions: all segments that lay in view of car, only single lane
+        #segments: list[Segment]
+
+    #class LaneInterval:
+        #segment: LaneSegment
+        #start: float
+        #end: float
+
+    #class LaneSegment:
+        #on_lane: Lane
+        #start_road: str
+        #end_road: str
+
+    #class CrossingSegment:
+        #laneA: Lane
+        #laneB: Lane
+
+
+    #reserved_lanes: list[laneIntervalls]
     reserved_lanes: list[LaneSegment]
 
+    #passt
+    reserved_crossings: list[CrossingSegment]
+
+    #clamied_intervalls: list[laneIntervalls]
     claimed_lanes: list[LaneSegment]
 
-    reserved_crossings: list[CrossingSegment]
+    # Dont need these?, sonst passt
     # todo: curr : I → Z such that curr(C ) is (the index - we save the object) of the path element of pth(C) currently occupied by the rear of C
     claimed_crossings: list[CrossingSegment]
 
-    # todo: path pursued by car
+
+    # passt
     path: Path
+
+    #view_segments: list[LaneInterval and Crossings]
 
     acceleration: float
 
