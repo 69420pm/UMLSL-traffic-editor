@@ -8,6 +8,7 @@ from typing import Any, Dict
 from PySide6.QtCore import QRectF
 from PySide6.QtWidgets import QGraphicsItem, QGraphicsScene
 
+from pse.umlsl_editor.src.controllers import ApplicationController
 from pse.umlsl_editor.src.controllers.data_controller import DataController
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import Road
@@ -27,7 +28,7 @@ class TrafficScene(QGraphicsScene):
     Provides a registry for tracking items and a cache for road data.
     """
 
-    def __init__(self,data_controller: DataController, parent=None ) -> None:
+    def __init__(self,application_controller: ApplicationController, parent=None ) -> None:
         """Initialize the traffic scene with configured bounds."""
         super().__init__(parent)
 
@@ -40,7 +41,8 @@ class TrafficScene(QGraphicsScene):
         self.cars: Dict[str, CarItem] = {}
         self.crossings: Dict[str, CrossingItem] = {}
 
-        self.data_controller = data_controller
+        self.data_controller = application_controller.data_controller
+        self.view_handler = application_controller.view
 
         self.fill_scene_with_data()
 
@@ -57,7 +59,7 @@ class TrafficScene(QGraphicsScene):
 
     def add_road(self, road: Road) -> None:
         # Create the new road item
-        new_road_item = RoadItem(road)
+        new_road_item = RoadItem(road, view_event_handler=self.view_handler)
         self.addItem(new_road_item)
         self.roads[road.uid] = new_road_item
 

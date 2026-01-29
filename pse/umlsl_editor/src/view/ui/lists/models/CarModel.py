@@ -1,7 +1,8 @@
 from PySide6.QtCore import QAbstractListModel, Qt, QModelIndex, Slot
 
+from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation, Road
-from pse.umlsl_editor.src.view.ui.lists.edit_road_dialog import EditRoadDialog
+from pse.umlsl_editor.src.view.ui.lists.edit_car_dialog import EditCarDialog
 from pse.umlsl_editor.src.view.ui.lists.models.EntityModel import EntityModel
 
 # 1. Define custom roles.
@@ -10,10 +11,10 @@ NameRole = Qt.UserRole + 1
 IconRole = Qt.UserRole + 2
 ValueRole = Qt.UserRole + 3
 
-class RoadModel(EntityModel):
-    def __init__(self, roads: list[Road] | None, parent=None):
+class CarModel(EntityModel):
+    def __init__(self, cars: list[Car] | None, parent=None):
         super().__init__(parent)
-        self._data = roads or []
+        self._data = cars or []
 
     def rowCount(self, parent=QModelIndex()):
         return len(self._data)
@@ -29,9 +30,9 @@ class RoadModel(EntityModel):
         if role == NameRole:
             return item.name
         elif role == IconRole:
-            return item.orientation == RoadOrientation.VERTICAL
+            return True
         elif role == ValueRole:
-            return item.position
+            return item.position_on_lane
 
         return None
 
@@ -43,10 +44,6 @@ class RoadModel(EntityModel):
             ValueRole: b"role_value",  # in QML: model.btnText
         }
 
-    # ---------------------------------------------------------
-    # Helper Methods for Interaction
-    # ---------------------------------------------------------
-
     @Slot(int)
     def handle_button_click(self, row):
-        EditRoadDialog(self._data[row]).exec_()
+        EditCarDialog(self._data[row]).exec_()

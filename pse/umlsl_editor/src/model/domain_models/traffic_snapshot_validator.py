@@ -41,7 +41,7 @@ class TrafficSnapshotValidator:
         if not self._check_lane_valid(car.lane):
             raise CarTrafficSnapshotContextValidationError(
                 content=f"Car '{car.name}' has an invalid lane: {car.lane}.")
-        if not self._check_transition_valid(car.transition, car.lane, car.velocity < 0):
+        if not self._check_transition_valid(car.transition, car.lane, car.speed < 0):
             raise CarTrafficSnapshotContextValidationError(
                 content=f"Car '{car.name}' has an invalid transition: {car.transition} from lane {car.lane}.")
 
@@ -58,7 +58,7 @@ class TrafficSnapshotValidator:
         """
         if not self._check_lane_valid(car.lane):
             return False
-        if not self._check_transition_valid(car.transition, car.lane, car.velocity < 0):
+        if not self._check_transition_valid(car.transition, car.lane, car.speed < 0):
             car.transition = 0.0
         if car.next_turn is not None and not self._check_turn_intent_valid(car.next_turn):
             car.next_turn = None

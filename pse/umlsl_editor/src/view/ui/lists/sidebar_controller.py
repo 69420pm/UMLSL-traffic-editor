@@ -16,6 +16,8 @@ class SidebarController(QObject):
         self.window = main_window
 
         self.road_quick_widget = self.window.q_roads
+        self.car_quick_widget = self.window.q_cars
+        self.query_quick_widget = self.window.q_queries
 
         self.add_road_button = self.window.b_add_road
         self.add_car_button = self.window.b_add_car
@@ -29,13 +31,20 @@ class SidebarController(QObject):
         self.add_car_button.clicked.connect(lambda: self.open_edit_dialog(EditCarDialog))
         self.add_query_button.clicked.connect(lambda: self.open_edit_dialog(EditQueryDialog))
 
-        self.road_quick_widget.setClearColor(Qt.transparent)
-        self.road_quick_widget.setAttribute(Qt.WA_TranslucentBackground)
-        self.road_quick_widget.setAttribute(Qt.WA_AlwaysStackOnTop)
-        self.road_quick_widget.setResizeMode(self.road_quick_widget.ResizeMode.SizeRootObjectToView)
+        def setup_quick_widget(quick_widget, model, qml_file_path: str) -> None:
+            """Set up a QML Quick Widget with the given model and QML file."""
+            quick_widget.setClearColor(Qt.transparent)
+            quick_widget.setAttribute(Qt.WA_TranslucentBackground)
+            quick_widget.setAttribute(Qt.WA_AlwaysStackOnTop)
+            quick_widget.setResizeMode(quick_widget.ResizeMode.SizeRootObjectToView)
 
-        self.road_quick_widget.rootContext().setContextProperty("road_model", self._models.road_list_model)
-        self.road_quick_widget.setSource(QUrl.fromLocalFile("../ui/lists/qml/RoadListView.qml"))
+            quick_widget.rootContext().setContextProperty("data_model", model)
+            quick_widget.setSource(QUrl.fromLocalFile(qml_file_path))
+
+        setup_quick_widget(self.road_quick_widget, self._models.road_list_model, "../ui/lists/qml/RoadListView.qml")
+        setup_quick_widget(self.car_quick_widget, self._models.car_list_model, "../ui/lists/qml/CarListView.qml")
+        setup_quick_widget(self.query_quick_widget, self._models.query_list_model, "../ui/lists/qml/RoadListView.qml")
+
 
 
     def open_edit_dialog(self, edit_dialog ) -> None:

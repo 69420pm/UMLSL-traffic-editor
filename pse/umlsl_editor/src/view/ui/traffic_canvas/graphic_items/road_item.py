@@ -6,6 +6,7 @@ from PySide6.QtCore import QRectF, Qt, QPointF
 from PySide6.QtGui import QBrush, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
+from pse.umlsl_editor.src.controllers.view_event_contract import ViewEventHandler
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.selectable_graphics_item import (
     SelectableGraphicsItem,
@@ -20,9 +21,12 @@ class RoadItem(SelectableGraphicsItem):
     geometry and z-order when selection or position changes.
     """
 
-    def __init__(self, road: Road):
+    def __init__(self, road: Road, view_event_handler=ViewEventHandler) -> None:
         constraint = self._get_constraint_for_orientation(road.orientation)
         super().__init__(movement_constraint=constraint)
+
+        # Only for testing
+        self.view_event_handler = view_event_handler
 
         self._position_listeners: list = []
         self.setData(0, road)
@@ -73,6 +77,7 @@ class RoadItem(SelectableGraphicsItem):
         road = self.data(0)
         delta = delta_y if road.orientation == RoadOrientation.HORIZONTAL else delta_x
         road.position += delta
+        self.view_event_handler.update_road_view(road=road)
         self.update_data(road)
 
     # --- Position Listener Pattern ---

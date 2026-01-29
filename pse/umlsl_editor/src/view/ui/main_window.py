@@ -16,7 +16,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setupUi(self)
 
-        self.traffic_scene = TrafficScene(data_controller=application_controller.data_controller)
+        self.traffic_scene = TrafficScene(application_controller=application_controller)
         self.trafficView = TrafficView(scene=self.traffic_scene)
 
         layout = self.graphicsView.parentWidget().layout()

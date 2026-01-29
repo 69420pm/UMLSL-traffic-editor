@@ -43,13 +43,13 @@ class ViewEventHandlerImplementation(ViewEventHandler):
         pass
 
     def add_query_view(self, query: UMLSLQuery) -> None:
-        self.view_models.umlsl_query_list_model.add_entity(query)
+        self.view_models.query_list_model.add_entity(query)
 
     def remove_query_view(self, query: UMLSLQuery) -> None:
-        self.view_models.umlsl_query_list_model.remove_entity(query)
+        self.view_models.query_list_model.remove_entity(query)
 
     def update_query_view(self, query: UMLSLQuery) -> None:
-        self.view_models.umlsl_query_list_model.update_entity(query)
+        self.view_models.query_list_model.update_entity(query)
 
     def change_breaking_acceleration(self, breaking_acceleration: float) -> None:
         pass

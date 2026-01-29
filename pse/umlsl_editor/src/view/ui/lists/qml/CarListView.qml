@@ -5,11 +5,11 @@ import QtQuick.Layouts 1.15
 ListView {
     anchors.fill: parent
     spacing: 12
-    model: road_model
+    model: data_model
 
     delegate: ListRowDelegate {
         // Connect the button signal
-        onEditClicked: road_model.handleButtonClick(index)
+        onEditClicked: data_model.handle_button_click(index)
 
         Text {
             text: model.role_name // "C1"
@@ -19,7 +19,7 @@ ListView {
         }
 
         Image {
-            source: "../../widgets/qt_widgets/icons/car.svg"
+            source: "../../../widgets/qt_widgets/icons/car.svg"
             sourceSize.width: 24; sourceSize.height: 24
         }
 

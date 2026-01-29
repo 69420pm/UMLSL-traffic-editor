@@ -195,7 +195,7 @@ class CarItem(SelectableGraphicsItem):
 
         # Determine if we need to flip the car direction
         is_backward = car.lane.lane_direction == LaneDirection.BACKWARD
-        is_negative_velocity = car.velocity < 0
+        is_negative_velocity = car.speed < 0
 
         # XOR: flip direction if exactly one condition is true
         if is_backward != is_negative_velocity:
