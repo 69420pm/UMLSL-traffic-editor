@@ -19,15 +19,15 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
 from PySide6.QtQuickWidgets import QQuickWidget
 from PySide6.QtWidgets import (QApplication, QFrame, QGraphicsView, QHBoxLayout,
     QLabel, QMainWindow, QMenu, QMenuBar,
-    QScrollArea, QSizePolicy, QToolButton, QVBoxLayout,
-    QWidget)
+    QScrollArea, QSizePolicy, QSplitter, QToolButton,
+    QVBoxLayout, QWidget)
 from . import resources_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(983, 713)
+        MainWindow.resize(1009, 873)
         MainWindow.setStyleSheet(u"QMainWindow {\n"
 "    background-color: #011C26; \n"
 "}\n"
@@ -80,7 +80,7 @@ class Ui_MainWindow(object):
 "\n"
 "QToolButton:hover {\n"
 "    ba"
-                        "ckground-color: #314250; \n"
+                        "ckground-color: #084D68; \n"
 "}\n"
 "\n"
 "QToolButton:pressed {\n"
@@ -91,12 +91,23 @@ class Ui_MainWindow(object):
 "    background-color: #011C26; \n"
 "}\n"
 "QToolButton#b_minus:hover, #b_plus:hover, #b_sidebar_toggle:hover {\n"
-"    background-color: #314250; \n"
+"    background-color: #084D68; \n"
 "}\n"
 "QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {\n"
 "    background-color: #011C26; \n"
 "}\n"
 "\n"
+"QSplitter::handle {\n"
+"    background-color: #032F40;\n"
+"}\n"
+"\n"
+"QSplitter::handle:vertical {\n"
+"    height: 4px; \n"
+"}\n"
+"\n"
+"QSplitter::handle:vertical:hover {\n"
+"    background-color: #084D68; \n"
+"}\n"
 "")
         MainWindow.setUnifiedTitleAndToolBarOnMac(False)
         self.actionSave = QAction(MainWindow)
@@ -132,18 +143,28 @@ class Ui_MainWindow(object):
         self.sidebar.setWidgetResizable(True)
         self.c = QWidget()
         self.c.setObjectName(u"c")
-        self.c.setGeometry(QRect(0, 0, 300, 683))
-        self.verticalLayout = QVBoxLayout(self.c)
+        self.c.setGeometry(QRect(0, 0, 300, 843))
+        self.verticalLayout_5 = QVBoxLayout(self.c)
+        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
+        self.splitter = QSplitter(self.c)
+        self.splitter.setObjectName(u"splitter")
+        self.splitter.setMidLineWidth(32)
+        self.splitter.setOrientation(Qt.Orientation.Vertical)
+        self.splitter.setChildrenCollapsible(False)
+        self.layoutWidget = QWidget(self.splitter)
+        self.layoutWidget.setObjectName(u"layoutWidget")
+        self.verticalLayout = QVBoxLayout(self.layoutWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setContentsMargins(16, 16, 0, 0)
+        self.verticalLayout.setContentsMargins(0, 16, 0, 0)
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.list_titel_3 = QLabel(self.c)
+        self.horizontalLayout_2.setContentsMargins(-1, -1, 8, -1)
+        self.list_titel_3 = QLabel(self.layoutWidget)
         self.list_titel_3.setObjectName(u"list_titel_3")
 
         self.horizontalLayout_2.addWidget(self.list_titel_3)
 
-        self.b_add_road = QToolButton(self.c)
+        self.b_add_road = QToolButton(self.layoutWidget)
         self.b_add_road.setObjectName(u"b_add_road")
         self.b_add_road.setMinimumSize(QSize(32, 32))
         self.b_add_road.setMaximumSize(QSize(32, 32))
@@ -157,20 +178,27 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addLayout(self.horizontalLayout_2)
 
-        self.q_roads = QQuickWidget(self.c)
+        self.q_roads = QQuickWidget(self.layoutWidget)
         self.q_roads.setObjectName(u"q_roads")
         self.q_roads.setResizeMode(QQuickWidget.ResizeMode.SizeRootObjectToView)
 
         self.verticalLayout.addWidget(self.q_roads)
 
+        self.splitter.addWidget(self.layoutWidget)
+        self.layoutWidget1 = QWidget(self.splitter)
+        self.layoutWidget1.setObjectName(u"layoutWidget1")
+        self.verticalLayout_3 = QVBoxLayout(self.layoutWidget1)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.verticalLayout_3.setContentsMargins(0, 16, 0, 0)
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.list_titel_2 = QLabel(self.c)
+        self.horizontalLayout_3.setContentsMargins(-1, -1, 8, -1)
+        self.list_titel_2 = QLabel(self.layoutWidget1)
         self.list_titel_2.setObjectName(u"list_titel_2")
 
         self.horizontalLayout_3.addWidget(self.list_titel_2)
 
-        self.b_add_car = QToolButton(self.c)
+        self.b_add_car = QToolButton(self.layoutWidget1)
         self.b_add_car.setObjectName(u"b_add_car")
         self.b_add_car.setMinimumSize(QSize(32, 32))
         self.b_add_car.setMaximumSize(QSize(32, 32))
@@ -180,22 +208,29 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addWidget(self.b_add_car)
 
 
-        self.verticalLayout.addLayout(self.horizontalLayout_3)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_3)
 
-        self.q_cars = QQuickWidget(self.c)
+        self.q_cars = QQuickWidget(self.layoutWidget1)
         self.q_cars.setObjectName(u"q_cars")
         self.q_cars.setResizeMode(QQuickWidget.ResizeMode.SizeRootObjectToView)
 
-        self.verticalLayout.addWidget(self.q_cars)
+        self.verticalLayout_3.addWidget(self.q_cars)
 
+        self.splitter.addWidget(self.layoutWidget1)
+        self.layoutWidget2 = QWidget(self.splitter)
+        self.layoutWidget2.setObjectName(u"layoutWidget2")
+        self.verticalLayout_4 = QVBoxLayout(self.layoutWidget2)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.verticalLayout_4.setContentsMargins(0, 16, 0, 0)
         self.horizontalLayout_4 = QHBoxLayout()
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.list_titel = QLabel(self.c)
+        self.horizontalLayout_4.setContentsMargins(-1, -1, 8, -1)
+        self.list_titel = QLabel(self.layoutWidget2)
         self.list_titel.setObjectName(u"list_titel")
 
         self.horizontalLayout_4.addWidget(self.list_titel)
 
-        self.b_add_query = QToolButton(self.c)
+        self.b_add_query = QToolButton(self.layoutWidget2)
         self.b_add_query.setObjectName(u"b_add_query")
         self.b_add_query.setMinimumSize(QSize(32, 32))
         self.b_add_query.setMaximumSize(QSize(32, 32))
@@ -205,13 +240,17 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4.addWidget(self.b_add_query)
 
 
-        self.verticalLayout.addLayout(self.horizontalLayout_4)
+        self.verticalLayout_4.addLayout(self.horizontalLayout_4)
 
-        self.q_queries = QQuickWidget(self.c)
+        self.q_queries = QQuickWidget(self.layoutWidget2)
         self.q_queries.setObjectName(u"q_queries")
         self.q_queries.setResizeMode(QQuickWidget.ResizeMode.SizeRootObjectToView)
 
-        self.verticalLayout.addWidget(self.q_queries)
+        self.verticalLayout_4.addWidget(self.q_queries)
+
+        self.splitter.addWidget(self.layoutWidget2)
+
+        self.verticalLayout_5.addWidget(self.splitter)
 
         self.sidebar.setWidget(self.c)
 
@@ -266,7 +305,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menuBar = QMenuBar(MainWindow)
         self.menuBar.setObjectName(u"menuBar")
-        self.menuBar.setGeometry(QRect(0, 0, 983, 30))
+        self.menuBar.setGeometry(QRect(0, 0, 1009, 30))
         self.menuBar.setDefaultUp(False)
         self.menuBar.setNativeMenuBar(True)
         self.menuFile = QMenu(self.menuBar)

@@ -8,8 +8,9 @@ from pse.umlsl_editor.src.view.ui.lists.models.EntityModel import EntityModel
 # 1. Define custom roles.
 # These are the identifiers QML will use to ask for specific pieces of data.
 NameRole = Qt.UserRole + 1
-IconRole = Qt.UserRole + 2
+ColorRole = Qt.UserRole + 2
 ValueRole = Qt.UserRole + 3
+
 
 class CarModel(EntityModel):
     def __init__(self, cars: list[Car] | None, parent=None):
@@ -29,19 +30,19 @@ class CarModel(EntityModel):
 
         if role == NameRole:
             return item.name
-        elif role == IconRole:
-            return True
         elif role == ValueRole:
-            return item.position_on_lane
+            return "R: " + item.lane.road_uid +  "L: " + str(item.lane.lane_index)
+        elif role == ColorRole:
+            return item.color
 
         return None
 
     def roleNames(self):
         """Maps the integer Role IDs to variable names used in QML."""
         return {
-            NameRole: b"role_name",  # in QML: model.title
-            IconRole: b"role_isRotated",  # in QML: model.status
-            ValueRole: b"role_value",  # in QML: model.btnText
+            NameRole: b"role_name",
+            ColorRole: b"role_color",
+            ValueRole: b"role_value",
         }
 
     @Slot(int)

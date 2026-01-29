@@ -25,13 +25,14 @@ class RoadModel(EntityModel):
 
         # Get the dictionary for the current row
         item = self._data[index.row()]
+        is_vertical = item.orientation == RoadOrientation.VERTICAL
 
         if role == NameRole:
             return item.name
         elif role == IconRole:
-            return item.orientation == RoadOrientation.VERTICAL
+            return is_vertical
         elif role == ValueRole:
-            return item.position
+            return ("x" if is_vertical else "y") + " = "  + str(item.position)
 
         return None
 

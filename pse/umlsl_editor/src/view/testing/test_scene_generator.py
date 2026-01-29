@@ -66,7 +66,7 @@ c1 = Car.from_params(CarParams(
 ))
 
 c2 = Car.from_params(CarParams(
-    name="C1",
+    name="C2",
     lane=l2,
     color="#34eb43",
     position_on_lane=5.0,
@@ -78,7 +78,7 @@ c2 = Car.from_params(CarParams(
 ))
 
 c3 = Car.from_params(CarParams(
-    name="C1",
+    name="C3",
     lane=l3,
     color="#34d5eb",
     position_on_lane=0.0,
