@@ -16,6 +16,7 @@ def run_test_render() -> None:
     app = QApplication(sys.argv)
     test_application_controller = TestApplicationController()
     window = MainWindow(test_application_controller)
+    window.show()
     sys.exit(app.exec())
 
 

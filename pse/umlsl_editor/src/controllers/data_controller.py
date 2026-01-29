@@ -22,8 +22,7 @@ class DataController:
         raise NotImplementedError
 
     def get_all_roads(self) -> list[Road]:
-        """Return all roads from the traffic snapshot."""
-        raise NotImplementedError
+        return self._traffic_snapshot_reader.get_roads()
 
     def get_view_models(selfs) -> ViewModels:
         """Return the view models."""

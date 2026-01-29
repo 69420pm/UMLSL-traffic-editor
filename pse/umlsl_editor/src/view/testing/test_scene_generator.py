@@ -142,7 +142,7 @@ class SampleTrafficSnapshotReader(TrafficSnapshotReader):
 class TestApplicationController(ApplicationController):
     def __init__(self):
         self.data_controller = TestDataController()
-        self.view = ViewEventHandlerImplementation(self.data_controller.get_view_models())
+        self.view_event_handler = ViewEventHandlerImplementation(self.data_controller.get_view_models())
 
 class TestDataController(DataController):
     def __init__(self):

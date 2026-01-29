@@ -42,7 +42,7 @@ class TrafficScene(QGraphicsScene):
         self.crossings: Dict[str, CrossingItem] = {}
 
         self.data_controller = application_controller.data_controller
-        self.view_handler = application_controller.view
+        self.view_handler = application_controller.view_event_handler
 
         self.fill_scene_with_data()
 

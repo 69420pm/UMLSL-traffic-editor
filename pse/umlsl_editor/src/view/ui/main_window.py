@@ -29,5 +29,3 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.sidebar_controller = SidebarController(self, application_controller.data_controller)
 
         self.global_controls = GlobalControls(self)
-
-        self.show()
