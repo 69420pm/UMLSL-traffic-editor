@@ -1,7 +1,6 @@
 from PySide6.QtCore import QAbstractListModel, Qt, QModelIndex, Slot
 
-from pse.umlsl_editor.src.model.entities.road import RoadOrientation
-from pse.umlsl_editor.src.view.testing.sample_scene_generator import r1, r2, r3, r4
+from pse.umlsl_editor.src.model.entities.road import RoadOrientation, Road
 
 # 1. Define custom roles.
 # These are the identifiers QML will use to ask for specific pieces of data.
@@ -9,14 +8,10 @@ NameRole = Qt.UserRole + 1
 IconRole = Qt.UserRole + 2
 ValueRole = Qt.UserRole + 3
 
-
 class RoadModel(QAbstractListModel):
-    def __init__(self, parent=None):
+    def __init__(self, roads: list[Road] | None, parent=None):
         super().__init__(parent)
-
-        # 2. Create Dummy Data
-        # In a real app, this might come from a database or API
-        self._data = [r1,r2,r3,r4]
+        self._data = roads or []
 
     def rowCount(self, parent=QModelIndex()):
         return len(self._data)
@@ -32,7 +27,7 @@ class RoadModel(QAbstractListModel):
         if role == NameRole:
             return item.name
         elif role == IconRole:
-            return item.orientation == RoadOrientation.HORIZONTAL
+            return item.orientation == RoadOrientation.VERTICAL
         elif role == ValueRole:
             return item.position
 

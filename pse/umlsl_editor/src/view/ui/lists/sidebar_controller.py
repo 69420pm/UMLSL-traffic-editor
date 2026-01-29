@@ -1,7 +1,8 @@
 from PySide6.QtCore import QObject, QUrl, Qt
-from PySide6.QtWidgets import QMainWindow, QDialog
 
-from pse.umlsl_editor.src.view.ui.lists.RoadModel import RoadModel
+from pse.umlsl_editor.src.controllers.data_controller import DataController
+from pse.umlsl_editor.src.controllers.view_event_contract import ViewEventHandler
+from pse.umlsl_editor.src.view.ui.lists.models.RoadModel import RoadModel
 from pse.umlsl_editor.src.view.ui.lists.edit_car_dialog import EditCarDialog
 from pse.umlsl_editor.src.view.ui.lists.edit_query_dialog import EditQueryDialog
 from pse.umlsl_editor.src.view.ui.lists.edit_road_dialog import EditRoadDialog
@@ -9,9 +10,9 @@ from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_main import Ui_MainWi
 
 
 class SidebarController(QObject):
-    def __init__(self, main_window: Ui_MainWindow) -> None:
+    def __init__(self, main_window: Ui_MainWindow, data_controller: DataController) -> None:
         super().__init__(main_window)
-        self._model = RoadModel()
+        self._models = data_controller.get_view_models()
         self.window = main_window
 
         self.road_quick_widget = self.window.q_roads
@@ -33,8 +34,8 @@ class SidebarController(QObject):
         self.road_quick_widget.setAttribute(Qt.WA_AlwaysStackOnTop)
         self.road_quick_widget.setResizeMode(self.road_quick_widget.ResizeMode.SizeRootObjectToView)
 
-        self.road_quick_widget.rootContext().setContextProperty("road_model", self._model)
-        self.road_quick_widget.setSource(QUrl.fromLocalFile("../ui/lists/RoadListView.qml"))
+        self.road_quick_widget.rootContext().setContextProperty("road_model", self._models.road_list_model)
+        self.road_quick_widget.setSource(QUrl.fromLocalFile("../ui/lists/qml/RoadListView.qml"))
 
 
     def open_edit_dialog(self, edit_dialog ) -> None:

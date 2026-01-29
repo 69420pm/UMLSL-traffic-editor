@@ -19,7 +19,7 @@ ListView {
         }
 
         Image {
-            source: "../../widgets/qt_widgets/icons/add_road.svg"
+            source: "../../../widgets/qt_widgets/icons/add_road.svg"
             sourceSize.width: 24; sourceSize.height: 24
             rotation: model.role_isRotated ? 90 : 0
         }

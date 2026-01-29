@@ -3,13 +3,15 @@ Sample scene generator for the UMLSL Traffic Editor.
 
 Provides utilities for creating test traffic scenarios.
 """
+from pse.umlsl_editor.src.controllers import ApplicationController
 from pse.umlsl_editor.src.controllers.data_controller import DataController
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.car import CarParams, Car
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation, RoadParams, LaneDirection
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent, TurnDirection
-
+from pse.umlsl_editor.src.view.view_event_handler_impl import ViewEventHandlerImplementation
+from pse.umlsl_editor.src.view.view_models import ViewModels
 
 # Horizontal Road (East-West)
 r1 = Road.from_params(RoadParams(
@@ -137,19 +139,30 @@ class SampleTrafficSnapshotReader(TrafficSnapshotReader):
         """
         pass
 
-class SampleDataController(DataController):
+class TestApplicationController(ApplicationController):
+    def __init__(self):
+        self.data_controller = TestDataController()
+        self.view = ViewEventHandlerImplementation(self.data_controller.get_view_models())
+
+class TestDataController(DataController):
     def __init__(self):
         traffic_snapshot_reader = SampleTrafficSnapshotReader()
         super().__init__(traffic_snapshot_reader)
-        self.traffic_snapshot_reader = traffic_snapshot_reader
+
+        self._view_models = ViewModels(roads = traffic_snapshot_reader.get_roads(), cars= traffic_snapshot_reader.get_cars(), umlsl_queries=[])
+        self._traffic_snapshot_reader = traffic_snapshot_reader
+
+    def get_view_models(self) -> ViewModels:
+        """Return the view models."""
+        return self._view_models
 
     def get_all_cars(self) -> list[Car]:
         """Return all cars from the traffic snapshot."""
-        return self.traffic_snapshot_reader.get_cars()
+        return self._traffic_snapshot_reader.get_cars()
 
     def get_all_roads(self) -> list[Road]:
         """Return all roads from the traffic snapshot."""
-        return self.traffic_snapshot_reader.get_roads()
+        return self._traffic_snapshot_reader.get_roads()
 
     def get_breaking_acceleration(self) -> float:
         return 8.0
