@@ -5,10 +5,12 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class Segment(ABC):
     is_lane_segment: bool
+    uid: str
 
 
 @dataclass
 class Path:
+    """Describes a list of ordered segments"""
     segments: list[Segment]
 
     def __post_init__(self) -> None:

@@ -74,14 +74,14 @@ class CrossingItem(QGraphicsItem):
             h_road, v_road = self._road_2, self._road_1
 
         # 1. Calculate Horizontal Road Geometry (Y-axis position & Height)
-        h_width_f = h_road.data(0).forward_lanes * DIMENSION.LANE_WIDTH
-        h_width_total = (h_road.data(0).forward_lanes + h_road.data(0).backward_lanes) * DIMENSION.LANE_WIDTH
+        h_width_f = h_road.data(0).number_of_forward_lanes * DIMENSION.LANE_WIDTH
+        h_width_total = (h_road.data(0).number_of_forward_lanes + h_road.data(0).number_of_backward_lanes) * DIMENSION.LANE_WIDTH
 
         h_y = (h_road.data(0).position - h_width_f) + h_road.y()
 
         # 2. Calculate Vertical Road Geometry (X-axis position & Width)
-        v_width_b = v_road.data(0).backward_lanes * DIMENSION.LANE_WIDTH
-        v_width_total = (v_road.data(0).forward_lanes + v_road.data(0).backward_lanes) * DIMENSION.LANE_WIDTH
+        v_width_b = v_road.data(0).number_of_backward_lanes * DIMENSION.LANE_WIDTH
+        v_width_total = (v_road.data(0).number_of_forward_lanes + v_road.data(0).number_of_backward_lanes) * DIMENSION.LANE_WIDTH
 
         v_x = (v_road.data(0).position - v_width_b) + v_road.x()
 

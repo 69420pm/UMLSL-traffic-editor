@@ -21,8 +21,8 @@ def create_sample_scene():
         name="R1",
         orientation=RoadOrientation.HORIZONTAL,
         position=2.0,
-        forward_lanes=0,
-        backward_lanes=1
+        number_of_forward_lanes=0,
+        number_of_backward_lanes=1
     ))
 
     # Second Horizontal Road
@@ -30,8 +30,8 @@ def create_sample_scene():
         name="R2",
         orientation=RoadOrientation.HORIZONTAL,
         position=-3.0,
-        forward_lanes=1,
-        backward_lanes=2
+        number_of_forward_lanes=1,
+        number_of_backward_lanes=2
     ))
 
     # Vertical Road (North-South)
@@ -39,8 +39,8 @@ def create_sample_scene():
         name="R3",
         orientation=RoadOrientation.VERTICAL,
         position=-2.0,
-        forward_lanes=2,
-        backward_lanes=2
+        number_of_forward_lanes=2,
+        number_of_backward_lanes=2
     ))
 
     # Vertical Road (North-South)
@@ -48,8 +48,8 @@ def create_sample_scene():
         name="R4",
         orientation=RoadOrientation.VERTICAL,
         position=5.0,
-        forward_lanes=1,
-        backward_lanes=1
+        number_of_forward_lanes=1,
+        number_of_backward_lanes=1
     ))
 
     l1 = Lane(road_uid=r1.uid, lane_index=0, lane_direction=LaneDirection.FORWARD)

@@ -1,22 +1,38 @@
 from dataclasses import dataclass, field
 
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
+from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.position import Position
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class CrossingSegment(Segment):
-    lane_horizontal: Lane
-    lane_vertical: Lane
+    horizontal_lane: Lane
+    vertical_lane: Lane
+    top_segment_uid: str
+    bottom_segment_uid: str
+    left_segment_uid: str
+    right_segment_uid: str
+    uid:str=field(default_factory=generate_uid)
     is_lane_segment: bool = field(default=False, init=False)
 
 
+
     def __post_init__(self) -> None:
-        if not isinstance(self.lane_horizontal, Lane):
+        if not isinstance(self.horizontal_lane, Lane):
             raise ValueError("lane_horizontal must be a Lane")
-        if not isinstance(self.lane_vertical, Lane):
+        if not isinstance(self.vertical_lane, Lane):
             raise ValueError("lane_vertical must be a Lane")
+        if not isinstance(self.top_segment_uid, str):
+            raise ValueError("top_segment_uid must be a string")
+        if not isinstance(self.bottom_segment_uid, str):
+            raise ValueError("bottom_segment_uid must be a string")
+        if not isinstance(self.left_segment_uid, str):
+            raise ValueError("left_segment_uid must be a string")
+        if not isinstance(self.right_segment_uid, str):
+            raise ValueError("right_segment_uid must be a string")
+        pass
 
     def get_position(self) -> Position:
         """Return position of the top left corner of the crossing segment.

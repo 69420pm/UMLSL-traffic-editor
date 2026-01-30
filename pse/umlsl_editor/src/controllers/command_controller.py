@@ -17,7 +17,7 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import Tra
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 from pse.umlsl_editor.src.model.entities.car import CarParams
 from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection, RoadParams, RoadOrientation
-from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery, UMLSLQueryParams
+from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQueryParams
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
 from pse.umlsl_editor.src.commands.cars import add_car
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane

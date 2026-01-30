@@ -237,13 +237,13 @@ class TrafficView(QGraphicsView):
             return road.position - offset if is_horizontal else road.position + offset
 
         # Road label position (centered on full road width)
-        road_offset = (-0.5 - road.backward_lanes) * lane_width
+        road_offset = (-0.5 - road.number_of_backward_lanes) * lane_width
         road_label = (road.name, calc_position(road_offset))
 
         # Forward lane labels
         lane_labels = [
             (f"f{i + 1}", calc_position((i + 0.5) * lane_width))
-            for i in range(road.forward_lanes)
+            for i in range(road.number_of_forward_lanes)
         ]
 
         # Backward lane labels (inverted position calculation)
@@ -252,7 +252,7 @@ class TrafficView(QGraphicsView):
 
         lane_labels.extend(
             (f"b{i + 1}", calc_backward_position((i + 0.5) * lane_width))
-            for i in range(road.backward_lanes)
+            for i in range(road.number_of_backward_lanes)
         )
 
         return road_label, lane_labels

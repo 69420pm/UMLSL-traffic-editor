@@ -1,17 +1,19 @@
-from typing import Any, Optional, Mapping, Iterator, KeysView, ValuesView, ItemsView
+from typing import Any, Optional
+
+from sortedcontainers import SortedDict
 
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection, RoadOrientation
+from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation
+from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
-from pse.umlsl_editor.src.model.helper.observables import ObservableDict, ObservableList, Observable, ReadOnlyDictView
+from pse.umlsl_editor.src.model.helper.observables import ObservableDict, Observable, ReadOnlyDictView
 from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_validator import TrafficSnapshotValidator
-
-
-
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 
 
 class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWriter):
@@ -40,28 +42,30 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             roads: Optional[ObservableDict[str, Road]] = None,
             cars: Optional[ObservableDict[str, Car]] = None,
     ):
+
         super().__init__()
-
-        self._roads = roads if roads is not None else ObservableDict[str, Road](
-            on_add=self._on_road_added,
-            on_remove=self._on_road_removed,
-            on_update=self._on_road_updated,
-        )
-
         self._cars = cars if cars is not None else ObservableDict[str, Car](
             on_add=lambda car: self.notify(TrafficSnapshotEventType.CAR_ADDED, car),
             on_remove=lambda car: self.notify(TrafficSnapshotEventType.CAR_REMOVED, car),
             on_update=lambda car: self.notify(TrafficSnapshotEventType.CAR_UPDATED, car)
         )
 
-        # self._crossing_segments = ObservableList[CrossingSegment](
-        #     on_add=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_ADDED, segment),
-        #     on_remove=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_REMOVED, segment),
-        #     on_update=lambda segment: self.notify(TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED, segment)
-        # )
-        self._crossing_segments = list[CrossingSegment]
+        self._horizontal_roads: ObservableDict[str, Road] = ObservableDict(
+            on_add=self._on_road_added,
+            on_remove=self._on_road_removed,
+            on_update=self._on_road_updated
+        )
+        self._vertical_roads: ObservableDict[str, Road] = ObservableDict(
+            on_add=self._on_road_added,
+            on_remove=self._on_road_removed,
+            on_update=self._on_road_updated
+        )
+        self._crossing_segments: ObservableDict[str, CrossingSegment] = ObservableDict()
+        """Dictionary of crossing segments, keyed by horizontal lane UID + vertical lane UID."""
+        self._lane_segments: ObservableDict[str, LaneSegment] = ObservableDict()
+        """Dictionary of lane segments, keyed by lane UID + start road UID + end road UID."""
 
-        self._read_only_roads = ReadOnlyDictView(self._roads)
+        self._read_only_roads = ReadOnlyDictView(self._horizontal_roads + self._vertical_roads)
         """Read-only view of the roads dictionary."""
         self._read_only_cars = ReadOnlyDictView(self._cars)
         """Read-only view of the cars dictionary."""
@@ -78,18 +82,13 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def _on_road_added(self, road: Road):
         self.notify(TrafficSnapshotEventType.ROAD_ADDED, road)
-        self._validate_cars()
-        self._recalculate_crossing_segments()
 
     def _on_road_removed(self, road: Road):
         self.notify(TrafficSnapshotEventType.ROAD_REMOVED, road)
-        self._validate_cars()
-        self._recalculate_crossing_segments()
 
     def _on_road_updated(self, road: Road):
         self.notify(TrafficSnapshotEventType.ROAD_UPDATED, road)
-        self._validate_cars()
-        self._recalculate_crossing_segments()
+        self.validator.validate_road(road, False)
 
     def get_cars_on_road(self, road: Road) -> list[Car]:
         pass
@@ -114,14 +113,32 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def add_road(self, road: Road) -> None:
         self.validator.validate_road(road, True)
-        self._roads[road.name] = road
+        if road.orientation == RoadOrientation.HORIZONTAL:
+            self._horizontal_roads[road.uid] = road
+        else:
+            self._vertical_roads[road.uid] = road
 
     def remove_road(self, road_uid: str) -> None:
-        self._roads.pop(road_uid)
+        if road_uid in self._horizontal_roads:
+            self._horizontal_roads.pop(road_uid)
+        elif road_uid in self._vertical_roads:
+            self._vertical_roads.pop(road_uid)
 
-    def update_road(self, road_data: Road) -> None:
-        self.validator.validate_road(road_data, False)
-        pass
+    def update_road(self, road: Road) -> None:
+        self.validator.validate_road(road, False)
+        if road.uid in self._horizontal_roads:
+            if road.orientation != RoadOrientation.HORIZONTAL:
+                self._horizontal_roads.pop(road.uid)
+                self._vertical_roads[road.uid] = road
+            else:
+                self._horizontal_roads[road.uid] = road
+        elif road.uid in self._vertical_roads:
+            if road.orientation != RoadOrientation.HORIZONTAL:
+                self._vertical_roads.pop(road.uid)
+                self._horizontal_roads[road.uid] = road
+            else:
+                self._vertical_roads[road.uid] = road
+
 
     def add_car(self, car: Car) -> None:
         self.validator.validate_car(car, True)
@@ -134,50 +151,33 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self.validator.validate_car(car_data, False)
         pass
 
-    def _validate_cars(self):
-        """Validates all cars in the snapshot and autocorrects them if possible. When instance cannot be longer maintained,
-        it gets removed from the snapshot."""
-        for car in self._cars.values():
-            if not self.validator.validate_car_and_autocorrect(car):
-                self.remove_car(car.name)
-
-    def _recalculate_crossing_segments(self) -> None:
-        """Recalculates the crossing segments based on the current roads in the snapshot."""
-        horizontal_roads = [road for road in self._roads.values() if road.orientation == RoadOrientation.HORIZONTAL]
-        vertical_roads = [road for road in self._roads.values() if road.orientation == RoadOrientation.VERTICAL]
-
-        horizontal_lanes: list[Lane] = []
-        vertical_lanes: list[Lane] = []
-
-        for horizontal_road in horizontal_roads:
-            for i in range(1, horizontal_road.forward_lanes + 1):
-                forward_lanes = Lane(road_uid=horizontal_road.uid,lane_index= i, lane_direction=LaneDirection.FORWARD)
-                horizontal_lanes.append(forward_lanes)
-            for i in range(1, horizontal_road.backward_lanes + 1):
-                backward_lanes = Lane(road_uid=horizontal_road.uid,lane_index= i, lane_direction=LaneDirection.BACKWARD)
-                horizontal_lanes.append(backward_lanes)
-
-        for vertical_road in vertical_roads:
-            for i in range(1, vertical_road.forward_lanes + 1):
-                forward_lanes = Lane(road_uid=vertical_road.uid,lane_index= i, lane_direction=LaneDirection.FORWARD)
-                vertical_lanes.append(forward_lanes)
-            for i in range(1, vertical_road.backward_lanes + 1):
-                backward_lanes = Lane(road_uid=vertical_road.uid,lane_index= i, lane_direction=LaneDirection.BACKWARD)
-                vertical_lanes.append(backward_lanes)
-
-        self._crossing_segments = []
-        for horizontal_lane in horizontal_lanes:
-            for vertical_lane in vertical_lanes:
-                crossing_segment = CrossingSegment(
-                    lane_horizontal=horizontal_lane,
-                    lane_vertical=vertical_lane
-                )
-                self._crossing_segments.append(crossing_segment)
-
-
     def _recalculate_segments(self, car: Car) -> None:
         """Recalculates the segments for a given car based on its current position."""
         raise NotImplementedError
+
+    def _recalculate_static_segments(self):
+        """Recalculates all static segments (lane segments and crossing segments) in the traffic snapshot."""
+        sorted_horizontal_roads_by_y = sorted(self._horizontal_roads.values(), key=lambda item: item.position)
+        sorted_vertical_roads_by_x = sorted(self._vertical_roads.values(), key=lambda item: item.position)
+
+        self._crossing_segments = ObservableDict[str, CrossingSegment]()
+        self._lane_segments = ObservableDict[str, LaneSegment]()
+        ordered_horizontal_lanes : list[Lane] = []
+        ordered_vertical_lanes : list[Lane] = []
+        for horizontal_road in sorted_horizontal_roads_by_y:
+            ordered_horizontal_lanes += sorted(horizontal_road.backward_lanes + horizontal_road.forward_lanes, key=lambda lane: lane.lane_index)
+        for vertical_road in sorted_vertical_roads_by_x:
+             ordered_vertical_lanes += sorted(vertical_road.backward_lanes + vertical_road.forward_lanes, key=lambda lane: lane.lane_index)
+
+        previous_horizontal_lane: Lane|None = None
+        previous_vertical_lane: Lane|None = None
+        for horizontal_lane in ordered_horizontal_lanes:
+            for vertical_lane in ordered_vertical_lanes:
+                crossing_segment_uid = generate_uid()
+                # top_lane_segment = LaneSegment
+                # crossing_segment = CrossingSegment(uid= crossing_segment_uid,horizontal_lane=horizontal_lane, vertical_lane=vertical_lane, top_segment_uid=previous_horizontal_lane.u )
+                # self._crossing_segments[crossing_segment.uid] = crossing_segment
+
 
     def to_dict(self) -> dict[str, Any]:
         """

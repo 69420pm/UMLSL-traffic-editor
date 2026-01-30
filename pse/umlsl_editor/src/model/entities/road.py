@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from pse.umlsl_editor.src.model.entities.entity import Entity
+from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.errors.road_errors import RoadValidationError
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 
@@ -31,14 +32,14 @@ class RoadParams:
         name: Unique human-readable identifier for the road.
         orientation: The orientation of the road (horizontal or vertical).
         position: The position of the road in the coordinate system.
-        forward_lanes: Number of lanes in the forward direction
-        backward_lanes: Number of lanes in the backward direction
+        number_of_forward_lanes: Number of lanes in the forward direction
+        number_of_backward_lanes: Number of lanes in the backward direction
     """
     name: str
     orientation: RoadOrientation
     position: float
-    forward_lanes: int
-    backward_lanes: int
+    number_of_forward_lanes: int
+    number_of_backward_lanes: int
 
 
 @dataclass
@@ -68,8 +69,11 @@ class Road(Entity):
     name: str
     orientation: RoadOrientation
     position: float
-    forward_lanes: int
-    backward_lanes: int
+    number_of_forward_lanes: int
+    number_of_backward_lanes: int
+    forward_lanes: list[Lane]
+    backward_lanes: list[Lane]
+
 
     _should_validate: bool = False
 
@@ -83,13 +87,22 @@ class Road(Entity):
         Returns:
             A new Road instance with the provided parameters.
         """
+        road_uid = generate_uid()
+        forward_lanes = []
+        backward_lanes = []
+        for i in range(params.number_of_forward_lanes):
+            forward_lanes.append(Lane(lane_index=i, road_uid=road_uid))
+        for i in range(params.number_of_backward_lanes):
+            backward_lanes.append(Lane(lane_index=-(i+1), road_uid=road_uid))
         return cls(
             name=params.name,
-            uid=generate_uid(),
+            uid=road_uid,
             orientation=params.orientation,
             position=params.position,
-            forward_lanes=params.forward_lanes,
-            backward_lanes=params.backward_lanes,
+            number_of_forward_lanes=params.number_of_forward_lanes,
+            number_of_backward_lanes=params.number_of_backward_lanes,
+            forward_lanes=forward_lanes,
+            backward_lanes=backward_lanes,
         )
 
     def update_from_params(self, params: RoadParams) -> None:
@@ -106,8 +119,26 @@ class Road(Entity):
         self.name = params.name
         self.orientation = params.orientation
         self.position = params.position
-        self.forward_lanes = params.forward_lanes
-        self.backward_lanes = params.backward_lanes
+
+        # THATS WRONG
+        # Update forward lanes
+        if params.number_of_forward_lanes > len(self.forward_lanes):
+            for i in range(len(self.forward_lanes), params.number_of_forward_lanes):
+                self.forward_lanes.append(Lane(uid=generate_uid(), lane_index=i, road_uid=self.uid))
+        elif params.number_of_forward_lanes < len(self.forward_lanes):
+            self.forward_lanes = self.forward_lanes[:params.number_of_forward_lanes]
+
+        # Update backward lanes
+        if params.number_of_backward_lanes > len(self.backward_lanes):
+            for i in range(len(self.backward_lanes), params.number_of_backward_lanes):
+                self.backward_lanes.append(Lane(uid=generate_uid(), lane_index=-(i + 1), road_uid=self.uid))
+        elif params.number_of_backward_lanes < len(self.backward_lanes):
+            self.backward_lanes = self.backward_lanes[:params.number_of_backward_lanes]
+
+        self.number_of_forward_lanes = params.number_of_forward_lanes
+        self.number_of_backward_lanes = params.number_of_backward_lanes
+
+
         self.__post_init__()
 
     def __post_init__(self) -> None:
@@ -136,11 +167,11 @@ class Road(Entity):
         if not isinstance(self.position, (int, float)):
             raise RoadValidationError(content="Position must be a number.")
 
-        if not isinstance(self.forward_lanes, int) or self.forward_lanes < 0:
+        if not isinstance(self.number_of_forward_lanes, int) or self.number_of_forward_lanes < 0:
             raise RoadValidationError(content="Forward lanes must be a non-negative integer.")
 
-        if not isinstance(self.backward_lanes, int) or self.backward_lanes < 0:
+        if not isinstance(self.number_of_backward_lanes, int) or self.number_of_backward_lanes < 0:
             raise RoadValidationError(content="Backward lanes must be a non-negative integer.")
 
-        if self.forward_lanes == 0 and self.backward_lanes == 0:
+        if self.number_of_forward_lanes == 0 and self.number_of_backward_lanes == 0:
             raise RoadValidationError(content="Road must have at least one lane.")

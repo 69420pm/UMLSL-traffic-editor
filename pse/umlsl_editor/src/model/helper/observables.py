@@ -103,6 +103,19 @@ class ObservableDict(MutableMapping[Key, Value]):
         """Return the internal dictionary."""
         return self._data
 
+    def __add__(self, other: object) -> "ObservableDict":
+        """Combine two ObservableDicts into a new one."""
+        if not isinstance(other, ObservableDict):
+            return NotImplemented
+
+        combined_data = {**self._data, **other._data}
+        return ObservableDict(
+            on_add=self._on_add,
+            on_remove=self._on_remove,
+            on_update=self._on_update,
+            initial_data=combined_data
+        )
+
 
 class ObservableList(MutableSequence[T]):
     """

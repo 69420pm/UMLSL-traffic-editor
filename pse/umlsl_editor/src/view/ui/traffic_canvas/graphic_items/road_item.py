@@ -125,8 +125,8 @@ class RoadItem(SelectableGraphicsItem):
         scene_size = DIMENSION.SCENE_SIZE
         lane_width = DIMENSION.LANE_WIDTH
 
-        width_f = road.forward_lanes * lane_width
-        width_b = road.backward_lanes * lane_width
+        width_f = road.number_of_forward_lanes * lane_width
+        width_b = road.number_of_backward_lanes * lane_width
 
         if road.orientation == RoadOrientation.HORIZONTAL:
             # Horizontal road: Spans X axis (scene_size), positioned on Y axis
@@ -142,7 +142,7 @@ class RoadItem(SelectableGraphicsItem):
         self._calculate_lane_dividers(road, scene_size)
 
     def _calculate_center_line(self, road: Road, scene_size: int) -> None:
-        if road.forward_lanes >= 1 and road.backward_lanes >= 1:
+        if road.number_of_forward_lanes >= 1 and road.number_of_backward_lanes >= 1:
             self._center_line = QPainterPath()
             if road.orientation == RoadOrientation.HORIZONTAL:
                 self._center_line.moveTo(-scene_size / 2, road.position)
@@ -163,13 +163,13 @@ class RoadItem(SelectableGraphicsItem):
                 self._dashed_lines.moveTo(offset, -scene_size / 2)
                 self._dashed_lines.lineTo(offset, scene_size / 2)
 
-        for i in range(1, road.forward_lanes):
+        for i in range(1, road.number_of_forward_lanes):
             if road.orientation == RoadOrientation.HORIZONTAL:
                 add_divider(road.position - (i * lane_width))
             else:
                 add_divider(road.position + (i * lane_width))
 
-        for i in range(1, road.backward_lanes):
+        for i in range(1, road.number_of_backward_lanes):
             if road.orientation == RoadOrientation.HORIZONTAL:
                 add_divider(road.position + (i * lane_width))
             else:
