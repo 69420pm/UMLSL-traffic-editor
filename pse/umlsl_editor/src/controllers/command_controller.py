@@ -6,11 +6,13 @@ from pse.umlsl_editor.src.commands.cars.delete_car import DeleteCar
 from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.commands.roads.add_road import AddRoad
 from pse.umlsl_editor.src.commands.roads.delete_road import DeleteRoad
+from pse.umlsl_editor.src.commands.roads.edit_road import EditRoad
 from pse.umlsl_editor.src.commands.settings.change_breaking_acceleration import ChangeBreakingAccelerationCommand
 from pse.umlsl_editor.src.commands.settings.toggle_coordinate_system import ToggleCoordinateSystemCommand
 from pse.umlsl_editor.src.commands.settings.toggle_safety_distance import ToggleSafetyDistanceCommand
 from pse.umlsl_editor.src.commands.umlsl.add_umlsl_query import AddUMLSLQuery
 from pse.umlsl_editor.src.commands.umlsl.delete_umlsl_query import DeleteUMLSLQuery
+from pse.umlsl_editor.src.commands.umlsl.edit_umlsl_query import EditUMLSLQuery
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
@@ -19,7 +21,7 @@ from pse.umlsl_editor.src.model.entities.car import CarParams
 from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection, RoadParams, RoadOrientation
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery, UMLSLQueryParams
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
-from pse.umlsl_editor.src.commands.cars import add_car
+from pse.umlsl_editor.src.commands.cars import add_car, edit_car
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 
 
@@ -180,7 +182,13 @@ class CommandController:
             next_turn: New turn intent (if provided).
 
         """
-        raise NotImplementedError("Method not implemented yet.")
+        acceleration: float = 1
+        lane = Lane(road_uid=assigned_road.uid, lane_index=lane_index, lane_direction=lane_direction)
+        car_params = CarParams(car_name, lane, color, position_on_lane, transition, velocity, length, next_turn,
+                               acceleration)
+        edit_car_command = edit_car.EditCarCommand(self.traffic_snapshot_reader, self.traffic_snapshot_writer, car_params)
+        edit_car_command.execute()
+        raise NotImplementedError("Prototype Method")
 
     def add_road(
         self,
@@ -239,7 +247,11 @@ class CommandController:
             backward_lanes: New backward lane count (if provided).
 
         """
-        raise NotImplementedError("Method not implemented yet.")
+        road_orientation = RoadOrientation(orientation)
+        road_params = RoadParams(road_name, road_orientation, position, forward_lanes, backward_lanes)
+        edit_road_command = EditRoad(self.traffic_snapshot_reader, self.traffic_snapshot_writer, road_params)
+        edit_road_command.execute()
+        raise NotImplementedError("Prototype Method")
 
     def add_umlsl_query(
         self,
@@ -288,7 +300,12 @@ class CommandController:
             latex: New LaTeX representation (if provided).
 
         """
-        raise NotImplementedError("Method not implemented yet.")
+        # TODO: Add real validation parameter
+        validation: bool = True
+        umlsl_query_params = UMLSLQueryParams(latex, assigned_car_name, validation)
+        edit_umlsl_query = EditUMLSLQuery(query_id, umlsl_query_params, self.umlsl_queries_model)
+        edit_umlsl_query.execute()
+        raise NotImplementedError("Prototype Method")
 
 
     def select_car(self, car_name: str) -> None:

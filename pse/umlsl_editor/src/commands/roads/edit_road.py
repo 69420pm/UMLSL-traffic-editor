@@ -33,4 +33,6 @@ class EditRoad(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        raise NotImplementedError
+        road = self._traffic_snapshot_reader.get_road_by_name(self.road_params.name)
+        self._traffic_snapshot_writer.update_road(road, self.road_params)
+        raise NotImplementedError("Prototype Method")

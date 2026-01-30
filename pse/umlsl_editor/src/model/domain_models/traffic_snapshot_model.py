@@ -1,7 +1,8 @@
 from typing import Any, Optional, Mapping, Iterator, KeysView, ValuesView, ItemsView
 
-from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection
+from pse.umlsl_editor.src.model.entities.car import Car, CarParams
+from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection, RoadParams
+from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.helper.observables import ObservableDict, ObservableList, Observable
 from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
@@ -113,6 +114,12 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     def get_cars_on_road(self, road: Road) -> list[Car]:
         pass
 
+    def get_car_by_name(self, name: str) -> Car:
+        return self._cars.get(name)
+
+    def get_road_by_name(self, name: str) -> Road:
+        return self._roads.get(name)
+
     def get_cars(self) -> list[Car]:
         pass
 
@@ -138,9 +145,17 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     def remove_road(self, road_name: str) -> None:
         self._roads.pop(road_name)
 
-    def update_road(self, road_data: Road) -> None:
+    def update_road(self, road_data: Road, road_params: RoadParams) -> None:
         self.validator.validate_road(road_data, False)
-        pass
+        if road_params.orientation is not None:
+            road_data.orientation = road_params.orientation
+        if road_params.forward_lanes is not None:
+            road_data.forward_lanes = road_params.forward_lanes
+        if road_params.backward_lanes is not None:
+            road_data.backward_lanes = road_params.backward_lanes
+        if road_params.position is not None:
+            road_data.position = road_params.position
+        raise NotImplementedError("Prototype Method")
 
     def add_car(self, car: Car) -> None:
         self.validator.validate_car(car, True)
@@ -149,9 +164,17 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     def remove_car(self, car_name: str) -> None:
         self._cars.pop(car_name)
 
-    def update_car(self, car_data: Car) -> None:
+    def update_car(self, car_data: Car, car_params: CarParams) -> None:
         self.validator.validate_car(car_data, False)
-        pass
+        if car_params.color is not None:
+            car_data.color = car_params.color
+        if car_params.length is not None:
+            car_data.length = car_params.length
+        if car_params.acceleration is not None:
+            car_data.acceleration = car_params.acceleration
+        if car_params.velocity is not None:
+            car_data.velocity = car_params.velocity
+        raise NotImplementedError("Prototype Method")
 
     def to_dict(self) -> dict[str, Any]:
         """

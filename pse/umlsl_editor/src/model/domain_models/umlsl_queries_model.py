@@ -4,7 +4,8 @@ from typing import Any
 from pse.umlsl_editor.src.commands.umlsl import add_umlsl_query
 from pse.umlsl_editor.src.model.helper.observables import Observable, ObservableList, ObservableDict
 from pse.umlsl_editor.src.model.helper.event_types import UMLSLQueriesEventType
-from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
+from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery, UMLSLQueryParams
+
 
 class UMLSLQueriesValidationError(Exception):
     """Raised when UMLSL queries validation fails in the context of a traffic snapshot."""
@@ -32,6 +33,9 @@ class UMLSLQueriesModel(Observable):
         """Initialize Observable after dataclass initialization."""
         Observable.__init__(self)
 
+    def get_query_by_id(self, id: str) -> UMLSLQuery:
+        return self._queries.get(id)
+
     def add_umlsl_query(self, umlsl_query: UMLSLQuery) -> None:
         """
         Adds a UMLSL query to the snapshot and validates all attributes in the context of the snapshot.
@@ -46,14 +50,18 @@ class UMLSLQueriesModel(Observable):
         """
         self._queries.pop(query_id)
 
-    def update_umlsl_query(self, umlsl_query_data: UMLSLQuery) -> None:
+    def update_umlsl_query(self, umlsl_query_data: UMLSLQuery, query_params: UMLSLQueryParams) -> None:
         """
         Updates an existing UMLSL query in the snapshot and validates all attributes in the context of the snapshot.
 
         Raises:
             UMLSLQueriesValidationError: If the updated UMLSL query is invalid in the context of the snapshot.
         """
-        self._queries[umlsl_query_data.uid] = umlsl_query_data
+        if query_params.latex is not None:
+            umlsl_query_data.latex = query_params.latex
+        if query_params.assigned_car_name is not None:
+            umlsl_query_data.assigned_car_name = query_params.assigned_car_name
+        raise NotImplementedError("Prototype Method")
 
     def to_dict(self) -> dict[str, Any]:
         """
