@@ -176,8 +176,10 @@ class CarItem(SelectableGraphicsItem):
 
         x = car.position_on_lane
 
+        lane_index = -car.lane.lane_index if road.orientation == RoadOrientation.VERTICAL else -car.lane.lane_index + 1
+
         # Calculate lane offset within the road
-        lane_offset = lane_width * car.lane.lane_index - (lane_width - car_width) / 2.0
+        lane_offset = lane_width * lane_index - (lane_width - car_width) / 2.0
 
         if road.orientation == RoadOrientation.HORIZONTAL:
             road_offset = road_item.y()

@@ -9,6 +9,8 @@ from pse.umlsl_editor.src.controllers.command_controller import CommandControlle
 from pse.umlsl_editor.src.model.domain_models.selection_model import SelectionModel
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 from pse.umlsl_editor.src.view.view_event_handler_impl import ViewEventHandlerImplementation
 from pse.umlsl_editor.src.view.view_models import ViewModels
@@ -25,17 +27,23 @@ class ApplicationController:
         """
         Initialize the application controller with its sub-controllers.
         """
-        self.model_view = ViewModels(roads=None, cars=None, umlsl_queries=None)
-        self.model_traffic_snapshot = TrafficSnapshotModel()
-        self.model_settings = SettingsModel(render_safety_distance=True, render_coordinate_system=True, breaking_acceleration=8.0)
-        self.model_umlsl_queries = UMLSLQueriesModel()
-        self.model_selection = SelectionModel()
+        self._model_view = ViewModels(roads=None, cars=None, umlsl_queries=None)
+        self._model_traffic_snapshot = TrafficSnapshotModel()
+        self._model_settings = SettingsModel(render_safety_distance=True, render_coordinate_system=True, breaking_acceleration=8.0)
+        self._model_umlsl_queries = UMLSLQueriesModel()
+        self._model_selection = SelectionModel()
 
-        self.view_event_handler = ViewEventHandlerImplementation(view_model=self.model_view)
+        self._view_event_handler = ViewEventHandlerImplementation(view_model=self._model_view)
 
-        self.event_controller = EventController(traffic_snapshot=self.model_traffic_snapshot, view=self.view_event_handler, settings=self.model_settings, umlsl_queries=self.model_umlsl_queries, selection=self.model_selection)
-        self.command_controller = CommandController(traffic_snapshot_reader=self.model_traffic_snapshot, traffic_snapshot_writer=self.model_traffic_snapshot, settings_model=self.model_settings, umlsl_queries_model=self.model_umlsl_queries )
-        self.data_controller = DataController(traffic_snapshot_reader=self.model_traffic_snapshot)
+        self.event_controller = EventController(traffic_snapshot=self._model_traffic_snapshot, view=self._view_event_handler, settings=self._model_settings, umlsl_queries=self._model_umlsl_queries, selection=self._model_selection)
+        self.command_controller = CommandController(traffic_snapshot_reader=self._model_traffic_snapshot, traffic_snapshot_writer=self._model_traffic_snapshot, settings_model=self._model_settings, umlsl_queries_model=self._model_umlsl_queries)
+        self.data_controller = DataController(traffic_snapshot_reader=self._model_traffic_snapshot)
+
+    def get_traffic_snapshot_reader(self) -> TrafficSnapshotReader:
+        return self._model_traffic_snapshot
+
+    def get_traffic_snapshot_writer(self) -> TrafficSnapshotWriter:
+        return self._model_traffic_snapshot
 
     def set_traffic_snapshot(self, traffic_snapshot: TrafficSnapshotModel):
         """
@@ -44,11 +52,11 @@ class ApplicationController:
         Args:
             traffic_snapshot: The new traffic snapshot model.
         """
-        self.model_traffic_snapshot = traffic_snapshot
+        self._model_traffic_snapshot = traffic_snapshot
 
-        self.event_controller = EventController(traffic_snapshot=self.model_traffic_snapshot, view=self.view_event_handler, settings=self.model_settings)
-        self.command_controller = CommandController(traffic_snapshot_reader=self.model_traffic_snapshot, traffic_snapshot_writer=self.model_traffic_snapshot)
-        self.data_controller = DataController(traffic_snapshot_reader=self.model_traffic_snapshot)
+        self.event_controller = EventController(traffic_snapshot=self._model_traffic_snapshot, view=self._view_event_handler, settings=self._model_settings)
+        self.command_controller = CommandController(traffic_snapshot_reader=self._model_traffic_snapshot, traffic_snapshot_writer=self._model_traffic_snapshot)
+        self.data_controller = DataController(traffic_snapshot_reader=self._model_traffic_snapshot)
 
         # Re-initialize the view to reflect the new traffic snapshot
-        self.view_event_handler.initialize_view()
+        self._view_event_handler.initialize_view()

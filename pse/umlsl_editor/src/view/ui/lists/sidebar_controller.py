@@ -2,6 +2,7 @@ from PySide6.QtCore import QObject, QUrl, Qt
 
 from pse.umlsl_editor.src.controllers.data_controller import DataController
 from pse.umlsl_editor.src.controllers.view_event_contract import ViewEventHandler
+from pse.umlsl_editor.src.model.entities.road import Road
 from pse.umlsl_editor.src.view.ui.lists.models.RoadModel import RoadModel
 from pse.umlsl_editor.src.view.ui.lists.edit_car_dialog import EditCarDialog
 from pse.umlsl_editor.src.view.ui.lists.edit_query_dialog import EditQueryDialog

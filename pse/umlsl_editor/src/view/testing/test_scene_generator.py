@@ -49,15 +49,15 @@ r4 = Road.from_params(RoadParams(
     backward_lanes=1
 ))
 
-l1 = Lane(road_uid=r2.uid, lane_index=0, lane_direction=LaneDirection.BACKWARD)
+l1 = Lane(road_uid=r2.uid, lane_index=0, lane_direction=LaneDirection.FORWARD)
 l2 = Lane(road_uid=r3.uid, lane_index=0, lane_direction=LaneDirection.FORWARD)
-l3 = Lane(road_uid=r1.uid, lane_index=0, lane_direction=LaneDirection.FORWARD)
+l3 = Lane(road_uid=r3.uid, lane_index=-2, lane_direction=LaneDirection.BACKWARD)
 
 c1 = Car.from_params(CarParams(
     name="C1",
     lane=l1,
     color="#eb34d8",
-    position_on_lane=-5.0,
+    position_on_lane=1.0,
     transition=0.0,
     speed=10.0,
     length=1.5,
@@ -69,7 +69,7 @@ c2 = Car.from_params(CarParams(
     name="C2",
     lane=l2,
     color="#34eb43",
-    position_on_lane=5.0,
+    position_on_lane=-7.0,
     transition=0.0,
     speed=10.0,
     length=1.5,
@@ -81,10 +81,10 @@ c3 = Car.from_params(CarParams(
     name="C3",
     lane=l3,
     color="#34d5eb",
-    position_on_lane=0.0,
+    position_on_lane=5.0,
     transition=0.0,
     speed=10.0,
-    length=1.5,
+    length=1,
     next_turn=TurnIntent(direction=TurnDirection.LEFT, target_lane=l1),
     acceleration=10.0,
 ))
@@ -142,7 +142,7 @@ class SampleTrafficSnapshotReader(TrafficSnapshotReader):
 class TestApplicationController(ApplicationController):
     def __init__(self):
         self.data_controller = TestDataController()
-        self.view_event_handler = ViewEventHandlerImplementation(self.data_controller.get_view_models())
+        self._view_event_handler = ViewEventHandlerImplementation(self.data_controller.get_view_models())
 
 class TestDataController(DataController):
     def __init__(self):
