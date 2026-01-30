@@ -19,20 +19,6 @@ class RoadOrientation(Enum):
     VERTICAL = "vertical"
 
 
-class LaneDirection(Enum):
-    """
-    Enumeration representing the direction of traffic flow in a lane.
-
-    Attributes:
-        FORWARD: Traffic flows in the forward direction (represented as 'fn').
-        BACKWARD: Traffic flows in the backward direction (represented as 'bn').
-    """
-
-    FORWARD = "fn"
-    BACKWARD = "bn"
-
-
-
 @dataclass
 class RoadParams:
     """

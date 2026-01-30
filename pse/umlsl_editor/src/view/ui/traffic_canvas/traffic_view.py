@@ -10,6 +10,7 @@ from PySide6.QtGui import QPainter, QWheelEvent, QPen
 from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QSizeGrip
 
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation
+from pse.umlsl_editor.src.view.ui.traffic_canvas.traffic_scene import TrafficScene
 from pse.umlsl_editor.src.view.view_constants import COLORS, DIMENSION
 
 
@@ -28,7 +29,7 @@ class TrafficView(QGraphicsView):
     # Initialization
     # -------------------------------------------------------------------------
 
-    def __init__(self, scene: QGraphicsScene, parent=None):
+    def __init__(self, scene: TrafficScene, parent=None):
         """Initialize the traffic view with default settings."""
         super().__init__(scene, parent)
         self._configure_view()
@@ -160,7 +161,7 @@ class TrafficView(QGraphicsView):
         painter.setPen(QPen(COLORS.TEXT))
 
         self._draw_coordinate_labels(painter)
-        self._draw_lane_labels(painter)
+        #self._draw_lane_labels(painter)
 
         painter.restore()
 
@@ -191,7 +192,7 @@ class TrafficView(QGraphicsView):
         show_lane_labels = abs(self.transform().m11()) > DIMENSION.LANE_LABEL_MIN_ZOOM
 
         for road in scene.roads:
-            self._draw_road_labels(painter, road, show_lane_labels)
+            self._draw_road_labels(painter, road.data(0), show_lane_labels)
 
     def _draw_road_labels(self, painter: QPainter, road: Road, show_lane_labels: bool) -> None:
         """Draw labels for a single road."""

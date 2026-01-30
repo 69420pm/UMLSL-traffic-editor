@@ -11,9 +11,12 @@ from PySide6.QtGui import QColor
 @dataclass(frozen=True)
 class _ZLayers:
     """Controls the drawing order (Z-Index) for scene items."""
-    ROAD: int = 101
+    ROAD: int = 0
     CROSSING: int = 1
-    CAR: int = 10
+    CAR: int = 2
+    SELECTED_ROAD: int = 3
+    SELECTED_CROSSING: int = 4
+    SELECTED_CAR: int = 5
     OVERLAY: int = 100
 
 
@@ -72,9 +75,9 @@ class _Colors:
 @dataclass(frozen=True)
 class _UIPaths:
     """Paths to UI resource files (relative to the widgets folder)."""
-    MAIN_WINDOW: str = "../widgets/main.ui"
-    LIST_ITEM: str = "ui/list.ui"
-    CAR_EDIT: str = "../widgets/car_edit.ui"
+    MAIN_WINDOW: str = "../widgets/main.compiled_widgets"
+    LIST_ITEM: str = "compiled_widgets/list.compiled_widgets"
+    CAR_EDIT: str = "../widgets/car_edit.compiled_widgets"
 
 
 # --- Public Singleton Instances ---

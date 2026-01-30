@@ -1,8 +1,5 @@
 from dataclasses import dataclass
 
-from pse.umlsl_editor.src.model.entities.road import LaneDirection
-
-
 @dataclass(frozen=True, kw_only=True)
 class Lane:
     """Represents a lane on a road, this is an immutable data structure and should act like a tuple.

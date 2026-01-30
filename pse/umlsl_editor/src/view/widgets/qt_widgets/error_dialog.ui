@@ -1,17 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>Error_Dialog</class>
+ <widget class="QDialog" name="Error_Dialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>318</width>
-    <height>111</height>
+    <width>320</width>
+    <height>152</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>320</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>320</width>
+    <height>16777215</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Error</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QDialog {
@@ -162,20 +174,23 @@ QPushButton {
 	border-radius: 16px;
 }
 
-QPushButton#b_cancel {
+QPushButton#b_close {
 	background-color: #042F40;
 	color: #F9F9F9
 }
 
-QPushButton#b_delete {
-	background-color: #D97855
+QPushButton#b_close:hover {
+    background-color: #314250; 
+}
+QPushButton#b_close:pressed {
+    background-color: #042F40; 
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="l_titel">
      <property name="text">
-      <string>Are you shure?</string>
+      <string>Unable to Load File</string>
      </property>
      <property name="class" stdset="0">
       <string>title</string>
@@ -185,37 +200,30 @@ QPushButton#b_delete {
    <item>
     <widget class="QLabel" name="l_content">
      <property name="text">
-      <string>This Action can not be undone.</string>
+      <string>An error occurred while parsing  the selected file.  The file may be corrupted  or not in the valid JSON format.</string>
      </property>
     </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="topMargin">
+      <number>8</number>
+     </property>
      <item>
-      <widget class="QPushButton" name="b_delete">
-       <property name="minimumSize">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
         <size>
-         <width>32</width>
-         <height>32</height>
+         <width>40</width>
+         <height>20</height>
         </size>
        </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>32</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Delete</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/Delete_dark.svg</normaloff>:/icons/icons/Delete_dark.svg</iconset>
-       </property>
-      </widget>
+      </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="b_cancel">
+      <widget class="QPushButton" name="b_close">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -224,18 +232,18 @@ QPushButton#b_delete {
        </property>
        <property name="minimumSize">
         <size>
-         <width>32</width>
+         <width>141</width>
          <height>32</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>16777215</width>
+         <width>141</width>
          <height>32</height>
         </size>
        </property>
        <property name="text">
-        <string>Cancel</string>
+        <string>Close</string>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
@@ -252,34 +260,18 @@ QPushButton#b_delete {
  </resources>
  <connections>
   <connection>
-   <sender>b_delete</sender>
+   <sender>b_close</sender>
    <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>Error_Dialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>82</y>
+     <x>236</x>
+     <y>121</y>
     </hint>
     <hint type="destinationlabel">
-     <x>84</x>
-     <y>187</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>b_cancel</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>251</x>
-     <y>90</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>254</x>
-     <y>149</y>
+     <x>252</x>
+     <y>200</y>
     </hint>
    </hints>
   </connection>
