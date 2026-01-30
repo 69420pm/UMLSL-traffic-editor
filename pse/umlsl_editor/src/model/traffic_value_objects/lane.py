@@ -9,19 +9,16 @@ class Lane:
     It's not a full entity as it doesn't have an identity beyond its road, index and direction."""
     road_uid: str
     lane_index: int
-    lane_direction: LaneDirection
+    """The index of the lane, the inner most forward lane has index 0 and the inner most backward lane has index -1"""
 
     def __post_init__(self) -> None:
         """Validates the Lane instance after initialization.
 
         Performs the following validation checks:
         - road_uid must be a non-empty string
-        - lane_index must be a non-negative integer larger than zero (because lane indices are 1-based)
-        - lane_direction must be a valid LaneDirection enum value
+        - lane_index must be a  integer
         """
         if not isinstance(self.road_uid, str) or not self.road_uid:
             raise ValueError("road_uid must be a non-empty string")
-        if not isinstance(self.lane_index, int) or self.lane_index < 1:
-            raise ValueError("lane_index must be a positive integer")
-        if not isinstance(self.lane_direction, LaneDirection):
-            raise ValueError("lane_direction must be a LaneDirection")
+        if not isinstance(self.lane_index, int) :
+            raise ValueError("lane_index must be a integer")
