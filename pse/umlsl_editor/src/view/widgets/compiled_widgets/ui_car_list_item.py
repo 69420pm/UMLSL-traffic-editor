@@ -68,7 +68,7 @@ class Ui_Car_List_Item(object):
 "    border: none;\n"
 "    text-align: center;\n"
 "")
-        self.i_car.setPixmap(QPixmap(u":/icons/icons/Directions car.svg"))
+        self.i_car.setPixmap(QPixmap(u":/icons/icons/car.svg"))
         self.i_car.setScaledContents(False)
         self.i_car.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.i_car.setWordWrap(False)
@@ -89,7 +89,7 @@ class Ui_Car_List_Item(object):
         self.b_edit.setMinimumSize(QSize(32, 32))
         self.b_edit.setMaximumSize(QSize(32, 32))
         icon = QIcon()
-        icon.addFile(u":/icons/icons/Mode edit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon.addFile(u":/icons/icons/edit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.b_edit.setIcon(icon)
 
         self.horizontalLayout.addWidget(self.b_edit)

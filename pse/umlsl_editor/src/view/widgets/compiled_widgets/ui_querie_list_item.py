@@ -67,7 +67,7 @@ class Ui_Query_List_Item(object):
         self.b_edit.setMinimumSize(QSize(32, 32))
         self.b_edit.setMaximumSize(QSize(32, 32))
         icon = QIcon()
-        icon.addFile(u":/icons/icons/Mode edit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon.addFile(u":/icons/icons/edit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.b_edit.setIcon(icon)
 
         self.horizontalLayout.addWidget(self.b_edit)

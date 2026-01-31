@@ -16,6 +16,7 @@ class TurnDirection(Enum):
 
     LEFT = "left"
     RIGHT = "right"
+    STRAIGHT = "straight"
 
 
 @dataclass(frozen=True)

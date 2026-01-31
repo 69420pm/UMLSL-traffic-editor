@@ -16,8 +16,8 @@ class RoadOrientation(Enum):
         VERTICAL: The road runs vertically (up-down) in the coordinate system.
     """
 
-    HORIZONTAL = "horizontal"
-    VERTICAL = "vertical"
+    HORIZONTAL = 0
+    VERTICAL = 1
 
 
 @dataclass

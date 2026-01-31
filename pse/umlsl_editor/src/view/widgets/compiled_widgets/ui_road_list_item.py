@@ -60,7 +60,7 @@ class Ui_Road_List_Item(object):
 
         self.i_road = QLabel(Road_List_Item)
         self.i_road.setObjectName(u"i_road")
-        self.i_road.setPixmap(QPixmap(u":/icons/icons/Add road.svg"))
+        self.i_road.setPixmap(QPixmap(u":/icons/icons/add_road.svg"))
         self.i_road.setWordWrap(False)
 
         self.horizontalLayout.addWidget(self.i_road)
@@ -79,7 +79,7 @@ class Ui_Road_List_Item(object):
         self.b_edit.setMinimumSize(QSize(32, 32))
         self.b_edit.setMaximumSize(QSize(32, 32))
         icon = QIcon()
-        icon.addFile(u":/icons/icons/Mode edit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon.addFile(u":/icons/icons/edit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.b_edit.setIcon(icon)
 
         self.horizontalLayout.addWidget(self.b_edit)

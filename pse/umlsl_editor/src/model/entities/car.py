@@ -27,7 +27,7 @@ class CarParams:
         color: Hex color code for rendering.
         position_on_lane: Distance along the lane in units
         transition: Lane change progress from -1.0 to 1.0 exclusive
-        velocity: Current speed of the car in units per time step
+        speed: Current speed of the car in units per time step
         length: Physical length of the car in units
         next_turn: Optional intended turn behavior at the next intersection
     """
@@ -36,7 +36,7 @@ class CarParams:
     color: str
     position_on_lane: float
     transition: float
-    velocity: float
+    speed: float
     length: float
     next_turn: TurnIntent | None
     acceleration: float
@@ -58,7 +58,7 @@ class Car(Entity):
         position_on_lane: Distance along the lane in units. Must be non-negative.
         transition: Lane change progress from -1.0 (fully left) to 1.0 (fully right).
                     Value of 0.0 means centered in current lane. Bounds are exclusive.
-        velocity: Current speed of the car in units per time step. Can be negative for reverse.
+        speed: Current speed of the car in units per time step. Can be negative for reverse.
         length: Physical length of the car in units. Must be positive.
         next_turn: Optional intended turn behavior at the next intersection.
 
@@ -82,7 +82,7 @@ class Car(Entity):
 
     transition: float
 
-    velocity: float
+    speed: float
 
     length: float
 
@@ -149,7 +149,7 @@ class Car(Entity):
             color=params.color,
             position_on_lane=params.position_on_lane,
             transition=params.transition,
-            velocity=params.velocity,
+            speed=params.speed,
             length=params.length,
             next_turn=params.next_turn,
             reserved_lanes=[],
@@ -189,7 +189,7 @@ class Car(Entity):
         if not (-1.0 < self.transition < 1.0):
             raise CarValidationError(content="Transition must be in the range (-1.0, 1.0) exclusive.")
 
-        if not isinstance(self.velocity, (int, float)):
+        if not isinstance(self.speed, (int, float)):
             raise CarValidationError(content="Velocity must be a number.")
 
         if self.length <= 0:
@@ -214,7 +214,7 @@ class Car(Entity):
         self.color = params.color
         self.position_on_lane = params.position_on_lane
         self.transition = params.transition
-        self.velocity = params.velocity
+        self.speed = params.velocity
         self.length = params.length
         self.next_turn = params.next_turn
         self.acceleration = params.acceleration

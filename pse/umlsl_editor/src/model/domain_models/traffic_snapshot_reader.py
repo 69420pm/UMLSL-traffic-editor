@@ -3,9 +3,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import Direction
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
-
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.model.entities.car import Car
     from pse.umlsl_editor.src.model.entities.road import Road
@@ -29,6 +26,27 @@ class TrafficSnapshotReader(ABC):
     def get_roads(self) -> list[Road]:
         """
         Returns a list of all roads in the snapshot.
+        """
+        pass
+
+    @abstractmethod
+    def get_car_by_name(self, name: str) -> Car:
+        """
+        Returns a car by a given name.
+        """
+        pass
+
+    @abstractmethod
+    def get_road_by_name(self, name: str) -> Road:
+        """
+        Returns a road by a given name.
+        """
+        pass
+
+    @abstractmethod
+    def get_query_by_id(self, query_id: str) -> UMLSLQuery:
+        """
+        Returns a query by a given name.
         """
         pass
 

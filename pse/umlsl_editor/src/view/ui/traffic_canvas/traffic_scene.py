@@ -5,16 +5,19 @@ Manages the QGraphicsScene containing all traffic entities (roads, cars, crossin
 """
 from typing import Any, Dict
 
-from PySide6.QtWidgets import QGraphicsScene, QGraphicsItem
 from PySide6.QtCore import QRectF
+from PySide6.QtWidgets import QGraphicsItem, QGraphicsScene
 
+from pse.umlsl_editor.src.controllers import ApplicationController
+from pse.umlsl_editor.src.controllers.data_controller import DataController
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import Road
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.car_item import CarItem
-from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.crossing_item import CrossingItem
+from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.crossing_item import (
+    CrossingItem,
+)
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import RoadItem
 from pse.umlsl_editor.src.view.view_constants import DIMENSION
-
 
 
 class TrafficScene(QGraphicsScene):
@@ -25,7 +28,7 @@ class TrafficScene(QGraphicsScene):
     Provides a registry for tracking items and a cache for road data.
     """
 
-    def __init__(self, parent=None):
+    def __init__(self,application_controller: ApplicationController, parent=None ) -> None:
         """Initialize the traffic scene with configured bounds."""
         super().__init__(parent)
 
@@ -35,13 +38,28 @@ class TrafficScene(QGraphicsScene):
 
         # Registry to track graphics items by entity ID
         self.roads: Dict[str, RoadItem] = {}
+        self.cars: Dict[str, CarItem] = {}
+        self.crossings: Dict[str, CrossingItem] = {}
+
+        self.data_controller = application_controller.data_controller
+        self.view_handler = application_controller._view_event_handler
+
+        self.fill_scene_with_data()
+
+    def fill_scene_with_data(self) -> None:
+        for road in self.data_controller.get_all_roads():
+            self.add_road(road)
+
+        for car in self.data_controller.get_all_cars():
+            self.add_car(car)
+
 
     def remove_entity(self, data_object: Any) -> None:
         pass
 
     def add_road(self, road: Road) -> None:
         # Create the new road item
-        new_road_item = RoadItem(road)
+        new_road_item = RoadItem(road, view_event_handler=self.view_handler)
         self.addItem(new_road_item)
         self.roads[road.uid] = new_road_item
 

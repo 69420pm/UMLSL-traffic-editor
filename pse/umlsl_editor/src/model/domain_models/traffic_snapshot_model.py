@@ -4,9 +4,7 @@ from typing import Any, Optional
 from sortedcontainers import SortedDict
 
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation
-from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
-from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
+from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.helper.observables import ObservableDict, Observable, ReadOnlyDictView
 from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
@@ -174,21 +172,9 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             self._vertical_roads.pop(road_uid)
         self._recalculate_static_segments()
 
-    def update_road(self, road: Road) -> None:
-        self.validator.validate_road(road, False)
-        if road.uid in self._horizontal_roads:
-            if road.orientation != RoadOrientation.HORIZONTAL:
-                self._horizontal_roads.pop(road.uid)
-                self._vertical_roads[road.uid] = road
-            else:
-                self._horizontal_roads[road.uid] = road
-        elif road.uid in self._vertical_roads:
-            if road.orientation != RoadOrientation.HORIZONTAL:
-                self._vertical_roads.pop(road.uid)
-                self._horizontal_roads[road.uid] = road
-            else:
-                self._vertical_roads[road.uid] = road
-        self._recalculate_static_segments()
+    def update_road(self, road_data: Road) -> None:
+        self.validator.validate_road(road_data, False)
+        pass
 
     def add_car(self, car: Car) -> None:
         self.validator.validate_car(car, True)
