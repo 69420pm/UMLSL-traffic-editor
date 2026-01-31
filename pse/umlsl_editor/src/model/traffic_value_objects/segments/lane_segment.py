@@ -2,10 +2,8 @@ from dataclasses import dataclass, field
 
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import Direction
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.entities.road import Road
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 
 

@@ -3,6 +3,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import Direction
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
+
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.model.entities.car import Car
     from pse.umlsl_editor.src.model.entities.road import Road

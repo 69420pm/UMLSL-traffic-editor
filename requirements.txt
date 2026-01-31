@@ -10,5 +10,3 @@ PySide6_Essentials==6.10.1
 shiboken6==6.10.1
 tomlkit==0.13.3
 uuid==1.30
-
-sortedcontainers
