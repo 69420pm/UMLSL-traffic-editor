@@ -12,10 +12,10 @@ class Main:
     """Main Application Controller."""
 
     def __init__(self):
-        self.application_controller = ApplicationController( )
-        self.open_windwo()
+        self.application_controller = ApplicationController()
+        self.open_window()
 
-    def open_windwo(self) -> None:
+    def open_window(self) -> None:
         """Launch the main window with a sample scene for testing."""
         app = QApplication(sys.argv)
         window = MainWindow(self.application_controller)

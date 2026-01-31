@@ -11,7 +11,7 @@ from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_main import Ui_MainWi
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
-    def __init__(self, application_controller: ApplicationController) -> None:
+    def __init__(self, application_controller: ApplicationController):
         super().__init__()
 
         self.setupUi(self)
