@@ -25,7 +25,7 @@ class TrafficSnapshotWriter(ABC):
         pass
 
     @abstractmethod
-    def update_road(self, road_data: Road, road_params: RoadParams) -> None:
+    def update_road(self, road_uid: str, road_params: RoadParams) -> None:
         """
         Updates an existing road in the snapshot and validates all attributes in the context of the snapshot.
 
@@ -44,14 +44,14 @@ class TrafficSnapshotWriter(ABC):
         pass
 
     @abstractmethod
-    def remove_car(self, car_name: str) -> None:
+    def remove_car(self, car_uid: str) -> None:
         """
         Removes a car from the snapshot.
         """
         pass
 
     @abstractmethod
-    def update_car(self, car_data: Car, car_params: CarParams) -> None:
+    def update_car(self, car_uid: str, car_params: CarParams) -> None:
         """
         Updates an existing car in the snapshot and validates all attributes in the context of the snapshot.
 

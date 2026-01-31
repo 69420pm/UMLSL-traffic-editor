@@ -1,10 +1,13 @@
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import Direction
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
+
+if TYPE_CHECKING:
+    from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import Direction
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -45,9 +48,11 @@ class LaneSegment(Segment):
         if left_adjacent_segment is None or right_adjacent_segment is None:
             width = float("inf")
         else:
-            width = right_adjacent_segment.get_position(traffic_snapshot_reader)[0] - left_adjacent_segment.get_position(traffic_snapshot_reader)[0]
+            width = right_adjacent_segment.get_position(traffic_snapshot_reader)[0] - \
+                    left_adjacent_segment.get_position(traffic_snapshot_reader)[0]
         if top_adjacent_segment is None or bottom_adjacent_segment is None:
             height = float("inf")
         else:
-            height = bottom_adjacent_segment.get_position(traffic_snapshot_reader)[1] - top_adjacent_segment.get_position(traffic_snapshot_reader)[1]
+            height = bottom_adjacent_segment.get_position(traffic_snapshot_reader)[1] - \
+                     top_adjacent_segment.get_position(traffic_snapshot_reader)[1]
         return width, height

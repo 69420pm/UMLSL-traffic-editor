@@ -1,13 +1,16 @@
 from PySide6.QtWidgets import QMainWindow
 
 from pse.umlsl_editor.src.controllers import ApplicationController
-from pse.umlsl_editor.src.controllers.data_controller import DataController
 from pse.umlsl_editor.src.view.ui.global_controlls import GlobalControls
 from pse.umlsl_editor.src.view.ui.lists.sidebar_controller import SidebarController
 from pse.umlsl_editor.src.view.ui.traffic_canvas.canvas_buttons import CanvasButtons
 from pse.umlsl_editor.src.view.ui.traffic_canvas.traffic_scene import TrafficScene
 from pse.umlsl_editor.src.view.ui.traffic_canvas.traffic_view import TrafficView
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_main import Ui_MainWindow
+
+
+class TrafficSceneController:
+    pass
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -22,7 +25,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout = self.graphicsView.parentWidget().layout()
         layout.replaceWidget(self.graphicsView, self.trafficView)
         self.graphicsView.deleteLater()
-
 
         self.canvas_buttons = CanvasButtons(self)
 

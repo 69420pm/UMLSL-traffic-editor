@@ -3,12 +3,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import Direction
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
-
 if TYPE_CHECKING:
-    from pse.umlsl_editor.src.model.entities.car import Car
-    from pse.umlsl_editor.src.model.entities.road import Road
+    from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import Direction
+    from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
+    from pse.umlsl_editor.src.model.entities.car import Car, CarParams
+    from pse.umlsl_editor.src.model.entities.road import Road, RoadParams
 
 
 class TrafficSnapshotReader(ABC):
@@ -29,45 +28,6 @@ class TrafficSnapshotReader(ABC):
     def get_roads(self) -> list[Road]:
         """
         Returns a list of all roads in the snapshot.
-        """
-        pass
-
-    @abstractmethod
-    def get_car_by_name(self, name: str) -> Car:
-        """
-        Returns a car by a given name.
-        """
-        pass
-
-    @abstractmethod
-    def get_road_by_name(self, name: str) -> Road:
-        """
-        Returns a road by a given name.
-        """
-        pass
-
-    @abstractmethod
-    def get_query_by_id(self, query_id: str) -> UMLSLQuery:
-        """
-        Returns a query by a given name.
-        """
-        pass
-
-    @abstractmethod
-    def get_cars_in_rectangle(
-            self, x_min: float, y_min: float, x_max: float, y_max: float
-    ) -> list[Car]:
-        """
-        Returns a list of cars that are located within the specified rectangular area.
-        """
-        pass
-
-    @abstractmethod
-    def get_roads_in_rectangle(
-            self, x_min: float, y_min: float, x_max: float, y_max: float
-    ) -> list[Road]:
-        """
-        Returns a list of roads that are located within the specified rectangular area.
         """
         pass
 
@@ -101,7 +61,7 @@ class TrafficSnapshotReader(ABC):
         pass
 
     @abstractmethod
-    def get_adjacent_segment(self, segment_uid: str, direction: Direction) -> Segment|None:
+    def get_adjacent_segment(self, segment_uid: str, direction: Direction) -> Segment | None:
         """
         Returns the adjacent segment in the specified direction ('left', 'right', 'up', 'down').
 
@@ -121,17 +81,38 @@ class TrafficSnapshotReader(ABC):
         pass
 
     @abstractmethod
-    def get_entity_by_uid(self, uid: str):
-        """
-        Returns the entity (Car, Road) with the specified UID, or None if not found.
-        """
-        pass
-
-    @abstractmethod
-    def get_next_road_in_front_of_car(self, car: Car) -> Road|None:
+    def get_next_road_in_front_of_car(self, car: Car) -> Road | None:
         """
         Returns the next road in front of the specified car
 
         Args:
             car: The car for which to find the next road in front."""
+        pass
+
+    @abstractmethod
+    def validate_car_params(self, car_params: CarParams, new_instantiation: bool) -> None:
+        """
+        Validates the given car parameters.
+
+        Args:
+            car_params: The parameters of the car to validate.
+            new_instantiation: Whether the car is being newly instantiated.
+
+        Raises:
+            ValidationError: If any validation check fails.
+        """
+        pass
+
+    @abstractmethod
+    def validate_road_params(self, road_params: RoadParams, new_instantiation: bool) -> None:
+        """
+        Validates the given road parameters.
+
+        Args:
+            road_params: The parameters of the road to validate.
+            new_instantiation: Whether the road is being newly instantiated.
+
+        Raises:
+            ValidationError: If any validation check fails.
+        """
         pass
