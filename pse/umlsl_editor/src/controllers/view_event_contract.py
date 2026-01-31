@@ -7,6 +7,7 @@ from pse.umlsl_editor.src.model.entities.road import Road
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 from pse.umlsl_editor.src.model.errors.errors import BaseWarning
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 
 
 class ViewEventHandler(ABC):
@@ -80,36 +81,36 @@ class ViewEventHandler(ABC):
         """
         pass
 
-    # Crossing segment-related events
-    @abstractmethod
-    def add_crossing_segment_view(self, crossing_segment: CrossingSegment) -> None:
-        """
-        Handle the addition of a crossing segment to the traffic snapshot.
-
-        Args:
-            crossing_segment: The crossing segment that was added.
-        """
-        pass
-
-    @abstractmethod
-    def remove_crossing_segment_view(self, crossing_segment: CrossingSegment) -> None:
-        """
-        Handle the removal of a crossing segment from the traffic snapshot.
-
-        Args:
-            crossing_segment: The crossing segment that was removed.
-        """
-        pass
-
-    @abstractmethod
-    def update_crossing_segment_view(self, crossing_segment: CrossingSegment) -> None:
-        """
-        Handle the update of a crossing segment in the traffic snapshot.
-
-        Args:
-            crossing_segment: The crossing segment that was updated.
-        """
-        pass
+    # # Crossing segment-related events
+    # @abstractmethod
+    # def add_crossing_segment_view(self, crossing_segment: CrossingSegment) -> None:
+    #     """
+    #     Handle the addition of a crossing segment to the traffic snapshot.
+    #
+    #     Args:
+    #         crossing_segment: The crossing segment that was added.
+    #     """
+    #     pass
+    #
+    # @abstractmethod
+    # def remove_crossing_segment_view(self, crossing_segment: CrossingSegment) -> None:
+    #     """
+    #     Handle the removal of a crossing segment from the traffic snapshot.
+    #
+    #     Args:
+    #         crossing_segment: The crossing segment that was removed.
+    #     """
+    #     pass
+    #
+    # @abstractmethod
+    # def update_crossing_segment_view(self, crossing_segment: CrossingSegment) -> None:
+    #     """
+    #     Handle the update of a crossing segment in the traffic snapshot.
+    #
+    #     Args:
+    #         crossing_segment: The crossing segment that was updated.
+    #     """
+    #     pass
 
     # UMLSL Query-related events
     @abstractmethod
@@ -207,5 +208,9 @@ class ViewEventHandler(ABC):
         Args:
             warning: The warning message to be displayed.
         """
+        pass
+
+    @abstractmethod
+    def refresh_all_segments_view(self, segments: list[Segment]):
         pass
 

@@ -15,6 +15,8 @@ class TrafficSnapshotEventType(Enum):
     CROSSING_SEGMENT_UPDATED = auto()
     TRAFFIC_SNAPSHOT_WARNING = auto()
 
+    SEGMENTS_RECALCULATED = auto()
+
 
 class SettingsEventType(Enum):
     """Event types emitted by Settings."""

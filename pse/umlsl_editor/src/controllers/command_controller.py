@@ -19,7 +19,7 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import Tra
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 from pse.umlsl_editor.src.model.entities.car import CarParams
 from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection, RoadParams, RoadOrientation
-from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery, UMLSLQueryParams
+from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQueryParams
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
 from pse.umlsl_editor.src.commands.cars import add_car, edit_car
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
@@ -216,15 +216,15 @@ class CommandController:
         add_road_command.execute()
         raise NotImplementedError("Prototype Method")
 
-    def remove_road(self, road_name: str) -> None:
+    def remove_road(self, road_uid: str) -> None:
         """
         Removes a road from the traffic snapshot.
 
         Args:
-            road_name: The unique identifier of the road to remove.
+            road_uid: The unique identifier of the road to remove.
 
         """
-        remove_road_command = DeleteRoad(self.traffic_snapshot_writer, self.traffic_snapshot_reader, road_name)
+        remove_road_command = DeleteRoad(self.traffic_snapshot_writer, self.traffic_snapshot_reader, road_uid)
         remove_road_command.execute()
         raise NotImplementedError("Prototype Method")
 

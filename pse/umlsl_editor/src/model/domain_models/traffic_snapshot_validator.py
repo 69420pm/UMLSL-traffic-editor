@@ -105,10 +105,10 @@ class TrafficSnapshotValidator:
         road = self._model._roads[lane.road_uid]
 
         if lane.lane_direction is LaneDirection.FORWARD:
-            if lane.lane_index > road.forward_lanes:
+            if lane.lane_index > road.number_of_forward_lanes:
                 return False
         elif lane.lane_direction is LaneDirection.BACKWARD:
-            if lane.lane_index > road.backward_lanes:
+            if lane.lane_index > road.number_of_backward_lanes:
                 return False
         else:
             return False
@@ -127,12 +127,12 @@ class TrafficSnapshotValidator:
             -1 if car_driving_backwards else 1)
 
         if lane.lane_direction is LaneDirection.FORWARD:
-            if lane_index_to_check > road.forward_lanes or (
-                    (lane_index_to_check <= 0) and road.backward_lanes >= 1):
+            if lane_index_to_check > road.number_of_forward_lanes or (
+                    (lane_index_to_check <= 0) and road.number_of_backward_lanes >= 1):
                 return False
         elif lane.lane_direction is LaneDirection.BACKWARD:
-            if lane_index_to_check > road.backward_lanes or (
-                    (lane_index_to_check <= 0) and road.forward_lanes >= 1):
+            if lane_index_to_check > road.number_of_backward_lanes or (
+                    (lane_index_to_check <= 0) and road.number_of_forward_lanes >= 1):
                 return False
         return True
 

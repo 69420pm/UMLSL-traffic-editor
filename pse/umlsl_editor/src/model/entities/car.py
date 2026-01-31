@@ -1,13 +1,15 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Any
 import re
 
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.entity import Entity
+from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_interval import LaneInterval
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Path
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
 
@@ -106,13 +108,13 @@ class Car(Entity):
 
 
     #reserved_lanes: list[laneIntervalls]
-    reserved_lanes: list[LaneSegment]
+    reserved_lanes: list[LaneInterval]
 
     #passt
     reserved_crossings: list[CrossingSegment]
 
     #clamied_intervalls: list[laneIntervalls]
-    claimed_lanes: list[LaneSegment]
+    claimed_lanes: list[LaneInterval]
 
     # Dont need these?, sonst passt
     # todo: curr : I → Z such that curr(C ) is (the index - we save the object) of the path element of pth(C) currently occupied by the rear of C
@@ -123,6 +125,7 @@ class Car(Entity):
     path: Path
 
     #view_segments: list[LaneInterval and Crossings]
+    view_segments: list[Any]
 
     acceleration: float
 
@@ -216,6 +219,29 @@ class Car(Entity):
         self.next_turn = params.next_turn
         self.acceleration = params.acceleration
         self.__post_init__()
+
+    def get_tail_position(self, traffic_snapshot_reader: TrafficSnapshotReader) -> tuple[float, float]:
+        lane_position = self.lane.get_one_dimensional_position(traffic_snapshot_reader)
+        road_orientation = traffic_snapshot_reader.get_road_by_uid(self.lane.road_uid).orientation
+        if road_orientation == RoadOrientation.HORIZONTAL:
+            if (self.lane.lane_index >= 0 and self.velocity >= 0) or (self.lane.lane_index < 0 and self.velocity < 0):
+                x = self.position_on_lane - self.length/2
+                y = lane_position
+                return x, y
+            else:
+                x = self.position_on_lane + self.length/2
+                y = lane_position
+                return x, y
+        else:  # Vertical road
+            if (self.lane.lane_index >= 0 and self.velocity >= 0) or (self.lane.lane_index < 0 and self.velocity < 0):
+                x = lane_position
+                y = self.position_on_lane - self.length/2
+                return x, y
+            else:
+                x = lane_position
+                y = self.position_on_lane + self.length/2
+                return x, y
+
 
 
     def absolute_position(self)-> float:

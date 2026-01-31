@@ -1,25 +1,37 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
-from pse.umlsl_editor.src.model.traffic_value_objects.position import Position
+from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class CrossingSegment(Segment):
-    lane_horizontal: Lane
-    lane_vertical: Lane
-    is_lane_segment = False
+    horizontal_lane: Lane
+    vertical_lane: Lane
+    uid:str=field(default_factory=generate_uid)
+    is_lane_segment: bool = field(default=False, init=False)
+
 
     def __post_init__(self) -> None:
-        if not isinstance(self.lane_horizontal, Lane):
+        if not isinstance(self.horizontal_lane, Lane):
             raise ValueError("lane_horizontal must be a Lane")
-        if not isinstance(self.lane_vertical, Lane):
+        if not isinstance(self.vertical_lane, Lane):
             raise ValueError("lane_vertical must be a Lane")
-        if not isinstance(self.length, (int, float)) or self.length <= 0:
-            raise ValueError("length must be a positive number")
+        pass
 
-    def get_position(self) -> Position:
+    def get_position(self, traffic_snapshot_reader: TrafficSnapshotReader) -> tuple[float, float]:
         """Return position of the top left corner of the crossing segment.
         It gets calculated from the position of the two lanes."""
-        raise NotImplementedError()
+        horizontal_position = self.horizontal_lane.get_one_dimensional_position(traffic_snapshot_reader)
+        vertical_position = self.vertical_lane.get_one_dimensional_position(traffic_snapshot_reader)
+        return horizontal_position, vertical_position
+
+    @staticmethod
+    def get_size(traffic_snapshot_reader: TrafficSnapshotReader) -> tuple[float, float]:
+        """Return size (width, height) of the crossing segment.
+        It gets calculated from the lane width."""
+        lane_width = traffic_snapshot_reader.get_lane_width()
+        return lane_width, lane_width
+

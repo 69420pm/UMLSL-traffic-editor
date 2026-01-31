@@ -10,7 +10,7 @@ class DeleteRoad(Command[None]):
         self,
         traffic_snapshot_writer: TrafficSnapshotWriter,
         traffic_snapshot_reader: TrafficSnapshotReader,
-        road_name: str
+        road_uid: str
     ):
         """
         Initialize the DeleteRoadCommand with the road's unique identifier.
@@ -18,11 +18,11 @@ class DeleteRoad(Command[None]):
         Args:
             traffic_snapshot_writer: Interface to write to the traffic snapshot.
             traffic_snapshot_reader: Interface to read from the traffic snapshot.
-            road_name: Unique identifier of the road to be deleted.
+            road_uid: Unique identifier of the road to be deleted.
         """
         self._traffic_snapshot_writer = traffic_snapshot_writer
         self._traffic_snapshot_reader = traffic_snapshot_reader
-        self.road_name = road_name
+        self.road_name = road_uid
 
     def execute(self) -> None:
         """
