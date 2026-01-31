@@ -1,8 +1,8 @@
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.model.entities.car import CarParams
+from pse.umlsl_editor.src.model.entities.car import CarParams, Car
 
 
-class EditCar(Command[None]):
+class EditCarCommand(Command[None]):
     """Edits the properties of an existing car in the traffic snapshot."""
 
     def __init__(
@@ -31,4 +31,6 @@ class EditCar(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        raise NotImplementedError
+        car = self._traffic_snapshot_reader.get_car_by_name(self.car_params.name)
+        self._traffic_snapshot_writer.update_car(car, self.car_params)
+        raise NotImplementedError("Prototype Method")

@@ -26,4 +26,6 @@ class EditUMLSLQuery(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        raise NotImplementedError
+        query = self._umlsl_queries.get_query_by_id(self.query_id)
+        self._umlsl_queries.update_umlsl_query(query, self.umlsl_query_params)
+        raise NotImplementedError("Prototype Method")
