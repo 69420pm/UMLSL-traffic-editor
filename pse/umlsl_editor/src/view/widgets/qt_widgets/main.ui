@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1076</width>
-    <height>771</height>
+    <width>1009</width>
+    <height>873</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -65,7 +65,7 @@ QToolButton#b_sidebar_toggle {
 }
 
 QToolButton:hover {
-    background-color: #314250; 
+    background-color: #084D68; 
 }
 
 QToolButton:pressed {
@@ -76,12 +76,23 @@ QToolButton#b_minus, #b_plus, #b_sidebar_toggle {
     background-color: #011C26; 
 }
 QToolButton#b_minus:hover, #b_plus:hover, #b_sidebar_toggle:hover {
-    background-color: #314250; 
+    background-color: #084D68; 
 }
 QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
     background-color: #011C26; 
 }
 
+QSplitter::handle {
+    background-color: #032F40;
+}
+
+QSplitter::handle:vertical {
+    height: 4px; 
+}
+
+QSplitter::handle:vertical:hover {
+    background-color: #084D68; 
+}
 </string>
   </property>
   <property name="unifiedTitleAndToolBarOnMac">
@@ -127,157 +138,200 @@ QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
          <x>0</x>
          <y>0</y>
          <width>300</width>
-         <height>741</height>
+         <height>843</height>
         </rect>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <property name="leftMargin">
-         <number>16</number>
-        </property>
-        <property name="topMargin">
-         <number>16</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <item>
-           <widget class="QLabel" name="list_titel_3">
-            <property name="text">
-             <string>Roads</string>
+         <widget class="QSplitter" name="splitter">
+          <property name="midLineWidth">
+           <number>32</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Orientation::Vertical</enum>
+          </property>
+          <property name="childrenCollapsible">
+           <bool>false</bool>
+          </property>
+          <widget class="QWidget" name="layoutWidget">
+           <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
+            <property name="topMargin">
+             <number>16</number>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="b_add_road">
-            <property name="minimumSize">
-             <size>
-              <width>32</width>
-              <height>32</height>
-             </size>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <property name="rightMargin">
+               <number>8</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="list_titel_3">
+                <property name="text">
+                 <string>Roads</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="b_add_road">
+                <property name="minimumSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>:/icons/icons/add.svg</normaloff>:/icons/icons/add.svg</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QQuickWidget" name="q_roads">
+              <property name="resizeMode">
+               <enum>QQuickWidget::ResizeMode::SizeRootObjectToView</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="layoutWidget">
+           <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0">
+            <property name="topMargin">
+             <number>16</number>
             </property>
-            <property name="maximumSize">
-             <size>
-              <width>32</width>
-              <height>32</height>
-             </size>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <property name="rightMargin">
+               <number>8</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="list_titel_2">
+                <property name="text">
+                 <string>Cars</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="b_add_car">
+                <property name="minimumSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>:/icons/icons/add.svg</normaloff>:/icons/icons/add.svg</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QQuickWidget" name="q_cars">
+              <property name="resizeMode">
+               <enum>QQuickWidget::ResizeMode::SizeRootObjectToView</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="layoutWidget">
+           <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0">
+            <property name="topMargin">
+             <number>16</number>
             </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/icons/icons/add.svg</normaloff>:/icons/icons/add.svg</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QListWidget" name="l_roads"/>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <widget class="QLabel" name="list_titel_2">
-            <property name="text">
-             <string>Cars</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="b_add_car">
-            <property name="minimumSize">
-             <size>
-              <width>32</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>32</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/icons/icons/add.svg</normaloff>:/icons/icons/add.svg</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QListWidget" name="l_cars"/>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <item>
-           <widget class="QLabel" name="list_titel">
-            <property name="text">
-             <string>Queries</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="b_add_query">
-            <property name="minimumSize">
-             <size>
-              <width>32</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>32</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/icons/icons/add.svg</normaloff>:/icons/icons/add.svg</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QListWidget" name="l_queries"/>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <property name="rightMargin">
+               <number>8</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="list_titel">
+                <property name="text">
+                 <string>Queries</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="b_add_query">
+                <property name="minimumSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>:/icons/icons/add.svg</normaloff>:/icons/icons/add.svg</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QQuickWidget" name="q_queries">
+              <property name="resizeMode">
+               <enum>QQuickWidget::ResizeMode::SizeRootObjectToView</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
         </item>
        </layout>
       </widget>
      </widget>
     </item>
     <item>
-     <widget class="TrafficView" name="trafficView"/>
+     <widget class="QGraphicsView" name="graphicsView"/>
     </item>
     <item>
      <widget class="QToolButton" name="b_sidebar_toggle">
@@ -297,7 +351,7 @@ QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
        <string/>
       </property>
       <property name="icon">
-       <iconset resource="resources.qrc">
+       <iconset>
         <normaloff>:/icons/icons/Menu.svg</normaloff>:/icons/icons/Menu.svg</iconset>
       </property>
      </widget>
@@ -356,7 +410,7 @@ QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset>
            <normaloff>:/icons/icons/add.svg</normaloff>:/icons/icons/add.svg</iconset>
          </property>
         </widget>
@@ -379,7 +433,7 @@ QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset>
            <normaloff>:/icons/icons/Remove.svg</normaloff>:/icons/icons/Remove.svg</iconset>
          </property>
         </widget>
@@ -394,7 +448,7 @@ QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1076</width>
+     <width>1009</width>
      <height>30</height>
     </rect>
    </property>
@@ -424,7 +478,7 @@ QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
   </widget>
   <action name="actionSave">
    <property name="icon">
-    <iconset resource="resources.qrc">
+    <iconset>
      <normaloff>:/icons/icons/Save.svg</normaloff>:/icons/icons/Save.svg</iconset>
    </property>
    <property name="text">
@@ -433,7 +487,7 @@ QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
   </action>
   <action name="actionSave_As">
    <property name="icon">
-    <iconset resource="resources.qrc">
+    <iconset>
      <normaloff>:/icons/icons/Save as.svg</normaloff>:/icons/icons/Save as.svg</iconset>
    </property>
    <property name="text">
@@ -442,7 +496,7 @@ QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
   </action>
   <action name="actionOpen">
    <property name="icon">
-    <iconset resource="resources.qrc">
+    <iconset>
      <normaloff>:/icons/icons/File open.svg</normaloff>:/icons/icons/File open.svg</iconset>
    </property>
    <property name="text">
@@ -451,7 +505,7 @@ QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
   </action>
   <action name="actionSettings">
    <property name="icon">
-    <iconset resource="resources.qrc">
+    <iconset>
      <normaloff>:/icons/icons/Settings.svg</normaloff>:/icons/icons/Settings.svg</iconset>
    </property>
    <property name="text">
@@ -461,9 +515,9 @@ QToolButton#b_minus:pressed, #b_plus:pressed, #b_sidebar_toggle:pressed {
  </widget>
  <customwidgets>
   <customwidget>
-   <class>TrafficView</class>
-   <extends>QGraphicsView</extends>
-   <header location="global">pse.umlsl_editor.src.view.ui.traffic_canvas.traffic_view</header>
+   <class>QQuickWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">QtQuickWidgets/QQuickWidget</header>
   </customwidget>
  </customwidgets>
  <resources>

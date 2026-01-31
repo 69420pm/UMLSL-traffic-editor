@@ -13,9 +13,9 @@ class _ZLayers:
     """Controls the drawing order (Z-Index) for scene items."""
     ROAD: int = 0
     CROSSING: int = 1
-    CAR: int = 2
-    SELECTED_ROAD: int = 3
-    SELECTED_CROSSING: int = 4
+    SELECTED_ROAD: int = 2
+    SELECTED_CROSSING: int = 3
+    CAR: int = 4
     SELECTED_CAR: int = 5
     OVERLAY: int = 100
 
@@ -25,7 +25,9 @@ class _Dimension:
     """Physical dimensions and rendering scales."""
     # Lane and car dimensions (in scene units)
     LANE_WIDTH: float = 1.0
-    CAR_WIDTH: float = 0.8
+
+    CAR_WIDTH: float = 0.7
+    CAR_TRIANGLE_LENGTH: float = 0.4
 
     # Scene configuration
     SCENE_SIZE: int = 1000
@@ -33,7 +35,7 @@ class _Dimension:
     # Zoom constraints
     MAX_ZOOM: float = 100.0
     MIN_ZOOM: float = 3.0
-    INITIAL_ZOOM: float = 20.0
+    INITIAL_ZOOM: float = 40.0
     BUTTON_ZOOM_AMOUNT: float = 1.4
 
     # Zoom thresholds for detail levels

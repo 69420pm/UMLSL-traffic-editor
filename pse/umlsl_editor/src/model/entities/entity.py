@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 
@@ -6,7 +6,6 @@ from dataclasses import dataclass
 class Entity(ABC):
     """Abstract base class for all entities in the UMLSL editor."""
     uid: str
-
 
     def __eq__(self, other):
         """Checks equality based only on the unique identifier (name) of the Car."""

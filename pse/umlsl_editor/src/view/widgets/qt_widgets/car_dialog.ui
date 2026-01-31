@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>320</width>
-    <height>524</height>
+    <height>529</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -305,7 +305,7 @@ QPushButton#b_delete:pressed {
           </widget>
          </item>
          <item row="1" column="2">
-          <widget class="QLineEdit" name="lineEdit">
+          <widget class="QLineEdit" name="t_color">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -334,7 +334,7 @@ QPushButton#b_delete:pressed {
           </widget>
          </item>
          <item row="2" column="2">
-          <widget class="QSpinBox" name="spinBox">
+          <widget class="QSpinBox" name="s_length">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -424,7 +424,7 @@ QPushButton#b_delete:pressed {
           </widget>
          </item>
          <item row="4" column="2">
-          <widget class="QDoubleSpinBox" name="s_position">
+          <widget class="QDoubleSpinBox" name="s_speed">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -478,7 +478,7 @@ QPushButton#b_delete:pressed {
           </widget>
          </item>
          <item row="5" column="2">
-          <widget class="QDoubleSpinBox" name="doubleSpinBox">
+          <widget class="QDoubleSpinBox" name="s_acceleration">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -620,6 +620,19 @@ QPushButton#b_delete:pressed {
            </property>
           </widget>
          </item>
+         <item row="4" column="1">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>(-1,1)</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+           </property>
+           <property name="class" stdset="0">
+            <string>hint</string>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="0">
           <widget class="QLabel" name="label_13">
            <property name="minimumSize">
@@ -633,8 +646,8 @@ QPushButton#b_delete:pressed {
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_14">
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_17">
            <property name="minimumSize">
             <size>
              <width>75</width>
@@ -642,10 +655,7 @@ QPushButton#b_delete:pressed {
             </size>
            </property>
            <property name="text">
-            <string>Road</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+            <string>Transition</string>
            </property>
           </widget>
          </item>
@@ -663,7 +673,7 @@ QPushButton#b_delete:pressed {
           </widget>
          </item>
          <item row="3" column="2">
-          <widget class="QDoubleSpinBox" name="s_position_2">
+          <widget class="QDoubleSpinBox" name="s_position">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -687,8 +697,24 @@ QPushButton#b_delete:pressed {
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_17">
+         <item row="1" column="2">
+          <widget class="QComboBox" name="d_lane">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>24</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>24</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_14">
            <property name="minimumSize">
             <size>
              <width>75</width>
@@ -696,47 +722,15 @@ QPushButton#b_delete:pressed {
             </size>
            </property>
            <property name="text">
-            <string>Transition</string>
+            <string>Road</string>
            </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QComboBox" name="d_orientation_2">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>24</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>24</height>
-            </size>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QComboBox" name="comboBox">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>24</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>24</height>
-            </size>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
           </widget>
          </item>
          <item row="4" column="2">
-          <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
+          <widget class="QDoubleSpinBox" name="s_transition">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -760,16 +754,22 @@ QPushButton#b_delete:pressed {
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
-          <widget class="QLabel" name="label_12">
-           <property name="text">
-            <string>(-1,1)</string>
+         <item row="0" column="2">
+          <widget class="QComboBox" name="d_road">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>24</height>
+            </size>
            </property>
-           <property name="alignment">
-            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>24</height>
+            </size>
            </property>
-           <property name="class" stdset="0">
-            <string>hint</string>
+           <property name="frame">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -868,7 +868,7 @@ QPushButton#b_delete:pressed {
           <number>8</number>
          </property>
          <item row="0" column="2">
-          <widget class="QComboBox" name="comboBox_2">
+          <widget class="QComboBox" name="d_direction">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -905,7 +905,7 @@ QPushButton#b_delete:pressed {
           </widget>
          </item>
          <item row="3" column="2">
-          <widget class="QComboBox" name="comboBox_4">
+          <widget class="QComboBox" name="d_lane_turn">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -921,7 +921,7 @@ QPushButton#b_delete:pressed {
           </widget>
          </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="label_19">
+          <widget class="QLabel" name="l_lane_turn">
            <property name="minimumSize">
             <size>
              <width>75</width>
@@ -934,7 +934,7 @@ QPushButton#b_delete:pressed {
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="label_11">
+          <widget class="QLabel" name="l_road_turn">
            <property name="minimumSize">
             <size>
              <width>75</width>
@@ -947,7 +947,7 @@ QPushButton#b_delete:pressed {
           </widget>
          </item>
          <item row="2" column="2">
-          <widget class="QComboBox" name="comboBox_3">
+          <widget class="QComboBox" name="d_road_turn">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -1017,7 +1017,7 @@ QPushButton#b_delete:pressed {
         <string>Save</string>
        </property>
        <property name="icon">
-        <iconset resource="resources.qrc">
+        <iconset>
          <normaloff>:/icons/icons/Done_dark.svg</normaloff>:/icons/icons/Done_dark.svg</iconset>
        </property>
        <property name="default">
@@ -1043,7 +1043,7 @@ QPushButton#b_delete:pressed {
         <string>Delete</string>
        </property>
        <property name="icon">
-        <iconset resource="resources.qrc">
+        <iconset>
          <normaloff>:/icons/icons/Delete.svg</normaloff>:/icons/icons/Delete.svg</iconset>
        </property>
       </widget>

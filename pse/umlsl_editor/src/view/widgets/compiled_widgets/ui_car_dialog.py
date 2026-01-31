@@ -26,7 +26,7 @@ class Ui_Edit_Car_Dialog(object):
         if not Edit_Car_Dialog.objectName():
             Edit_Car_Dialog.setObjectName(u"Edit_Car_Dialog")
         Edit_Car_Dialog.setEnabled(True)
-        Edit_Car_Dialog.resize(320, 524)
+        Edit_Car_Dialog.resize(320, 529)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -245,12 +245,12 @@ class Ui_Edit_Car_Dialog(object):
 
         self.gridLayout.addWidget(self.label_15, 1, 0, 1, 1)
 
-        self.lineEdit = QLineEdit(self.widget1)
-        self.lineEdit.setObjectName(u"lineEdit")
-        self.lineEdit.setMinimumSize(QSize(0, 24))
-        self.lineEdit.setMaximumSize(QSize(16777215, 24))
+        self.t_color = QLineEdit(self.widget1)
+        self.t_color.setObjectName(u"t_color")
+        self.t_color.setMinimumSize(QSize(0, 24))
+        self.t_color.setMaximumSize(QSize(16777215, 24))
 
-        self.gridLayout.addWidget(self.lineEdit, 1, 2, 1, 1)
+        self.gridLayout.addWidget(self.t_color, 1, 2, 1, 1)
 
         self.l_axis = QLabel(self.widget1)
         self.l_axis.setObjectName(u"l_axis")
@@ -258,12 +258,12 @@ class Ui_Edit_Car_Dialog(object):
 
         self.gridLayout.addWidget(self.l_axis, 2, 1, 1, 1)
 
-        self.spinBox = QSpinBox(self.widget1)
-        self.spinBox.setObjectName(u"spinBox")
-        self.spinBox.setMinimumSize(QSize(0, 24))
-        self.spinBox.setMaximumSize(QSize(16777215, 24))
+        self.s_length = QSpinBox(self.widget1)
+        self.s_length.setObjectName(u"s_length")
+        self.s_length.setMinimumSize(QSize(0, 24))
+        self.s_length.setMaximumSize(QSize(16777215, 24))
 
-        self.gridLayout.addWidget(self.spinBox, 2, 2, 1, 1)
+        self.gridLayout.addWidget(self.s_length, 2, 2, 1, 1)
 
         self.label_7 = QLabel(self.widget1)
         self.label_7.setObjectName(u"label_7")
@@ -297,15 +297,15 @@ class Ui_Edit_Car_Dialog(object):
 
         self.gridLayout.addWidget(self.label_6, 2, 0, 1, 1)
 
-        self.s_position = QDoubleSpinBox(self.widget1)
-        self.s_position.setObjectName(u"s_position")
-        self.s_position.setMinimumSize(QSize(0, 24))
-        self.s_position.setMaximumSize(QSize(16777215, 24))
-        self.s_position.setMinimum(-100.000000000000000)
-        self.s_position.setMaximum(100.000000000000000)
-        self.s_position.setStepType(QAbstractSpinBox.StepType.DefaultStepType)
+        self.s_speed = QDoubleSpinBox(self.widget1)
+        self.s_speed.setObjectName(u"s_speed")
+        self.s_speed.setMinimumSize(QSize(0, 24))
+        self.s_speed.setMaximumSize(QSize(16777215, 24))
+        self.s_speed.setMinimum(-100.000000000000000)
+        self.s_speed.setMaximum(100.000000000000000)
+        self.s_speed.setStepType(QAbstractSpinBox.StepType.DefaultStepType)
 
-        self.gridLayout.addWidget(self.s_position, 4, 2, 1, 1)
+        self.gridLayout.addWidget(self.s_speed, 4, 2, 1, 1)
 
         self.label_5 = QLabel(self.widget1)
         self.label_5.setObjectName(u"label_5")
@@ -320,14 +320,14 @@ class Ui_Edit_Car_Dialog(object):
 
         self.gridLayout.addWidget(self.label_18, 5, 0, 1, 1)
 
-        self.doubleSpinBox = QDoubleSpinBox(self.widget1)
-        self.doubleSpinBox.setObjectName(u"doubleSpinBox")
-        self.doubleSpinBox.setMinimumSize(QSize(0, 24))
-        self.doubleSpinBox.setMaximumSize(QSize(16777215, 24))
-        self.doubleSpinBox.setMinimum(-100.000000000000000)
-        self.doubleSpinBox.setMaximum(100.000000000000000)
+        self.s_acceleration = QDoubleSpinBox(self.widget1)
+        self.s_acceleration.setObjectName(u"s_acceleration")
+        self.s_acceleration.setMinimumSize(QSize(0, 24))
+        self.s_acceleration.setMaximumSize(QSize(16777215, 24))
+        self.s_acceleration.setMinimum(-100.000000000000000)
+        self.s_acceleration.setMaximum(100.000000000000000)
 
-        self.gridLayout.addWidget(self.doubleSpinBox, 5, 2, 1, 1)
+        self.gridLayout.addWidget(self.s_acceleration, 5, 2, 1, 1)
 
         self.label = QLabel(self.widget1)
         self.label.setObjectName(u"label")
@@ -384,11 +384,46 @@ class Ui_Edit_Car_Dialog(object):
 
         self.gridLayout_3.addWidget(self.label_9, 3, 0, 1, 1)
 
+        self.label_12 = QLabel(self.widget_6)
+        self.label_12.setObjectName(u"label_12")
+        self.label_12.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_3.addWidget(self.label_12, 4, 1, 1, 1)
+
         self.label_13 = QLabel(self.widget_6)
         self.label_13.setObjectName(u"label_13")
         self.label_13.setMinimumSize(QSize(75, 0))
 
         self.gridLayout_3.addWidget(self.label_13, 1, 0, 1, 1)
+
+        self.label_17 = QLabel(self.widget_6)
+        self.label_17.setObjectName(u"label_17")
+        self.label_17.setMinimumSize(QSize(75, 0))
+
+        self.gridLayout_3.addWidget(self.label_17, 4, 0, 1, 1)
+
+        self.l_axis_2 = QLabel(self.widget_6)
+        self.l_axis_2.setObjectName(u"l_axis_2")
+        self.l_axis_2.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_3.addWidget(self.l_axis_2, 3, 1, 1, 1)
+
+        self.s_position = QDoubleSpinBox(self.widget_6)
+        self.s_position.setObjectName(u"s_position")
+        self.s_position.setMinimumSize(QSize(0, 24))
+        self.s_position.setMaximumSize(QSize(16777215, 24))
+        self.s_position.setMinimum(-500.000000000000000)
+        self.s_position.setMaximum(500.000000000000000)
+        self.s_position.setStepType(QAbstractSpinBox.StepType.DefaultStepType)
+
+        self.gridLayout_3.addWidget(self.s_position, 3, 2, 1, 1)
+
+        self.d_lane = QComboBox(self.widget_6)
+        self.d_lane.setObjectName(u"d_lane")
+        self.d_lane.setMinimumSize(QSize(0, 24))
+        self.d_lane.setMaximumSize(QSize(16777215, 24))
+
+        self.gridLayout_3.addWidget(self.d_lane, 1, 2, 1, 1)
 
         self.label_14 = QLabel(self.widget_6)
         self.label_14.setObjectName(u"label_14")
@@ -397,58 +432,23 @@ class Ui_Edit_Car_Dialog(object):
 
         self.gridLayout_3.addWidget(self.label_14, 0, 0, 1, 1)
 
-        self.l_axis_2 = QLabel(self.widget_6)
-        self.l_axis_2.setObjectName(u"l_axis_2")
-        self.l_axis_2.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.s_transition = QDoubleSpinBox(self.widget_6)
+        self.s_transition.setObjectName(u"s_transition")
+        self.s_transition.setMinimumSize(QSize(0, 24))
+        self.s_transition.setMaximumSize(QSize(16777215, 24))
+        self.s_transition.setMinimum(-0.990000000000000)
+        self.s_transition.setMaximum(0.990000000000000)
+        self.s_transition.setSingleStep(0.100000000000000)
 
-        self.gridLayout_3.addWidget(self.l_axis_2, 3, 1, 1, 1)
+        self.gridLayout_3.addWidget(self.s_transition, 4, 2, 1, 1)
 
-        self.s_position_2 = QDoubleSpinBox(self.widget_6)
-        self.s_position_2.setObjectName(u"s_position_2")
-        self.s_position_2.setMinimumSize(QSize(0, 24))
-        self.s_position_2.setMaximumSize(QSize(16777215, 24))
-        self.s_position_2.setMinimum(-500.000000000000000)
-        self.s_position_2.setMaximum(500.000000000000000)
-        self.s_position_2.setStepType(QAbstractSpinBox.StepType.DefaultStepType)
+        self.d_road = QComboBox(self.widget_6)
+        self.d_road.setObjectName(u"d_road")
+        self.d_road.setMinimumSize(QSize(0, 24))
+        self.d_road.setMaximumSize(QSize(16777215, 24))
+        self.d_road.setFrame(False)
 
-        self.gridLayout_3.addWidget(self.s_position_2, 3, 2, 1, 1)
-
-        self.label_17 = QLabel(self.widget_6)
-        self.label_17.setObjectName(u"label_17")
-        self.label_17.setMinimumSize(QSize(75, 0))
-
-        self.gridLayout_3.addWidget(self.label_17, 4, 0, 1, 1)
-
-        self.d_orientation_2 = QComboBox(self.widget_6)
-        self.d_orientation_2.setObjectName(u"d_orientation_2")
-        self.d_orientation_2.setMinimumSize(QSize(0, 24))
-        self.d_orientation_2.setMaximumSize(QSize(16777215, 24))
-        self.d_orientation_2.setFrame(False)
-
-        self.gridLayout_3.addWidget(self.d_orientation_2, 0, 2, 1, 1)
-
-        self.comboBox = QComboBox(self.widget_6)
-        self.comboBox.setObjectName(u"comboBox")
-        self.comboBox.setMinimumSize(QSize(0, 24))
-        self.comboBox.setMaximumSize(QSize(16777215, 24))
-
-        self.gridLayout_3.addWidget(self.comboBox, 1, 2, 1, 1)
-
-        self.doubleSpinBox_2 = QDoubleSpinBox(self.widget_6)
-        self.doubleSpinBox_2.setObjectName(u"doubleSpinBox_2")
-        self.doubleSpinBox_2.setMinimumSize(QSize(0, 24))
-        self.doubleSpinBox_2.setMaximumSize(QSize(16777215, 24))
-        self.doubleSpinBox_2.setMinimum(-0.990000000000000)
-        self.doubleSpinBox_2.setMaximum(0.990000000000000)
-        self.doubleSpinBox_2.setSingleStep(0.100000000000000)
-
-        self.gridLayout_3.addWidget(self.doubleSpinBox_2, 4, 2, 1, 1)
-
-        self.label_12 = QLabel(self.widget_6)
-        self.label_12.setObjectName(u"label_12")
-        self.label_12.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_3.addWidget(self.label_12, 4, 1, 1, 1)
+        self.gridLayout_3.addWidget(self.d_road, 0, 2, 1, 1)
 
         self.gridLayout_3.setColumnStretch(0, 1)
         self.gridLayout_3.setColumnStretch(1, 1)
@@ -494,42 +494,42 @@ class Ui_Edit_Car_Dialog(object):
         self.gridLayout_2.setHorizontalSpacing(4)
         self.gridLayout_2.setVerticalSpacing(8)
         self.gridLayout_2.setContentsMargins(8, 4, 4, 4)
-        self.comboBox_2 = QComboBox(self.widget_2)
-        self.comboBox_2.addItem("")
-        self.comboBox_2.addItem("")
-        self.comboBox_2.addItem("")
-        self.comboBox_2.setObjectName(u"comboBox_2")
-        self.comboBox_2.setMinimumSize(QSize(0, 24))
-        self.comboBox_2.setMaximumSize(QSize(16777215, 24))
-        self.comboBox_2.setMaxVisibleItems(3)
+        self.d_direction = QComboBox(self.widget_2)
+        self.d_direction.addItem("")
+        self.d_direction.addItem("")
+        self.d_direction.addItem("")
+        self.d_direction.setObjectName(u"d_direction")
+        self.d_direction.setMinimumSize(QSize(0, 24))
+        self.d_direction.setMaximumSize(QSize(16777215, 24))
+        self.d_direction.setMaxVisibleItems(3)
 
-        self.gridLayout_2.addWidget(self.comboBox_2, 0, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.d_direction, 0, 2, 1, 1)
 
-        self.comboBox_4 = QComboBox(self.widget_2)
-        self.comboBox_4.setObjectName(u"comboBox_4")
-        self.comboBox_4.setMinimumSize(QSize(0, 24))
-        self.comboBox_4.setMaximumSize(QSize(16777215, 24))
+        self.d_lane_turn = QComboBox(self.widget_2)
+        self.d_lane_turn.setObjectName(u"d_lane_turn")
+        self.d_lane_turn.setMinimumSize(QSize(0, 24))
+        self.d_lane_turn.setMaximumSize(QSize(16777215, 24))
 
-        self.gridLayout_2.addWidget(self.comboBox_4, 3, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.d_lane_turn, 3, 2, 1, 1)
 
-        self.label_19 = QLabel(self.widget_2)
-        self.label_19.setObjectName(u"label_19")
-        self.label_19.setMinimumSize(QSize(75, 0))
+        self.l_lane_turn = QLabel(self.widget_2)
+        self.l_lane_turn.setObjectName(u"l_lane_turn")
+        self.l_lane_turn.setMinimumSize(QSize(75, 0))
 
-        self.gridLayout_2.addWidget(self.label_19, 3, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.l_lane_turn, 3, 0, 1, 1)
 
-        self.label_11 = QLabel(self.widget_2)
-        self.label_11.setObjectName(u"label_11")
-        self.label_11.setMinimumSize(QSize(75, 0))
+        self.l_road_turn = QLabel(self.widget_2)
+        self.l_road_turn.setObjectName(u"l_road_turn")
+        self.l_road_turn.setMinimumSize(QSize(75, 0))
 
-        self.gridLayout_2.addWidget(self.label_11, 2, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.l_road_turn, 2, 0, 1, 1)
 
-        self.comboBox_3 = QComboBox(self.widget_2)
-        self.comboBox_3.setObjectName(u"comboBox_3")
-        self.comboBox_3.setMinimumSize(QSize(0, 24))
-        self.comboBox_3.setMaximumSize(QSize(16777215, 24))
+        self.d_road_turn = QComboBox(self.widget_2)
+        self.d_road_turn.setObjectName(u"d_road_turn")
+        self.d_road_turn.setMinimumSize(QSize(0, 24))
+        self.d_road_turn.setMaximumSize(QSize(16777215, 24))
 
-        self.gridLayout_2.addWidget(self.comboBox_3, 2, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.d_road_turn, 2, 2, 1, 1)
 
         self.label_10 = QLabel(self.widget_2)
         self.label_10.setObjectName(u"label_10")
@@ -581,7 +581,7 @@ class Ui_Edit_Car_Dialog(object):
         self.b_delete.clicked.connect(Edit_Car_Dialog.reject)
         self.b_save.clicked.connect(Edit_Car_Dialog.accept)
 
-        self.comboBox_2.setCurrentIndex(0)
+        self.d_direction.setCurrentIndex(0)
         self.b_save.setDefault(True)
 
 
@@ -613,22 +613,22 @@ class Ui_Edit_Car_Dialog(object):
         self.label_4.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"label", None))
         self.widget_6.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"container", None))
         self.label_9.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Position", None))
-        self.label_13.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Lane", None))
-        self.label_14.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Road", None))
-        self.l_axis_2.setText(QCoreApplication.translate("Edit_Car_Dialog", u"x-Axis", None))
-        self.l_axis_2.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"hint", None))
-        self.label_17.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Transition", None))
         self.label_12.setText(QCoreApplication.translate("Edit_Car_Dialog", u"(-1,1)", None))
         self.label_12.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"hint", None))
+        self.label_13.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Lane", None))
+        self.label_17.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Transition", None))
+        self.l_axis_2.setText(QCoreApplication.translate("Edit_Car_Dialog", u"x-Axis", None))
+        self.l_axis_2.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"hint", None))
+        self.label_14.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Road", None))
         self.label_3.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Next Turn", None))
         self.label_3.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"label", None))
         self.widget_2.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"container", None))
-        self.comboBox_2.setItemText(0, QCoreApplication.translate("Edit_Car_Dialog", u"left", None))
-        self.comboBox_2.setItemText(1, QCoreApplication.translate("Edit_Car_Dialog", u"straight", None))
-        self.comboBox_2.setItemText(2, QCoreApplication.translate("Edit_Car_Dialog", u"right", None))
+        self.d_direction.setItemText(0, QCoreApplication.translate("Edit_Car_Dialog", u"left", None))
+        self.d_direction.setItemText(1, QCoreApplication.translate("Edit_Car_Dialog", u"straight", None))
+        self.d_direction.setItemText(2, QCoreApplication.translate("Edit_Car_Dialog", u"right", None))
 
-        self.label_19.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Lane", None))
-        self.label_11.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Road", None))
+        self.l_lane_turn.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Lane", None))
+        self.l_road_turn.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Road", None))
         self.label_10.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Direction", None))
         self.b_save.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Save", None))
         self.b_delete.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Delete", None))

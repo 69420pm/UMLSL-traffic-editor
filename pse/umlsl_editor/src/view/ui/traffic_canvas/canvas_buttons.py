@@ -34,6 +34,8 @@ class CanvasButtons(QObject):
         self.b_plus: QToolButton = self.window.b_plus
         self.b_minus: QToolButton = self.window.b_minus
 
+        self.setup_ui()
+
     def setup_ui(self) -> None:
         """Set up UI connections and overlay logic."""
         self._reparent_widgets()
