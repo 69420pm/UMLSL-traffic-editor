@@ -28,8 +28,7 @@ class CrossingSegment(Segment):
         vertical_position = self.vertical_lane.get_one_dimensional_position(traffic_snapshot_reader)
         return horizontal_position, vertical_position
 
-    @staticmethod
-    def get_size(traffic_snapshot_reader: TrafficSnapshotReader) -> tuple[float, float]:
+    def get_size(self, traffic_snapshot_reader: TrafficSnapshotReader) -> tuple[float, float]:
         """Return size (width, height) of the crossing segment.
         It gets calculated from the lane width."""
         lane_width = traffic_snapshot_reader.get_lane_width()

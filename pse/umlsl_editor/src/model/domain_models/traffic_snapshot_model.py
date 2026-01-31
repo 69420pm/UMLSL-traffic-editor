@@ -4,7 +4,8 @@ from typing import Any, Optional
 from sortedcontainers import SortedDict
 
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.entities.road import Road, LaneDirection
+from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation
+from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.helper.observables import ObservableDict, Observable, ReadOnlyDictView
 from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
@@ -18,7 +19,7 @@ from pse.umlsl_editor.src.view.view_constants import DIMENSION
 
 class Direction(Enum):
     UP = "TOP"
-    BOTTOM = "BOTTOM"
+    DOWN = "BOTTOM"
     LEFT = "LEFT"
     RIGHT = "RIGHT"
 
@@ -290,7 +291,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                         # Connect to BOTTOM neighbor (next h_lane within same intersection)
                         if h_lane_local_idx + 1 < len(h_lanes):
                             bottom_crossing = grid[(h_lane_local_idx + 1, v_lane_local_idx)]
-                            self._connections[crossing.uid][Direction.BOTTOM] = bottom_crossing.uid
+                            self._connections[crossing.uid][Direction.DOWN] = bottom_crossing.uid
                             self._connections[bottom_crossing.uid][Direction.UP] = crossing.uid
 
         # Create lane segments and connect them
@@ -358,14 +359,14 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                         # Bottommost crossing of previous intersection (highest h_lane_local_idx)
                         bottommost_crossing = crossing_grid[v_road_idx][prev_h_road_idx][(len(h_lanes_prev) - 1, v_lane_local_idx)]
                         self._connections[lane_seg.uid][Direction.UP] = bottommost_crossing.uid
-                        self._connections[bottommost_crossing.uid][Direction.BOTTOM] = lane_seg.uid
+                        self._connections[bottommost_crossing.uid][Direction.DOWN] = lane_seg.uid
 
                     # Connect to BOTTOM: next intersection's topmost crossing, or nothing (infinity)
                     if seg_idx < num_h_roads:
                         next_h_road_idx = seg_idx
                         # Topmost crossing of next intersection (h_lane_local_idx = 0)
                         topmost_crossing = crossing_grid[v_road_idx][next_h_road_idx][(0, v_lane_local_idx)]
-                        self._connections[lane_seg.uid][Direction.BOTTOM] = topmost_crossing.uid
+                        self._connections[lane_seg.uid][Direction.DOWN] = topmost_crossing.uid
                         self._connections[topmost_crossing.uid][Direction.UP] = lane_seg.uid
 
                     # Add crossings for this segment position to the lane's segment list
@@ -432,7 +433,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                         continue
 
                     # Bidirectional connection
-                    self._connections[seg1_uid][Direction.BOTTOM] = seg2_uid
+                    self._connections[seg1_uid][Direction.DOWN] = seg2_uid
                     self._connections[seg2_uid][Direction.UP] = seg1_uid
 
         # Connect vertical lanes
