@@ -10,13 +10,8 @@ from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Se
 class CrossingSegment(Segment):
     horizontal_lane: Lane
     vertical_lane: Lane
-    top_segment_uid: str
-    bottom_segment_uid: str
-    left_segment_uid: str
-    right_segment_uid: str
     uid:str=field(default_factory=generate_uid)
     is_lane_segment: bool = field(default=False, init=False)
-
 
 
     def __post_init__(self) -> None:
@@ -24,14 +19,6 @@ class CrossingSegment(Segment):
             raise ValueError("lane_horizontal must be a Lane")
         if not isinstance(self.vertical_lane, Lane):
             raise ValueError("lane_vertical must be a Lane")
-        if not isinstance(self.top_segment_uid, str):
-            raise ValueError("top_segment_uid must be a string")
-        if not isinstance(self.bottom_segment_uid, str):
-            raise ValueError("bottom_segment_uid must be a string")
-        if not isinstance(self.left_segment_uid, str):
-            raise ValueError("left_segment_uid must be a string")
-        if not isinstance(self.right_segment_uid, str):
-            raise ValueError("right_segment_uid must be a string")
         pass
 
     def get_position(self) -> Position:
