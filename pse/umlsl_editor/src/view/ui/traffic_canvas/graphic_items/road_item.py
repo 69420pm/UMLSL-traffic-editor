@@ -74,6 +74,11 @@ class RoadItem(SelectableGraphicsItem):
         if listener not in self._position_listeners:
             self._position_listeners.append(listener)
 
+    def remove_position_listener(self, listener):
+        """Unregisters an object from position change notifications."""
+        if listener in self._position_listeners:
+            self._position_listeners.remove(listener)
+
     def _notify_listeners(self):
         for listener in self._position_listeners:
             listener.refresh_geometry()

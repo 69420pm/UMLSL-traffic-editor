@@ -4,8 +4,9 @@ from PySide6.QtCore import QPointF, QRectF
 from PySide6.QtGui import QBrush, QColor, QPainter, QPen, QPolygonF
 from PySide6.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
+from pse.umlsl_editor.src.controllers.data_controller import DataController
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.entities.road import LaneDirection, RoadOrientation
+from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import RoadItem
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.selectable_graphics_item import (
     SelectableGraphicsItem,
@@ -19,15 +20,15 @@ class CarItem(SelectableGraphicsItem):
     on its road orientation and selection state.
     """
 
-    def __init__(self, car: Car, roads: dict[str, RoadItem]):
-        self._orientation = roads[car.lane.road_uid].data(0).orientation
-        constraint = self._get_constraint_for_orientation(self._orientation)
+    def __init__(self, car: Car, data_controller: DataController):
+        self._car = car
+        self._road = data_controller.get_road_by_uid(car.lane.road_uid)
 
+        constraint = self._get_constraint_for_orientation(self._road.orientation.opposite)
         super().__init__(movement_constraint=constraint)
+        self.setData(0, car)
 
         self._position_listeners: list = []
-        self.setData(0, car)
-        self.setData(1, roads)
 
         self.polygon = QPolygonF()
 
@@ -69,7 +70,6 @@ class CarItem(SelectableGraphicsItem):
         car.position_on_lane += delta
         self.update_data(car)
 
-
     # --- Position Listener Pattern ---
 
     def add_position_listener(self, listener) -> None:
@@ -94,10 +94,10 @@ class CarItem(SelectableGraphicsItem):
         return self.polygon.boundingRect()
 
     def paint(
-        self,
-        painter: QPainter,
-        option: QStyleOptionGraphicsItem,
-        widget: Optional[QWidget] = None,
+            self,
+            painter: QPainter,
+            option: QStyleOptionGraphicsItem,
+            widget: Optional[QWidget] = None,
     ) -> None:
         painter.setPen(self._body_pen)
         painter.setBrush(self._body_brush)
@@ -150,6 +150,7 @@ class CarItem(SelectableGraphicsItem):
 
     def update_data(self, car: Car) -> None:
         """Update the car data and refresh all visual elements."""
+        self._car = car
         self.setData(0, car)
         self.refresh_geometry()
         self._notify_listeners()
@@ -158,15 +159,10 @@ class CarItem(SelectableGraphicsItem):
         """Recalculate polygon geometry based on current car data."""
         self.prepareGeometryChange()
 
-        car = self.data(0)
-        road_items = self.data(1)
-        road_item = road_items[car.lane.road_uid]
-        road = road_item.data(0)
+        position = self._calculate_car_position(self._car, self._road, self.road_item)
+        dimensions = self._calculate_car_dimensions(self._car)
 
-        position = self._calculate_car_position(car, road, road_item)
-        dimensions = self._calculate_car_dimensions(car)
-
-        self.polygon = self._create_car_polygon(position, dimensions, road.orientation)
+        self.polygon = self._create_car_polygon(position, dimensions, self._road.orientation)
         self.update()
 
     def _calculate_car_position(self, car: Car, road, road_item: RoadItem) -> tuple[float, float]:
@@ -190,13 +186,14 @@ class CarItem(SelectableGraphicsItem):
 
         return x, y
 
-    def _calculate_car_dimensions(self, car: Car) -> tuple[float, float]:
+    @staticmethod
+    def _calculate_car_dimensions(car: Car) -> tuple[float, float]:
         """Calculate effective car length and triangle length based on direction."""
         car_length = car.length
         triangle_length = DIMENSION.CAR_TRIANGLE_LENGTH
 
         # Determine if we need to flip the car direction
-        is_backward = car.lane.lane_direction == LaneDirection.BACKWARD
+        is_backward = car.lane.lane_index < 0
         is_negative_velocity = car.speed < 0
 
         # XOR: flip direction if exactly one condition is true
@@ -207,10 +204,10 @@ class CarItem(SelectableGraphicsItem):
         return car_length, triangle_length
 
     def _create_car_polygon(
-        self,
-        position: tuple[float, float],
-        dimensions: tuple[float, float],
-        orientation: RoadOrientation,
+            self,
+            position: tuple[float, float],
+            dimensions: tuple[float, float],
+            orientation: RoadOrientation,
     ) -> QPolygonF:
         """Create the pentagon polygon representing the car shape."""
         x, y = position

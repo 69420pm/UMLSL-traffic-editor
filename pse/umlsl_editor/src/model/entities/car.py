@@ -1,6 +1,6 @@
+import re
 from dataclasses import dataclass
 from typing import Optional, Any
-import re
 
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.entity import Entity
@@ -8,10 +8,11 @@ from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_interval import LaneInterval
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_interval import LaneInterval
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Path
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
+
 
 @dataclass
 class CarParams:
@@ -88,43 +89,41 @@ class Car(Entity):
 
     next_turn: Optional[TurnIntent]
 
-    #class: Path
-        # Descriptions: all segments that lay in view of car, only single lane
-        #segments: list[Segment]
+    # class: Path
+    # Descriptions: all segments that lay in view of car, only single lane
+    # segments: list[Segment]
 
-    #class LaneInterval:
-        #segment: LaneSegment
-        #start: float
-        #end: float
+    # class LaneInterval:
+    # segment: LaneSegment
+    # start: float
+    # end: float
 
-    #class LaneSegment:
-        #on_lane: Lane
-        #start_road: str
-        #end_road: str
+    # class LaneSegment:
+    # on_lane: Lane
+    # start_road: str
+    # end_road: str
 
-    #class CrossingSegment:
-        #laneA: Lane
-        #laneB: Lane
+    # class CrossingSegment:
+    # laneA: Lane
+    # laneB: Lane
 
-
-    #reserved_lanes: list[laneIntervalls]
+    # reserved_lanes: list[laneIntervalls]
     reserved_lanes: list[LaneInterval]
 
-    #passt
+    # passt
     reserved_crossings: list[CrossingSegment]
 
-    #clamied_intervalls: list[laneIntervalls]
+    # clamied_intervalls: list[laneIntervalls]
     claimed_lanes: list[LaneInterval]
 
     # Dont need these?, sonst passt
     # todo: curr : I → Z such that curr(C ) is (the index - we save the object) of the path element of pth(C) currently occupied by the rear of C
     claimed_crossings: list[CrossingSegment]
 
-
     # passt
     path: Path
 
-    #view_segments: list[LaneInterval and Crossings]
+    # view_segments: list[LaneInterval and Crossings]
     view_segments: list[Any]
 
     acceleration: float
@@ -214,7 +213,7 @@ class Car(Entity):
         self.color = params.color
         self.position_on_lane = params.position_on_lane
         self.transition = params.transition
-        self.speed = params.velocity
+        self.speed = params.speed
         self.length = params.length
         self.next_turn = params.next_turn
         self.acceleration = params.acceleration
@@ -224,26 +223,24 @@ class Car(Entity):
         lane_position = self.lane.get_one_dimensional_position(traffic_snapshot_reader)
         road_orientation = traffic_snapshot_reader.get_road_by_uid(self.lane.road_uid).orientation
         if road_orientation == RoadOrientation.HORIZONTAL:
-            if (self.lane.lane_index >= 0 and self.velocity >= 0) or (self.lane.lane_index < 0 and self.velocity < 0):
-                x = self.position_on_lane - self.length/2
+            if (self.lane.lane_index >= 0 and self.speed >= 0) or (self.lane.lane_index < 0 and self.speed < 0):
+                x = self.position_on_lane - self.length / 2
                 y = lane_position
                 return x, y
             else:
-                x = self.position_on_lane + self.length/2
+                x = self.position_on_lane + self.length / 2
                 y = lane_position
                 return x, y
         else:  # Vertical road
-            if (self.lane.lane_index >= 0 and self.velocity >= 0) or (self.lane.lane_index < 0 and self.velocity < 0):
+            if (self.lane.lane_index >= 0 and self.speed >= 0) or (self.lane.lane_index < 0 and self.speed < 0):
                 x = lane_position
-                y = self.position_on_lane - self.length/2
+                y = self.position_on_lane - self.length / 2
                 return x, y
             else:
                 x = lane_position
-                y = self.position_on_lane + self.length/2
+                y = self.position_on_lane + self.length / 2
                 return x, y
 
-
-
-    def absolute_position(self)-> float:
+    def absolute_position(self) -> float:
         raise NotImplementedError
         # return self.lane.road_name.position + self.position_on_lane

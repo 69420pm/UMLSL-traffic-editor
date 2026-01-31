@@ -1,6 +1,6 @@
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import Road
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.view.view_models import ViewModels
 
 
@@ -39,3 +39,7 @@ class DataController:
     def should_render_safety_distance(self) -> bool:
         """Returns true if safety distance is rendered."""
         raise NotImplementedError
+
+    def get_road_by_uid(self, uid: str) -> Road:
+        """Returns the road with the given uid."""
+        return self._traffic_snapshot_reader.get_road_by_uid(uid)

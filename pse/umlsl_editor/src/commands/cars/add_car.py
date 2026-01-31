@@ -3,15 +3,15 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import Tra
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
 from pse.umlsl_editor.src.model.entities.car import CarParams, Car
 
+
 class AddCarCommand(Command[None]):
     """Creates a car object based on the provided parameters and adds it to the traffic snapshot."""
 
-
     def __init__(
-        self,
-        traffic_snapshot_reader: TrafficSnapshotReader,
-        traffic_snapshot_writer: TrafficSnapshotWriter,
-        car_params: CarParams
+            self,
+            traffic_snapshot_reader: TrafficSnapshotReader,
+            traffic_snapshot_writer: TrafficSnapshotWriter,
+            car_params: CarParams
     ):
         """
         Initialize the AddCarCommand with car parameters.
@@ -33,8 +33,8 @@ class AddCarCommand(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
+        self._traffic_snapshot_reader.validate_car_params(self.car_params, True)
         car = Car.from_params(self.car_params)
         self._traffic_snapshot_writer.add_car(car)
         # TODO: Error Handling
         raise NotImplementedError("Prototype Method")
-

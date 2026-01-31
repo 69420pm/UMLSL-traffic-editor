@@ -3,15 +3,11 @@ Traffic scene for the UMLSL Traffic Editor.
 
 Manages the QGraphicsScene containing all traffic entities (roads, cars, crossings).
 """
-from typing import Any, Dict
 
-from PySide6.QtCore import QRectF
-from PySide6.QtWidgets import QGraphicsItem, QGraphicsScene
+from PySide6.QtCore import QRectF, QModelIndex
+from PySide6.QtWidgets import QGraphicsScene
 
 from pse.umlsl_editor.src.controllers import ApplicationController
-from pse.umlsl_editor.src.controllers.data_controller import DataController
-from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.entities.road import Road
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.car_item import CarItem
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.crossing_item import (
     CrossingItem,
@@ -28,7 +24,7 @@ class TrafficScene(QGraphicsScene):
     Provides a registry for tracking items and a cache for road data.
     """
 
-    def __init__(self,application_controller: ApplicationController, parent=None ) -> None:
+    def __init__(self, application_controller: ApplicationController, parent=None) -> None:
         """Initialize the traffic scene with configured bounds."""
         super().__init__(parent)
 
@@ -36,53 +32,66 @@ class TrafficScene(QGraphicsScene):
         size = DIMENSION.SCENE_SIZE
         self.setSceneRect(QRectF(-size / 2, -size / 2, size, size))
 
-        # Registry to track graphics items by entity ID
-        self.roads: Dict[str, RoadItem] = {}
-        self.cars: Dict[str, CarItem] = {}
-        self.crossings: Dict[str, CrossingItem] = {}
-
         self.data_controller = application_controller.data_controller
-        self.view_handler = application_controller._view_event_handler
 
-        self.fill_scene_with_data()
+        self.car_model = self.data_controller.get_view_models().car_list_model
+        self.road_model = self.data_controller.get_view_models().road_list_model
 
-    def fill_scene_with_data(self) -> None:
-        for road in self.data_controller.get_all_roads():
-            self.add_road(road)
+        self._item_registry = {}
 
-        for car in self.data_controller.get_all_cars():
-            self.add_car(car)
+        self.car_model.rowsInserted.connect(self._on_cars_added)
+        self.car_model.rowsAboutToBeRemoved.connect(self._on_cars_removed)
+        self.car_model.dataChanged.connect(self._on_car_data_changed)
 
+    def _on_cars_added(self, parent: QModelIndex, first: int, last: int) -> None:
+        """Called when cars are added to the list model."""
+        for row in range(first, last + 1):
+            car_entity = self.car_model.get_entity_at(row)
+            graphics_item = CarItem(car_entity, self.data_controller)
+            self.addItem(graphics_item)
+            self._item_registry[car_entity.uid] = graphics_item
+            self._item_registry[car_entity.lane.road_uid].add_position_listener(graphics_item)
 
-    def remove_entity(self, data_object: Any) -> None:
-        pass
+    def _on_cars_removed(self, parent: QModelIndex, first: int, last: int):
+        """Called BEFORE cars are removed from the list model."""
+        for row in range(first, last + 1):
+            car_entity = self.car_model.get_entity_at(row)
 
-    def add_road(self, road: Road) -> None:
-        # Create the new road item
-        new_road_item = RoadItem(road, view_event_handler=self.view_handler)
-        self.addItem(new_road_item)
-        self.roads[road.uid] = new_road_item
+            if car_entity in self._item_registry:
+                item = self._item_registry[car_entity]
+                self._item_registry[car_entity.lane.road_uid].remove_position_listener(item)
+                self.removeItem(item)
+                del self._item_registry[car_entity]
 
-        print("Added road:", new_road_item)
+    def _on_car_data_changed(self, top_left: QModelIndex, bottom_right: QModelIndex, roles):
+        """Called when a car's property (e.g., position) changes."""
+        for row in range(top_left.row(), bottom_right.row() + 1):
+            car_entity = self.car_model.get_entity_at(row)
 
-        # NEW: Check for intersections with existing roads
-        self._check_and_create_crossings(new_road_item)
+            if car_entity in self._item_registry:
+                old_car_entity = self._item_registry[car_entity.uid]
+                item = self._item_registry[car_entity]
 
-    def add_car(self, car: Car) -> None:
-        # Create the new road item
-        new_car_item = CarItem(car, self.roads)
-        self.addItem(new_car_item)
-        self.roads[car.lane.road_uid].add_position_listener(new_car_item)
+                # If the car changed roads, update road listeners
+                if old_car_entity.lane.road_uid != car_entity.lane.road_uid:
+                    self._item_registry[old_car_entity.lane.road_uid].remove_position_listener(item)
+                    self._item_registry[car_entity.lane.road_uid].add_position_listener(item)
 
-        print("Added car:", new_car_item)
+                item.update_visuals()
+
+    def _on_roads_added(self, parent: QModelIndex, first: int, last: int) -> None:
+        for row in range(first, last + 1):
+            road_entity = self.road_model.get_entity_at(row)
+            graphics_item = RoadItem(road_entity)
+            self.addItem(graphics_item)
+            self._item_registry[road_entity.uid] = graphics_item
+            self._check_and_create_crossings(graphics_item)
 
     def _check_and_create_crossings(self, new_road_item: RoadItem):
         """Finds perpendicular roads and creates crossings."""
         new_orientation = new_road_item.data(0).orientation
 
-        for existing_road in self.roads.values():
-            print(existing_road)
-            # Only create crossing if orientations differ (one H, one V)
+        for existing_road in self.data_controller.get_all_roads().values():
             if existing_road.data(0).orientation != new_orientation:
                 self._create_crossing(new_road_item, existing_road)
 
@@ -96,3 +105,10 @@ class TrafficScene(QGraphicsScene):
         # This ensures it moves if EITHER road is dragged
         road_a.add_position_listener(crossing)
         road_b.add_position_listener(crossing)
+
+    def _remove_listener_from_roads(self, graphics_item):
+        """Removes a graphics item from all road listener lists."""
+        for road in self.data_controller.get_all_roads().values():
+            if graphics_item in self._item_registry:
+                road_item = self._item_registry[graphics_item]
+                road_item.remove_position_listener(graphics_item)

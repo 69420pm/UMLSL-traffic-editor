@@ -6,7 +6,6 @@ from pse.umlsl_editor.src.model.entities.entity import Entity
 from pse.umlsl_editor.src.model.entities.road import Road
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 from pse.umlsl_editor.src.model.errors.errors import BaseWarning
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 
 
@@ -213,4 +212,3 @@ class ViewEventHandler(ABC):
     @abstractmethod
     def refresh_all_segments_view(self, segments: list[Segment]):
         pass
-

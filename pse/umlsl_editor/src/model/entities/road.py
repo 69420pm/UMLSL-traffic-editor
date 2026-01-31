@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from enum import Enum
 
 from pse.umlsl_editor.src.model.entities.entity import Entity
-from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.errors.road_errors import RoadValidationError
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
+from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 
 
 class RoadOrientation(Enum):
@@ -18,6 +18,8 @@ class RoadOrientation(Enum):
 
     HORIZONTAL = 0
     VERTICAL = 1
+
+    opposite = {HORIZONTAL: VERTICAL, VERTICAL: HORIZONTAL}
 
 
 @dataclass
@@ -74,7 +76,6 @@ class Road(Entity):
     forward_lanes: list[Lane]
     backward_lanes: list[Lane]
 
-
     _should_validate: bool = False
 
     @classmethod
@@ -93,7 +94,7 @@ class Road(Entity):
         for i in range(params.number_of_forward_lanes):
             forward_lanes.append(Lane(lane_index=i, road_uid=road_uid))
         for i in range(params.number_of_backward_lanes):
-            backward_lanes.append(Lane(lane_index=-(i+1), road_uid=road_uid))
+            backward_lanes.append(Lane(lane_index=-(i + 1), road_uid=road_uid))
         return cls(
             name=params.name,
             uid=road_uid,
@@ -124,20 +125,19 @@ class Road(Entity):
         # Update forward lanes
         if params.number_of_forward_lanes > len(self.forward_lanes):
             for i in range(len(self.forward_lanes), params.number_of_forward_lanes):
-                self.forward_lanes.append(Lane(uid=generate_uid(), lane_index=i, road_uid=self.uid))
+                self.forward_lanes.append(Lane(lane_index=i, road_uid=self.uid))
         elif params.number_of_forward_lanes < len(self.forward_lanes):
             self.forward_lanes = self.forward_lanes[:params.number_of_forward_lanes]
 
         # Update backward lanes
         if params.number_of_backward_lanes > len(self.backward_lanes):
             for i in range(len(self.backward_lanes), params.number_of_backward_lanes):
-                self.backward_lanes.append(Lane(uid=generate_uid(), lane_index=-(i + 1), road_uid=self.uid))
+                self.backward_lanes.append(Lane(lane_index=-(i + 1), road_uid=self.uid))
         elif params.number_of_backward_lanes < len(self.backward_lanes):
             self.backward_lanes = self.backward_lanes[:params.number_of_backward_lanes]
 
         self.number_of_forward_lanes = params.number_of_forward_lanes
         self.number_of_backward_lanes = params.number_of_backward_lanes
-
 
         self.__post_init__()
 

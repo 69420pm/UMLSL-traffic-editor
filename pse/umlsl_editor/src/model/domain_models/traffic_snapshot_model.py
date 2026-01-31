@@ -1,17 +1,15 @@
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
-from sortedcontainers import SortedDict
-
-from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_validator import TrafficSnapshotValidator
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
+from pse.umlsl_editor.src.model.entities.car import Car, CarParams
+from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation, RoadParams
+from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
+from pse.umlsl_editor.src.model.helper.observables import ObservableDict, Observable, ReadOnlyDictView
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
-from pse.umlsl_editor.src.model.helper.observables import ObservableDict, Observable, ReadOnlyDictView
-from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_validator import TrafficSnapshotValidator
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.view.view_constants import DIMENSION
@@ -44,6 +42,12 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         # - TrafficSnapshotEventType.CROSSING_SEGMENT_REMOVED: Fired when a crossing segment is removed (data: CrossingSegment)
         # - TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED: Fired when a crossing segment is updated (data: CrossingSegment)
     """
+
+    def validate_road_params(self, road_params: RoadParams, new_instantiation: bool) -> None:
+        self.validator.validate_road_params(road_params, new_instantiation)
+
+    def validate_car_params(self, car_params: CarParams, new_instantiation: bool) -> None:
+        self.validator.validate_car_params(car_params, new_instantiation)
 
     def get_next_road_in_front_of_car(self, car: Car) -> Road | None:
         pass
@@ -82,8 +86,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def __init__(
             self,
-            roads: Optional[ObservableDict[str, Road]] = None,
-            cars: Optional[ObservableDict[str, Car]] = None,
+            roads: ObservableDict[str, Road] | None = None,
+            cars: ObservableDict[str, Car] | None = None,
     ):
 
         super().__init__()
@@ -144,7 +148,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         pass
 
     def get_roads(self) -> list[Road]:
-        pass
+        return
 
     def get_cars_in_rectangle(self, x_min: float, y_min: float, x_max: float, y_max: float) -> list[Car]:
         pass
@@ -159,7 +163,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         pass
 
     def add_road(self, road: Road) -> None:
-        self.validator.validate_road(road, True)
         if road.orientation == RoadOrientation.HORIZONTAL:
             self._horizontal_roads[road.uid] = road
         else:
@@ -173,19 +176,20 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             self._vertical_roads.pop(road_uid)
         self._recalculate_static_segments()
 
-    def update_road(self, road_data: Road) -> None:
-        self.validator.validate_road(road_data, False)
+    def update_road(self, road_uid: str, road_params: RoadParams) -> None:
+        # self.validator.validate_road(road_data, False)
         pass
 
     def add_car(self, car: Car) -> None:
-        self.validator.validate_car(car, True)
         self._cars[car.name] = car
 
     def remove_car(self, car_name: str) -> None:
         self._cars.pop(car_name)
 
-    def update_car(self, car_data: Car) -> None:
-        self.validator.validate_car(car_data, False)
+    def update_car(self, car_uid: str, car_params: CarParams) -> None:
+        car = self._cars.get(car_uid)
+        car.update_from_params(car_params)
+        self.validator.validate_car(car, False)
         pass
 
     def _recalculate_car_claimed_and_reserved_segments(self, car: Car) -> None:
@@ -202,7 +206,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             segment_position = segment.get_position(self)
             segment_size = segment.get_size(self)
             if segment_position[0] <= car_tail_position[0] <= segment_position[0] + segment_size[0] and \
-               segment_position[1] <= car_tail_position[1] <= segment_position[1] + segment_size[1]:
+                    segment_position[1] <= car_tail_position[1] <= segment_position[1] + segment_size[1]:
                 return segment
         raise ValueError(f"Car tail segment not found for car {car.name}.")
 
@@ -211,6 +215,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         if segment is None:
             raise ValueError(f"Segment with uid {segment_uid} not found.")
         return segment
+
     def _recalculate_static_segments(self) -> None:
         """
         Recalculates all static segments in the traffic snapshot.
@@ -316,7 +321,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                         prev_v_road_idx = seg_idx - 1
                         v_lanes_prev = get_ordered_lanes(v_roads_sorted[prev_v_road_idx])
                         # Rightmost crossing of previous intersection (highest v_lane_local_idx)
-                        rightmost_crossing = crossing_grid[prev_v_road_idx][h_road_idx][(h_lane_local_idx, len(v_lanes_prev) - 1)]
+                        rightmost_crossing = crossing_grid[prev_v_road_idx][h_road_idx][
+                            (h_lane_local_idx, len(v_lanes_prev) - 1)]
                         self._connections[lane_seg.uid][Direction.LEFT] = rightmost_crossing.uid
                         self._connections[rightmost_crossing.uid][Direction.RIGHT] = lane_seg.uid
 
@@ -357,7 +363,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                         prev_h_road_idx = seg_idx - 1
                         h_lanes_prev = get_ordered_lanes(h_roads_sorted[prev_h_road_idx])
                         # Bottommost crossing of previous intersection (highest h_lane_local_idx)
-                        bottommost_crossing = crossing_grid[v_road_idx][prev_h_road_idx][(len(h_lanes_prev) - 1, v_lane_local_idx)]
+                        bottommost_crossing = crossing_grid[v_road_idx][prev_h_road_idx][
+                            (len(h_lanes_prev) - 1, v_lane_local_idx)]
                         self._connections[lane_seg.uid][Direction.UP] = bottommost_crossing.uid
                         self._connections[bottommost_crossing.uid][Direction.DOWN] = lane_seg.uid
 
@@ -383,10 +390,10 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self.notify(TrafficSnapshotEventType.SEGMENTS_RECALCULATED, self._segments.values())
 
     def _connect_parallel_lanes(
-        self,
-        h_roads_sorted: list[Road],
-        v_roads_sorted: list[Road],
-        get_ordered_lanes
+            self,
+            h_roads_sorted: list[Road],
+            v_roads_sorted: list[Road],
+            get_ordered_lanes
     ) -> None:
         """
         Connect parallel lanes in the same direction for lane switching.

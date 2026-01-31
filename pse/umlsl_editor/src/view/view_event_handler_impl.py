@@ -5,15 +5,21 @@ from pse.umlsl_editor.src.model.entities.road import Road
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 from pse.umlsl_editor.src.model.errors.errors import BaseWarning
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.view.view_models import ViewModels
 
 
 class ViewEventHandlerImplementation(ViewEventHandler):
-    def display_warning(self, warning: BaseWarning):
+
+    def __init__(self, view_model: ViewModels):
+        super().__init__()
+        self.view_models = view_model
+
+    def refresh_all_segments_view(self, segments: list[Segment]):
         pass
 
-    def __init__(self, view_model: ViewModels) -> None:
-        self.view_models = view_model
+    def display_warning(self, warning: BaseWarning):
+        pass
 
     def add_car_view(self, car: Car) -> None:
         self.view_models.car_list_model.add_entity(car)
