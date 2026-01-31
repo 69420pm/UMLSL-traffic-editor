@@ -21,6 +21,7 @@ class RoadTrafficSnapshotContextValidationError(BaseError):
 
     pass
 
+
 class RoadWarning(BaseWarning):
     """
     Warning raised for non-critical issues related to Road entities, to inform the user of potential problems without halting execution.

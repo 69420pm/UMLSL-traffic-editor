@@ -3,6 +3,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import Direction
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
+
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.model.entities.car import Car
     from pse.umlsl_editor.src.model.entities.road import Road
@@ -67,4 +70,47 @@ class TrafficSnapshotReader(ABC):
         Returns:
             True if the lane index and direction are valid for the road, False otherwise.
         """
+        pass
+
+    @abstractmethod
+    def get_lane_width(self):
+        """
+        Returns the width of lanes in the snapshot.
+        """
+        pass
+
+    @abstractmethod
+    def get_adjacent_segment(self, segment_uid: str, direction: Direction) -> Segment|None:
+        """
+        Returns the adjacent segment in the specified direction ('left', 'right', 'up', 'down').
+
+        Args:
+            segment_uid: The UID of the current segment.
+            direction: The direction to find the adjacent segment ('left', 'right', 'up', 'down').
+        Returns:
+            The adjacent Segment if found, otherwise None.
+        """
+        pass
+
+    @abstractmethod
+    def get_road_by_uid(self, uid: str) -> Road:
+        """
+        Returns the road with the specified UID, or None if not found.
+        """
+        pass
+
+    @abstractmethod
+    def get_entity_by_uid(self, uid: str):
+        """
+        Returns the entity (Car, Road) with the specified UID, or None if not found.
+        """
+        pass
+
+    @abstractmethod
+    def get_next_road_in_front_of_car(self, car: Car) -> Road|None:
+        """
+        Returns the next road in front of the specified car
+
+        Args:
+            car: The car for which to find the next road in front."""
         pass

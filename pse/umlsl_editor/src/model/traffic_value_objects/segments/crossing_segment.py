@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
-from pse.umlsl_editor.src.model.traffic_value_objects.position import Position
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 
 
@@ -21,7 +21,17 @@ class CrossingSegment(Segment):
             raise ValueError("lane_vertical must be a Lane")
         pass
 
-    def get_position(self) -> Position:
+    def get_position(self, traffic_snapshot_reader: TrafficSnapshotReader) -> tuple[float, float]:
         """Return position of the top left corner of the crossing segment.
         It gets calculated from the position of the two lanes."""
-        raise NotImplementedError()
+        horizontal_position = self.horizontal_lane.get_one_dimensional_position(traffic_snapshot_reader)
+        vertical_position = self.vertical_lane.get_one_dimensional_position(traffic_snapshot_reader)
+        return horizontal_position, vertical_position
+
+    @staticmethod
+    def get_size(traffic_snapshot_reader: TrafficSnapshotReader) -> tuple[float, float]:
+        """Return size (width, height) of the crossing segment.
+        It gets calculated from the lane width."""
+        lane_width = traffic_snapshot_reader.get_lane_width()
+        return lane_width, lane_width
+

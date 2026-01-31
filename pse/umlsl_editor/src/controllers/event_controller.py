@@ -83,6 +83,8 @@ class EventController:
         #     self._view.update_crossing_segment_view(data)
         elif event_type == TrafficSnapshotEventType.TRAFFIC_SNAPSHOT_WARNING:
             self._view.display_warning(data)
+        elif event_type == TrafficSnapshotEventType.SEGMENTS_RECALCULATED:
+            self._view.refresh_all_segments_view(data)
 
     def _on_settings_event(self, event_type: Enum, data) -> None:
         """

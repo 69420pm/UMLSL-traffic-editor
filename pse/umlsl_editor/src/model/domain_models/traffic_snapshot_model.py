@@ -19,7 +19,7 @@ from pse.umlsl_editor.src.view.view_constants import DIMENSION
 
 
 class Direction(Enum):
-    TOP = "TOP"
+    UP = "TOP"
     BOTTOM = "BOTTOM"
     LEFT = "LEFT"
     RIGHT = "RIGHT"
@@ -46,6 +46,41 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         # - TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED: Fired when a crossing segment is updated (data: CrossingSegment)
     """
 
+    def get_next_road_in_front_of_car(self, car: Car) -> Road | None:
+        pass
+
+    def get_entity_by_uid(self, uid: str):
+        pass
+
+    def get_adjacent_segment(self, segment_uid: str, direction: Direction) -> Segment | None:
+        if self._connections[segment_uid].get(direction) is not None:
+            adjacent_uid = self._connections[segment_uid][direction]
+            return self._segments.get(adjacent_uid)
+        return None
+
+    def get_lane_width(self):
+        """Get the width of a single lane in the traffic snapshot.
+
+        Returns:
+            The width of a lane as a float.
+        """
+        return self.lane_width
+
+    def get_road_by_uid(self, uid: str) -> Road | None:
+        """Retrieve a road by its unique identifier (uid).
+
+        Args:
+            uid: The unique identifier of the road.
+
+        Returns:
+            The Road object if found, otherwise None.
+        """
+        if uid in self._horizontal_roads:
+            return self._horizontal_roads[uid]
+        elif uid in self._vertical_roads:
+            return self._vertical_roads[uid]
+        raise ValueError(f"Road with uid {uid} not found.")
+
     def __init__(
             self,
             roads: Optional[ObservableDict[str, Road]] = None,
@@ -69,12 +104,12 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             on_remove=self._on_road_removed,
             on_update=self._on_road_updated
         )
-        self._segments: ObservableDict[str, Segment] = ObservableDict()
+        self._segments: dict[str, Segment] = {}
         """Dictionary of segments, keyed by their uid."""
-        self._connections: ObservableDict[str, dict[Direction, str]] = ObservableDict()
+        self._connections: dict[str, dict[Direction, str]] = {}
         """Dictionary of segment connections, keyed by segment uid. And in the direction dict all connected segments uids."""
-        self._segments_by_lane: dict[str, list[str]] = {}
-        """Dictionary mapping lane uids to their corresponding segment uids."""
+        self._segments_by_lane: dict[int, list[str]] = {}
+        """Dictionary mapping the hash(lane) to their corresponding segment uids."""
 
         self._read_only_roads = ReadOnlyDictView(self._horizontal_roads + self._vertical_roads)
         """Read-only view of the roads dictionary."""
@@ -130,12 +165,14 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             self._horizontal_roads[road.uid] = road
         else:
             self._vertical_roads[road.uid] = road
+        self._recalculate_static_segments()
 
     def remove_road(self, road_uid: str) -> None:
         if road_uid in self._horizontal_roads:
             self._horizontal_roads.pop(road_uid)
         elif road_uid in self._vertical_roads:
             self._vertical_roads.pop(road_uid)
+        self._recalculate_static_segments()
 
     def update_road(self, road: Road) -> None:
         self.validator.validate_road(road, False)
@@ -151,6 +188,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                 self._horizontal_roads[road.uid] = road
             else:
                 self._vertical_roads[road.uid] = road
+        self._recalculate_static_segments()
 
     def add_car(self, car: Car) -> None:
         self.validator.validate_car(car, True)
@@ -163,10 +201,29 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self.validator.validate_car(car_data, False)
         pass
 
-    def _recalculate_segments(self, car: Car) -> None:
-        """Recalculates the segments for a given car based on its current position."""
-        raise NotImplementedError
+    def _recalculate_car_claimed_and_reserved_segments(self, car: Car) -> None:
+        # calculate claimed segments
 
+        # calculate reserved segments
+
+        pass
+
+    def _get_car_tail_segment(self, car: Car) -> Segment:
+        car_tail_position = car.get_tail_position(self)
+        for segment_uid in self._segments_by_lane[hash(car.lane)]:
+            segment = self._get_segment_by_uid(segment_uid)
+            segment_position = segment.get_position(self)
+            segment_size = segment.get_size(self)
+            if segment_position[0] <= car_tail_position[0] <= segment_position[0] + segment_size[0] and \
+               segment_position[1] <= car_tail_position[1] <= segment_position[1] + segment_size[1]:
+                return segment
+        raise ValueError(f"Car tail segment not found for car {car.name}.")
+
+    def _get_segment_by_uid(self, segment_uid: str) -> Segment:
+        segment = self._segments.get(segment_uid)
+        if segment is None:
+            raise ValueError(f"Segment with uid {segment_uid} not found.")
+        return segment
     def _recalculate_static_segments(self) -> None:
         """
         Recalculates all static segments in the traffic snapshot.
@@ -248,7 +305,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                         if h_lane_local_idx + 1 < len(h_lanes):
                             bottom_crossing = grid[(h_lane_local_idx + 1, v_lane_local_idx)]
                             self._connections[crossing.uid][Direction.BOTTOM] = bottom_crossing.uid
-                            self._connections[bottom_crossing.uid][Direction.TOP] = crossing.uid
+                            self._connections[bottom_crossing.uid][Direction.UP] = crossing.uid
 
         # Create lane segments and connect them
         # For horizontal lanes: segments between vertical roads (and at boundaries)
@@ -291,7 +348,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                             crossing = crossing_grid[seg_idx][h_road_idx][(h_lane_local_idx, v_lane_local_idx)]
                             lane_segment_uids.append(crossing.uid)
 
-                self._segments_by_lane[h_lane.uid] = lane_segment_uids
+                self._segments_by_lane[hash(h_lane)] = lane_segment_uids
 
         # For vertical lanes: segments between horizontal roads (and at boundaries)
         for v_road_idx, v_road in enumerate(v_roads_sorted):
@@ -314,7 +371,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                         h_lanes_prev = get_ordered_lanes(h_roads_sorted[prev_h_road_idx])
                         # Bottommost crossing of previous intersection (highest h_lane_local_idx)
                         bottommost_crossing = crossing_grid[v_road_idx][prev_h_road_idx][(len(h_lanes_prev) - 1, v_lane_local_idx)]
-                        self._connections[lane_seg.uid][Direction.TOP] = bottommost_crossing.uid
+                        self._connections[lane_seg.uid][Direction.UP] = bottommost_crossing.uid
                         self._connections[bottommost_crossing.uid][Direction.BOTTOM] = lane_seg.uid
 
                     # Connect to BOTTOM: next intersection's topmost crossing, or nothing (infinity)
@@ -323,7 +380,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                         # Topmost crossing of next intersection (h_lane_local_idx = 0)
                         topmost_crossing = crossing_grid[v_road_idx][next_h_road_idx][(0, v_lane_local_idx)]
                         self._connections[lane_seg.uid][Direction.BOTTOM] = topmost_crossing.uid
-                        self._connections[topmost_crossing.uid][Direction.TOP] = lane_seg.uid
+                        self._connections[topmost_crossing.uid][Direction.UP] = lane_seg.uid
 
                     # Add crossings for this segment position to the lane's segment list
                     if seg_idx < num_h_roads:
@@ -332,10 +389,11 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                             crossing = crossing_grid[v_road_idx][seg_idx][(h_lane_local_idx, v_lane_local_idx)]
                             lane_segment_uids.append(crossing.uid)
 
-                self._segments_by_lane[v_lane.uid] = lane_segment_uids
+                self._segments_by_lane[hash(v_lane)] = lane_segment_uids
 
         # Connect parallel lanes in the same direction (bidirectional for lane switching)
         self._connect_parallel_lanes(h_roads_sorted, v_roads_sorted, get_ordered_lanes)
+        self.notify(TrafficSnapshotEventType.SEGMENTS_RECALCULATED, self._segments.values())
 
     def _connect_parallel_lanes(
         self,
@@ -389,7 +447,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
                     # Bidirectional connection
                     self._connections[seg1_uid][Direction.BOTTOM] = seg2_uid
-                    self._connections[seg2_uid][Direction.TOP] = seg1_uid
+                    self._connections[seg2_uid][Direction.UP] = seg1_uid
 
         # Connect vertical lanes
         for v_road in v_roads_sorted:
