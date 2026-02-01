@@ -6,7 +6,7 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_validator import 
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
 from pse.umlsl_editor.src.model.entities.car import Car, CarParams
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation, RoadParams
-from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
+from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType, SelectionEventType
 from pse.umlsl_editor.src.model.helper.observables import ObservableDict, Observable, ReadOnlyDictView
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
@@ -42,6 +42,12 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         # - TrafficSnapshotEventType.CROSSING_SEGMENT_REMOVED: Fired when a crossing segment is removed (data: CrossingSegment)
         # - TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED: Fired when a crossing segment is updated (data: CrossingSegment)
     """
+
+    def select_entity(self, uid: str):
+        self.notify(SelectionEventType.ENTITY_SELECTED, uid)
+
+    def clear_selection(self):
+        self.notify(SelectionEventType.SELECTION_CLEARED, None)
 
     def validate_road_params(self, road_params: RoadParams, new_instantiation: bool) -> None:
         self.validator.validate_road_params(road_params, new_instantiation)

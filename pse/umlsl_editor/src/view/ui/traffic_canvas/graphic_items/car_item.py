@@ -4,7 +4,6 @@ from PySide6.QtCore import QPointF, QRectF
 from PySide6.QtGui import QBrush, QColor, QPainter, QPen, QPolygonF
 from PySide6.QtWidgets import QStyleOptionGraphicsItem, QWidget
 
-from pse.umlsl_editor.src.controllers.data_controller import DataController
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import RoadItem
@@ -20,13 +19,13 @@ class CarItem(SelectableGraphicsItem):
     on its road orientation and selection state.
     """
 
-    def __init__(self, car: Car, data_controller: DataController):
+    def __init__(self, car: Car, application_controller):
         self._car = car
-        self._road = data_controller.get_road_by_uid(car.lane.road_uid)
+        self._road = application_controller.data_controller.get_road_by_uid(car.lane.road_uid)
         self._polygon = QPolygonF()
 
         constraint = self._get_constraint_for_orientation(self._road.orientation.opposite)
-        super().__init__(movement_constraint=constraint)
+        super().__init__(application_controller)
 
         self.update_data(car)
 

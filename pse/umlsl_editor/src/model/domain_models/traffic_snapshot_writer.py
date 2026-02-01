@@ -59,3 +59,11 @@ class TrafficSnapshotWriter(ABC):
             TrafficSnapshotValidationError: If the updated car is invalid in the context of the snapshot.
         """
         pass
+
+    @abstractmethod
+    def select_entity(self, uid: str):
+        pass
+
+    @abstractmethod
+    def clear_selection(self):
+        pass

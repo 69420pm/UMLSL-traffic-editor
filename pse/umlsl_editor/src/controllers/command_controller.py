@@ -7,6 +7,8 @@ from pse.umlsl_editor.src.commands.cars.delete_car import DeleteCar
 from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.commands.roads.delete_road import DeleteRoad
 from pse.umlsl_editor.src.commands.roads.upsert_road_command import UpsertRoad
+from pse.umlsl_editor.src.commands.selection.clear_selection import ClearSelection
+from pse.umlsl_editor.src.commands.selection.select_entity import SelectEntity
 from pse.umlsl_editor.src.commands.settings.change_breaking_acceleration import ChangeBreakingAccelerationCommand
 from pse.umlsl_editor.src.commands.settings.toggle_coordinate_system import ToggleCoordinateSystemCommand
 from pse.umlsl_editor.src.commands.settings.toggle_safety_distance import ToggleSafetyDistanceCommand
@@ -273,47 +275,19 @@ class CommandController:
         edit_umlsl_query.execute()
         raise NotImplementedError("Prototype Method")
 
-    def select_car(self, car_name: str) -> None:
+    def select_entity(self, uid: str) -> None:
         """
-        Selects a car by its name.
-
+        Selects a car or road by its unique identifier.
         Args:
-            car_name: The unique identifier of the car to select.
+            uid: The unique identifier of the car or road to select.
         """
-        raise NotImplementedError("Method not implemented yet.")
-
-    def deselect_car(self, car_name: str) -> None:
-        """
-        Deselects a car by its name.
-
-        Args:
-            car_name: The unique identifier of the car to deselect.
-        """
-        raise NotImplementedError("Method not implemented yet.")
-
-    def select_road(self, road_name: str) -> None:
-        """
-        Selects a road by its name.
-
-        Args:
-            road_name: The unique identifier of the road to select.
-        """
-        raise NotImplementedError("Method not implemented yet.")
-
-    def deselect_road(self, road_name: str) -> None:
-        """
-        Deselects a road by its name.
-
-        Args:
-            road_name: The unique identifier of the road to deselect.
-        """
-        raise NotImplementedError("Method not implemented yet.")
+        SelectEntity(self.traffic_snapshot_writer, uid).execute()
 
     def clear_selection(self) -> None:
         """
         Clears the selection of all cars and roads.
         """
-        raise NotImplementedError("Method not implemented yet.")
+        ClearSelection(self.traffic_snapshot_writer).execute()
 
     # todo correct skeletons for load/save traffic snapshot
     def load_traffic_snapshot(self) -> None:

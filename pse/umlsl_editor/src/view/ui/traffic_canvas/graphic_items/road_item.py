@@ -14,9 +14,9 @@ class RoadItem(SelectableGraphicsItem):
     Concrete implementation for displaying a Road.
     """
 
-    def __init__(self, road: Road):
+    def __init__(self, road: Road, application_controller):
 
-        super().__init__()
+        super().__init__(application_controller)
 
         self.position_listeners = []
         self._road = road

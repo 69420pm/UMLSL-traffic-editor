@@ -23,11 +23,13 @@
 ## Overview
 
 The UMLSL Traffic Editor is a traffic simulation editor built using Python and PySide6. It allows users to:
+
 - Create and edit traffic scenarios with roads, cars, and lanes
 - Define and evaluate UMLSL (Urban Multi-Lane Spatial Logic) queries
 - Visualize traffic simulation states
 
-The application follows a **Model-View-Controller (MVC)** architecture with a **Command Pattern** for all mutations and an **Observer Pattern** for model-to-view synchronization.
+The application follows a **Model-View-Controller (MVC)** architecture with a **Command Pattern** for all mutations and
+an **Observer Pattern** for model-to-view synchronization.
 
 ---
 
@@ -212,7 +214,8 @@ src/
 
 ### 1. Observer Pattern (Model-to-View Communication)
 
-The model layer uses a custom **Observer Pattern** implementation (not PySide signals) to allow the backend to remain framework-agnostic.
+The model layer uses a custom **Observer Pattern** implementation (not PySide signals) to allow the backend to remain
+framework-agnostic.
 
 ```python
 # Base Observable class
@@ -234,13 +237,16 @@ class TrafficSnapshotEventType(Enum):
     ROAD_ADDED, ROAD_REMOVED, ROAD_UPDATED
     CROSSING_SEGMENT_ADDED, CROSSING_SEGMENT_REMOVED, CROSSING_SEGMENT_UPDATED
 
+
 class SettingsEventType(Enum):
     CHANGE_BREAKING_ACCELERATION
     TOGGLE_COORDINATE_SYSTEM
     TOGGLE_SAFETY_DISTANCE
 
+
 class UMLSLQueriesEventType(Enum):
     UMLSL_QUERY_ADDED, UMLSL_QUERY_REMOVED, UMLSL_QUERY_UPDATED
+
 
 class SelectionEventType(Enum):
     ENTITY_SELECTED, ENTITY_DESELECTED, SELECTION_CLEARED
@@ -261,6 +267,7 @@ Commands are stored in the `commands/` directory and organized by domain.
 ### 3. Interface Segregation (Reader/Writer)
 
 The `TrafficSnapshotModel` implements two separate interfaces:
+
 - **`TrafficSnapshotReader`**: Read-only access
 - **`TrafficSnapshotWriter`**: Mutation access
 
@@ -272,44 +279,50 @@ This enforces separation of concerns and makes dependencies explicit.
 
 ### Domain Models
 
-| Model | Description | Observable Events |
-|-------|-------------|-------------------|
-| `TrafficSnapshotModel` | Central traffic state (roads, cars, crossings) | `CAR_*`, `ROAD_*`, `CROSSING_SEGMENT_*` |
-| `SettingsModel` | Application settings | `CHANGE_BREAKING_ACCELERATION`, `TOGGLE_*` |
-| `SelectionModel` | Currently selected entity | `ENTITY_SELECTED`, `ENTITY_DESELECTED`, `SELECTION_CLEARED` |
-| `UMLSLQueriesModel` | UMLSL queries | `UMLSL_QUERY_*` |
+| Model                  | Description                                    | Observable Events                                           |
+|------------------------|------------------------------------------------|-------------------------------------------------------------|
+| `TrafficSnapshotModel` | Central traffic state (roads, cars, crossings) | `CAR_*`, `ROAD_*`, `CROSSING_SEGMENT_*`                     |
+| `SettingsModel`        | Application settings                           | `CHANGE_BREAKING_ACCELERATION`, `TOGGLE_*`                  |
+| `SelectionModel`       | Currently selected entity                      | `ENTITY_SELECTED`, `ENTITY_DESELECTED`, `SELECTION_CLEARED` |
+| `UMLSLQueriesModel`    | UMLSL queries                                  | `UMLSL_QUERY_*`                                             |
 
 ### Entities
 
-| Entity | Description | Key Attributes |
-|--------|-------------|----------------|
-| `Entity` | Abstract base class | `uid: str` |
-| `Car` | Vehicle in simulation | `name`, `lane`, `position_on_lane`, `velocity`, `length`, `transition`, `next_turn`, `path` |
-| `Road` | Infinite lane container | `name`, `orientation`, `position`, `forward_lanes`, `backward_lanes` |
-| `UMLSLQuery` | UMLSL query definition | `latex`, `assigned_car_name`, `validation` |
+| Entity       | Description             | Key Attributes                                                                              |
+|--------------|-------------------------|---------------------------------------------------------------------------------------------|
+| `Entity`     | Abstract base class     | `uid: str`                                                                                  |
+| `Car`        | Vehicle in simulation   | `name`, `lane`, `position_on_lane`, `velocity`, `length`, `transition`, `next_turn`, `path` |
+| `Road`       | Infinite lane container | `name`, `orientation`, `position`, `forward_lanes`, `backward_lanes`                        |
+| `UMLSLQuery` | UMLSL query definition  | `latex`, `assigned_car_name`, `validation`                                                  |
 
 ### Value Objects (Immutable)
 
-| Value Object | Description |
-|--------------|-------------|
-| `Lane` | Road reference + lane index + direction |
-| `Position` | 2D coordinate (x, y) |
-| `TurnIntent` | Turn direction + target lane info |
-| `Segment` | Abstract path segment |
-| `LaneSegment` | Segment on a lane |
-| `CrossingSegment` | Segment at intersection |
-| `Path` | List of segments |
+| Value Object      | Description                             |
+|-------------------|-----------------------------------------|
+| `Lane`            | Road reference + lane index + direction |
+| `Position`        | 2D coordinate (x, y)                    |
+| `TurnIntent`      | Turn direction + target lane info       |
+| `Segment`         | Abstract path segment                   |
+| `LaneSegment`     | Segment on a lane                       |
+| `CrossingSegment` | Segment at intersection                 |
+| `Path`            | List of segments                        |
 
 ### TrafficSnapshotReader Interface
 
 ```python
 class TrafficSnapshotReader(ABC):
     def get_cars_on_road(self, road: Road) -> list[Car]: ...
+
     def get_cars(self) -> list[Car]: ...
+
     def get_roads(self) -> list[Road]: ...
+
     def get_cars_in_rectangle(self, x_min, y_min, x_max, y_max) -> list[Car]: ...
+
     def get_roads_in_rectangle(self, x_min, y_min, x_max, y_max) -> list[Road]: ...
+
     def get_max_velocity(self) -> float: ...
+
     def validate_lane(self, road, lane_index, lane_direction) -> bool: ...
 ```
 
@@ -318,10 +331,15 @@ class TrafficSnapshotReader(ABC):
 ```python
 class TrafficSnapshotWriter(ABC):
     def add_road(self, road: Road) -> None: ...
+
     def remove_road(self, road_name: str) -> None: ...
+
     def update_road(self, road_data: Road) -> None: ...
+
     def add_car(self, car: Car) -> None: ...
+
     def remove_car(self, car_name: str) -> None: ...
+
     def update_car(self, car_data: Car) -> None: ...
 ```
 
@@ -339,7 +357,7 @@ class ApplicationController:
         self.event_controller = EventController(...)
         self.command_controller = CommandController(...)
         self.data_controller = DataController(...)
-    
+
     def set_traffic_snapshot(self, traffic_snapshot): ...
 ```
 
@@ -351,10 +369,13 @@ Listens to model events and dispatches them to the view:
 class EventController:
     def __init__(self, view: ViewEventHandler, traffic_snapshot, settings, umlsl_queries, selection):
         self._setup_event_listeners()
-    
+
     def _on_traffic_snapshot_event(self, event_type, data): ...
+
     def _on_settings_event(self, event_type, data): ...
+
     def _on_umlsl_query_event(self, event_type, data): ...
+
     def _on_selection_event(self, event_type, data): ...
 ```
 
@@ -366,34 +387,48 @@ Provides high-level API for executing commands:
 class CommandController:
     # Car operations
     def add_car(self, name, assigned_road, lane_index, ...) -> bool: ...
+
     def remove_car(self, car_name) -> bool: ...
+
     def edit_car(self, car_name, **updates) -> bool: ...
-    
+
     # Road operations
     def add_road(self, name, position, orientation, ...) -> bool: ...
+
     def remove_road(self, road_name) -> bool: ...
+
     def edit_road(self, road_name, **updates) -> bool: ...
-    
+
     # UMLSL Query operations
     def add_umlsl_query(self, assigned_car_name, latex) -> bool: ...
+
     def remove_umlsl_query(self, query_id) -> bool: ...
+
     def edit_umlsl_query(self, query_id, **updates) -> bool: ...
-    
+
     # Selection operations
     def select_car(self, car_name) -> None: ...
+
     def deselect_car(self, car_name) -> None: ...
+
     def select_road(self, road_name) -> None: ...
+
     def deselect_road(self, road_name) -> None: ...
+
     def clear_selection(self) -> None: ...
-    
+
     # Settings operations
     def change_breaking_acceleration(self, value) -> None: ...
+
     def toggle_coordinate_system(self) -> None: ...
+
     def toggle_safety_distance(self) -> None: ...
-    
+
     # Persistence
     def load_traffic_snapshot(self) -> None: ...
+
     def save_traffic_snapshot(self) -> None: ...
+
     def save_as_traffic_snapshot(self) -> None: ...
 ```
 
@@ -422,32 +457,44 @@ Views must implement this interface to receive model events:
 class ViewEventHandler(ABC):
     # Car events
     def add_car_view(self, car: Car) -> None: ...
+
     def remove_car_view(self, car: Car) -> None: ...
+
     def update_car_view(self, car: Car) -> None: ...
-    
+
     # Road events
     def add_road_view(self, road: Road) -> None: ...
+
     def remove_road_view(self, road: Road) -> None: ...
+
     def update_road_view(self, road: Road) -> None: ...
-    
+
     # Crossing segment events
     def add_crossing_segment_view(self, crossing_segment) -> None: ...
+
     def remove_crossing_segment_view(self, crossing_segment) -> None: ...
+
     def update_crossing_segment_view(self, crossing_segment) -> None: ...
-    
+
     # Query events
     def add_query_view(self, query: UMLSLQuery) -> None: ...
+
     def remove_query_view(self, query: UMLSLQuery) -> None: ...
+
     def update_query_view(self, query: UMLSLQuery) -> None: ...
-    
+
     # Settings events
     def change_breaking_acceleration(self, value: float) -> None: ...
+
     def toggle_coordinate_system(self, render: bool) -> None: ...
+
     def toggle_safety_distance(self, render: bool) -> None: ...
-    
+
     # Selection events
     def select_entity_view(self, entity: Entity) -> None: ...
+
     def deselect_entity_view(self, entity: Entity) -> None: ...
+
     def clear_selection_view(self) -> None: ...
 ```
 
@@ -486,12 +533,12 @@ class CommandValidationError(ValueError):
 ```python
 class AddCarCommand(Command[None]):
     def __init__(
-        self,
-        traffic_snapshot_reader: TrafficSnapshotReader,
-        traffic_snapshot_writer: TrafficSnapshotWriter,
-        car_params: CarParams
+            self,
+            traffic_snapshot_reader: TrafficSnapshotReader,
+            traffic_snapshot_writer: TrafficSnapshotWriter,
+            car_params: CarParams
     ): ...
-    
+
     def execute(self) -> None:
         car = Car.from_params(self.car_params)
         self._traffic_snapshot_writer.add_car(car)
@@ -499,28 +546,28 @@ class AddCarCommand(Command[None]):
 
 ### Available Commands
 
-| Category | Command | Status |
-|----------|---------|--------|
-| Cars | `AddCarCommand` | ⚠️ Prototype |
-| Cars | `DeleteCarCommand` | ❌ Not Implemented |
-| Cars | `EditCarCommand` | ❌ Not Implemented |
-| Roads | `AddRoad` | ❌ Not Implemented |
-| Roads | `DeleteRoad` | ❌ Not Implemented |
-| Roads | `EditRoad` | ❌ Not Implemented |
-| Selection | `SelectCar` | ❌ Not Implemented |
-| Selection | `DeselectCar` | ❌ Not Implemented |
-| Selection | `SelectRoad` | ❌ Not Implemented |
-| Selection | `DeselectRoad` | ❌ Not Implemented |
-| Selection | `ClearSelection` | ❌ Not Implemented |
-| UMLSL | `AddUMLSLQuery` | ❌ Not Implemented |
-| UMLSL | `DeleteUMLSLQuery` | ❌ Not Implemented |
-| UMLSL | `EditUMLSLQuery` | ❌ Not Implemented |
-| Settings | `ChangeBreakingAcceleration` | ❌ Not Implemented |
-| Settings | `ToggleCoordinateSystem` | ❌ Not Implemented |
-| Settings | `ToggleSafetyDistance` | ❌ Not Implemented |
-| Persistence | `LoadTrafficSnapshot` | ❌ Not Implemented |
-| Persistence | `SaveTrafficSnapshot` | ❌ Not Implemented |
-| Persistence | `SaveAsTrafficSnapshot` | ❌ Not Implemented |
+| Category    | Command                      | Status            |
+|-------------|------------------------------|-------------------|
+| Cars        | `AddCarCommand`              | ⚠️ Prototype      |
+| Cars        | `DeleteCarCommand`           | ❌ Not Implemented |
+| Cars        | `EditCarCommand`             | ❌ Not Implemented |
+| Roads       | `AddRoad`                    | ❌ Not Implemented |
+| Roads       | `DeleteRoad`                 | ❌ Not Implemented |
+| Roads       | `EditRoad`                   | ❌ Not Implemented |
+| Selection   | `SelectCar`                  | ❌ Not Implemented |
+| Selection   | `DeselectCar`                | ❌ Not Implemented |
+| Selection   | `SelectRoad`                 | ❌ Not Implemented |
+| Selection   | `DeselectRoad`               | ❌ Not Implemented |
+| Selection   | `ClearSelection`             | ❌ Not Implemented |
+| UMLSL       | `AddUMLSLQuery`              | ❌ Not Implemented |
+| UMLSL       | `DeleteUMLSLQuery`           | ❌ Not Implemented |
+| UMLSL       | `EditUMLSLQuery`             | ❌ Not Implemented |
+| Settings    | `ChangeBreakingAcceleration` | ❌ Not Implemented |
+| Settings    | `ToggleCoordinateSystem`     | ❌ Not Implemented |
+| Settings    | `ToggleSafetyDistance`       | ❌ Not Implemented |
+| Persistence | `LoadTrafficSnapshot`        | ❌ Not Implemented |
+| Persistence | `SaveTrafficSnapshot`        | ❌ Not Implemented |
+| Persistence | `SaveAsTrafficSnapshot`      | ❌ Not Implemented |
 
 ---
 
@@ -749,45 +796,45 @@ graph LR
 
 ### ✅ Implemented
 
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Observable Pattern | ✅ Complete | `Observable`, `ObservableDict`, `ObservableList` |
-| Event Types | ✅ Complete | All event enums defined |
-| Entity Base Classes | ✅ Complete | `Entity`, `Car`, `Road`, `UMLSLQuery` |
-| Value Objects | ✅ Complete | `Lane`, `Position`, `TurnIntent`, `Segment` |
-| TrafficSnapshotReader Interface | ✅ Complete | Interface defined |
-| TrafficSnapshotWriter Interface | ✅ Complete | Interface defined |
-| ViewEventHandler Interface | ✅ Complete | All methods defined |
-| EventController | ✅ Complete | Event routing implemented |
-| UMLSL Lexer | ✅ Complete | Tokenization working |
-| UMLSL AST Parser | ✅ Complete | All node types implemented |
-| UMLSL Evaluator | ⚠️ Partial | Basic evaluation works, view computation TODO |
+| Component                       | Status     | Notes                                            |
+|---------------------------------|------------|--------------------------------------------------|
+| Observable Pattern              | ✅ Complete | `Observable`, `ObservableDict`, `ObservableList` |
+| Event Types                     | ✅ Complete | All event enums defined                          |
+| Entity Base Classes             | ✅ Complete | `Entity`, `Car`, `Road`, `UMLSLQuery`            |
+| Value Objects                   | ✅ Complete | `Lane`, `Position`, `TurnIntent`, `Segment`      |
+| TrafficSnapshotReader Interface | ✅ Complete | Interface defined                                |
+| TrafficSnapshotWriter Interface | ✅ Complete | Interface defined                                |
+| ViewEventHandler Interface      | ✅ Complete | All methods defined                              |
+| EventController                 | ✅ Complete | Event routing implemented                        |
+| UMLSL Lexer                     | ✅ Complete | Tokenization working                             |
+| UMLSL AST Parser                | ✅ Complete | All node types implemented                       |
+| UMLSL Evaluator                 | ⚠️ Partial | Basic evaluation works, view computation TODO    |
 
 ### ⚠️ Partially Implemented (Prototypes)
 
-| Component | Status | What's Missing |
-|-----------|--------|----------------|
-| `TrafficSnapshotModel` | ⚠️ Skeleton | All methods are stubs (`pass`) |
-| `DataController` | ⚠️ Skeleton | All methods raise `NotImplementedError` |
-| `CommandController` | ⚠️ Skeleton | High-level API defined, all raise `NotImplementedError` |
-| `AddCarCommand` | ⚠️ Prototype | Error handling missing |
-| `ViewEventHandlerImpl` | ⚠️ Partial | Many methods are empty `pass` |
+| Component              | Status       | What's Missing                                          |
+|------------------------|--------------|---------------------------------------------------------|
+| `TrafficSnapshotModel` | ⚠️ Skeleton  | All methods are stubs (`pass`)                          |
+| `DataController`       | ⚠️ Skeleton  | All methods raise `NotImplementedError`                 |
+| `CommandController`    | ⚠️ Skeleton  | High-level API defined, all raise `NotImplementedError` |
+| `AddCarCommand`        | ⚠️ Prototype | Error handling missing                                  |
+| `ViewEventHandlerImpl` | ⚠️ Partial   | Many methods are empty `pass`                           |
 
 ### ❌ Not Implemented
 
-| Component | What Needs to Be Done |
-|-----------|----------------------|
-| **TrafficSnapshotModel Methods** | Implement `get_cars()`, `get_roads()`, `add_car()`, `add_road()`, etc. |
-| **DataController Methods** | Implement `get_all_cars()`, `get_all_roads()`, etc. |
-| **All Command execute()** | Implement actual logic in all command files |
-| **Undo/Redo System** | `CommandController._command_history` is commented out |
-| **PersistenceService** | `serialize()` and `deserialize()` not implemented |
-| **CrossingSegment.get_position()** | Not implemented |
-| **UMLSLEvaluator._compute_views()** | Multi-view computation (Fig 6 in paper) TODO |
-| **TrafficSnapshotModel.to_dict/from_dict** | Serialization not implemented |
-| **TrafficSnapshotModel.to_json/from_json** | JSON serialization not implemented |
-| **UMLSLQueriesModel.to_json/from_json** | JSON serialization not implemented |
-| **Validation in TrafficSnapshotWriter** | `TrafficSnapshotValidationError` defined but not used |
+| Component                                  | What Needs to Be Done                                                  |
+|--------------------------------------------|------------------------------------------------------------------------|
+| **TrafficSnapshotModel Methods**           | Implement `get_cars()`, `get_roads()`, `add_car()`, `add_road()`, etc. |
+| **DataController Methods**                 | Implement `get_all_cars()`, `get_all_roads()`, etc.                    |
+| **All Command execute()**                  | Implement actual logic in all command files                            |
+| **Undo/Redo System**                       | `CommandController._command_history` is commented out                  |
+| **PersistenceService**                     | `serialize()` and `deserialize()` not implemented                      |
+| **CrossingSegment.get_position()**         | Not implemented                                                        |
+| **UMLSLEvaluator._compute_views()**        | Multi-view computation (Fig 6 in paper) TODO                           |
+| **TrafficSnapshotModel.to_dict/from_dict** | Serialization not implemented                                          |
+| **TrafficSnapshotModel.to_json/from_json** | JSON serialization not implemented                                     |
+| **UMLSLQueriesModel.to_json/from_json**    | JSON serialization not implemented                                     |
+| **Validation in TrafficSnapshotWriter**    | `TrafficSnapshotValidationError` defined but not used                  |
 
 ### Priority Implementation Order
 
@@ -804,6 +851,7 @@ graph LR
 ### For View Developers
 
 #### Get Data (Pull)
+
 ```python
 # Through DataController
 cars = data_controller.get_all_cars()
@@ -811,6 +859,7 @@ roads = data_controller.get_all_roads()
 ```
 
 #### Receive Updates (Push)
+
 ```python
 # Implement ViewEventHandler in your view class
 class MyView(ViewEventHandler):
@@ -820,6 +869,7 @@ class MyView(ViewEventHandler):
 ```
 
 #### Trigger Mutations
+
 ```python
 # Through CommandController - ALWAYS use this for changes
 command_controller.add_car(
@@ -835,31 +885,33 @@ command_controller.add_car(
     next_turn=None
 )
 
-command_controller.select_car("Car1")
+command_controller.select_entity("Car1")
 command_controller.clear_selection()
 ```
 
 ### For Model Developers
 
 #### Create Observable Model
+
 ```python
 class MyModel(Observable):
     def __init__(self):
         super().__init__()
-    
+
     def update_something(self, value):
         self._data = value
         self.notify(MyEventType.SOMETHING_UPDATED, value)
 ```
 
 #### Create Command
+
 ```python
 class MyCommand(Command[bool]):
     def __init__(self, reader: TrafficSnapshotReader, writer: TrafficSnapshotWriter, params):
         self._reader = reader
         self._writer = writer
         self._params = params
-    
+
     def execute(self) -> bool:
         # 1. Validate using reader
         # 2. Mutate using writer
@@ -871,17 +923,17 @@ class MyCommand(Command[bool]):
 
 ## Glossary
 
-| Term | Definition |
-|------|------------|
-| **Entity** | Domain object with identity (`uid`), e.g., Car, Road, UMLSLQuery |
-| **Value Object** | Immutable data object without identity, e.g., Lane, Position |
-| **Observable** | Object that notifies observers of state changes |
-| **Command** | Encapsulated mutation operation |
-| **TrafficSnapshot** | Complete state of the traffic simulation |
-| **View** | UMLSL concept: spatial region from a car's perspective |
-| **Lane** | Logical lane on a road (road + index + direction) |
-| **Transition** | Car's lateral position during lane change (-1.0 to 1.0) |
-| **UMLSL** | Urban Multi-Lane Spatial Logic |
+| Term                | Definition                                                       |
+|---------------------|------------------------------------------------------------------|
+| **Entity**          | Domain object with identity (`uid`), e.g., Car, Road, UMLSLQuery |
+| **Value Object**    | Immutable data object without identity, e.g., Lane, Position     |
+| **Observable**      | Object that notifies observers of state changes                  |
+| **Command**         | Encapsulated mutation operation                                  |
+| **TrafficSnapshot** | Complete state of the traffic simulation                         |
+| **View**            | UMLSL concept: spatial region from a car's perspective           |
+| **Lane**            | Logical lane on a road (road + index + direction)                |
+| **Transition**      | Car's lateral position during lane change (-1.0 to 1.0)          |
+| **UMLSL**           | Urban Multi-Lane Spatial Logic                                   |
 
 ---
 
