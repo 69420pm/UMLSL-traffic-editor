@@ -43,6 +43,14 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         # - TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED: Fired when a crossing segment is updated (data: CrossingSegment)
     """
 
+    def is_road_existing(self, uid: str) -> bool:
+        if uid in self._horizontal_roads or uid in self._vertical_roads:
+            return True
+        return False
+
+    def is_car_existing(self, uid: str) -> bool:
+        return uid in self._cars
+
     def validate_road_params(self, road_params: RoadParams, new_instantiation: bool) -> None:
         self.validator.validate_road_params(road_params, new_instantiation)
 
@@ -142,7 +150,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self.validator.validate_road(road, False)
 
     def get_cars_on_road(self, road: Road) -> list[Car]:
-        pass
+        return [car for car in self._cars.values() if car.lane.road_uid == road.uid]
 
     def get_cars(self) -> list[Car]:
         pass
@@ -167,7 +175,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             self._horizontal_roads[road.uid] = road
         else:
             self._vertical_roads[road.uid] = road
-        # self._recalculate_static_segments()
+        self._recalculate_static_segments()
 
     def remove_road(self, road_uid: str) -> None:
         if road_uid in self._horizontal_roads:
@@ -177,19 +185,41 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self._recalculate_static_segments()
 
     def update_road(self, road_uid: str, road_params: RoadParams) -> None:
-        pass
+        road = self.get_road_by_uid(road_uid)
+        original_orientation = road.orientation
+
+        road.update_from_params(road_params)
+
+        if original_orientation != road.orientation:
+            if original_orientation == RoadOrientation.HORIZONTAL:
+                del self._horizontal_roads[road_uid]
+                self._vertical_roads[road_uid] = road
+            else:
+                del self._vertical_roads[road_uid]
+                self._horizontal_roads[road_uid] = road
+        else:
+            if road.orientation == RoadOrientation.HORIZONTAL:
+                self._horizontal_roads[road_uid] = road
+            else:
+                self._vertical_roads[road_uid] = road
+
+        self._recalculate_static_segments()
+
+        cars_on_road = self.get_cars_on_road(road)
+        for car in cars_on_road:
+            if not self.validator.validate_car_and_autocorrect(car):
+                self.remove_car(car.uid)
 
     def add_car(self, car: Car) -> None:
-        self._cars[car.name] = car
+        self._cars[car.uid] = car
 
-    def remove_car(self, car_name: str) -> None:
-        self._cars.pop(car_name)
+    def remove_car(self, car_uid: str) -> None:
+        self._cars.pop(car_uid)
 
-    def update_car(self, car_uid: str, car_params: CarParams) -> None:
+    def update_car_with_params(self, car_uid: str, car_params: CarParams) -> None:
         car = self._cars.get(car_uid)
         car.update_from_params(car_params)
-        self.validator.validate_car(car, False)
-        pass
+        self._cars[car_uid] = car
 
     def _recalculate_car_claimed_and_reserved_segments(self, car: Car) -> None:
         # calculate claimed segments
@@ -420,8 +450,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                 if not same_direction(lane1, lane2):
                     continue
 
-                segments1 = self._segments_by_lane.get(lane1.uid, [])
-                segments2 = self._segments_by_lane.get(lane2.uid, [])
+                segments1 = self._segments_by_lane.get(lane1.car_uid, [])
+                segments2 = self._segments_by_lane.get(lane2.car_uid, [])
 
                 if len(segments1) != len(segments2):
                     continue
@@ -453,8 +483,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                 if not same_direction(lane1, lane2):
                     continue
 
-                segments1 = self._segments_by_lane.get(lane1.uid, [])
-                segments2 = self._segments_by_lane.get(lane2.uid, [])
+                segments1 = self._segments_by_lane.get(lane1.car_uid, [])
+                segments2 = self._segments_by_lane.get(lane2.car_uid, [])
 
                 if len(segments1) != len(segments2):
                     continue

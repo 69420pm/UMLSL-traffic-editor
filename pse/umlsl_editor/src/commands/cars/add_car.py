@@ -36,5 +36,3 @@ class AddCarCommand(Command[None]):
         self._traffic_snapshot_reader.validate_car_params(self.car_params, True)
         car = Car.from_params(self.car_params)
         self._traffic_snapshot_writer.add_car(car)
-        # TODO: Error Handling
-        raise NotImplementedError("Prototype Method")

@@ -22,7 +22,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
             roads = application_controller.data_controller.get_all_roads()
             if roads is None or len(roads) == 0:
                 raise RuntimeError("No roads available to assign default lane to the new car.")
-            default_lane = Lane(road_uid=roads[0].uid, lane_index=0)
+            default_lane = Lane(road_uid=roads[0].car_uid, lane_index=0)
             car_params = CarParams(
                 name="C",
                 color="#eb34d8",

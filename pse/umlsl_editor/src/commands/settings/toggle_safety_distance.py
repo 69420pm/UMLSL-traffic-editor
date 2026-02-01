@@ -6,6 +6,7 @@ class ToggleSafetyDistanceCommand(Command[None]):
     """
     Toggles weather the safety distance of the cars in the visual editor should be rendered.
     """
+
     def __init__(self, settings: SettingsModel):
         """
         Initialize the ToggleSafetyDistanceCommand with the settings.
@@ -22,5 +23,5 @@ class ToggleSafetyDistanceCommand(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        self._settings.toggle_render_safety_distance()
+        self._settings.set_render_safety_distance()
         raise NotImplementedError("Prototype Method")

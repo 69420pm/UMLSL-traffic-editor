@@ -3,11 +3,10 @@ from dataclasses import dataclass
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 
 
-@dataclass(kw_only=True)
+@dataclass(frozen=True, kw_only=True)
 class Lane:
     """Represents a lane on a road, this is an immutable data structure and should act like a tuple.
     It's not a full entity as it doesn't have an identity beyond its road, index and direction."""
-    # uid: str
     lane_index: int
     """The index of the lane, the inner most forward lane has index 0 and the inner most backward lane has index -1"""
     road_uid: str
