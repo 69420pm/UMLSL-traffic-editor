@@ -90,26 +90,36 @@ class TrafficSnapshotValidator:
         return car_name not in self._model.cars
 
     def _check_road_name_unique(self, road_name: str) -> bool:
-        return road_name not in self._model.roads
+        for road in self._model.roads.values():
+            if road.name == road_name:
+                return False
+        return True
 
     def _check_uid_unique(self, uid: str) -> bool:
         for car in self._model.cars.values():
-            if car.uid == uid:
+            if car.car_uid == uid:
                 return False
         for road in self._model.roads.values():
-            if road.uid == uid:
+            if road.car_uid == uid:
                 return False
         return True
 
     def _check_lane_valid(self, lane: Lane) -> bool:
-        raise NotImplementedError("Lane validation is not implemented yet.")
+        """Check if the lane exists in the traffic snapshot."""
+        road = self._model.get_road_by_uid(lane.road_uid)
+        if lane in (road.forward_lanes + road.backward_lanes):
+            return True
+        return False
 
     def _check_transition_valid(self, transition: float, lane: Lane, car_driving_backwards: bool) -> bool:
         """Check if the transition value is valid for the given lane. It is not valid if the car changes out of the road,
         because right or left of the road is no lane. The transition value is aligned after the car
         (right is positive transition, left is negative) not the lane direction."""
-
-        raise NotImplementedError("Transition validation is not implemented yet.")
+        road = self._model.get_road_by_uid(lane.road_uid)
+        new_lane_index = lane.lane_index + (1 if transition > 0 else -1) * (-1 if car_driving_backwards else 1)
+        if new_lane_index > len(road.forward_lanes) - 1 or new_lane_index > -len(road.backward_lanes):
+            return False
+        return True
 
     def _check_turn_intent_valid(self, turn_intent: TurnIntent) -> bool:
         target_lane = turn_intent.target_lane

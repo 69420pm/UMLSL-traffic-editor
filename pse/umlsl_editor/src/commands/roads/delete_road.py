@@ -1,16 +1,17 @@
 from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
+from pse.umlsl_editor.src.model.errors.road_errors import RoadValidationError
 
 
 class DeleteRoad(Command[None]):
     """Deletes a road from the traffic snapshot based on its unique identifier."""
 
     def __init__(
-        self,
-        traffic_snapshot_writer: TrafficSnapshotWriter,
-        traffic_snapshot_reader: TrafficSnapshotReader,
-        road_uid: str
+            self,
+            traffic_snapshot_writer: TrafficSnapshotWriter,
+            traffic_snapshot_reader: TrafficSnapshotReader,
+            road_uid: str
     ):
         """
         Initialize the DeleteRoadCommand with the road's unique identifier.
@@ -22,15 +23,17 @@ class DeleteRoad(Command[None]):
         """
         self._traffic_snapshot_writer = traffic_snapshot_writer
         self._traffic_snapshot_reader = traffic_snapshot_reader
-        self.road_name = road_uid
+        self.road_uid = road_uid
 
     def execute(self) -> None:
         """
         Deletes the road with the specified unique identifier from the traffic snapshot.
 
         Raises:
-            CommandValidationError: If command validation fails.
+            RoadValidationError: If command validation fails.
         """
-        #TODO: Error Handling
-        self._traffic_snapshot_writer.remove_road(self.road_name)
-        raise NotImplementedError("Prototype Method")
+        try:
+            self._traffic_snapshot_reader.get_road_by_uid(self.road_uid)
+        except ValueError:
+            raise RoadValidationError(content=f"Road with UID {self.road_uid} does not exist and cannot be deleted.")
+        self._traffic_snapshot_writer.remove_road(self.road_uid)

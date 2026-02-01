@@ -1,5 +1,6 @@
 from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.model.entities.car import CarParams
+from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError
 
 
 class EditCarCommand(Command[None]):
@@ -23,7 +24,7 @@ class EditCarCommand(Command[None]):
         self._traffic_snapshot_writer = traffic_snapshot_writer
         self._traffic_snapshot_reader = traffic_snapshot_reader
         self.car_params = car_params
-        self.uid = uid
+        self.car_uid = uid
 
     def execute(self) -> None:
         """
@@ -32,7 +33,7 @@ class EditCarCommand(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
+        if not self._traffic_snapshot_reader.is_car_existing(self.car_uid):
+            raise CarValidationError(content=f"Car with UID {self.car_uid} does not exist and cannot be edited.")
         self._traffic_snapshot_reader.validate_car_params(self.car_params, False)
-        car = self._traffic_snapshot_reader.get_car_by_uid(self.uid)
-        self._traffic_snapshot_writer.update_car(car, self.car_params)
-        raise NotImplementedError("Prototype Method")
+        self._traffic_snapshot_writer.update_car_with_params(self.car_uid, self.car_params)

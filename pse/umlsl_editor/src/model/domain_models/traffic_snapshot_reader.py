@@ -116,3 +116,29 @@ class TrafficSnapshotReader(ABC):
             ValidationError: If any validation check fails.
         """
         pass
+
+    @abstractmethod
+    def is_car_existing(self, uid: str) -> bool:
+        """
+        Checks if a car with the specified UID exists in the snapshot.
+
+        Args:
+            uid: The unique identifier of the car.
+
+        Returns:
+            True if the car exists, False otherwise.
+        """
+        pass
+
+    @abstractmethod
+    def is_road_existing(self, uid: str) -> bool:
+        """
+        Checks if a road with the specified UID exists in the snapshot.
+
+        Args:
+            uid: The unique identifier of the road.
+
+        Returns:
+            True if the road exists, False otherwise.
+        """
+        pass
