@@ -19,7 +19,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setupUi(self)
 
-        self.traffic_scene = TrafficScene(application_controller=application_controller)
+        self.traffic_scene = TrafficScene(application_controller)
         self.trafficView = TrafficView(scene=self.traffic_scene)
 
         layout = self.graphicsView.parentWidget().layout()
@@ -28,6 +28,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.canvas_buttons = CanvasButtons(self)
 
-        self.sidebar_controller = SidebarController(self, application_controller.data_controller)
+        self.sidebar_controller = SidebarController(self, application_controller)
 
         self.global_controls = GlobalControls(self)

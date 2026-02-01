@@ -147,8 +147,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     def get_cars(self) -> list[Car]:
         pass
 
-    def get_roads(self) -> list[Road]:
-        return
+    def get_roads(self) -> dict[str, Road]:
+        return {**self._horizontal_roads, **self._vertical_roads}
 
     def get_cars_in_rectangle(self, x_min: float, y_min: float, x_max: float, y_max: float) -> list[Car]:
         pass
@@ -167,7 +167,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             self._horizontal_roads[road.uid] = road
         else:
             self._vertical_roads[road.uid] = road
-        self._recalculate_static_segments()
+        # self._recalculate_static_segments()
 
     def remove_road(self, road_uid: str) -> None:
         if road_uid in self._horizontal_roads:
@@ -177,7 +177,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self._recalculate_static_segments()
 
     def update_road(self, road_uid: str, road_params: RoadParams) -> None:
-        # self.validator.validate_road(road_data, False)
         pass
 
     def add_car(self, car: Car) -> None:

@@ -27,7 +27,7 @@ class ApplicationController:
         """
         Initialize the application controller with its sub-controllers.
         """
-        self._model_view = ViewModels(roads=None, cars=None, umlsl_queries=None)
+        self._model_view = ViewModels(self)
         self._model_traffic_snapshot = TrafficSnapshotModel()
         self._model_settings = SettingsModel(render_safety_distance=True, render_coordinate_system=True,
                                              breaking_acceleration=8.0)

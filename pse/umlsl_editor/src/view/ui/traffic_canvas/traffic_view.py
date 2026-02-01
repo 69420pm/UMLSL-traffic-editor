@@ -5,12 +5,10 @@ Custom QGraphicsView with zoom controls, grid background, and coordinate labels.
 """
 import math
 
-from PySide6.QtCore import Qt, QRectF, QPointF
-from PySide6.QtGui import QPainter, QWheelEvent, QPen
-from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QSizeGrip
+from PySide6.QtCore import QPointF, QRectF, Qt
+from PySide6.QtGui import QPainter, QPen, QWheelEvent
+from PySide6.QtWidgets import QGraphicsScene, QGraphicsView
 
-from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation
-from pse.umlsl_editor.src.view.ui.traffic_canvas.traffic_scene import TrafficScene
 from pse.umlsl_editor.src.view.view_constants import COLORS, DIMENSION
 
 
@@ -29,9 +27,10 @@ class TrafficView(QGraphicsView):
     # Initialization
     # -------------------------------------------------------------------------
 
-    def __init__(self, scene: TrafficScene, parent=None):
+    def __init__(self, scene: QGraphicsScene, parent=None):
         """Initialize the traffic view with default settings."""
         super().__init__(scene, parent)
+
         self._configure_view()
         self.scale(DIMENSION.INITIAL_ZOOM, -DIMENSION.INITIAL_ZOOM)
 
@@ -49,7 +48,7 @@ class TrafficView(QGraphicsView):
     # -------------------------------------------------------------------------
 
     def button_zoom(self, amount: float) -> None:
-        #set anchor to center
+        # set anchor to center
         self.setResizeAnchor(QGraphicsView.AnchorViewCenter)
         self.setTransformationAnchor(QGraphicsView.AnchorViewCenter)
 
@@ -57,7 +56,6 @@ class TrafficView(QGraphicsView):
         self.scale(scale_factor, scale_factor)
 
         self._enforce_zoom_constraints()
-
 
     def resizeEvent(self, event) -> None:
         """Maintain zoom constraints when window is resized."""
@@ -77,9 +75,25 @@ class TrafficView(QGraphicsView):
         sensitivity = DIMENSION.TOUCHPAD_ZOOM_SENSITIVITY if is_touchpad else DIMENSION.WHEEL_ZOOM_SENSITIVITY
         scale_factor = self._calculate_clamped_scale(1 + delta * sensitivity)
 
-        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-        self.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
+        # FIX: Disable automatic anchoring which breaks with flipped Y-axis
+        self.setTransformationAnchor(QGraphicsView.NoAnchor)
+        self.setResizeAnchor(QGraphicsView.NoAnchor)
+
+        # 1. Get the mouse position in scene coordinates BEFORE scaling
+        # (Using position() for high-res touchpad precision)
+        old_pos = self.mapToScene(event.position().toPoint())
+
+        # 2. Apply the scale
         self.scale(scale_factor, scale_factor)
+
+        # 3. Get the new position of the mouse in scene coordinates
+        new_pos = self.mapToScene(event.position().toPoint())
+
+        # 4. Translate to align the new position with the old one
+        # This manually replicates "AnchorUnderMouse" without the axis flip bug
+        delta_scene = new_pos - old_pos
+        self.translate(delta_scene.x(), delta_scene.y())
+
         event.accept()
 
     def _calculate_clamped_scale(self, scale_factor: float) -> float:
@@ -161,7 +175,6 @@ class TrafficView(QGraphicsView):
         painter.setPen(QPen(COLORS.TEXT))
 
         self._draw_coordinate_labels(painter)
-        #self._draw_lane_labels(painter)
 
         painter.restore()
 
@@ -174,123 +187,16 @@ class TrafficView(QGraphicsView):
         # X-axis labels (bottom edge)
         for x in self._iter_grid_values(left, right, step):
             screen_x = int(self.mapFromScene(QPointF(x, 0)).x())
-            painter.drawText(screen_x + DIMENSION.LABEL_PADDING, viewport_rect.height() - DIMENSION.LABEL_PADDING, str(int(x)))
+            painter.drawText(screen_x + DIMENSION.LABEL_PADDING, viewport_rect.height() - DIMENSION.LABEL_PADDING,
+                             str(int(x)))
 
         # Y-axis labels (right edge)
         for y in self._iter_grid_values(min_y, max_y, step):
             screen_y = int(self.mapFromScene(QPointF(0, y)).y())
             label = str(int(y))
             text_width = painter.fontMetrics().horizontalAdvance(label)
-            painter.drawText(viewport_rect.width() - text_width - DIMENSION.LABEL_PADDING, screen_y - DIMENSION.LABEL_PADDING, label)
-
-    def _draw_lane_labels(self, painter: QPainter) -> None:
-        """Draw lane labels at viewport borders for all roads."""
-        scene = self.scene()
-        if not hasattr(scene, 'roads'):
-            return
-
-        show_lane_labels = abs(self.transform().m11()) > DIMENSION.LANE_LABEL_MIN_ZOOM
-
-        for road in scene.roads:
-            self._draw_road_labels(painter, road.data(0), show_lane_labels)
-
-    def _draw_road_labels(self, painter: QPainter, road: Road, show_lane_labels: bool) -> None:
-        """Draw labels for a single road."""
-        road_label, lane_labels = self._compute_lane_labels(road)
-        is_horizontal = road.orientation == RoadOrientation.HORIZONTAL
-
-        # Always draw road name
-        self._draw_label(painter, road_label, is_horizontal, bold=True)
-
-        # Draw individual lane labels if zoomed in
-        if show_lane_labels:
-            for lane_label in lane_labels:
-                self._draw_label(painter, lane_label, is_horizontal, bold=False)
-
-    def _draw_label(self, painter: QPainter, label_data: tuple[str, float], is_horizontal: bool, bold: bool) -> None:
-        """Draw a single label at the appropriate viewport edge."""
-        label, position = label_data
-
-        if is_horizontal:
-            screen_pos = int(self.mapFromScene(QPointF(0, position)).y())
-            self._draw_text_left_edge(painter, label, screen_pos, bold)
-        else:
-            screen_pos = int(self.mapFromScene(QPointF(position, 0)).x())
-            self._draw_text_top_edge(painter, label, screen_pos, bold)
-
-    # -------------------------------------------------------------------------
-    # Label Computation
-    # -------------------------------------------------------------------------
-
-    @staticmethod
-    def _compute_lane_labels(road: Road) -> tuple[tuple[str, float], list[tuple[str, float]]]:
-        """
-        Compute road and lane label positions.
-
-        Returns:
-            Tuple of (road_label, lane_labels) where each is (text, position).
-        """
-        lane_width = DIMENSION.LANE_WIDTH
-        is_horizontal = road.orientation == RoadOrientation.HORIZONTAL
-
-        def calc_position(offset: float) -> float:
-            return road.position - offset if is_horizontal else road.position + offset
-
-        # Road label position (centered on full road width)
-        road_offset = (-0.5 - road.number_of_backward_lanes) * lane_width
-        road_label = (road.name, calc_position(road_offset))
-
-        # Forward lane labels
-        lane_labels = [
-            (f"f{i + 1}", calc_position((i + 0.5) * lane_width))
-            for i in range(road.number_of_forward_lanes)
-        ]
-
-        # Backward lane labels (inverted position calculation)
-        def calc_backward_position(offset: float) -> float:
-            return road.position + offset if is_horizontal else road.position - offset
-
-        lane_labels.extend(
-            (f"b{i + 1}", calc_backward_position((i + 0.5) * lane_width))
-            for i in range(road.number_of_backward_lanes)
-        )
-
-        return road_label, lane_labels
-
-    # -------------------------------------------------------------------------
-    # Text Drawing Helpers
-    # -------------------------------------------------------------------------
-
-    @staticmethod
-    def _draw_text_left_edge(painter: QPainter, text: str, screen_y: int, bold: bool) -> None:
-        """Draw text on the left edge of the viewport."""
-        font = painter.font()
-        if bold:
-            font.setBold(True)
-            painter.setFont(font)
-
-        text_height = painter.fontMetrics().height()
-        painter.drawText(DIMENSION.LABEL_PADDING, screen_y + text_height // 4, text)
-
-        if bold:
-            font.setBold(False)
-            painter.setFont(font)
-
-    @staticmethod
-    def _draw_text_top_edge(painter: QPainter, text: str, screen_x: int, bold: bool) -> None:
-        """Draw text on the top edge of the viewport."""
-        font = painter.font()
-        if bold:
-            font.setBold(True)
-            painter.setFont(font)
-
-        text_width = painter.fontMetrics().horizontalAdvance(text)
-        text_height = painter.fontMetrics().height()
-        painter.drawText(screen_x - text_width // 2, text_height, text)
-
-        if bold:
-            font.setBold(False)
-            painter.setFont(font)
+            painter.drawText(viewport_rect.width() - text_width - DIMENSION.LABEL_PADDING,
+                             screen_y - DIMENSION.LABEL_PADDING, label)
 
     # -------------------------------------------------------------------------
     # Utility Methods
@@ -310,4 +216,3 @@ class TrafficView(QGraphicsView):
         while val <= end:
             yield val
             val += step
-

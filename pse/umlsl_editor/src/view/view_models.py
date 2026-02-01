@@ -1,14 +1,14 @@
-from typing import List
+from typing import TYPE_CHECKING
 
-from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.entities.road import Road
-from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
-from pse.umlsl_editor.src.view.ui.lists.models.CarModel import CarModel
-from pse.umlsl_editor.src.view.ui.lists.models.RoadModel import RoadModel
+if TYPE_CHECKING:
+    from pse.umlsl_editor.src.controllers import ApplicationController
+
+from pse.umlsl_editor.src.view.ui.lists.models.car_list_model import CarModel
+from pse.umlsl_editor.src.view.ui.lists.models.road_list_model import RoadListModel
 
 
 class ViewModels:
-    def __init__(self, roads: List[Road] | None, cars: List[Car] | None, umlsl_queries: List[UMLSLQuery] | None) -> None:
-        self.car_list_model = CarModel(cars)
-        self.road_list_model = RoadModel(roads)
+    def __init__(self, application_controller: "ApplicationController") -> None:
+        self.car_list_model = CarModel(application_controller=application_controller)
+        self.road_list_model = RoadListModel(application_controller=application_controller)
         self.query_list_model = None

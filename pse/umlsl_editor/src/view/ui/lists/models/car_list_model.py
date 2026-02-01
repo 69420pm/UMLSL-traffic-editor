@@ -1,9 +1,11 @@
-from PySide6.QtCore import QAbstractListModel, Qt, QModelIndex, Slot
+from typing import TYPE_CHECKING
 
-from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.entities.road import RoadOrientation, Road
+from PySide6.QtCore import Qt, QModelIndex, Slot
+
+if TYPE_CHECKING:
+    from pse.umlsl_editor.src.controllers import ApplicationController
 from pse.umlsl_editor.src.view.ui.lists.edit_car_dialog import EditCarDialog
-from pse.umlsl_editor.src.view.ui.lists.models.EntityModel import EntityModel
+from pse.umlsl_editor.src.view.ui.lists.models.entity_list_model import EntityModel
 
 # 1. Define custom roles.
 # These are the identifiers QML will use to ask for specific pieces of data.
@@ -13,9 +15,10 @@ ValueRole = Qt.UserRole + 3
 
 
 class CarModel(EntityModel):
-    def __init__(self, cars: list[Car] | None, parent=None):
+    def __init__(self, application_controller: "ApplicationController", parent=None):
         super().__init__(parent)
-        self._data = cars or []
+        self._application_controller = application_controller
+        self._data = []
 
     def rowCount(self, parent=QModelIndex()):
         return len(self._data)
@@ -31,7 +34,7 @@ class CarModel(EntityModel):
         if role == NameRole:
             return item.name
         elif role == ValueRole:
-            return "R: " + item.lane.road_uid +  "L: " + str(item.lane.lane_index)
+            return "R: " + item.lane.road_uid + "L: " + str(item.lane.lane_index)
         elif role == ColorRole:
             return item.color
 
@@ -47,4 +50,4 @@ class CarModel(EntityModel):
 
     @Slot(int)
     def handle_button_click(self, row):
-        EditCarDialog(self._data[row]).exec_()
+        EditCarDialog(self._data[row], application_controller=self._application_controller).exec_()
