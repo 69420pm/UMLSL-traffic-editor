@@ -2,25 +2,30 @@
 
 from typing import Optional
 
-from pse.umlsl_editor.src.commands.cars import add_car, edit_car
+from pse.umlsl_editor.src.commands.cars import add_car
 from pse.umlsl_editor.src.commands.cars.delete_car import DeleteCar
+from pse.umlsl_editor.src.commands.cars.edit_car import EditCarCommand
 from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.commands.roads.delete_road import DeleteRoad
 from pse.umlsl_editor.src.commands.roads.upsert_road_command import UpsertRoad
 from pse.umlsl_editor.src.commands.selection.clear_selection import ClearSelection
 from pse.umlsl_editor.src.commands.selection.select_entity import SelectEntity
+from pse.umlsl_editor.src.commands.roads import add_road
+from pse.umlsl_editor.src.commands.roads import delete_road
+from pse.umlsl_editor.src.commands.roads import edit_road
 from pse.umlsl_editor.src.commands.settings.change_breaking_acceleration import ChangeBreakingAccelerationCommand
 from pse.umlsl_editor.src.commands.settings.toggle_coordinate_system import ToggleCoordinateSystemCommand
 from pse.umlsl_editor.src.commands.settings.toggle_safety_distance import ToggleSafetyDistanceCommand
 from pse.umlsl_editor.src.commands.umlsl.add_umlsl_query import AddUMLSLQuery
 from pse.umlsl_editor.src.commands.umlsl.delete_umlsl_query import DeleteUMLSLQuery
 from pse.umlsl_editor.src.commands.umlsl.edit_umlsl_query import EditUMLSLQuery
+from pse.umlsl_editor.src.model.domain_models.selection_model import SelectionModel
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
-from pse.umlsl_editor.src.model.entities.car import CarParams
-from pse.umlsl_editor.src.model.entities.road import Road, RoadParams
+from pse.umlsl_editor.src.model.entities.car import CarParams, Car
+from pse.umlsl_editor.src.model.entities.road import Road, RoadParams, RoadOrientation
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQueryParams
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
@@ -33,7 +38,8 @@ class CommandController:
     """
 
     def __init__(self, traffic_snapshot_reader: TrafficSnapshotReader, traffic_snapshot_writer: TrafficSnapshotWriter,
-                 umlsl_queries_model: UMLSLQueriesModel, settings_model: SettingsModel):
+                 umlsl_queries_model: UMLSLQueriesModel, settings_model: SettingsModel,
+                 selection_model: SelectionModel):
         """
         Initialize the command controller.
 
@@ -44,6 +50,7 @@ class CommandController:
         self.traffic_snapshot_writer = traffic_snapshot_writer
         self.umlsl_queries_model = umlsl_queries_model
         self.settings_model = settings_model
+        self.selection_model = selection_model
         # self._command_history = []  # TODO: Implement undo/redo stack
         # self._history_position = -1  # Current position in history
 
@@ -60,7 +67,7 @@ class CommandController:
         Raises:
             CommandValidationError: If the command fails validation.
         """
-        raise NotImplementedError("Method not implemented yet.")
+        command.execute()
 
     def _execute_without_history(self, command: Command) -> None:
         """
@@ -76,7 +83,7 @@ class CommandController:
         Raises:
             CommandValidationError: If the command fails validation.
         """
-        raise NotImplementedError("Method not implemented yet.")
+        command.execute()
 
     # def undo(self) -> bool:
     #     """
@@ -116,6 +123,7 @@ class CommandController:
             transition: float,
             velocity: float,
             length: float,
+            acceleration: float,
             next_turn: Optional[TurnIntent]
     ) -> None:
         """
@@ -130,65 +138,97 @@ class CommandController:
             transition: Lane change progress
             velocity: Current speed
             length: Physical length
+            acceleration: Current acceleration
             next_turn: Turn intent at intersection
 
         """
-        # TODO: Change acceleration variable to actual acceleration
-        acceleration: float = 1
         lane = Lane(road_uid=assigned_road.uid, lane_index=lane_index)
         car_params = CarParams(name, lane, color, position_on_lane, transition, velocity, length, next_turn,
                                acceleration)
         add_car_command = add_car.AddCarCommand(self.traffic_snapshot_reader, self.traffic_snapshot_writer, car_params)
-        add_car_command.execute()
-        raise NotImplementedError("Prototype Method")
+        self._execute_command(add_car_command)
 
-    def remove_car(self, car_name: str) -> None:
+    def remove_car(self, car_uid: str) -> None:
         """
         Removes a car from the traffic snapshot.
 
         Args:
-            car_name: The unique identifier of the car to remove.
+            car_uid: The unique identifier of the car to remove.
 
         """
-        remove_car_command = DeleteCar(self.traffic_snapshot_writer, self.traffic_snapshot_reader, car_name)
-        remove_car_command.execute()
-        raise NotImplementedError("Prototype Method")
+        remove_car_command = DeleteCar(self.traffic_snapshot_writer, self.traffic_snapshot_reader, car_uid)
+        self._execute_command(remove_car_command)
+
+    _UNCHANGED = object()
 
     def edit_car(
             self,
-            car_name: str,
-            assigned_road: Optional[Road] = None,
-            lane_index: Optional[int] = None,
-            color: Optional[str] = None,
-            position_on_lane: Optional[float] = None,
-            transition: Optional[float] = None,
-            velocity: Optional[float] = None,
-            length: Optional[float] = None,
-            next_turn: Optional[TurnIntent] = None
+            car: Car,
+            car_name: object = _UNCHANGED,
+            road_uid: object = _UNCHANGED,
+            lane_index: object = _UNCHANGED,
+            color: object = _UNCHANGED,
+            position_on_lane: object = _UNCHANGED,
+            transition: object = _UNCHANGED,
+            velocity: object = _UNCHANGED,
+            length: object = _UNCHANGED,
+            next_turn: object = _UNCHANGED,
+            acceleration: object = _UNCHANGED,
     ) -> None:
         """
-        Edits properties of an existing car.
+        Edits properties of an existing car using a merge strategy:
+        any parameter left as _UNCHANGED keeps the current value.
+        Passing next_turn=None explicitly clears it.
+        """
+
+        if road_uid is self._UNCHANGED and lane_index is self._UNCHANGED:
+            lane = car.lane
+        else:
+            road_uid = car.lane.road_uid if road_uid is self._UNCHANGED else road_uid
+            lane_index = car.lane.lane_index if lane_index is self._UNCHANGED else lane_index
+            lane = Lane(road_uid=road_uid, lane_index=lane_index)
+
+        car_params = CarParams(
+            name=car.name if car_name is self._UNCHANGED else car_name,
+            lane=lane,
+            color=car.color if color is self._UNCHANGED else color,
+            position_on_lane=car.position_on_lane if position_on_lane is self._UNCHANGED else position_on_lane,
+            transition=car.transition if transition is self._UNCHANGED else transition,
+            speed=car.speed if velocity is self._UNCHANGED else velocity,
+            length=car.length if length is self._UNCHANGED else length,
+            next_turn=car.next_turn if next_turn is self._UNCHANGED else next_turn,
+            acceleration=car.acceleration if acceleration is self._UNCHANGED else acceleration,
+        )
+
+        edit_car_command = EditCarCommand(
+            self.traffic_snapshot_reader,
+            self.traffic_snapshot_writer,
+            car_params,
+            car.uid,
+        )
+        self._execute_command(edit_car_command)
+
+    def add_road(
+            self,
+            name: str,
+            orientation: RoadOrientation,
+            position: float,
+            number_of_forward_lanes: int,
+            number_of_backward_lanes: int
+    ) -> None:
+        """
+        Adds a road to the traffic snapshot based on the given parameters.
 
         Args:
-            car_name: The unique identifier of the car to edit.
-            assigned_road: New road assignment (if provided).
-            lane_index: New lane index (if provided).
-            color: New color (if provided).
-            position_on_lane: New position (if provided).
-            transition: New transition value (if provided).
-            velocity: New velocity (if provided).
-            length: New length (if provided).
-            next_turn: New turn intent (if provided).
-
+            name: Unique human-readable identifier for the road.
+            orientation: The orientation of the road (horizontal or vertical).
+            position: The position of the road in the coordinate system.
+            number_of_forward_lanes: Number of lanes in the forward direction.
+            number_of_backward_lanes: Number of lanes in the backward direction.
         """
-        acceleration: float = 1
-        lane = Lane(road_uid=assigned_road.uid, lane_index=lane_index)
-        car_params = CarParams(car_name, lane, color, position_on_lane, transition, velocity, length, next_turn,
-                               acceleration)
-        edit_car_command = edit_car.EditCarCommand(self.traffic_snapshot_reader, self.traffic_snapshot_writer,
-                                                   car_params)
-        edit_car_command.execute()
-        raise NotImplementedError("Prototype Method")
+        road_params = RoadParams(name, orientation, position, number_of_forward_lanes, number_of_backward_lanes)
+        add_road_command = add_road.AddRoadCommand(self.traffic_snapshot_reader, self.traffic_snapshot_writer, road_params)
+        self._execute_command(add_road_command)
 
     def remove_road(self, road_uid: str) -> None:
         """
@@ -196,30 +236,37 @@ class CommandController:
 
         Args:
             road_uid: The unique identifier of the road to remove.
-
         """
-        remove_road_command = DeleteRoad(self.traffic_snapshot_writer, self.traffic_snapshot_reader, road_uid)
-        remove_road_command.execute()
-        raise NotImplementedError("Prototype Method")
+        remove_road_command = delete_road.DeleteRoad(self.traffic_snapshot_writer, self.traffic_snapshot_reader, road_uid)
+        self._execute_command(remove_road_command)
 
-    def upsert_road(
+    def update_road(
             self,
-            road_uid: str,
-            road_params: RoadParams,
+            road: Road,
+            name: object = _UNCHANGED,
+            orientation: object = _UNCHANGED,
+            position: object = _UNCHANGED,
+            number_of_forward_lanes: object = _UNCHANGED,
+            number_of_backward_lanes: object = _UNCHANGED
     ) -> None:
         """
-        Edits properties of an existing road.
-
-        Args:
-            road_uid: The unique identifier of the road to edit.
-            road_params: New road parameters.
-
+        Updates an existing road using a merge strategy.
         """
+        road_params = RoadParams(
+            name=road.name if name is self._UNCHANGED else name,
+            orientation=road.orientation if orientation is self._UNCHANGED else orientation,
+            position=road.position if position is self._UNCHANGED else position,
+            number_of_forward_lanes=road.number_of_forward_lanes if number_of_forward_lanes is self._UNCHANGED else number_of_forward_lanes,
+            number_of_backward_lanes=road.number_of_backward_lanes if number_of_backward_lanes is self._UNCHANGED else number_of_backward_lanes
+        )
 
-        edit_road_command = UpsertRoad(self.traffic_snapshot_reader, self.traffic_snapshot_writer, road_params,
-                                       road_uid)
-        edit_road_command.execute()
-        # raise NotImplementedError("Prototype Method")
+        edit_road_command = edit_road.EditRoadCommand(
+            self.traffic_snapshot_reader,
+            self.traffic_snapshot_writer,
+            road_params,
+            road.uid
+        )
+        self._execute_command(edit_road_command)
 
     def add_umlsl_query(
             self,

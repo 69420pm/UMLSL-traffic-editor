@@ -51,7 +51,7 @@ class TrafficSnapshotWriter(ABC):
         pass
 
     @abstractmethod
-    def update_car(self, car_uid: str, car_params: CarParams) -> None:
+    def update_car_with_params(self, car_uid: str, car_params: CarParams) -> None:
         """
         Updates an existing car in the snapshot and validates all attributes in the context of the snapshot.
 
