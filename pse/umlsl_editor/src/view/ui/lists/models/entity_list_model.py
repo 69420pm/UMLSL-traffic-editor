@@ -1,11 +1,10 @@
-from abc import abstractmethod, ABC
-
-from PySide6.QtCore import QAbstractListModel, Qt, QModelIndex, Slot
+from PySide6.QtCore import QAbstractListModel, QModelIndex, Slot
 
 from pse.umlsl_editor.src.model.entities.entity import Entity
 
+
 class EntityModel(QAbstractListModel):
-    def __init__(self,entities: list[Entity]):
+    def __init__(self, entities: list[Entity]):
         super().__init__()
         self._data = entities or []
 
@@ -27,6 +26,9 @@ class EntityModel(QAbstractListModel):
             row = self._data.index(entity)
             index = self.index(row)
             self.dataChanged.emit(index, index, self.roleNames().keys())
+
+    def get_entity_at(self, row: int) -> Entity:
+        return self._data[row]
 
     @Slot(int)
     def handle_button_click(self, row):

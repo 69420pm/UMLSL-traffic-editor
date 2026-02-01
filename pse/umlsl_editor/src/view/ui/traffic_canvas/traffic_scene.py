@@ -127,7 +127,7 @@ class TrafficScene(QGraphicsScene):
         new_orientation = new_road_item.data(0).orientation
 
         for existing_road in self._data_controller.get_all_roads().values():
-            if existing_road.data(0).orientation != new_orientation:
+            if existing_road.orientation != new_orientation:
                 self._create_crossing(new_road_item, existing_road)
 
     def _create_crossing(self, road_a: RoadItem, road_b: RoadItem):

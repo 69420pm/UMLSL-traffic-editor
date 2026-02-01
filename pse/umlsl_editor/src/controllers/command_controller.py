@@ -5,9 +5,8 @@ from typing import Optional
 from pse.umlsl_editor.src.commands.cars import add_car, edit_car
 from pse.umlsl_editor.src.commands.cars.delete_car import DeleteCar
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.commands.roads.add_road import AddRoad
 from pse.umlsl_editor.src.commands.roads.delete_road import DeleteRoad
-from pse.umlsl_editor.src.commands.roads.edit_road import EditRoad
+from pse.umlsl_editor.src.commands.roads.upsert_road_command import UpsertRoad
 from pse.umlsl_editor.src.commands.settings.change_breaking_acceleration import ChangeBreakingAccelerationCommand
 from pse.umlsl_editor.src.commands.settings.toggle_coordinate_system import ToggleCoordinateSystemCommand
 from pse.umlsl_editor.src.commands.settings.toggle_safety_distance import ToggleSafetyDistanceCommand
@@ -19,7 +18,7 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import Tra
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 from pse.umlsl_editor.src.model.entities.car import CarParams
-from pse.umlsl_editor.src.model.entities.road import Road, RoadParams, RoadOrientation
+from pse.umlsl_editor.src.model.entities.road import Road, RoadParams
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQueryParams
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
@@ -189,32 +188,6 @@ class CommandController:
         edit_car_command.execute()
         raise NotImplementedError("Prototype Method")
 
-    def add_road(
-            self,
-            name: str,
-            position: float,
-            orientation: str,
-            forward_lanes: int,
-            backward_lanes: int
-    ) -> None:
-        """
-        Adds a road to the traffic snapshot.
-
-        Args:
-            name: Unique identifier for the road.
-            position: Position coordinate (Y for horizontal, X for vertical).
-            orientation: 'horizontal' or 'vertical'.
-            forward_lanes: Number of lanes in forward direction.
-            backward_lanes: Number of lanes in backward direction.
-
-        """
-        # TODO: Cast string to actual road orientation, how does this work?
-        road_orientation = RoadOrientation(orientation)
-        road_params = RoadParams(name, road_orientation, position, forward_lanes, backward_lanes)
-        add_road_command = AddRoad(self.traffic_snapshot_writer, self.traffic_snapshot_reader, road_params)
-        add_road_command.execute()
-        raise NotImplementedError("Prototype Method")
-
     def remove_road(self, road_uid: str) -> None:
         """
         Removes a road from the traffic snapshot.
@@ -227,30 +200,24 @@ class CommandController:
         remove_road_command.execute()
         raise NotImplementedError("Prototype Method")
 
-    def edit_road(
+    def upsert_road(
             self,
-            road_name: str,
-            position: Optional[float] = None,
-            orientation: Optional[str] = None,
-            forward_lanes: Optional[int] = None,
-            backward_lanes: Optional[int] = None
+            road_uid: str,
+            road_params: RoadParams,
     ) -> None:
         """
         Edits properties of an existing road.
 
         Args:
-            road_name: The unique identifier of the road to edit.
-            position: New position (if provided).
-            orientation: New orientation (if provided).
-            forward_lanes: New forward lane count (if provided).
-            backward_lanes: New backward lane count (if provided).
+            road_uid: The unique identifier of the road to edit.
+            road_params: New road parameters.
 
         """
-        road_orientation = RoadOrientation(orientation)
-        road_params = RoadParams(road_name, road_orientation, position, forward_lanes, backward_lanes)
-        edit_road_command = EditRoad(self.traffic_snapshot_reader, self.traffic_snapshot_writer, road_params)
+
+        edit_road_command = UpsertRoad(self.traffic_snapshot_reader, self.traffic_snapshot_writer, road_params,
+                                       road_uid)
         edit_road_command.execute()
-        raise NotImplementedError("Prototype Method")
+        # raise NotImplementedError("Prototype Method")
 
     def add_umlsl_query(
             self,

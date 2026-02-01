@@ -25,7 +25,7 @@ class TrafficSnapshotReader(ABC):
         pass
 
     @abstractmethod
-    def get_roads(self) -> list[Road]:
+    def get_roads(self) -> dict[str, Road]:
         """
         Returns a list of all roads in the snapshot.
         """

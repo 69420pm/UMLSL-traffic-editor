@@ -24,7 +24,7 @@ class DataController:
         """Return all cars from the traffic snapshot."""
         raise NotImplementedError
 
-    def get_all_roads(self) -> list["Road"]:
+    def get_all_roads(self) -> dict[str, "Road"]:
         return self._traffic_snapshot_reader.get_roads()
 
     def get_breaking_acceleration(self) -> float:

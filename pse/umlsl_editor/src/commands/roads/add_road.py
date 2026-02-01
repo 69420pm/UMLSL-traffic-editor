@@ -36,4 +36,4 @@ class AddRoad(Command[None]):
         road = Road.from_params(self.road_params)
         self._traffic_snapshot_writer.add_road(road)
         # TODO: Error Handling
-        raise NotImplementedError("Prototype Method")
+        # raise NotImplementedError("Prototype Method")

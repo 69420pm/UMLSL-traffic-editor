@@ -1,11 +1,11 @@
 from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
-from pse.umlsl_editor.src.model.entities.road import RoadParams
+from pse.umlsl_editor.src.model.entities.road import RoadParams, Road
 
 
-class EditRoad(Command[None]):
-    """Edits the properties of an existing road in the traffic snapshot."""
+class UpsertRoad(Command[None]):
+    """Edits the properties of an existing road or creates a new one in the traffic snapshot."""
 
     def __init__(
             self,
@@ -36,5 +36,9 @@ class EditRoad(Command[None]):
             CommandValidationError: If command validation fails.
         """
         self._traffic_snapshot_reader.validate_road_params(self.road_params, False)
-        self._traffic_snapshot_writer.update_road(uid, self.road_params)
-        raise NotImplementedError("Prototype Method")
+
+        if self._traffic_snapshot_reader.get_roads().get(self.uid) is not None:
+            self._traffic_snapshot_writer.update_road(self.uid, self.road_params)
+        else:
+            self._traffic_snapshot_writer.add_road(Road.from_params(self.road_params))
+        # raise NotImplementedError("Prototype Method")
