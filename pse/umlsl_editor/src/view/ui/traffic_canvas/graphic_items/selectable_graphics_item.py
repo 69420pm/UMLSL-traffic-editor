@@ -1,6 +1,8 @@
 # view/ui/traffic_canvas/graphic_items/selectable_graphics_item.py
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import QGraphicsItem, QGraphicsView
+
+from pse.umlsl_editor.src.controllers import ApplicationController
 
 
 class SelectableGraphicsItem(QGraphicsItem):
@@ -15,12 +17,16 @@ class SelectableGraphicsItem(QGraphicsItem):
     AXIS_X_ONLY = 1
     AXIS_Y_ONLY = 2
 
-
-    def __init__(self, movement_constraint: int = AXIS_FREE):
+    def __init__(self, application_controller: "ApplicationController"):
         super().__init__()
+        self._view_event_handler = None
         self.is_selected = False
         self.is_hovered = False
-        self._movement_constraint = movement_constraint
+        self._movement_constraint = self.AXIS_FREE
+        self.application_controller = application_controller
+
+        self.application_controller.view_event_handler.get_on_selection_changed_signal().connect(
+            self._on_global_selection_change)
 
         # State tracking
         self._drag_start_pos = None
@@ -155,16 +161,31 @@ class SelectableGraphicsItem(QGraphicsItem):
         self.on_move_committed(self.x(), self.y())
         self.setPos(0, 0)
 
-    def _toggle_selection(self) -> None:
-        """Toggle the selection state and notify subclasses."""
-        # Reset any micro-movement
-        if self._has_moved():
-            self.setPos(0, 0)
+    @Slot(str)
+    def _on_global_selection_change(self, selected_uid: str):
+        """Slot: Called when ANY item is selected anywhere in the app."""
+        # Get the entity stored in this item (assuming setData(0, entity) is used)
+        entity = self.data(0)
+        if not entity:
+            return
 
-        self.is_selected = not self.is_selected
-        self.on_selection_changed(self.is_selected)
-        self._update_cursor_state()
-        self.update()
+        should_be_selected = (entity.uid == selected_uid)
+
+        # Only trigger update if state actually changes
+        if self.is_selected != should_be_selected:
+            self.is_selected = should_be_selected
+            self.on_selection_changed(self.is_selected)
+            self._update_cursor_state()
+            self.update()
+
+    # Modify the existing _toggle_selection or mouse handler
+    def _toggle_selection(self) -> None:
+        entity = self.data(0)
+        
+        if self.is_selected:
+            self.application_controller.command_controller.clear_selection()
+        else:
+            self.application_controller.command_controller.select_entity(entity.uid)
 
     # --- Hooks for Subclasses ---
 

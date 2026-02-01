@@ -3,8 +3,8 @@ from enum import Enum
 
 from pse.umlsl_editor.src.controllers.view_event_contract import ViewEventHandler
 from pse.umlsl_editor.src.model.domain_models.selection_model import SelectionModel
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 from pse.umlsl_editor.src.model.helper.event_types import (
     TrafficSnapshotEventType,
@@ -25,7 +25,7 @@ class EventController:
                  traffic_snapshot: TrafficSnapshotModel,
                  settings: SettingsModel,
                  umlsl_queries: UMLSLQueriesModel,
-                 selection: SelectionModel,) -> None:
+                 selection: SelectionModel, ) -> None:
         """
         Initialize the view controller.
 
@@ -42,7 +42,6 @@ class EventController:
         self._selection = selection
 
         self._setup_event_listeners()
-
 
     def _setup_event_listeners(self) -> None:
         """
@@ -130,8 +129,5 @@ class EventController:
         # Route events to appropriate view methods
         if event_type == SelectionEventType.ENTITY_SELECTED:
             self._view.select_entity_view(data)
-        elif event_type == SelectionEventType.ENTITY_DESELECTED:
-            self._view.deselect_entity_view(data)
         elif event_type == SelectionEventType.SELECTION_CLEARED:
             self._view.clear_selection_view()
-

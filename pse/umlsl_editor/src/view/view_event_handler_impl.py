@@ -1,6 +1,8 @@
+from PySide6.QtCore import Signal
+from PySide6.QtCore import SignalInstance
+
 from pse.umlsl_editor.src.controllers.view_event_contract import ViewEventHandler
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.entities.entity import Entity
 from pse.umlsl_editor.src.model.entities.road import Road
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 from pse.umlsl_editor.src.model.errors.errors import BaseWarning
@@ -10,6 +12,7 @@ from pse.umlsl_editor.src.view.view_models import ViewModels
 
 
 class ViewEventHandlerImplementation(ViewEventHandler):
+    selection_changed = Signal(str)
 
     def __init__(self, view_model: ViewModels):
         super().__init__()
@@ -66,11 +69,14 @@ class ViewEventHandlerImplementation(ViewEventHandler):
     def toggle_safety_distance(self, render_safety_distance: bool) -> None:
         pass
 
-    def select_entity_view(self, entity: Entity) -> None:
-        pass
+    def get_on_selection_changed_signal(self) -> "SignalInstance":
+        return self.selection_changed
 
-    def deselect_entity_view(self, entity: Entity) -> None:
-        pass
+    def select_entity_view(self, uid: str) -> None:
+        # Emit the signal so all listeners (Canvas Items, List Items) can react
+        print(uid)
+        self.selection_changed.emit(uid)
 
     def clear_selection_view(self) -> None:
-        pass
+        # Helper to deselect everything
+        self.selection_changed.emit("")

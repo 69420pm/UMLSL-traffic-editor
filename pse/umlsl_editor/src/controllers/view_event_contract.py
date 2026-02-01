@@ -1,15 +1,16 @@
 """Interface for handling view events from the event controller."""
-from abc import ABC, abstractmethod
+from abc import abstractmethod
+
+from PySide6.QtCore import SignalInstance, QObject
 
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.entities.entity import Entity
 from pse.umlsl_editor.src.model.entities.road import Road
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 from pse.umlsl_editor.src.model.errors.errors import BaseWarning
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 
 
-class ViewEventHandler(ABC):
+class ViewEventHandler(QObject):
     """
     Abstract interface for handling model change events in the view layer.
 
@@ -174,22 +175,20 @@ class ViewEventHandler(ABC):
         pass
 
     @abstractmethod
-    def select_entity_view(self, entity: Entity) -> None:
+    def get_on_selection_changed_signal(self) -> "SignalInstance":
         """
-        Handle the selection of an entity.
-
-        Args:
-            entity: The entity that was selected.
+        Returns a signal that is emitted when an entity is selected.
+        The signal should carry the UID of the selected entity as a string.
         """
         pass
 
     @abstractmethod
-    def deselect_entity_view(self, entity: Entity) -> None:
+    def select_entity_view(self, uid: str) -> None:
         """
-        Handle the deselection of an entity.
+        Handle the selection of an entity.
 
         Args:
-            entity: The entity that was deselected.
+            uid: The uid of entity that was selected.
         """
         pass
 

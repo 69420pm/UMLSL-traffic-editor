@@ -32,7 +32,7 @@ class TrafficScene(QGraphicsScene):
         size = DIMENSION.SCENE_SIZE
         self.setSceneRect(QRectF(-size / 2, -size / 2, size, size))
 
-        self._data_controller = application_controller.data_controller
+        self._application_controller = application_controller
         self._item_registry = {}
 
         view_models = application_controller.view_event_handler.view_models
@@ -51,7 +51,7 @@ class TrafficScene(QGraphicsScene):
         """Called when cars are added to the list model."""
         for row in range(first, last + 1):
             car_entity = self._car_model.get_entity_at(row)
-            graphics_item = CarItem(car_entity, self._data_controller)
+            graphics_item = CarItem(car_entity, self._application_controller)
             self.addItem(graphics_item)
             self._item_registry[car_entity.car_uid] = graphics_item
             self._item_registry[car_entity.lane.road_uid].add_position_listener(graphics_item)
@@ -86,7 +86,7 @@ class TrafficScene(QGraphicsScene):
     def _on_roads_added(self, parent: QModelIndex, first: int, last: int) -> None:
         for row in range(first, last + 1):
             road_entity = self._road_model.get_entity_at(row)
-            graphics_item = RoadItem(road_entity)
+            graphics_item = RoadItem(road_entity, self._application_controller)
             self.addItem(graphics_item)
             self._item_registry[road_entity.car_uid] = graphics_item
             self._check_and_create_crossings(graphics_item)
