@@ -2,7 +2,7 @@ from typing import Optional
 
 from PySide6.QtCore import QPointF, QRectF
 from PySide6.QtGui import QBrush, QColor, QPainter, QPen, QPolygonF
-from PySide6.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
+from PySide6.QtWidgets import QStyleOptionGraphicsItem, QWidget
 
 from pse.umlsl_editor.src.controllers.data_controller import DataController
 from pse.umlsl_editor.src.model.entities.car import Car
@@ -23,15 +23,17 @@ class CarItem(SelectableGraphicsItem):
     def __init__(self, car: Car, data_controller: DataController):
         self._car = car
         self._road = data_controller.get_road_by_uid(car.lane.road_uid)
+        self._polygon = QPolygonF()
 
         constraint = self._get_constraint_for_orientation(self._road.orientation.opposite)
         super().__init__(movement_constraint=constraint)
+
+        self.update_data(car)
+
+    def update_data(self, car: Car) -> None:
+        """Update the car data and refresh all visual elements."""
+        self._car = car
         self.setData(0, car)
-
-        self._position_listeners: list = []
-
-        self.polygon = QPolygonF()
-
         self._setup_styles()
         self.refresh_geometry()
 
@@ -66,32 +68,14 @@ class CarItem(SelectableGraphicsItem):
 
     def on_move_committed(self, delta_x: float, delta_y: float) -> None:
         car = self.data(0)
-        delta = delta_y if self._orientation == RoadOrientation.VERTICAL else delta_x
+        delta = delta_y if self._road.orientation == RoadOrientation.VERTICAL else delta_x
         car.position_on_lane += delta
         self.update_data(car)
-
-    # --- Position Listener Pattern ---
-
-    def add_position_listener(self, listener) -> None:
-        """Register an object to be notified when this car moves."""
-        if listener not in self._position_listeners:
-            self._position_listeners.append(listener)
-
-    def _notify_listeners(self) -> None:
-        """Notify all registered listeners to refresh their geometry."""
-        for listener in self._position_listeners:
-            listener.refresh_geometry()
-
-    def itemChange(self, change, value):
-        """Notify listeners after position changes."""
-        if change == QGraphicsItem.ItemPositionHasChanged:
-            self._notify_listeners()
-        return super().itemChange(change, value)
 
     # --- Graphics Interface ---
 
     def boundingRect(self) -> QRectF:
-        return self.polygon.boundingRect()
+        return self._polygon.boundingRect()
 
     def paint(
             self,
@@ -101,7 +85,7 @@ class CarItem(SelectableGraphicsItem):
     ) -> None:
         painter.setPen(self._body_pen)
         painter.setBrush(self._body_brush)
-        painter.drawPolygon(self.polygon)
+        painter.drawPolygon(self._polygon)
 
         # Draw Label
         self._paint_label(painter, option)
@@ -125,7 +109,7 @@ class CarItem(SelectableGraphicsItem):
 
         # 2. Move to the visual center of the car
         #    Using the polygon bounding rect ensures we find the middle of the shape
-        center = self.polygon.boundingRect().center()
+        center = self._polygon.boundingRect().center()
         painter.translate(center.x(), center.y())
 
         # 3. Scale and Flip
@@ -148,13 +132,6 @@ class CarItem(SelectableGraphicsItem):
 
         painter.restore()
 
-    def update_data(self, car: Car) -> None:
-        """Update the car data and refresh all visual elements."""
-        self._car = car
-        self.setData(0, car)
-        self.refresh_geometry()
-        self._notify_listeners()
-
     def refresh_geometry(self) -> None:
         """Recalculate polygon geometry based on current car data."""
         self.prepareGeometryChange()
@@ -162,7 +139,7 @@ class CarItem(SelectableGraphicsItem):
         position = self._calculate_car_position(self._car, self._road, self.road_item)
         dimensions = self._calculate_car_dimensions(self._car)
 
-        self.polygon = self._create_car_polygon(position, dimensions, self._road.orientation)
+        self._polygon = self._create_car_polygon(position, dimensions, self._road.orientation)
         self.update()
 
     def _calculate_car_position(self, car: Car, road, road_item: RoadItem) -> tuple[float, float]:

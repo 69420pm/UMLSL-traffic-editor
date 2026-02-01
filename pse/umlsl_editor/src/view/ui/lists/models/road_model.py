@@ -1,14 +1,15 @@
-from PySide6.QtCore import QAbstractListModel, Qt, QModelIndex, Slot
+from PySide6.QtCore import Qt, QModelIndex, Slot
 
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation, Road
 from pse.umlsl_editor.src.view.ui.lists.edit_road_dialog import EditRoadDialog
-from pse.umlsl_editor.src.view.ui.lists.models.EntityModel import EntityModel
+from pse.umlsl_editor.src.view.ui.lists.models.entity_model import EntityModel
 
 # 1. Define custom roles.
 # These are the identifiers QML will use to ask for specific pieces of data.
 NameRole = Qt.UserRole + 1
 IconRole = Qt.UserRole + 2
 ValueRole = Qt.UserRole + 3
+
 
 class RoadModel(EntityModel):
     def __init__(self, roads: list[Road] | None, parent=None):
@@ -32,7 +33,7 @@ class RoadModel(EntityModel):
         elif role == IconRole:
             return is_vertical
         elif role == ValueRole:
-            return ("x" if is_vertical else "y") + " = "  + str(item.position)
+            return ("x" if is_vertical else "y") + " = " + str(item.position)
 
         return None
 

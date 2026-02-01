@@ -33,7 +33,7 @@ class CarParams:
         next_turn: Optional intended turn behavior at the next intersection
     """
     name: str
-    lane: Lane
+    lane: Lane | None
     color: str
     position_on_lane: float
     transition: float
@@ -155,6 +155,7 @@ class Car(Entity):
             claimed_lanes=[],
             reserved_crossings=[],
             claimed_crossings=[],
+            view_segments=[],
             path=Path(segments=[]),
             acceleration=params.acceleration,
         )

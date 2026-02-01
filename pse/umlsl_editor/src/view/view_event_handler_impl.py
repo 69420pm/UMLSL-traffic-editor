@@ -31,7 +31,7 @@ class ViewEventHandlerImplementation(ViewEventHandler):
         self.view_models.car_list_model.update_entity(car)
 
     def add_road_view(self, road: Road) -> None:
-        self.view_models.road_list_model.add_road(road)
+        self.view_models.road_list_model.add_entity(road)
 
     def remove_road_view(self, road: Road) -> None:
         self.view_models.road_list_model.remove_entity(road)

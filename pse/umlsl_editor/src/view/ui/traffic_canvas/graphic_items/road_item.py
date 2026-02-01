@@ -24,7 +24,7 @@ class RoadItem(SelectableGraphicsItem):
 
         super().__init__(movement_constraint=constraint)
 
-        self._position_listeners = []
+        self.position_listeners = []
 
         self.setData(0, road)
         self._bounding_rect = QRectF()
@@ -71,16 +71,16 @@ class RoadItem(SelectableGraphicsItem):
 
     def add_position_listener(self, listener):
         """Registers an object to be notified when this road moves."""
-        if listener not in self._position_listeners:
-            self._position_listeners.append(listener)
+        if listener not in self.position_listeners:
+            self.position_listeners.append(listener)
 
     def remove_position_listener(self, listener):
         """Unregisters an object from position change notifications."""
-        if listener in self._position_listeners:
-            self._position_listeners.remove(listener)
+        if listener in self.position_listeners:
+            self.position_listeners.remove(listener)
 
     def _notify_listeners(self):
-        for listener in self._position_listeners:
+        for listener in self.position_listeners:
             listener.refresh_geometry()
 
     def itemChange(self, change, value):
