@@ -1,14 +1,16 @@
 from dataclasses import dataclass
 from typing import Any
 
-from pse.umlsl_editor.src.model.helper.observables import Observable, ObservableDict
-from pse.umlsl_editor.src.model.helper.event_types import UMLSLQueriesEventType
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery, UMLSLQueryParams
+from pse.umlsl_editor.src.model.errors.umlsl_query_errors import UMLSLQueryValidationError
+from pse.umlsl_editor.src.model.helper.event_types import UMLSLQueriesEventType
+from pse.umlsl_editor.src.model.helper.observables import Observable, ObservableDict
 
 
 class UMLSLQueriesValidationError(Exception):
     """Raised when UMLSL queries validation fails in the context of a traffic snapshot."""
     pass
+
 
 @dataclass
 class UMLSLQueriesModel(Observable):
@@ -20,7 +22,8 @@ class UMLSLQueriesModel(Observable):
         - UMLSLQueriesEventType.UMLSL_QUERY_REMOVED: Fired when a query is removed (data: UMLSLQuery)
         - UMLSLQueriesEventType.UMLSL_QUERY_UPDATED: Fired when a query is updated (data: UMLSLQuery)
     """
-    def __init__(self, queries: dict[str, UMLSLQuery]=None) -> None:
+
+    def __init__(self, queries: dict[str, UMLSLQuery] = None) -> None:
         self._queries = ObservableDict(
             on_add=lambda query: self.notify(UMLSLQueriesEventType.UMLSL_QUERY_ADDED, query),
             on_remove=lambda query: self.notify(UMLSLQueriesEventType.UMLSL_QUERY_REMOVED, query),
@@ -32,8 +35,10 @@ class UMLSLQueriesModel(Observable):
         """Initialize Observable after dataclass initialization."""
         Observable.__init__(self)
 
-    def get_query_by_id(self, id: str) -> UMLSLQuery:
-        return self._queries.get(id)
+    def get_query_by_id(self, uid: str) -> UMLSLQuery:
+        if uid not in self._queries:
+            raise UMLSLQueryValidationError(f"UMLSL Query with UID {uid} does not exist.")
+        return self._queries[uid]
 
     def add_umlsl_query(self, umlsl_query: UMLSLQuery) -> None:
         """
@@ -56,11 +61,8 @@ class UMLSLQueriesModel(Observable):
         Raises:
             UMLSLQueriesValidationError: If the updated UMLSL query is invalid in the context of the snapshot.
         """
-        if query_params.latex is not None:
-            umlsl_query_data.latex = query_params.latex
-        if query_params.assigned_car_name is not None:
-            umlsl_query_data.assigned_car_name = query_params.assigned_car_name
-        raise NotImplementedError("Prototype Method")
+        umlsl_query_data.update_from_params(query_params)
+        self._queries[umlsl_query_data.uid] = umlsl_query_data
 
     def to_dict(self) -> dict[str, Any]:
         """

@@ -3,26 +3,30 @@ from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQu
 
 
 class DeleteUMLSLQuery(Command[None]):
-    """Deletes a UMLSL query from the UMLSL editor."""
+    """Deletes a UMLSL query from the model based on its unique identifier."""
 
-    def __init__(self, query_id: str, umlsl_queries: UMLSLQueriesModel):
+    def __init__(
+            self,
+            query_id: str,
+            umlsl_queries_model: UMLSLQueriesModel
+    ):
         """
-        Initialize the DeleteUMLSLQuery command with the query identifier.
+        Initialize the DeleteUMLSLQuery command.
 
         Args:
-            query_id: Unique identifier of the UMLSL query to be deleted.
-            umlsl_queries: UmlslQueries manager.
+            query_id: Unique identifier of the query to be deleted.
+            umlsl_queries_model: The model to remove the query from.
         """
-        self._query_id = query_id
-        self._umlsl_queries = umlsl_queries
+        self.query_id = query_id
+        self.umlsl_queries_model = umlsl_queries_model
 
     def execute(self) -> None:
         """
-        Deletes the specified UMLSL query from the UMLSL editor.
+        Deletes the query with the specified unique identifier from the model.
 
         Raises:
-            CommandValidationError: If command validation fails.
+            UMLSLQueriesValidationError: If the query does not exist.
         """
-        #TODO: Error Handling
-        self._umlsl_queries.remove_umlsl_query(self._query_id)
-        raise NotImplementedError("Prototype Method")
+
+        self.umlsl_queries_model.get_query_by_id(self.query_id)
+        self.umlsl_queries_model.remove_umlsl_query(self.query_id)

@@ -10,13 +10,13 @@ from pse.umlsl_editor.src.commands.roads import add_road
 from pse.umlsl_editor.src.commands.roads import delete_road
 from pse.umlsl_editor.src.commands.roads import edit_road
 from pse.umlsl_editor.src.commands.selection.clear_selection import ClearSelection
+from pse.umlsl_editor.src.commands.umlsl import add_umlsl_query
+from pse.umlsl_editor.src.commands.umlsl import delete_umlsl_query
+from pse.umlsl_editor.src.commands.umlsl import edit_umlsl_query
 from pse.umlsl_editor.src.commands.selection.select_entity import SelectEntity
 from pse.umlsl_editor.src.commands.settings.change_breaking_acceleration import ChangeBreakingAccelerationCommand
 from pse.umlsl_editor.src.commands.settings.set_coordinate_system import SetCoordinateSystemCommand
 from pse.umlsl_editor.src.commands.settings.set_safety_distance import SetSafetyDistanceCommand
-from pse.umlsl_editor.src.commands.umlsl.add_umlsl_query import AddUMLSLQuery
-from pse.umlsl_editor.src.commands.umlsl.delete_umlsl_query import DeleteUMLSLQuery
-from pse.umlsl_editor.src.commands.umlsl.edit_umlsl_query import EditUMLSLQuery
 from pse.umlsl_editor.src.model.domain_models.selection_model import SelectionModel
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
@@ -24,7 +24,7 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import Tra
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 from pse.umlsl_editor.src.model.entities.car import CarParams, Car
 from pse.umlsl_editor.src.model.entities.road import Road, RoadParams, RoadOrientation
-from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQueryParams
+from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery, UMLSLQueryParams
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
 
@@ -279,14 +279,10 @@ class CommandController:
         Args:
             assigned_car_name: The car this query is assigned to.
             latex: The LaTeX representation of the query.
-
         """
-        # TODO: Add real validation parameter
-        validation: bool = True
-        umlsl_query_params = UMLSLQueryParams(latex, assigned_car_name, validation)
-        add_umlsl_query = AddUMLSLQuery(umlsl_query_params, self.umlsl_queries_model)
-        add_umlsl_query.execute()
-        raise NotImplementedError("Prototype Method")
+        umlsl_query_params = UMLSLQueryParams(latex, assigned_car_name)
+        add_umlsl_query_command = add_umlsl_query.AddUMLSLQuery(umlsl_query_params, self.umlsl_queries_model)
+        self._execute_command(add_umlsl_query_command)
 
     def remove_umlsl_query(self, query_id: str) -> None:
         """
@@ -294,33 +290,31 @@ class CommandController:
 
         Args:
             query_id: The unique identifier of the query to remove.
-
         """
-        remove_umlsl_query_command = DeleteUMLSLQuery(query_id, self.umlsl_queries_model)
-        remove_umlsl_query_command.execute()
-        raise NotImplementedError("Prototype Method")
+        remove_umlsl_query_command = delete_umlsl_query.DeleteUMLSLQuery(query_id, self.umlsl_queries_model)
+        self._execute_command(remove_umlsl_query_command)
 
-    def edit_umlsl_query(
+    def update_umlsl_query(
             self,
-            query_id: str,
-            assigned_car_name: Optional[str] = None,
-            latex: Optional[str] = None
+            query: UMLSLQuery,
+            assigned_car_name: object = _UNCHANGED,
+            latex: object = _UNCHANGED
     ) -> None:
         """
-        Edits an existing UMLSL query.
+        Edits an existing UMLSL query using a merge strategy.
 
         Args:
-            query_id: The unique identifier of the query to edit.
-            assigned_car_name: New assigned car (if provided).
-            latex: New LaTeX representation (if provided).
-
+            query: The query object to edit.
+            assigned_car_name: New assigned car name (optional).
+            latex: New LaTeX string (optional).
         """
-        # TODO: Add real validation parameter
-        validation: bool = True
-        umlsl_query_params = UMLSLQueryParams(latex, assigned_car_name, validation)
-        edit_umlsl_query = EditUMLSLQuery(query_id, umlsl_query_params, self.umlsl_queries_model)
-        edit_umlsl_query.execute()
-        raise NotImplementedError("Prototype Method")
+        umlsl_query_params = UMLSLQueryParams(
+            latex=query.latex if latex is self._UNCHANGED else latex,
+            assigned_car_uid=query.assigned_car_name if assigned_car_name is self._UNCHANGED else assigned_car_name
+        )
+        edit_umlsl_query_command = edit_umlsl_query.EditUMLSLQuery(query.uid, umlsl_query_params,
+                                                                   self.umlsl_queries_model)
+        self._execute_command(edit_umlsl_query_command)
 
     def select_entity(self, uid: str) -> None:
         """

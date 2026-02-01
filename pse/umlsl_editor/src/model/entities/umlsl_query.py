@@ -1,14 +1,8 @@
 from dataclasses import dataclass
 
 from pse.umlsl_editor.src.model.entities.entity import Entity
+from pse.umlsl_editor.src.model.errors.umlsl_query_errors import UMLSLQueryValidationError
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
-
-
-class UMLSLQueryValidationError(ValueError):
-    """
-    Custom exception raised when UMLSLQuery validation fails.
-    """
-    pass
 
 
 @dataclass(frozen=True)
@@ -18,12 +12,11 @@ class UMLSLQueryParams:
 
     Attributes:
         latex (str): The UMLSL query in LaTeX format.
-        assigned_car_name (str): The name of the car associated with the query.
-        validation (bool): A flag indicating whether the query is true of false in the current context
+        assigned_car_uid (str): The name of the car associated with the query.
     """
     latex: str
-    assigned_car_name: str
-    validation: bool
+    assigned_car_uid: str
+
 
 @dataclass()
 class UMLSLQuery(Entity):
@@ -53,8 +46,8 @@ class UMLSLQuery(Entity):
         return cls(
             uid=generate_uid(),
             latex=params.latex,
-            assigned_car_name=params.assigned_car_name,
-            validation=params.validation
+            assigned_car_name=params.assigned_car_uid,
+            validation=False
         )
 
     def update_from_params(self, params: UMLSLQueryParams) -> None:
@@ -65,8 +58,8 @@ class UMLSLQuery(Entity):
             params: An instance of UMLSLQueryParams containing the new UMLSL query attributes.
         """
         self.latex = params.latex
-        self.assigned_car_name = params.assigned_car_name
-        self.validation = params.validation
+        self.assigned_car_name = params.assigned_car_uid
+        self.validation = False
         self.__post_init__()
 
     def __post_init__(self) -> None:
@@ -93,4 +86,3 @@ class UMLSLQuery(Entity):
 
         if not isinstance(self.validation, bool):
             raise UMLSLQueryValidationError("Validation must be a boolean.")
-
