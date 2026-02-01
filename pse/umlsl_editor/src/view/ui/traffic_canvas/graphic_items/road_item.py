@@ -15,24 +15,34 @@ class RoadItem(SelectableGraphicsItem):
     """
 
     def __init__(self, road: Road):
-        # Determine initial constraint based on orientation
-        constraint = (
-            SelectableGraphicsItem.AXIS_Y_ONLY
-            if road.orientation == RoadOrientation.HORIZONTAL
-            else SelectableGraphicsItem.AXIS_X_ONLY
-        )
 
-        super().__init__(movement_constraint=constraint)
+        super().__init__()
 
         self.position_listeners = []
-
-        self.setData(0, road)
+        self._road = road
         self._bounding_rect = QRectF()
         self._center_line = QPainterPath()
         self._dashed_lines = QPainterPath()
 
-        self._setup_styles()
+        self.update_data(road)
+
+    def update_data(self, road: Road):
+        self._road = road
+        self.setData(0, road)
+
+        # Update constraint in case orientation changed
+        new_constraint = (
+            SelectableGraphicsItem.AXIS_Y_ONLY
+            if road.orientation == RoadOrientation.HORIZONTAL
+            else SelectableGraphicsItem.AXIS_X_ONLY
+        )
+        self.set_movement_constraint(new_constraint)
+        self.prepareGeometryChange()
         self._recalculate_geometry()
+        self.update()
+
+        # Notify listeners because the model data (absolute position) changed
+        self._notify_listeners()
 
     def _setup_styles(self):
         self.setZValue(Z_LAYERS.SELECTED_ROAD if self.is_selected else Z_LAYERS.ROAD)
@@ -85,7 +95,6 @@ class RoadItem(SelectableGraphicsItem):
 
     def itemChange(self, change, value):
         """Override to notify listeners on position change."""
-        # FIX: Use ItemPositionHasChanged (fired AFTER update) instead of ItemPositionChange (fired BEFORE)
         if change == QGraphicsItem.ItemPositionHasChanged:
             self._notify_listeners()
 
@@ -107,23 +116,6 @@ class RoadItem(SelectableGraphicsItem):
 
         painter.setPen(self._dashed_pen)
         painter.drawPath(self._dashed_lines)
-
-    def update_data(self, road: Road):
-        self.setData(0, road)
-
-        # Update constraint in case orientation changed
-        new_constraint = (
-            SelectableGraphicsItem.AXIS_Y_ONLY
-            if road.orientation == RoadOrientation.HORIZONTAL
-            else SelectableGraphicsItem.AXIS_X_ONLY
-        )
-        self.set_movement_constraint(new_constraint)
-        self.prepareGeometryChange()
-        self._recalculate_geometry()
-        self.update()
-
-        # Notify listeners because the model data (absolute position) changed
-        self._notify_listeners()
 
     def _recalculate_geometry(self) -> None:
         road = self.data(0)
