@@ -21,8 +21,8 @@ class TrafficSnapshotEventType(Enum):
 class SettingsEventType(Enum):
     """Event types emitted by Settings."""
     CHANGE_BREAKING_ACCELERATION = auto()
-    TOGGLE_COORDINATE_SYSTEM = auto()
-    TOGGLE_SAFETY_DISTANCE = auto()
+    SET_COORDINATE_SYSTEM = auto()
+    SET_SAFETY_DISTANCE = auto()
 
 
 class UMLSLQueriesEventType(Enum):

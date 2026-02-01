@@ -6,16 +6,14 @@ from pse.umlsl_editor.src.commands.cars import add_car
 from pse.umlsl_editor.src.commands.cars.delete_car import DeleteCar
 from pse.umlsl_editor.src.commands.cars.edit_car import EditCarCommand
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.commands.roads.delete_road import DeleteRoad
-from pse.umlsl_editor.src.commands.roads.upsert_road_command import UpsertRoad
-from pse.umlsl_editor.src.commands.selection.clear_selection import ClearSelection
-from pse.umlsl_editor.src.commands.selection.select_entity import SelectEntity
 from pse.umlsl_editor.src.commands.roads import add_road
 from pse.umlsl_editor.src.commands.roads import delete_road
 from pse.umlsl_editor.src.commands.roads import edit_road
+from pse.umlsl_editor.src.commands.selection.clear_selection import ClearSelection
+from pse.umlsl_editor.src.commands.selection.select_entity import SelectEntity
 from pse.umlsl_editor.src.commands.settings.change_breaking_acceleration import ChangeBreakingAccelerationCommand
-from pse.umlsl_editor.src.commands.settings.toggle_coordinate_system import ToggleCoordinateSystemCommand
-from pse.umlsl_editor.src.commands.settings.toggle_safety_distance import ToggleSafetyDistanceCommand
+from pse.umlsl_editor.src.commands.settings.set_coordinate_system import SetCoordinateSystemCommand
+from pse.umlsl_editor.src.commands.settings.set_safety_distance import SetSafetyDistanceCommand
 from pse.umlsl_editor.src.commands.umlsl.add_umlsl_query import AddUMLSLQuery
 from pse.umlsl_editor.src.commands.umlsl.delete_umlsl_query import DeleteUMLSLQuery
 from pse.umlsl_editor.src.commands.umlsl.edit_umlsl_query import EditUMLSLQuery
@@ -227,7 +225,8 @@ class CommandController:
             number_of_backward_lanes: Number of lanes in the backward direction.
         """
         road_params = RoadParams(name, orientation, position, number_of_forward_lanes, number_of_backward_lanes)
-        add_road_command = add_road.AddRoadCommand(self.traffic_snapshot_reader, self.traffic_snapshot_writer, road_params)
+        add_road_command = add_road.AddRoadCommand(self.traffic_snapshot_reader, self.traffic_snapshot_writer,
+                                                   road_params)
         self._execute_command(add_road_command)
 
     def remove_road(self, road_uid: str) -> None:
@@ -237,7 +236,8 @@ class CommandController:
         Args:
             road_uid: The unique identifier of the road to remove.
         """
-        remove_road_command = delete_road.DeleteRoad(self.traffic_snapshot_writer, self.traffic_snapshot_reader, road_uid)
+        remove_road_command = delete_road.DeleteRoad(self.traffic_snapshot_writer, self.traffic_snapshot_reader,
+                                                     road_uid)
         self._execute_command(remove_road_command)
 
     def update_road(
@@ -352,26 +352,23 @@ class CommandController:
         """
         raise NotImplementedError("Method not implemented yet.")
 
-    def change_breaking_acceleration(self, value: int) -> None:
+    def change_breaking_acceleration(self, value: float) -> None:
         """
         Changes the breaking acceleration of the cars.
         """
         change_breaking_acceleration_command = ChangeBreakingAccelerationCommand(self.settings_model, value)
-        change_breaking_acceleration_command.execute()
-        raise NotImplementedError("Prototype Method")
+        self._execute_command(change_breaking_acceleration_command)
 
-    def toggle_coordinate_system(self) -> None:
+    def set_coordinate_system(self, value: bool) -> None:
         """
         Toggles weather the coordinate system in the visual editor should be rendered.
         """
-        toggle_coordinate_system_command = ToggleCoordinateSystemCommand(self.settings_model)
-        toggle_coordinate_system_command.execute()
-        raise NotImplementedError("Prototype Method")
+        toggle_coordinate_system_command = SetCoordinateSystemCommand(self.settings_model, value)
+        self._execute_command(toggle_coordinate_system_command)
 
-    def toggle_safety_distance(self) -> None:
+    def toggle_safety_distance(self, value: bool) -> None:
         """
         Toggles weather the safety distance of the cars in the visual editor should be rendered.
         """
-        toggle_safety_distance_command = ToggleSafetyDistanceCommand(self.settings_model)
-        toggle_safety_distance_command.execute()
-        raise NotImplementedError("Prototype Method")
+        toggle_safety_distance_command = SetSafetyDistanceCommand(self.settings_model, value)
+        self._execute_command(toggle_safety_distance_command)

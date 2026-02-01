@@ -153,7 +153,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def _on_road_updated(self, road: Road):
         self.notify(TrafficSnapshotEventType.ROAD_UPDATED, road)
-        self.validator.validate_road(road, False)
 
     def get_cars_on_road(self, road: Road) -> list[Car]:
         return [car for car in self._cars.values() if car.lane.road_uid == road.uid]

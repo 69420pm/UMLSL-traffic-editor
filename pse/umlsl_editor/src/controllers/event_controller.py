@@ -95,9 +95,9 @@ class EventController:
         # Route events to appropriate view methods
         if event_type == SettingsEventType.CHANGE_BREAKING_ACCELERATION:
             self._view.change_breaking_acceleration(data)
-        elif event_type == SettingsEventType.TOGGLE_COORDINATE_SYSTEM:
+        elif event_type == SettingsEventType.SET_COORDINATE_SYSTEM:
             self._view.toggle_coordinate_system(data)
-        elif event_type == SettingsEventType.TOGGLE_SAFETY_DISTANCE:
+        elif event_type == SettingsEventType.SET_SAFETY_DISTANCE:
             self._view.toggle_safety_distance(data)
 
     def _on_umlsl_query_event(self, event_type: Enum, data) -> None:
