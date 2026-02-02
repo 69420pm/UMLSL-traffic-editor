@@ -1,5 +1,4 @@
 """Controller responsible for executing commands that modify the model."""
-
 from typing import Optional
 
 from pse.umlsl_editor.src.commands.cars import add_car
@@ -9,15 +8,12 @@ from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.commands.roads import add_road
 from pse.umlsl_editor.src.commands.roads import delete_road
 from pse.umlsl_editor.src.commands.roads import edit_road
-from pse.umlsl_editor.src.commands.selection.clear_selection import ClearSelection
-from pse.umlsl_editor.src.commands.umlsl import add_umlsl_query
-from pse.umlsl_editor.src.commands.umlsl import delete_umlsl_query
-from pse.umlsl_editor.src.commands.umlsl import edit_umlsl_query
-from pse.umlsl_editor.src.commands.selection.select_entity import SelectEntity
 from pse.umlsl_editor.src.commands.settings.change_breaking_acceleration import ChangeBreakingAccelerationCommand
 from pse.umlsl_editor.src.commands.settings.set_coordinate_system import SetCoordinateSystemCommand
 from pse.umlsl_editor.src.commands.settings.set_safety_distance import SetSafetyDistanceCommand
-from pse.umlsl_editor.src.model.domain_models.selection_model import SelectionModel
+from pse.umlsl_editor.src.commands.umlsl import add_umlsl_query
+from pse.umlsl_editor.src.commands.umlsl import delete_umlsl_query
+from pse.umlsl_editor.src.commands.umlsl import edit_umlsl_query
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
@@ -36,8 +32,7 @@ class CommandController:
     """
 
     def __init__(self, traffic_snapshot_reader: TrafficSnapshotReader, traffic_snapshot_writer: TrafficSnapshotWriter,
-                 umlsl_queries_model: UMLSLQueriesModel, settings_model: SettingsModel,
-                 selection_model: SelectionModel):
+                 umlsl_queries_model: UMLSLQueriesModel, settings_model: SettingsModel):
         """
         Initialize the command controller.
 
@@ -48,7 +43,6 @@ class CommandController:
         self.traffic_snapshot_writer = traffic_snapshot_writer
         self.umlsl_queries_model = umlsl_queries_model
         self.settings_model = settings_model
-        self.selection_model = selection_model
         # self._command_history = []  # TODO: Implement undo/redo stack
         # self._history_position = -1  # Current position in history
 
@@ -315,20 +309,6 @@ class CommandController:
         edit_umlsl_query_command = edit_umlsl_query.EditUMLSLQuery(query.uid, umlsl_query_params,
                                                                    self.umlsl_queries_model)
         self._execute_command(edit_umlsl_query_command)
-
-    def select_entity(self, uid: str) -> None:
-        """
-        Selects a car or road by its unique identifier.
-        Args:
-            uid: The unique identifier of the car or road to select.
-        """
-        SelectEntity(self.traffic_snapshot_writer, uid).execute()
-
-    def clear_selection(self) -> None:
-        """
-        Clears the selection of all cars and roads.
-        """
-        ClearSelection(self.traffic_snapshot_writer).execute()
 
     # todo correct skeletons for load/save traffic snapshot
     def load_traffic_snapshot(self) -> None:

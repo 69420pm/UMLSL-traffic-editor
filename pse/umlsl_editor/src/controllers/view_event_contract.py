@@ -1,5 +1,5 @@
 """Interface for handling view events from the event controller."""
-from abc import abstractmethod, ABC
+from abc import abstractmethod
 
 from PySide6.QtCore import SignalInstance, QObject
 
@@ -10,7 +10,7 @@ from pse.umlsl_editor.src.model.errors.errors import BaseWarning
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 
 
-class ViewEventHandler(QObject, ABC):
+class ViewEventHandler(QObject):
     """
     Abstract interface for handling model change events in the view layer.
 
