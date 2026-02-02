@@ -34,11 +34,11 @@ class CarModel(EntityModel):
         item = self._data[index.row()]
 
         if role == CarModel.NameRole:
-            return item.name
+            return str(item.name)
         elif role == CarModel.ValueRole:
             return f"R: {item.lane.road_uid} L: {item.lane.lane_index}"
         elif role == CarModel.ColorRole:
-            return item.color
+            return str(item.color)
 
         return None
 

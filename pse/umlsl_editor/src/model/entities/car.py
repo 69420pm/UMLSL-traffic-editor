@@ -176,7 +176,7 @@ class Car(Entity):
             self.validate()
 
     def validate(self) -> None:
-        if not isinstance(self.name, str) or not self.name.strip():
+        if not isinstance(self.name, str):
             raise CarValidationError(content="Name must be a non-empty string.")
 
         if not isinstance(self.lane, Lane):

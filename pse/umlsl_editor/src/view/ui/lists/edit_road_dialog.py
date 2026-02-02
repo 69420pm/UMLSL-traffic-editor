@@ -15,14 +15,13 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
         self.setupUi(self)
 
         self.road = road
-        self.is_edit = True
+        self.is_edit = road is not None
 
         self.application_controller = application_controller
 
-        if self.road is None:
-            self.is_edit = False
+        if not self.is_edit:
             default_road_params = RoadParams(
-                name="R",
+                name="",
                 orientation=RoadOrientation.HORIZONTAL,
                 position=0,
                 number_of_forward_lanes=1,

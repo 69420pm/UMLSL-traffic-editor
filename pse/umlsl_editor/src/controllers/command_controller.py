@@ -113,7 +113,7 @@ class CommandController:
             color: str,
             position_on_lane: float,
             transition: float,
-            velocity: float,
+            speed: float,
             length: float,
             acceleration: float,
             next_turn: Optional[TurnIntent]
@@ -128,14 +128,14 @@ class CommandController:
             color: Hex color code
             position_on_lane: Distance along lane
             transition: Lane change progress
-            velocity: Current speed
+            speed: Current speed
             length: Physical length
             acceleration: Current acceleration
             next_turn: Turn intent at intersection
 
         """
         lane = Lane(road_uid=assigned_road.uid, lane_index=lane_index)
-        car_params = CarParams(name, lane, color, position_on_lane, transition, velocity, length, next_turn,
+        car_params = CarParams(name, lane, color, position_on_lane, transition, speed, length, next_turn,
                                acceleration)
         add_car_command = add_car.AddCarCommand(self.traffic_snapshot_reader, self.traffic_snapshot_writer, car_params)
         self._execute_command(add_car_command)
@@ -162,7 +162,7 @@ class CommandController:
             color: object = _UNCHANGED,
             position_on_lane: object = _UNCHANGED,
             transition: object = _UNCHANGED,
-            velocity: object = _UNCHANGED,
+            speed: object = _UNCHANGED,
             length: object = _UNCHANGED,
             next_turn: object = _UNCHANGED,
             acceleration: object = _UNCHANGED,
@@ -186,7 +186,7 @@ class CommandController:
             color=car.color if color is self._UNCHANGED else color,
             position_on_lane=car.position_on_lane if position_on_lane is self._UNCHANGED else position_on_lane,
             transition=car.transition if transition is self._UNCHANGED else transition,
-            speed=car.speed if velocity is self._UNCHANGED else velocity,
+            speed=car.speed if speed is self._UNCHANGED else speed,
             length=car.length if length is self._UNCHANGED else length,
             next_turn=car.next_turn if next_turn is self._UNCHANGED else next_turn,
             acceleration=car.acceleration if acceleration is self._UNCHANGED else acceleration,

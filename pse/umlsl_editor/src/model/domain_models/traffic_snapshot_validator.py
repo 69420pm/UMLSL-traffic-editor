@@ -97,10 +97,10 @@ class TrafficSnapshotValidator:
 
     def _check_uid_unique(self, uid: str) -> bool:
         for car in self._model.cars.values():
-            if car.car_uid == uid:
+            if car.uid == uid:
                 return False
         for road in self._model.roads.values():
-            if road.car_uid == uid:
+            if road.uid == uid:
                 return False
         return True
 

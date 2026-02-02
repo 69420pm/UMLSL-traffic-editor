@@ -56,7 +56,7 @@ class TrafficScene(QGraphicsScene):
             car_entity = self._car_model.get_entity_at(row)
             graphics_item = CarItem(car_entity, self._application_controller)
             self.addItem(graphics_item)
-            self._item_registry[car_entity.car_uid] = graphics_item
+            self._item_registry[car_entity.uid] = graphics_item
             self._item_registry[car_entity.lane.road_uid].add_position_listener(graphics_item)
 
     def _on_car_data_changed(self, top_left: QModelIndex, bottom_right: QModelIndex, roles):
@@ -64,8 +64,8 @@ class TrafficScene(QGraphicsScene):
         for row in range(top_left.row(), bottom_right.row() + 1):
             new_car_entity = self._car_model.get_entity_at(row)
 
-            if self._item_registry[new_car_entity.car_uid] is not None:
-                old_car_item = self._item_registry[new_car_entity.car_uid]
+            if self._item_registry[new_car_entity.uid] is not None:
+                old_car_item = self._item_registry[new_car_entity.uid]
                 old_car_entity = old_car_item.data(0)
 
                 # If the car changed roads, update road listeners
@@ -80,8 +80,8 @@ class TrafficScene(QGraphicsScene):
         for row in range(first, last + 1):
             car_entity = self._car_model.get_entity_at(row)
 
-            if self._item_registry[car_entity.car_uid] is not None:
-                item = self._item_registry[car_entity.car_uid]
+            if self._item_registry[car_entity.uid] is not None:
+                item = self._item_registry[car_entity.uid]
                 self._item_registry[car_entity.lane.road_uid].remove_position_listener(item)
                 self.removeItem(item)
                 del self._item_registry[car_entity.uid]
@@ -128,7 +128,6 @@ class TrafficScene(QGraphicsScene):
     def _remove_crossing_segment(self, crossing: CrossingItem):
         self._item_registry[crossing.road_1.data(0).uid].remove_position_listener(crossing)
         self._item_registry[crossing.road_2.data(0).uid].remove_position_listener(crossing)
-        # del self._item_registry[crossing]
         self.removeItem(crossing)
 
     def _check_and_create_crossings(self, new_road_item: RoadItem):
