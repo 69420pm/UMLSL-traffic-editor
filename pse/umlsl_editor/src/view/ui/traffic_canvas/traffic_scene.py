@@ -12,6 +12,7 @@ from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.car_item import C
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.crossing_item import (
     CrossingItem,
 )
+from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.debug_segment_item import DebugSegmentItem
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import RoadItem
 from pse.umlsl_editor.src.view.view_constants import DIMENSION
 
@@ -34,6 +35,8 @@ class TrafficScene(QGraphicsScene):
 
         self._application_controller = application_controller
         self._item_registry = {}
+
+        self._debug_segment_item_registry = {}
 
         view_models = application_controller.view_event_handler.view_models
         self._car_model = view_models.car_list_model
@@ -91,6 +94,8 @@ class TrafficScene(QGraphicsScene):
             self._item_registry[road_entity.uid] = graphics_item
             self._check_and_create_crossings(graphics_item)
 
+        self._debug_update_segments()
+
     def _on_road_data_changed(self, top_left: QModelIndex, bottom_right: QModelIndex, roles):
         """Called when a road's property (e.g., position) changes."""
         for row in range(top_left.row(), bottom_right.row() + 1):
@@ -99,6 +104,8 @@ class TrafficScene(QGraphicsScene):
             if self._item_registry[new_road_entity.uid] is not None:
                 road_item = self._item_registry[new_road_entity.uid]
                 road_item.update_data(new_road_entity)
+
+        self._debug_update_segments()
 
     def _on_roads_removed(self, parent: QModelIndex, first: int, last: int) -> None:
         """Called BEFORE roads are removed from the list model."""
@@ -116,6 +123,8 @@ class TrafficScene(QGraphicsScene):
                 del self._item_registry[road_entity.uid]
                 self.removeItem(road_item)
 
+        self._debug_update_segments()
+
     def _remove_crossing_segment(self, crossing: CrossingItem):
         self._item_registry[crossing.road_1.data(0).uid].remove_position_listener(crossing)
         self._item_registry[crossing.road_2.data(0).uid].remove_position_listener(crossing)
@@ -131,7 +140,6 @@ class TrafficScene(QGraphicsScene):
                 self._create_crossing(new_road_item, existing_road)
 
     def _create_crossing(self, road_a: RoadItem, road_b: RoadItem):
-        print("Creating crossing between roads")
         """Instantiates a crossing and links it to both roads."""
         crossing = CrossingItem(road_a, road_b)
         self.addItem(crossing)
@@ -147,3 +155,16 @@ class TrafficScene(QGraphicsScene):
             if graphics_item in self._item_registry:
                 road_item = self._item_registry[graphics_item]
                 road_item.remove_position_listener(graphics_item)
+
+    def _debug_update_segments(self):
+        """Update debug segment items to reflect current segment positions and sizes."""
+        for debug_segment_item in self._debug_segment_item_registry.values():
+            self.removeItem(debug_segment_item)
+        self._debug_segment_item_registry.clear()
+
+        debug_segment_entities = self._application_controller.get_traffic_snapshot_reader().debug_get_segments()
+
+        for debug_segment_entity in debug_segment_entities.values():
+            item = DebugSegmentItem(debug_segment_entity, self._application_controller)
+            self._debug_segment_item_registry[debug_segment_entity.uid] = item
+            self.addItem(item)

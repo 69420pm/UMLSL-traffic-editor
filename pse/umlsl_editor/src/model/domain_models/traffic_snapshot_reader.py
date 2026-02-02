@@ -142,3 +142,10 @@ class TrafficSnapshotReader(ABC):
             True if the road exists, False otherwise.
         """
         pass
+
+    @abstractmethod
+    def debug_get_segments(self) -> dict[str, Segment]:
+        """
+        Returns all segments in the snapshot for debugging purposes.
+        """
+        pass

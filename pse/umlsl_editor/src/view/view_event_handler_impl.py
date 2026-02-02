@@ -74,7 +74,6 @@ class ViewEventHandlerImplementation(ViewEventHandler):
 
     def select_entity_view(self, uid: str) -> None:
         # Emit the signal so all listeners (Canvas Items, List Items) can react
-        print(uid)
         self.selection_changed.emit(uid)
 
     def clear_selection_view(self) -> None:

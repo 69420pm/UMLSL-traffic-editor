@@ -511,6 +511,9 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         """
         raise NotImplementedError
 
+    def debug_get_segments(self) -> dict[str, Segment]:
+        return self._segments
+
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "TrafficSnapshotModel":
         """
