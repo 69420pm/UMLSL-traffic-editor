@@ -12,3 +12,8 @@ class ViewModels:
         self.car_list_model = CarModel(application_controller=application_controller)
         self.road_list_model = RoadListModel(application_controller=application_controller)
         self.query_list_model = None
+
+    def connect_signals(self, view_event_handler) -> None:
+        self.car_list_model.connect_sinal(view_event_handler)
+        self.road_list_model.connect_sinal(view_event_handler)
+        # self.query_list_model.connect_sinal(view_event_handler)

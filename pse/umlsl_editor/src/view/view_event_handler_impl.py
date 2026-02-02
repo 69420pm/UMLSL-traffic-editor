@@ -17,6 +17,7 @@ class ViewEventHandlerImplementation(ViewEventHandler):
     def __init__(self, view_model: ViewModels):
         super().__init__()
         self.view_models = view_model
+        self.current_selected_uid: str = ""
 
     def refresh_all_segments_view(self, segments: list[Segment]):
         pass
@@ -72,10 +73,10 @@ class ViewEventHandlerImplementation(ViewEventHandler):
     def get_on_selection_changed_signal(self) -> "SignalInstance":
         return self.selection_changed
 
-    def select_entity_view(self, uid: str) -> None:
-        # Emit the signal so all listeners (Canvas Items, List Items) can react
-        self.selection_changed.emit(uid)
+    def entity_selected_view(self, uid: str) -> None:
+        if uid != self.current_selected_uid:
+            self.current_selected_uid = uid
+        else:
+            self.current_selected_uid = ""
 
-    def clear_selection_view(self) -> None:
-        # Helper to deselect everything
-        self.selection_changed.emit("")
+        self.selection_changed.emit(self.current_selected_uid)

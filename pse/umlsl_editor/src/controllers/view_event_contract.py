@@ -183,19 +183,12 @@ class ViewEventHandler(QObject):
         pass
 
     @abstractmethod
-    def select_entity_view(self, uid: str) -> None:
+    def entity_selected_view(self, uid: str) -> None:
         """
         Handle the selection of an entity.
 
         Args:
             uid: The uid of entity that was selected.
-        """
-        pass
-
-    @abstractmethod
-    def clear_selection_view(self) -> None:
-        """
-        Handle the clearing of the current selection.
         """
         pass
 

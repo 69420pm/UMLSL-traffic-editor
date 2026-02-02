@@ -73,16 +73,13 @@ class RoadItem(SelectableGraphicsItem):
 
     def on_move_committed(self, delta_x: float, delta_y: float):
         # Calculate new position based on the delta
-        current_road = self.data(0)
 
-        if current_road.orientation == RoadOrientation.HORIZONTAL:
-            new_position = current_road.position + delta_y
+        if self._road.orientation == RoadOrientation.HORIZONTAL:
+            new_position = self._road.position + delta_y
         else:
-            new_position = current_road.position + delta_x
+            new_position = self._road.position + delta_x
 
-        # Create new road object
-        self.data(0).position = new_position
-        self.update_data(self.data(0))
+        self.application_controller.command_controller.update_road(road=self._road, position=new_position)
 
     # --- Update Crossings Logic ---
 

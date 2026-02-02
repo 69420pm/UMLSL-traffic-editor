@@ -181,11 +181,7 @@ class SelectableGraphicsItem(QGraphicsItem):
     # Modify the existing _toggle_selection or mouse handler
     def _toggle_selection(self) -> None:
         entity = self.data(0)
-
-        if self.is_selected:
-            self.application_controller.view_event_handler.clear_selection_view()
-        else:
-            self.application_controller.view_event_handler.select_entity_view(entity.uid)
+        self.application_controller.view_event_handler.entity_selected_view(entity.uid)
 
     # --- Hooks for Subclasses ---
 

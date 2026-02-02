@@ -34,6 +34,8 @@ class ApplicationController:
 
         self.view_event_handler = ViewEventHandlerImplementation(view_model=self._model_view)
 
+        self._model_view.connect_signals(self.view_event_handler)
+
         self.event_controller = EventController(traffic_snapshot=self._model_traffic_snapshot,
                                                 view=self.view_event_handler, settings=self._model_settings,
                                                 umlsl_queries=self._model_umlsl_queries)
