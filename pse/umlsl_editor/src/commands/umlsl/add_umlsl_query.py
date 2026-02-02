@@ -1,33 +1,35 @@
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery, UMLSLQueryParams
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
+from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQueryParams, UMLSLQuery
+from pse.umlsl_editor.src.model.errors.umlsl_query_errors import UMLSLQueryValidationError
 
 
 class AddUMLSLQuery(Command[None]):
-    """Adds a new UMLSL query to the UMLSL editor."""
+    """Creates a UMLSL query object based on the provided parameters and adds it to the model."""
 
     def __init__(
             self,
             umlsl_query_params: UMLSLQueryParams,
-            umlsl_queries: UMLSLQueriesModel
+            umlsl_queries_model: UMLSLQueriesModel,
+            traffic_snapshot_reader: TrafficSnapshotReader
     ):
         """
-        Initialize the AddUMLSLQuery command with the query and the list of UMLSL queries.
+        Initialize the AddUMLSLQuery command.
 
         Args:
-            umlsl_query_params: UMLSLQuery params to create an object.
-            umlsl_queries: UmlslQueries manager.
+            umlsl_query_params: Parameters for creating the query.
+            umlsl_queries_model: The model to add the query to.
         """
-        self._umlsl_query_params = umlsl_query_params
-        self._umlsl_queries = umlsl_queries
+        self.umlsl_query_params = umlsl_query_params
+        self.umlsl_queries_model = umlsl_queries_model
+        self.traffic_snapshot_reader = traffic_snapshot_reader
 
     def execute(self) -> None:
         """
-        Adds the specified UMLSL query to the list of UMLSL queries.
-
-        Raises:
-            CommandValidationError: If command validation fails.
+        Creates a UMLSLQuery instance and adds it to the model.
         """
-        umlsl_query = UMLSLQuery.from_params(self._umlsl_query_params)
-        self._umlsl_queries.add_umlsl_query(umlsl_query)
-        raise NotImplementedError("Prototype Method")
+        if not self.traffic_snapshot_reader.is_car_existing(self.umlsl_query_params.assigned_car_uid):
+            raise UMLSLQueryValidationError("Assigned car does not exist in the current traffic snapshot.")
+        umlsl_query = UMLSLQuery.from_params(self.umlsl_query_params)
+        self.umlsl_queries_model.add_umlsl_query(umlsl_query)

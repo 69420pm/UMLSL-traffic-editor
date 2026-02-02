@@ -1,7 +1,6 @@
 from pse.umlsl_editor.src.commands.command import Command, ReturnValue
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
+from pse.umlsl_editor.src.model.errors.settings_errors import SettingsValidationError
 
 
 class ChangeBreakingAccelerationCommand(Command[None]):
@@ -12,7 +11,7 @@ class ChangeBreakingAccelerationCommand(Command[None]):
     def __init__(
             self,
             settings: SettingsModel,
-            value: int
+            value: float
     ):
         """
         Initialize the AddCarCommand with car parameters.
@@ -30,6 +29,6 @@ class ChangeBreakingAccelerationCommand(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        #TODO: Error Handling
+        if self.value <= 0:
+            raise SettingsValidationError("Breaking acceleration must be a positive value.")
         self._settings.set_breaking_acceleration(self.value)
-        raise NotImplementedError("Prototype Method")

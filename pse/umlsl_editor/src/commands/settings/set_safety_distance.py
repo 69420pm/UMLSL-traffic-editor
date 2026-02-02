@@ -2,12 +2,12 @@ from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 
 
-class ToggleSafetyDistanceCommand(Command[None]):
+class SetSafetyDistanceCommand(Command[None]):
     """
     Toggles weather the safety distance of the cars in the visual editor should be rendered.
     """
 
-    def __init__(self, settings: SettingsModel):
+    def __init__(self, settings: SettingsModel, value: bool):
         """
         Initialize the ToggleSafetyDistanceCommand with the settings.
 
@@ -15,6 +15,7 @@ class ToggleSafetyDistanceCommand(Command[None]):
             settings: Settings object.
         """
         self._settings = settings
+        self.value = value
 
     def execute(self) -> None:
         """
@@ -23,5 +24,4 @@ class ToggleSafetyDistanceCommand(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        self._settings.set_render_safety_distance()
-        raise NotImplementedError("Prototype Method")
+        self._settings.set_render_safety_distance(self.value)

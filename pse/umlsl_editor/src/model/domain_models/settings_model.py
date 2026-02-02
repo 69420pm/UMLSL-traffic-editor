@@ -28,8 +28,8 @@ class SettingsModel(Observable):
 
     def set_render_coordinate_system(self, render_coordinate_system: bool):
         self.render_coordinate_system = render_coordinate_system
-        self.notify(SettingsEventType.TOGGLE_COORDINATE_SYSTEM, self.render_coordinate_system)
+        self.notify(SettingsEventType.SET_COORDINATE_SYSTEM, self.render_coordinate_system)
 
     def set_render_safety_distance(self, render_safety_distance: bool):
         self.render_safety_distance = render_safety_distance
-        self.notify(SettingsEventType.TOGGLE_SAFETY_DISTANCE, self.render_safety_distance)
+        self.notify(SettingsEventType.SET_SAFETY_DISTANCE, self.render_safety_distance)
