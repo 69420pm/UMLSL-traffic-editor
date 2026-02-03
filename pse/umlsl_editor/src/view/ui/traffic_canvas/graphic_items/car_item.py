@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QStyleOptionGraphicsItem, QWidget
 
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation, Road
+from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import RoadItem
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.selectable_graphics_item import (
     SelectableGraphicsItem,
 )
@@ -18,20 +19,24 @@ class CarItem(SelectableGraphicsItem):
     on its road orientation and selection state.
     """
 
-    def __init__(self, car: Car, application_controller):
+    def __init__(self, car: Car, road_item: RoadItem, application_controller):
         self._car = car
-        self._road = application_controller.data_controller.get_road_by_uid(car.lane.road_uid)
         self._polygon = QPolygonF()
+        self.road_item = road_item
+        self._road = road_item.data(0)
 
         super().__init__(application_controller)
 
         self.update_data(car)
 
-    def update_data(self, car: Car) -> None:
-        """Update the car data and refresh all visual elements."""
+    def update_data(self, car: Car, road_item: Optional[RoadItem] = None) -> None:
         self._car = car
         self.setData(0, car)
-        self._setup_styles()
+
+        if road_item is not None:
+            self.road_item = road_item
+            self._road = road_item.data(0)
+
         self.refresh_geometry()
 
     @staticmethod
@@ -45,7 +50,7 @@ class CarItem(SelectableGraphicsItem):
         """Configure visual styles based on selection and hover state."""
         self.setZValue(Z_LAYERS.SELECTED_CAR if self.is_selected else Z_LAYERS.CAR)
         constraint = self._get_constraint_for_orientation(self._road.orientation)
-        super().set_movement_constraint(constraint)
+        self.set_movement_constraint(constraint)
 
         car_color = QColor(self.data(0).color)
         color = car_color.lighter() if self.is_selected else car_color
@@ -66,11 +71,10 @@ class CarItem(SelectableGraphicsItem):
         self._setup_styles()
 
     def on_move_committed(self, delta_x: float, delta_y: float) -> None:
-        car = self.data(0)
-        delta = delta_y if self._road.orientation == RoadOrientation.VERTICAL else delta_x
-        car.position_on_lane += delta
-
-        self.application_controller.command_controller.edit_car(car=car, position_on_lane=car.position_on_lane)
+        delta = delta_x if self._road.orientation == RoadOrientation.HORIZONTAL else delta_y
+        new_position = self._car.position_on_lane + delta
+        self.application_controller.command_controller.edit_car(car=self._car,
+                                                                position_on_lane=new_position)
 
     # --- Graphics Interface ---
 
@@ -133,30 +137,38 @@ class CarItem(SelectableGraphicsItem):
         painter.restore()
 
     def refresh_geometry(self) -> None:
-        """Recalculate polygon geometry based on current car data."""
+        self._setup_styles()
         self.prepareGeometryChange()
 
-        position = self._calculate_car_position(self._car, self._road)
+        position = self._calculate_car_position(self._car, self._road, self.road_item)
         dimensions = self._calculate_car_dimensions(self._car)
 
         self._polygon = self._create_car_polygon(position, dimensions, self._road.orientation)
+
         self.update()
 
-    def _calculate_car_position(self, car: Car, road: Road) -> tuple[float, float]:
+    def _calculate_car_position(self, car: Car, road: Road, road_item: RoadItem) -> tuple[float, float]:
         """Calculate the car's x, y position based on lane and road data."""
         lane_width = DIMENSION.LANE_WIDTH
         car_width = DIMENSION.CAR_WIDTH
 
         x = car.position_on_lane
 
-        lane_index = -car.lane.lane_index if road.orientation == RoadOrientation.VERTICAL else -car.lane.lane_index + 1
+        lane_index = -car.lane.lane_index if road.orientation == RoadOrientation.VERTICAL else -car.lane.lane_index - 0
 
         # Calculate lane offset within the road
-        lane_offset = lane_width * lane_index - (lane_width - car_width) / 2.0
+        lane_offset = lane_width * lane_index - (lane_width - car_width) / 2.0 - car_width
 
-        road_offset = road.position
-        y = road.position - lane_offset + road_offset
+        if road.orientation == RoadOrientation.VERTICAL:
+            road_offset = road.position + road_item.x()
+        else:
+            road_offset = road.position + road_item.y()
 
+        y = lane_offset + road_offset
+
+        print(lane_offset)
+        print(road_offset)
+        print(road.position)
         return x, y
 
     @staticmethod

@@ -43,7 +43,7 @@ class RoadItem(SelectableGraphicsItem):
         self.update()
 
         # Notify listeners because the model data (absolute position) changed
-        self._notify_listeners()
+        self.notify_listeners()
 
     def _setup_styles(self):
         self.setZValue(Z_LAYERS.SELECTED_ROAD if self.is_selected else Z_LAYERS.ROAD)
@@ -93,14 +93,14 @@ class RoadItem(SelectableGraphicsItem):
         if listener in self.position_listeners:
             self.position_listeners.remove(listener)
 
-    def _notify_listeners(self):
+    def notify_listeners(self):
         for listener in self.position_listeners:
             listener.refresh_geometry()
 
     def itemChange(self, change, value):
         """Override to notify listeners on position change."""
         if change == QGraphicsItem.ItemPositionHasChanged:
-            self._notify_listeners()
+            self.notify_listeners()
 
         return super().itemChange(change, value)
 

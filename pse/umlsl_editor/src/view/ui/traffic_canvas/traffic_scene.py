@@ -54,7 +54,8 @@ class TrafficScene(QGraphicsScene):
         """Called when cars are added to the list model."""
         for row in range(first, last + 1):
             car_entity = self._car_model.get_entity_at(row)
-            graphics_item = CarItem(car_entity, self._application_controller)
+            road_item = self._item_registry[car_entity.lane.road_uid]
+            graphics_item = CarItem(car_entity, road_item, self._application_controller)
             self.addItem(graphics_item)
             self._item_registry[car_entity.uid] = graphics_item
             self._item_registry[car_entity.lane.road_uid].add_position_listener(graphics_item)
@@ -62,18 +63,17 @@ class TrafficScene(QGraphicsScene):
     def _on_car_data_changed(self, top_left: QModelIndex, bottom_right: QModelIndex, roles):
         """Called when a car's property (e.g., position) changes."""
         for row in range(top_left.row(), bottom_right.row() + 1):
-            new_car_entity = self._car_model.get_entity_at(row)
-
-            if self._item_registry[new_car_entity.uid] is not None:
-                old_car_item = self._item_registry[new_car_entity.uid]
-                old_car_entity = old_car_item.data(0)
+            updated_car_entity = self._car_model.get_entity_at(row)
+            if self._item_registry[updated_car_entity.uid] is not None:
+                car_item = self._item_registry[updated_car_entity.uid]
+                old_car_entity = car_item.data(0)
 
                 # If the car changed roads, update road listeners
-                if old_car_entity.lane.road_uid != new_car_entity.lane.road_uid:
+                if old_car_entity.lane.road_uid != updated_car_entity.lane.road_uid:
                     self._item_registry[old_car_entity.lane.road_uid].remove_position_listener(old_car_entity)
-                    self._item_registry[new_car_entity.lane.road_uid].add_position_listener(new_car_entity)
+                    self._item_registry[updated_car_entity.lane.road_uid].add_position_listener(updated_car_entity)
 
-                old_car_item.update_data(new_car_entity)
+                car_item.update_data(updated_car_entity, self._item_registry[updated_car_entity.lane.road_uid])
 
     def _on_cars_removed(self, parent: QModelIndex, first: int, last: int):
         """Called BEFORE cars are removed from the list model."""
@@ -93,6 +93,14 @@ class TrafficScene(QGraphicsScene):
             self.addItem(graphics_item)
             self._item_registry[road_entity.uid] = graphics_item
             self._check_and_create_crossings(graphics_item)
+
+            for item in self._item_registry.values():
+                # Check if the item is a CarItem and if it belongs to the added road
+                if isinstance(item, CarItem) and item.data(0).lane.road_uid == road_entity.uid:
+                    # Update the car with the new road item reference
+                    item.update_data(item.data(0), graphics_item)
+                    # Register the car as a listener to the new road
+                    graphics_item.add_position_listener(item)
 
         self._debug_update_segments()
 
@@ -115,10 +123,8 @@ class TrafficScene(QGraphicsScene):
             if self._item_registry[road_entity.uid] is not None:
                 road_item = self._item_registry[road_entity.uid]
                 for item in road_item.position_listeners:
-                    if item is CrossingItem:
+                    if isinstance(item, CrossingItem):
                         self._remove_crossing_segment(item)
-                    elif item is CarItem:
-                        raise Exception("Road being removed still has cars on it!")
 
                 del self._item_registry[road_entity.uid]
                 self.removeItem(road_item)

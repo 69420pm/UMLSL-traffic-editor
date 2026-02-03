@@ -77,7 +77,6 @@ class EntityModel(QAbstractListModel):
 
     @Slot(int)
     def select_row(self, row):
-        print(f"EntityModel: select_row({row}) called")
         """Called by QML (ListRowDelegate) when clicked."""
         if 0 <= row < len(self._data):
             entity = self._data[row]
