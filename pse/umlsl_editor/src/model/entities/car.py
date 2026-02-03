@@ -183,7 +183,13 @@ class Car(Entity):
             raise CarValidationError(content="Lane must be a Lane instance.")
 
         if not isinstance(self.color, str) or not re.match(r'^#(?:[0-9a-fA-F]{3}){1,2}$', self.color):
-            raise CarValidationError(content="Color must be a valid hex color code.")
+            """
+            No need for color checking. Color can be hex or a color name like red, blue, green, etc.
+            If string doesnt match hex code or color name, it will result in black.
+            If you want to enforce hex color codes only, uncomment the following line.
+            """
+            # raise CarValidationError(content="Color must be a valid hex color code.")
+            pass
 
         # Transition bounds check (-1.0, 1.0) exclusive
         if not (-1.0 < self.transition < 1.0):

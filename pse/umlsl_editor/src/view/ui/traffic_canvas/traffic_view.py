@@ -1,8 +1,10 @@
 """
 Traffic view for the UMLSL Traffic Editor.
 
-Custom QGraphicsView with zoom controls, grid background, and coordinate labels.
+Provides a custom QGraphicsView with zoom controls, dynamic grid background,
+and coordinate labels for navigating the traffic canvas.
 """
+
 import math
 
 from PySide6.QtCore import QPointF, QRectF, Qt
@@ -14,28 +16,35 @@ from pse.umlsl_editor.src.view.view_constants import COLORS, DIMENSION
 
 class TrafficView(QGraphicsView):
     """
-    Custom graphics view with zoom constraints, grid background, and coordinate labels.
+    Custom graphics view for displaying and interacting with the traffic scene.
 
-    Features:
-        - Mouse wheel/touchpad zoom with constraints
-        - Dynamic grid that adjusts to zoom level
-        - Coordinate labels at viewport edges
-        - Lane labels for roads
+    Provides enhanced viewing capabilities including:
+        - Mouse wheel and touchpad zoom with configurable constraints
+        - Dynamic grid that adjusts density based on zoom level
+        - Coordinate labels displayed at viewport edges
+        - Smooth panning via scroll-hand drag mode
+
+    The view uses an inverted Y-axis (positive Y points upward) to match
+    standard mathematical coordinate conventions.
+
+    Attributes:
+        Inherits all attributes from QGraphicsView.
     """
 
-    # -------------------------------------------------------------------------
-    # Initialization
-    # -------------------------------------------------------------------------
+    def __init__(self, scene: QGraphicsScene, parent=None) -> None:
+        """
+        Initialize the traffic view with the given scene.
 
-    def __init__(self, scene: QGraphicsScene, parent=None):
-        """Initialize the traffic view with default settings."""
+        Args:
+            scene: The QGraphicsScene to display in this view.
+            parent: The parent widget. Defaults to None.
+        """
         super().__init__(scene, parent)
-
         self._configure_view()
         self.scale(DIMENSION.INITIAL_ZOOM, -DIMENSION.INITIAL_ZOOM)
 
     def _configure_view(self) -> None:
-        """Configure view settings for rendering and interaction."""
+        """Configure view settings for optimal rendering and interaction."""
         self.setRenderHint(QPainter.Antialiasing)
         self.setDragMode(QGraphicsView.ScrollHandDrag)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -48,7 +57,12 @@ class TrafficView(QGraphicsView):
     # -------------------------------------------------------------------------
 
     def button_zoom(self, amount: float) -> None:
-        # set anchor to center
+        """
+        Apply zoom from a button click, centered on the viewport.
+
+        Args:
+            amount: The zoom multiplier (>1 zooms in, <1 zooms out).
+        """
         self.setResizeAnchor(QGraphicsView.AnchorViewCenter)
         self.setTransformationAnchor(QGraphicsView.AnchorViewCenter)
 
@@ -58,46 +72,66 @@ class TrafficView(QGraphicsView):
         self._enforce_zoom_constraints()
 
     def resizeEvent(self, event) -> None:
-        """Maintain zoom constraints when window is resized."""
+        """
+        Handle window resize events to maintain zoom constraints.
+
+        Args:
+            event: The resize event.
+        """
         self.setResizeAnchor(QGraphicsView.AnchorViewCenter)
         self.setTransformationAnchor(QGraphicsView.AnchorViewCenter)
         super().resizeEvent(event)
         self._enforce_zoom_constraints()
 
     def wheelEvent(self, event: QWheelEvent) -> None:
-        """Handle zoom via mouse wheel or touchpad."""
+        """
+        Handle zoom via mouse wheel or touchpad gestures.
+
+        Implements anchor-under-mouse behavior manually to work correctly
+        with the flipped Y-axis coordinate system.
+
+        Args:
+            event: The wheel event from mouse or touchpad.
+        """
         delta = event.pixelDelta().y() or event.angleDelta().y()
         if delta == 0:
             event.ignore()
             return
 
         is_touchpad = event.pixelDelta().y() != 0
-        sensitivity = DIMENSION.TOUCHPAD_ZOOM_SENSITIVITY if is_touchpad else DIMENSION.WHEEL_ZOOM_SENSITIVITY
+        sensitivity = (
+            DIMENSION.TOUCHPAD_ZOOM_SENSITIVITY
+            if is_touchpad
+            else DIMENSION.WHEEL_ZOOM_SENSITIVITY
+        )
         scale_factor = self._calculate_clamped_scale(1 + delta * sensitivity)
 
-        # FIX: Disable automatic anchoring which breaks with flipped Y-axis
+        # Disable automatic anchoring (breaks with flipped Y-axis)
         self.setTransformationAnchor(QGraphicsView.NoAnchor)
         self.setResizeAnchor(QGraphicsView.NoAnchor)
 
-        # 1. Get the mouse position in scene coordinates BEFORE scaling
-        # (Using position() for high-res touchpad precision)
+        # Get mouse position in scene coordinates before scaling
         old_pos = self.mapToScene(event.position().toPoint())
 
-        # 2. Apply the scale
         self.scale(scale_factor, scale_factor)
 
-        # 3. Get the new position of the mouse in scene coordinates
+        # Get new mouse position and translate to maintain anchor point
         new_pos = self.mapToScene(event.position().toPoint())
-
-        # 4. Translate to align the new position with the old one
-        # This manually replicates "AnchorUnderMouse" without the axis flip bug
         delta_scene = new_pos - old_pos
         self.translate(delta_scene.x(), delta_scene.y())
 
         event.accept()
 
     def _calculate_clamped_scale(self, scale_factor: float) -> float:
-        """Clamp scale factor to keep zoom within valid range."""
+        """
+        Clamp the scale factor to keep zoom within valid bounds.
+
+        Args:
+            scale_factor: The desired scale multiplier.
+
+        Returns:
+            The clamped scale factor that keeps zoom within limits.
+        """
         current_scale = abs(self.transform().m11())
         future_scale = current_scale * scale_factor
         min_scale = self._get_min_scale_for_scene()
@@ -109,7 +143,7 @@ class TrafficView(QGraphicsView):
         return scale_factor
 
     def _enforce_zoom_constraints(self) -> None:
-        """Clamp zoom level to valid range based on current viewport size."""
+        """Ensure zoom level stays within valid range for current viewport size."""
         current_scale = abs(self.transform().m11())
         min_scale = self._get_min_scale_for_scene()
 
@@ -117,7 +151,12 @@ class TrafficView(QGraphicsView):
             self.scale(min_scale / current_scale, min_scale / current_scale)
 
     def _get_min_scale_for_scene(self) -> float:
-        """Calculate minimum scale to ensure scene fills the viewport."""
+        """
+        Calculate the minimum zoom scale to fill the viewport with the scene.
+
+        Returns:
+            The minimum scale factor ensuring the scene fills the viewport.
+        """
         viewport_size = self.viewport().size()
         scene_rect = self.scene().sceneRect()
 
@@ -133,12 +172,25 @@ class TrafficView(QGraphicsView):
     # -------------------------------------------------------------------------
 
     def drawBackground(self, painter: QPainter, rect: QRectF) -> None:
-        """Draw the grid lines in the background."""
+        """
+        Draw the background including the coordinate grid.
+
+        Args:
+            painter: The QPainter to use for drawing.
+            rect: The exposed rectangle requiring a repaint.
+        """
         super().drawBackground(painter, rect)
-        self._draw_grid(painter, QPen(COLORS.LAYER, DIMENSION.LANE_WIDTH))
+        grid_pen = QPen(COLORS.LAYER, DIMENSION.LANE_WIDTH)
+        self._draw_grid(painter, grid_pen)
 
     def _draw_grid(self, painter: QPainter, pen: QPen) -> None:
-        """Draw grid lines across the viewport."""
+        """
+        Draw grid lines across the visible viewport area.
+
+        Args:
+            painter: The QPainter to use for drawing.
+            pen: The pen style for grid lines.
+        """
         viewport_rect = self.viewport().rect()
         step = self._get_grid_step()
         left, right, min_y, max_y = self._get_visible_bounds()
@@ -148,10 +200,12 @@ class TrafficView(QGraphicsView):
         painter.setRenderHint(QPainter.Antialiasing)
         painter.setPen(pen)
 
+        # Draw vertical grid lines
         for x in self._iter_grid_values(left, right, step):
             screen_x = int(self.mapFromScene(QPointF(x, 0)).x())
             painter.drawLine(screen_x, 0, screen_x, viewport_rect.height())
 
+        # Draw horizontal grid lines
         for y in self._iter_grid_values(min_y, max_y, step):
             screen_y = int(self.mapFromScene(QPointF(0, y)).y())
             painter.drawLine(0, screen_y, viewport_rect.width(), screen_y)
@@ -159,16 +213,29 @@ class TrafficView(QGraphicsView):
         painter.restore()
 
     def _get_grid_step(self) -> float:
-        """Determine grid spacing based on current zoom level."""
+        """
+        Determine grid spacing based on current zoom level.
+
+        Returns:
+            The grid step size (coarse when zoomed out, fine when zoomed in).
+        """
         scale = self.transform().m11()
-        return DIMENSION.GRID_STEP_COARSE if scale <= DIMENSION.GRID_FINE_THRESHOLD else DIMENSION.GRID_STEP_FINE
+        if scale <= DIMENSION.GRID_FINE_THRESHOLD:
+            return DIMENSION.GRID_STEP_COARSE
+        return DIMENSION.GRID_STEP_FINE
 
     # -------------------------------------------------------------------------
-    # Foreground Labels
+    # Coordinate Labels
     # -------------------------------------------------------------------------
 
     def drawForeground(self, painter: QPainter, rect: QRectF) -> None:
-        """Draw coordinate labels and lane labels at viewport borders."""
+        """
+        Draw foreground elements including coordinate labels.
+
+        Args:
+            painter: The QPainter to use for drawing.
+            rect: The exposed rectangle requiring a repaint.
+        """
         painter.save()
         painter.resetTransform()
         painter.setRenderHint(QPainter.Antialiasing)
@@ -179,7 +246,15 @@ class TrafficView(QGraphicsView):
         painter.restore()
 
     def _draw_coordinate_labels(self, painter: QPainter) -> None:
-        """Draw X and Y coordinate labels at viewport edges."""
+        """
+        Draw X and Y coordinate labels at the viewport edges.
+
+        X-axis labels are drawn along the bottom edge.
+        Y-axis labels are drawn along the right edge.
+
+        Args:
+            painter: The QPainter to use for drawing.
+        """
         viewport_rect = self.viewport().rect()
         step = self._get_grid_step()
         left, right, min_y, max_y = self._get_visible_bounds()
@@ -187,31 +262,54 @@ class TrafficView(QGraphicsView):
         # X-axis labels (bottom edge)
         for x in self._iter_grid_values(left, right, step):
             screen_x = int(self.mapFromScene(QPointF(x, 0)).x())
-            painter.drawText(screen_x + DIMENSION.LABEL_PADDING, viewport_rect.height() - DIMENSION.LABEL_PADDING,
-                             str(int(x)))
+            painter.drawText(
+                screen_x + DIMENSION.LABEL_PADDING,
+                viewport_rect.height() - DIMENSION.LABEL_PADDING,
+                str(int(x)),
+            )
 
         # Y-axis labels (right edge)
         for y in self._iter_grid_values(min_y, max_y, step):
             screen_y = int(self.mapFromScene(QPointF(0, y)).y())
             label = str(int(y))
             text_width = painter.fontMetrics().horizontalAdvance(label)
-            painter.drawText(viewport_rect.width() - text_width - DIMENSION.LABEL_PADDING,
-                             screen_y - DIMENSION.LABEL_PADDING, label)
+            painter.drawText(
+                viewport_rect.width() - text_width - DIMENSION.LABEL_PADDING,
+                screen_y - DIMENSION.LABEL_PADDING,
+                label,
+            )
 
     # -------------------------------------------------------------------------
     # Utility Methods
     # -------------------------------------------------------------------------
 
     def _get_visible_bounds(self) -> tuple[float, float, float, float]:
-        """Get the visible scene area as (left, right, min_y, max_y)."""
+        """
+        Get the visible scene area boundaries.
+
+        Returns:
+            A tuple of (left, right, min_y, max_y) scene coordinates.
+        """
         visible_scene = self.mapToScene(self.viewport().rect()).boundingRect()
-        left, right = visible_scene.left(), visible_scene.right()
-        top, bottom = visible_scene.top(), visible_scene.bottom()
+        left = visible_scene.left()
+        right = visible_scene.right()
+        top = visible_scene.top()
+        bottom = visible_scene.bottom()
         return left, right, min(top, bottom), max(top, bottom)
 
     @staticmethod
     def _iter_grid_values(start: float, end: float, step: float):
-        """Yield grid coordinate values within the given range."""
+        """
+        Generate grid coordinate values within the specified range.
+
+        Args:
+            start: The starting coordinate value.
+            end: The ending coordinate value.
+            step: The spacing between grid lines.
+
+        Yields:
+            Coordinate values aligned to the grid step.
+        """
         val = math.floor(start / step) * step
         while val <= end:
             yield val

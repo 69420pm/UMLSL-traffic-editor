@@ -1,4 +1,11 @@
-# view/ui/traffic_canvas/graphic_items/selectable_graphics_item.py
+"""
+Selectable graphics item for the UMLSL Traffic Editor.
+
+Provides a base class for graphics items that support selection, dragging,
+and view panning behavior. Items can be clicked to toggle selection and
+dragged when selected.
+"""
+
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import QGraphicsItem, QGraphicsView
 
@@ -7,42 +14,88 @@ from pse.umlsl_editor.src.controllers import ApplicationController
 
 class SelectableGraphicsItem(QGraphicsItem):
     """
-    Base class that provides:
-    1. Selection toggling on click.
-    2. Dragging when selected with optional axis constraints.
-    3. View panning when dragging an unselected item (no selection change).
+    Base class for selectable and draggable graphics items.
+
+    Provides unified behavior for:
+        - Click-to-select/deselect functionality
+        - Drag movement when selected (with optional axis constraints)
+        - View panning when dragging an unselected item
+        - Hover state tracking with cursor feedback
+
+    Subclasses should implement the hook methods to respond to state changes:
+        - on_selection_changed(is_selected)
+        - on_hover_changed(is_hovered)
+        - on_move_committed(delta_x, delta_y)
+
+    Attributes:
+        is_selected: Whether this item is currently selected.
+        is_hovered: Whether the mouse is currently over this item.
+        application_controller: Reference to the application controller.
     """
 
     AXIS_FREE = 0
     AXIS_X_ONLY = 1
     AXIS_Y_ONLY = 2
 
-    def __init__(self, application_controller: "ApplicationController"):
+    def __init__(self, application_controller: ApplicationController) -> None:
+        """
+        Initialize the selectable graphics item.
+
+        Args:
+            application_controller: The application controller for handling
+                selection events and commands.
+        """
         super().__init__()
-        self._view_event_handler = None
+
         self.is_selected = False
         self.is_hovered = False
-        self._movement_constraint = self.AXIS_FREE
         self.application_controller = application_controller
 
-        self.application_controller.view_event_handler.get_on_selection_changed_signal().connect(
-            self._on_global_selection_change)
-
-        # State tracking
+        self._movement_constraint = self.AXIS_FREE
         self._drag_start_pos = None
         self._pan_start_screen_pos = None
         self._is_panning = False
 
+        self._configure_item_flags()
+        self._connect_selection_signal()
+
+    def _configure_item_flags(self) -> None:
+        """Configure Qt item flags for movement and event handling."""
         self.setFlag(QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QGraphicsItem.ItemSendsGeometryChanges, True)
         self.setAcceptHoverEvents(True)
 
+    def _connect_selection_signal(self) -> None:
+        """Connect to the global selection changed signal."""
+        selection_signal = (
+            self.application_controller.view_event_handler.get_on_selection_changed_signal()
+        )
+        selection_signal.connect(self._on_global_selection_change)
+
+    # -------------------------------------------------------------------------
+    # Movement Constraints
+    # -------------------------------------------------------------------------
+
     def set_movement_constraint(self, constraint: int) -> None:
-        """Set the axis constraint for item movement."""
+        """
+        Set the axis constraint for item movement.
+
+        Args:
+            constraint: One of AXIS_FREE, AXIS_X_ONLY, or AXIS_Y_ONLY.
+        """
         self._movement_constraint = constraint
 
     def itemChange(self, change: int, value):
-        """Apply movement constraints when the item position changes."""
+        """
+        Apply movement constraints when the item position changes.
+
+        Args:
+            change: The type of change occurring.
+            value: The new value for the change.
+
+        Returns:
+            The potentially modified value.
+        """
         if change == QGraphicsItem.ItemPositionChange and self.scene():
             new_pos = value
             current_pos = self.pos()
@@ -56,66 +109,106 @@ class SelectableGraphicsItem(QGraphicsItem):
 
         return super().itemChange(change, value)
 
-        # --- Hover Events ---
+    # -------------------------------------------------------------------------
+    # Hover Events
+    # -------------------------------------------------------------------------
 
     def hoverEnterEvent(self, event) -> None:
-        """Update cursor and state when mouse enters."""
+        """
+        Handle mouse entering the item area.
+
+        Updates hover state, cursor, and notifies subclasses.
+
+        Args:
+            event: The hover event.
+        """
         self.is_hovered = True
-        self._update_cursor_state()
+        self._update_cursor_for_state()
         self.on_hover_changed(True)
         super().hoverEnterEvent(event)
 
     def hoverLeaveEvent(self, event) -> None:
-        """Reset cursor and state when mouse leaves."""
+        """
+        Handle mouse leaving the item area.
+
+        Resets hover state, cursor, and notifies subclasses.
+
+        Args:
+            event: The hover event.
+        """
         self.is_hovered = False
-        self.setCursor(Qt.ArrowCursor)  # Reset to default
+        self.setCursor(Qt.ArrowCursor)
         self.on_hover_changed(False)
         super().hoverLeaveEvent(event)
 
-    def _update_cursor_state(self) -> None:
-        """Set the cursor based on the current selection state."""
+    def _update_cursor_for_state(self) -> None:
+        """Update the cursor based on the current selection state."""
         if self.is_selected:
-            # Indicates the item is ready to be moved
             self.setCursor(Qt.OpenHandCursor)
         else:
-            # Indicates the item is clickable (to select) but not immediately movable
             self.setCursor(Qt.PointingHandCursor)
 
+    # -------------------------------------------------------------------------
+    # Mouse Events
+    # -------------------------------------------------------------------------
+
     def mousePressEvent(self, event) -> None:
-        """Initialize drag/pan and set 'Grabbing' cursor."""
+        """
+        Handle mouse press to initiate drag or pan.
+
+        Args:
+            event: The mouse press event.
+        """
         self._drag_start_pos = event.scenePos()
         self._pan_start_screen_pos = event.screenPos()
         self._is_panning = False
 
-        # Visual feedback: We are now grabbing the item or the canvas
         self.setCursor(Qt.ClosedHandCursor)
-
-        # Only allow item movement if already selected
         self.setFlag(QGraphicsItem.ItemIsMovable, self.is_selected)
 
         super().mousePressEvent(event)
         event.accept()
 
     def mouseReleaseEvent(self, event) -> None:
-        """Handle release and restore the appropriate hover cursor."""
+        """
+        Handle mouse release to complete drag, pan, or click.
+
+        Args:
+            event: The mouse release event.
+        """
         if self._is_panning:
             self._finish_panning()
         else:
             self._handle_drag_or_click(event)
 
-        # Restore cursor (OpenHand if selected, PointingHand if not)
-        self._update_cursor_state()
+        self._update_cursor_for_state()
         super().mouseReleaseEvent(event)
 
     def mouseMoveEvent(self, event) -> None:
-        """Handle item dragging (if selected) or view panning (if not selected)."""
+        """
+        Handle mouse movement for dragging or panning.
+
+        If selected, moves the item. If not selected, pans the view.
+
+        Args:
+            event: The mouse move event.
+        """
         if self.is_selected:
             super().mouseMoveEvent(event)
         else:
             self._handle_view_panning(event)
 
+    # -------------------------------------------------------------------------
+    # Panning Logic
+    # -------------------------------------------------------------------------
+
     def _handle_view_panning(self, event) -> None:
-        """Pan the view when dragging an unselected item."""
+        """
+        Pan the view when dragging an unselected item.
+
+        Args:
+            event: The mouse move event.
+        """
         current_screen_pos = event.screenPos()
         delta = current_screen_pos - self._pan_start_screen_pos
 
@@ -125,7 +218,13 @@ class SelectableGraphicsItem(QGraphicsItem):
             self._apply_scroll_delta(event.widget(), delta)
 
     def _apply_scroll_delta(self, viewport, delta) -> None:
-        """Apply scroll delta to the parent view's scrollbars."""
+        """
+        Apply scroll delta to the parent view's scrollbars.
+
+        Args:
+            viewport: The viewport widget from the event.
+            delta: The screen-space delta to scroll.
+        """
         if not viewport or not viewport.parent():
             return
 
@@ -139,11 +238,21 @@ class SelectableGraphicsItem(QGraphicsItem):
         v_scroll.setValue(v_scroll.value() - delta.y())
 
     def _finish_panning(self) -> None:
+        """Reset position after panning if the item was moved."""
         if self._has_moved():
             self.setPos(0, 0)
 
+    # -------------------------------------------------------------------------
+    # Drag and Click Logic
+    # -------------------------------------------------------------------------
+
     def _handle_drag_or_click(self, event) -> None:
-        """Distinguish between item drag and click, then handle appropriately."""
+        """
+        Distinguish between a drag and a click, then handle appropriately.
+
+        Args:
+            event: The mouse release event.
+        """
         drag_distance = (event.scenePos() - self._drag_start_pos).manhattanLength()
         was_dragged = drag_distance > 0
 
@@ -153,7 +262,12 @@ class SelectableGraphicsItem(QGraphicsItem):
             self._toggle_selection()
 
     def _has_moved(self) -> bool:
-        """Check if the item has moved from its original position."""
+        """
+        Check if the item has moved from its original position.
+
+        Returns:
+            True if the item's position is not at the origin.
+        """
         return self.pos().manhattanLength() > 0
 
     def _commit_move(self) -> None:
@@ -161,38 +275,75 @@ class SelectableGraphicsItem(QGraphicsItem):
         self.on_move_committed(self.x(), self.y())
         self.setPos(0, 0)
 
+    # -------------------------------------------------------------------------
+    # Selection Logic
+    # -------------------------------------------------------------------------
+
+    def _toggle_selection(self) -> None:
+        """Toggle selection state by notifying the view event handler."""
+        entity = self.data(0)
+        if entity:
+            self.application_controller.view_event_handler.entity_selected_view(
+                entity.uid
+            )
+
     @Slot(str)
-    def _on_global_selection_change(self, selected_uid: str):
-        """Slot: Called when ANY item is selected anywhere in the app."""
-        # Get the entity stored in this item (assuming setData(0, entity) is used)
+    def _on_global_selection_change(self, selected_uid: str) -> None:
+        """
+        Handle global selection change events.
+
+        Updates this item's selection state based on whether its entity
+        matches the newly selected UID.
+
+        Args:
+            selected_uid: The UID of the newly selected entity.
+        """
         entity = self.data(0)
         if not entity:
             return
 
-        should_be_selected = (entity.uid == selected_uid)
+        should_be_selected = entity.uid == selected_uid
 
-        # Only trigger update if state actually changes
         if self.is_selected != should_be_selected:
             self.is_selected = should_be_selected
             self.on_selection_changed(self.is_selected)
-            self._update_cursor_state()
+            self._update_cursor_for_state()
             self.update()
 
-    # Modify the existing _toggle_selection or mouse handler
-    def _toggle_selection(self) -> None:
-        entity = self.data(0)
-        self.application_controller.view_event_handler.entity_selected_view(entity.uid)
-
-    # --- Hooks for Subclasses ---
+    # -------------------------------------------------------------------------
+    # Subclass Hooks
+    # -------------------------------------------------------------------------
 
     def on_move_committed(self, delta_x: float, delta_y: float) -> None:
-        """Called when an item drag is completed. Override in subclasses."""
+        """
+        Called when an item drag is completed.
+
+        Override in subclasses to handle position updates.
+
+        Args:
+            delta_x: The horizontal distance moved.
+            delta_y: The vertical distance moved.
+        """
         pass
 
     def on_selection_changed(self, is_selected: bool) -> None:
-        """Called when selection state changes. Override in subclasses."""
+        """
+        Called when selection state changes.
+
+        Override in subclasses to update visual appearance.
+
+        Args:
+            is_selected: The new selection state.
+        """
         pass
 
     def on_hover_changed(self, is_hovered: bool) -> None:
-        """Called when hover state changes. Override in subclasses."""
+        """
+        Called when hover state changes.
+
+        Override in subclasses to update visual appearance.
+
+        Args:
+            is_hovered: The new hover state.
+        """
         pass

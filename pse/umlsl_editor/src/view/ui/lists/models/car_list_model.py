@@ -1,7 +1,13 @@
-# pse/umlsl_editor/src/view/ui/lists/models/car_list_model.py
+"""
+Car list model for the UMLSL Traffic Editor.
+
+Provides a QAbstractListModel subclass for displaying car entities in QML list views.
+Exposes car properties such as name, color, and lane assignment as model roles.
+"""
+
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import Qt, QModelIndex, Slot
+from PySide6.QtCore import QModelIndex, Qt, Slot
 
 from pse.umlsl_editor.src.view.ui.lists.edit_car_dialog import EditCarDialog
 from pse.umlsl_editor.src.view.ui.lists.models.entity_list_model import EntityModel
@@ -11,42 +17,91 @@ if TYPE_CHECKING:
 
 
 class CarModel(EntityModel):
-    # Start our roles after the parent's roles
-    NameRole = EntityModel.NextRole + 0
+    """
+    List model for car entities.
+
+    Extends EntityModel to provide car-specific data roles for display in QML.
+    Each car exposes its name, color, and current lane assignment as bindable
+    properties.
+
+    Roles:
+        NameRole: The car's display name.
+        ColorRole: The car's color as a hex string.
+        ValueRole: A formatted string showing the car's road and lane assignment.
+
+    Attributes:
+        _application_controller: Reference to the application controller.
+    """
+
+    NameRole = EntityModel.NextRole
     ColorRole = EntityModel.NextRole + 1
     ValueRole = EntityModel.NextRole + 2
 
-    def __init__(self, application_controller: "ApplicationController", parent=None):
-        # Pass the handler UP to the parent
+    def __init__(
+        self,
+        application_controller: "ApplicationController",
+        parent=None,
+    ) -> None:
+        """
+        Initialize the car list model.
+
+        Args:
+            application_controller: The application controller for accessing
+                data and executing commands.
+            parent: The parent QObject. Defaults to None.
+        """
         super().__init__(parent)
         self._application_controller = application_controller
 
-    def rowCount(self, parent=QModelIndex()):
+    def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
+        """
+        Return the number of cars in the model.
+
+        Args:
+            parent: The parent index (unused for flat lists).
+
+        Returns:
+            The number of car entities.
+        """
         return len(self._data)
 
-    def data(self, index, role=Qt.DisplayRole):
-        # 1. Ask Parent (Handles IsSelectedRole)
-        result = super().data(index, role)
-        if result is not None:
-            return result
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+        """
+        Return data for a specific car and role.
 
-        # 2. Handle Child Specifics
-        item = self._data[index.row()]
+        Args:
+            index: The model index specifying the row.
+            role: The data role to retrieve.
+
+        Returns:
+            The requested data, or None if the role is not handled.
+        """
+        parent_result = super().data(index, role)
+        if parent_result is not None:
+            return parent_result
+
+        if not index.isValid():
+            return None
+
+        car = self._data[index.row()]
 
         if role == CarModel.NameRole:
-            return str(item.name)
-        elif role == CarModel.ValueRole:
-            return f"R: {item.lane.road_uid} L: {item.lane.lane_index}"
+            return str(car.name)
         elif role == CarModel.ColorRole:
-            return str(item.color)
+            return str(car.color)
+        elif role == CarModel.ValueRole:
+            return f"R: {car.lane.road_uid} L: {car.lane.lane_index}"
 
         return None
 
-    def roleNames(self):
-        # 1. Get Parent Roles (includes "role_is_selected")
-        roles = super().roleNames()
+    def roleNames(self) -> dict[int, bytes]:
+        """
+        Return the mapping of role IDs to QML property names.
 
-        # 2. Add Child Roles
+        Returns:
+            Dictionary mapping role integers to byte-string property names.
+        """
+        roles = super().roleNames()
         roles.update({
             CarModel.NameRole: b"role_name",
             CarModel.ColorRole: b"role_color",
@@ -55,5 +110,19 @@ class CarModel(EntityModel):
         return roles
 
     @Slot(int)
-    def handle_button_click(self, row):
-        EditCarDialog(self._data[row], application_controller=self._application_controller).exec_()
+    def handle_button_click(self, row: int) -> None:
+        """
+        Handle the edit button click for a car row.
+
+        Opens the car edit dialog for the car at the specified row.
+
+        Args:
+            row: The row index of the car to edit.
+        """
+        if 0 <= row < len(self._data):
+            car = self._data[row]
+            dialog = EditCarDialog(
+                car,
+                application_controller=self._application_controller,
+            )
+            dialog.exec_()
