@@ -142,7 +142,7 @@ class Car(Entity):
         Returns:
             A new Car instance with attributes from the params.
         """
-        virtual_lanes = CarEnvironment.create_virtual_lanes()
+        virtual_lanes = CarEnvironment.create_environment()
 
         return cls(
             uid=generate_uid(),

@@ -6,6 +6,7 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import Tra
 
 @dataclass(frozen=True)
 class Segment(ABC):
+    # todo: use enum
     is_lane_segment: bool
     uid: str
 
