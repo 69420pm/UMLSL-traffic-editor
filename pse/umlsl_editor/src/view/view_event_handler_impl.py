@@ -73,6 +73,9 @@ class ViewEventHandlerImplementation(ViewEventHandler):
     def get_on_selection_changed_signal(self) -> "SignalInstance":
         return self.selection_changed
 
+    def get_current_selected_uid(self) -> str:
+        return self.current_selected_uid
+
     def entity_selected_view(self, uid: str) -> None:
         if uid != self.current_selected_uid:
             self.current_selected_uid = uid

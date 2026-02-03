@@ -288,13 +288,13 @@ class Ui_Edit_Query_Dialog(object):
 
         self.formLayout.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_14)
 
-        self.c_car = QComboBox(self.widget_6)
-        self.c_car.setObjectName(u"c_car")
-        self.c_car.setMinimumSize(QSize(0, 24))
-        self.c_car.setMaximumSize(QSize(16777215, 24))
-        self.c_car.setFrame(False)
+        self.d_car = QComboBox(self.widget_6)
+        self.d_car.setObjectName(u"d_car")
+        self.d_car.setMinimumSize(QSize(0, 24))
+        self.d_car.setMaximumSize(QSize(16777215, 24))
+        self.d_car.setFrame(False)
 
-        self.formLayout.setWidget(0, QFormLayout.ItemRole.FieldRole, self.c_car)
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.FieldRole, self.d_car)
 
         self.label_32 = QLabel(self.widget_6)
         self.label_32.setObjectName(u"label_32")
@@ -303,12 +303,12 @@ class Ui_Edit_Query_Dialog(object):
 
         self.formLayout.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_32)
 
-        self.textEdit = QTextEdit(self.widget_6)
-        self.textEdit.setObjectName(u"textEdit")
-        self.textEdit.setMinimumSize(QSize(0, 32))
-        self.textEdit.setMaximumSize(QSize(16777215, 100))
+        self.t_umlsl = QTextEdit(self.widget_6)
+        self.t_umlsl.setObjectName(u"t_umlsl")
+        self.t_umlsl.setMinimumSize(QSize(0, 32))
+        self.t_umlsl.setMaximumSize(QSize(16777215, 100))
 
-        self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.textEdit)
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.t_umlsl)
 
 
         self.General_2.addWidget(self.widget_6)

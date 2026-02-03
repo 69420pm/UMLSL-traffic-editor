@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 
+from pse.umlsl_editor.src.view.ui.lists.models.query_list_model import QueryListModel
+
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
 
@@ -11,9 +13,9 @@ class ViewModels:
     def __init__(self, application_controller: "ApplicationController") -> None:
         self.car_list_model = CarModel(application_controller=application_controller)
         self.road_list_model = RoadListModel(application_controller=application_controller)
-        self.query_list_model = None
+        self.query_list_model = QueryListModel(application_controller=application_controller)
 
     def connect_signals(self, view_event_handler) -> None:
-        self.car_list_model.connect_sinal(view_event_handler)
-        self.road_list_model.connect_sinal(view_event_handler)
-        # self.query_list_model.connect_sinal(view_event_handler)
+        self.car_list_model.connect_signal(view_event_handler)
+        self.road_list_model.connect_signal(view_event_handler)
+        self.query_list_model.connect_signal(view_event_handler)

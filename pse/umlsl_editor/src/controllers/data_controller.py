@@ -21,8 +21,7 @@ class DataController:
         self._traffic_snapshot_reader = traffic_snapshot_reader
 
     def get_all_cars(self) -> list["Car"]:
-        """Return all cars from the traffic snapshot."""
-        raise NotImplementedError
+        return self._traffic_snapshot_reader.get_cars()
 
     def get_all_roads(self) -> dict[str, "Road"]:
         return self._traffic_snapshot_reader.get_roads()
