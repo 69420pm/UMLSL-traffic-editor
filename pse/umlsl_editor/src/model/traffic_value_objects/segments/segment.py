@@ -41,4 +41,3 @@ class Path:
         for s in self.segments:
             if not isinstance(s, Segment):
                 raise ValueError("All elements in segments must be Segment instances")
-

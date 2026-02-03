@@ -1,7 +1,7 @@
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.view_models.traffic_snapshot import TrafficSnapshot
 from pse.umlsl_editor.src.query.ast.ast import View, BinaryNode, Precedence, ASTNode
-from pse.umlsl_editor.src.query.interval import Interval
+from pse.umlsl_editor.src.model.interval import Interval
 
 # Sets the number of iterations for the horizontal chopping (at least 1). In each iteration, the new step_size is
 # computed via step_size = prev_step_size / 2.

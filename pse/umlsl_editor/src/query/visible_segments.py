@@ -1,8 +1,6 @@
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_interval import SegmentInterval
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
 from pse.umlsl_editor.src.query.ast.ast import View
-from pse.umlsl_editor.src.query.interval import Interval
 
 
 class VisibleSegment:

@@ -2,7 +2,7 @@ from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.query.ast.ast import View
 from pse.umlsl_editor.src.query.ast.ast_parser import ASTParser
-from pse.umlsl_editor.src.query.interval import Interval
+from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.query.lexer import Lexer
 
 

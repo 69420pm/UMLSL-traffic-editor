@@ -1,13 +1,14 @@
 from pse.umlsl_editor.src.model.entities.car import Car
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.query.ast.ast import View, AtomNode
 from pse.umlsl_editor.src.query.ast.car_resolve import CarResolve
-from pse.umlsl_editor.src.query.visible_segments import SegmentView, VisibleSegment
+from pse.umlsl_editor.src.query.visible_segments import VisibleSegment
 
 
 def is_claimed_segment(view: View, segment: Segment, car: Car) -> bool:
-    segment_views: list[SegmentView] = VisibleSegment().compute_visible_segments(view, car)
+    segment_views: list[SegmentInterval] = VisibleSegment().compute_visible_segments(view, car)
 
     for segment_view in segment_views:
         if segment == segment_view.segment and segment_view.space_interval.subset_of(view.space_interval):
