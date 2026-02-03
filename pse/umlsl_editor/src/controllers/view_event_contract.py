@@ -6,8 +6,6 @@ from PySide6.QtCore import SignalInstance, QObject
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import Road
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
-from pse.umlsl_editor.src.model.errors.errors import BaseWarning
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 
 
 class ViewEventHandler(QObject):
@@ -81,37 +79,6 @@ class ViewEventHandler(QObject):
         """
         pass
 
-    # # Crossing segment-related events
-    # @abstractmethod
-    # def add_crossing_segment_view(self, crossing_segment: CrossingSegment) -> None:
-    #     """
-    #     Handle the addition of a crossing segment to the traffic snapshot.
-    #
-    #     Args:
-    #         crossing_segment: The crossing segment that was added.
-    #     """
-    #     pass
-    #
-    # @abstractmethod
-    # def remove_crossing_segment_view(self, crossing_segment: CrossingSegment) -> None:
-    #     """
-    #     Handle the removal of a crossing segment from the traffic snapshot.
-    #
-    #     Args:
-    #         crossing_segment: The crossing segment that was removed.
-    #     """
-    #     pass
-    #
-    # @abstractmethod
-    # def update_crossing_segment_view(self, crossing_segment: CrossingSegment) -> None:
-    #     """
-    #     Handle the update of a crossing segment in the traffic snapshot.
-    #
-    #     Args:
-    #         crossing_segment: The crossing segment that was updated.
-    #     """
-    #     pass
-
     # UMLSL Query-related events
     @abstractmethod
     def add_query_view(self, query: UMLSLQuery) -> None:
@@ -155,7 +122,7 @@ class ViewEventHandler(QObject):
         pass
 
     @abstractmethod
-    def toggle_coordinate_system(self, render_coordinate_system: bool) -> None:
+    def set_coordinate_system(self, render_coordinate_system: bool) -> None:
         """
         Handle the toggle of coordinate system rendering.
 
@@ -165,7 +132,17 @@ class ViewEventHandler(QObject):
         pass
 
     @abstractmethod
-    def toggle_safety_distance(self, render_safety_distance: bool) -> None:
+    def set_grid(self, render_grid: bool) -> None:
+        """
+        Handle the toggle of the background grid.
+
+        Args:
+            render_grid: Whether to render the grid.
+        """
+        pass
+
+    @abstractmethod
+    def set_safety_distance(self, render_safety_distance: bool) -> None:
         """
         Handle the toggle of safety distance rendering.
 
@@ -179,6 +156,22 @@ class ViewEventHandler(QObject):
         """
         Returns a signal that is emitted when an entity is selected.
         The signal should carry the UID of the selected entity as a string.
+        """
+        pass
+
+    @abstractmethod
+    def get_on_toggle_coordinate_system_signal(self) -> "SignalInstance":
+        """
+        Returns a signal that is emitted when the coordinate system rendering is toggled.
+        The signal should carry a boolean indicating whether to render the coordinate system.
+        """
+        pass
+
+    @abstractmethod
+    def get_on_toggle_safety_distance_signal(self) -> "SignalInstance":
+        """
+        Returns a signal that is emitted when the safety distance rendering is toggled.
+        The signal should carry a boolean indicating whether to render safety distances.
         """
         pass
 
@@ -197,17 +190,4 @@ class ViewEventHandler(QObject):
         Args:
             uid: The uid of entity that was selected.
         """
-        pass
-
-    @abstractmethod
-    def display_warning(self, warning: BaseWarning):
-        """
-        Handle the display of a warning message.
-        Args:
-            warning: The warning message to be displayed.
-        """
-        pass
-
-    @abstractmethod
-    def refresh_all_segments_view(self, segments: list[Segment]):
         pass

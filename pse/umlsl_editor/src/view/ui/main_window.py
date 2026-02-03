@@ -57,7 +57,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             application_controller: The application controller for scene initialization.
         """
         self.traffic_scene = TrafficScene(application_controller)
-        self.trafficView = TrafficView(scene=self.traffic_scene)
+        self.trafficView = TrafficView(scene=self.traffic_scene, application_controller=application_controller)
 
         layout = self.graphicsView.parentWidget().layout()
         layout.replaceWidget(self.graphicsView, self.trafficView)
@@ -72,4 +72,4 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """
         self.canvas_buttons = CanvasButtons(self)
         self.sidebar_controller = SidebarController(self, application_controller)
-        self.global_controls = GlobalControls(self)
+        self.global_controls = GlobalControls(self, application_controller)

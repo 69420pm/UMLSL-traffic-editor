@@ -37,9 +37,9 @@ class DebugSegmentItem(QGraphicsItem):
     Z_VALUE = 10000
 
     def __init__(
-        self,
-        segment: Segment,
-        application_controller: "ApplicationController",
+            self,
+            segment: Segment,
+            application_controller: "ApplicationController",
     ) -> None:
         """
         Initialize the debug segment item.
@@ -74,10 +74,10 @@ class DebugSegmentItem(QGraphicsItem):
         return self._rect
 
     def paint(
-        self,
-        painter: QPainter,
-        option: QStyleOptionGraphicsItem,
-        widget: Optional[QWidget] = None,
+            self,
+            painter: QPainter,
+            option: QStyleOptionGraphicsItem,
+            widget: Optional[QWidget] = None,
     ) -> None:
         """
         Paint the debug segment as a semi-transparent rectangle.
@@ -88,7 +88,7 @@ class DebugSegmentItem(QGraphicsItem):
             widget: The widget being painted on (unused).
         """
         painter.setBrush(self.FILL_COLOR)
-        painter.setPen(self.BORDER_COLOR)
+        painter.setPen(QPen(self.BORDER_COLOR, DIMENSION.LINE_WIDTH_ROAD_DIVIDER))
         painter.drawRect(self._rect)
 
     def refresh_geometry(self) -> None:
