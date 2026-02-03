@@ -46,8 +46,16 @@ class CrossingItem(QGraphicsItem):
         self.road_2 = road_2
 
         self._rect: QRectF = QRectF()
-        self._grid_pen = QPen(COLORS.TEXT, DIMENSION.LINE_WIDTH_ROAD_DIVIDER)
 
+        self._grid_pen = QPen(COLORS.TEXT, DIMENSION.LINE_WIDTH_CROSSING_SEGMENT)
+        self._grid_pen.setStyle(Qt.DashLine)
+
+        dash_px = .05
+        gap_px = .1
+
+        # Pattern values = pixels / width
+        pattern = [dash_px / DIMENSION.LINE_WIDTH_CROSSING_SEGMENT, gap_px / DIMENSION.LINE_WIDTH_CROSSING_SEGMENT]
+        self._grid_pen.setDashPattern(pattern)
         self._update_z_value()
         self.refresh_geometry()
 
@@ -81,10 +89,10 @@ class CrossingItem(QGraphicsItem):
         return self._rect
 
     def paint(
-        self,
-        painter: QPainter,
-        option: QStyleOptionGraphicsItem,
-        widget: Optional[QWidget] = None,
+            self,
+            painter: QPainter,
+            option: QStyleOptionGraphicsItem,
+            widget: Optional[QWidget] = None,
     ) -> None:
         """
         Paint the crossing area with background and grid.
@@ -185,8 +193,8 @@ class CrossingItem(QGraphicsItem):
         return self.road_2, self.road_1
 
     def _calculate_horizontal_road_bounds(
-        self,
-        h_road: RoadItem,
+            self,
+            h_road: RoadItem,
     ) -> tuple[float, float]:
         """
         Calculate the Y position and height for the horizontal road portion.
@@ -202,16 +210,16 @@ class CrossingItem(QGraphicsItem):
 
         forward_width = road_data.number_of_forward_lanes * lane_width
         total_width = (
-            road_data.number_of_forward_lanes + road_data.number_of_backward_lanes
-        ) * lane_width
+                              road_data.number_of_forward_lanes + road_data.number_of_backward_lanes
+                      ) * lane_width
 
         y = (road_data.position - forward_width) + h_road.y()
 
         return y, total_width
 
     def _calculate_vertical_road_bounds(
-        self,
-        v_road: RoadItem,
+            self,
+            v_road: RoadItem,
     ) -> tuple[float, float]:
         """
         Calculate the X position and width for the vertical road portion.
@@ -227,8 +235,8 @@ class CrossingItem(QGraphicsItem):
 
         backward_width = road_data.number_of_backward_lanes * lane_width
         total_width = (
-            road_data.number_of_forward_lanes + road_data.number_of_backward_lanes
-        ) * lane_width
+                              road_data.number_of_forward_lanes + road_data.number_of_backward_lanes
+                      ) * lane_width
 
         x = (road_data.position - backward_width) + v_road.x()
 
