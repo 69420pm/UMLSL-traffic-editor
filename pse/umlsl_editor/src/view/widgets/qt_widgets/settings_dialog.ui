@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>320</width>
-    <height>196</height>
+    <height>233</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -284,25 +284,23 @@ QCheckBox::indicator:checked {
          <string>container</string>
         </property>
         <layout class="QGridLayout" name="gridLayout">
-         <property name="leftMargin">
-          <number>8</number>
-         </property>
-         <property name="topMargin">
-          <number>8</number>
-         </property>
-         <property name="rightMargin">
-          <number>7</number>
-         </property>
-         <property name="bottomMargin">
-          <number>8</number>
-         </property>
-         <property name="horizontalSpacing">
-          <number>8</number>
-         </property>
          <property name="verticalSpacing">
           <number>16</number>
          </property>
-         <item row="1" column="2">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Show Coordinate System</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" colspan="2">
           <widget class="QCheckBox" name="c_coordinate_system">
            <property name="layoutDirection">
             <enum>Qt::LayoutDirection::RightToLeft</enum>
@@ -330,11 +328,30 @@ QCheckBox::indicator:checked {
             </size>
            </property>
            <property name="text">
-            <string>Show Coordinate System</string>
+            <string>Show Background Grid</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
+         <item row="1" column="1" colspan="2">
+          <widget class="QCheckBox" name="c_grid">
+           <property name="layoutDirection">
+            <enum>Qt::LayoutDirection::RightToLeft</enum>
+           </property>
+           <property name="text">
+            <string notr="true"/>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+           <property name="autoRepeat">
+            <bool>false</bool>
+           </property>
+           <property name="tristate">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
           <widget class="QLabel" name="label_5">
            <property name="minimumSize">
             <size>
@@ -350,17 +367,7 @@ QCheckBox::indicator:checked {
            </property>
           </widget>
          </item>
-         <item row="0" column="2">
-          <widget class="QCheckBox" name="c_savty_space">
-           <property name="layoutDirection">
-            <enum>Qt::LayoutDirection::RightToLeft</enum>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
+         <item row="2" column="1">
           <spacer name="horizontalSpacer">
            <property name="orientation">
             <enum>Qt::Orientation::Horizontal</enum>
@@ -372,6 +379,16 @@ QCheckBox::indicator:checked {
             </size>
            </property>
           </spacer>
+         </item>
+         <item row="2" column="2">
+          <widget class="QCheckBox" name="c_savty_space">
+           <property name="layoutDirection">
+            <enum>Qt::LayoutDirection::RightToLeft</enum>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
