@@ -7,6 +7,7 @@ import warnings
 
 from PySide6.QtCore import QObject
 
+from pse.umlsl_editor.src.controllers import ApplicationController
 from pse.umlsl_editor.src.view.ui.settings.SettingsDialog import SettingsDialog
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_main import Ui_MainWindow
 
@@ -26,7 +27,7 @@ class GlobalControls(QObject):
         open_settings_button: Menu action for opening the settings dialog.
     """
 
-    def __init__(self, main_window: Ui_MainWindow) -> None:
+    def __init__(self, main_window: Ui_MainWindow, application_controller: "ApplicationController") -> None:
         """
         Initialize the global controls.
 
@@ -35,6 +36,7 @@ class GlobalControls(QObject):
         """
         super().__init__(main_window)
         self._window = main_window
+        self.application_controller = application_controller
 
         self._save_action = self._window.actionSave
         self._save_as_action = self._window.actionSave_As
@@ -68,5 +70,5 @@ class GlobalControls(QObject):
 
     def _on_open_settings(self) -> None:
         """Open the application settings dialog."""
-        dialog = SettingsDialog(self._window)
+        dialog = SettingsDialog(application_controller=self.application_controller, parent=self._window)
         dialog.exec()

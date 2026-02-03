@@ -9,8 +9,6 @@ from pse.umlsl_editor.src.commands.roads import add_road
 from pse.umlsl_editor.src.commands.roads import delete_road
 from pse.umlsl_editor.src.commands.roads import edit_road
 from pse.umlsl_editor.src.commands.settings.change_breaking_acceleration import ChangeBreakingAccelerationCommand
-from pse.umlsl_editor.src.commands.settings.set_coordinate_system import SetCoordinateSystemCommand
-from pse.umlsl_editor.src.commands.settings.set_safety_distance import SetSafetyDistanceCommand
 from pse.umlsl_editor.src.commands.umlsl import add_umlsl_query
 from pse.umlsl_editor.src.commands.umlsl import delete_umlsl_query
 from pse.umlsl_editor.src.commands.umlsl import edit_umlsl_query
@@ -333,17 +331,3 @@ class CommandController:
         """
         change_breaking_acceleration_command = ChangeBreakingAccelerationCommand(self.settings_model, value)
         self._execute_command(change_breaking_acceleration_command)
-
-    def set_coordinate_system(self, value: bool) -> None:
-        """
-        Toggles weather the coordinate system in the visual editor should be rendered.
-        """
-        toggle_coordinate_system_command = SetCoordinateSystemCommand(self.settings_model, value)
-        self._execute_command(toggle_coordinate_system_command)
-
-    def toggle_safety_distance(self, value: bool) -> None:
-        """
-        Toggles weather the safety distance of the cars in the visual editor should be rendered.
-        """
-        toggle_safety_distance_command = SetSafetyDistanceCommand(self.settings_model, value)
-        self._execute_command(toggle_safety_distance_command)

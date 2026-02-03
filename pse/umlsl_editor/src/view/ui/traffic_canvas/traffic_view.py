@@ -7,10 +7,11 @@ and coordinate labels for navigating the traffic canvas.
 
 import math
 
-from PySide6.QtCore import QPointF, QRectF, Qt
+from PySide6.QtCore import QPointF, QRectF, Qt, Slot
 from PySide6.QtGui import QPainter, QPen, QWheelEvent
 from PySide6.QtWidgets import QGraphicsScene, QGraphicsView
 
+from pse.umlsl_editor.src.controllers import ApplicationController
 from pse.umlsl_editor.src.view.view_constants import COLORS, DIMENSION
 
 
@@ -31,7 +32,7 @@ class TrafficView(QGraphicsView):
         Inherits all attributes from QGraphicsView.
     """
 
-    def __init__(self, scene: QGraphicsScene, parent=None) -> None:
+    def __init__(self, scene: QGraphicsScene, application_controller: "ApplicationController", parent=None) -> None:
         """
         Initialize the traffic view with the given scene.
 
@@ -40,8 +41,30 @@ class TrafficView(QGraphicsView):
             parent: The parent widget. Defaults to None.
         """
         super().__init__(scene, parent)
+        self.application_controller = application_controller
+
+        self.should_render_coordinate_system = self.application_controller.view_event_handler.should_render_coordinate_system
+        self.should_render_grid = self.application_controller.view_event_handler.should_render_grid
+
+        self.application_controller.view_event_handler.get_on_toggle_coordinate_system_signal().connect(
+            self._on_toggle_coordinate_system
+        )
+        self.application_controller.view_event_handler.get_on_toggle_grid_signal().connect(
+            self._on_toggle_grid
+        )
+
         self._configure_view()
         self.scale(DIMENSION.INITIAL_ZOOM, -DIMENSION.INITIAL_ZOOM)
+
+    @Slot(bool)
+    def _on_toggle_coordinate_system(self, enabled: bool) -> None:
+        self.should_render_coordinate_system = enabled
+        self.viewport().update()
+
+    @Slot(bool)
+    def _on_toggle_grid(self, enabled: bool) -> None:
+        self.should_render_grid = enabled
+        self.viewport().update()
 
     def _configure_view(self) -> None:
         """Configure view settings for optimal rendering and interaction."""
@@ -180,8 +203,10 @@ class TrafficView(QGraphicsView):
             rect: The exposed rectangle requiring a repaint.
         """
         super().drawBackground(painter, rect)
-        grid_pen = QPen(COLORS.LAYER, DIMENSION.LANE_WIDTH)
-        self._draw_grid(painter, grid_pen)
+
+        if self.should_render_grid:
+            grid_pen = QPen(COLORS.LAYER, DIMENSION.LANE_WIDTH)
+            self._draw_grid(painter, grid_pen)
 
     def _draw_grid(self, painter: QPainter, pen: QPen) -> None:
         """
@@ -239,9 +264,10 @@ class TrafficView(QGraphicsView):
         painter.save()
         painter.resetTransform()
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.setPen(QPen(COLORS.TEXT))
 
-        self._draw_coordinate_labels(painter)
+        if self.should_render_coordinate_system:
+            painter.setPen(QPen(COLORS.TEXT))
+            self._draw_coordinate_labels(painter)
 
         painter.restore()
 

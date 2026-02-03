@@ -24,7 +24,7 @@ class Ui_Settings_Dialog(object):
     def setupUi(self, Settings_Dialog):
         if not Settings_Dialog.objectName():
             Settings_Dialog.setObjectName(u"Settings_Dialog")
-        Settings_Dialog.resize(320, 196)
+        Settings_Dialog.resize(320, 233)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -253,9 +253,13 @@ class Ui_Settings_Dialog(object):
         self.widget1.setObjectName(u"widget1")
         self.gridLayout = QGridLayout(self.widget1)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.gridLayout.setHorizontalSpacing(8)
         self.gridLayout.setVerticalSpacing(16)
-        self.gridLayout.setContentsMargins(8, 8, 7, 8)
+        self.label_9 = QLabel(self.widget1)
+        self.label_9.setObjectName(u"label_9")
+        self.label_9.setMinimumSize(QSize(75, 0))
+
+        self.gridLayout.addWidget(self.label_9, 0, 0, 1, 1)
+
         self.c_coordinate_system = QCheckBox(self.widget1)
         self.c_coordinate_system.setObjectName(u"c_coordinate_system")
         self.c_coordinate_system.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
@@ -264,7 +268,7 @@ class Ui_Settings_Dialog(object):
         self.c_coordinate_system.setAutoRepeat(False)
         self.c_coordinate_system.setTristate(False)
 
-        self.gridLayout.addWidget(self.c_coordinate_system, 1, 2, 1, 1)
+        self.gridLayout.addWidget(self.c_coordinate_system, 0, 1, 1, 2)
 
         self.label_6 = QLabel(self.widget1)
         self.label_6.setObjectName(u"label_6")
@@ -272,22 +276,32 @@ class Ui_Settings_Dialog(object):
 
         self.gridLayout.addWidget(self.label_6, 1, 0, 1, 1)
 
+        self.c_grid = QCheckBox(self.widget1)
+        self.c_grid.setObjectName(u"c_grid")
+        self.c_grid.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+        self.c_grid.setText(u"")
+        self.c_grid.setChecked(True)
+        self.c_grid.setAutoRepeat(False)
+        self.c_grid.setTristate(False)
+
+        self.gridLayout.addWidget(self.c_grid, 1, 1, 1, 2)
+
         self.label_5 = QLabel(self.widget1)
         self.label_5.setObjectName(u"label_5")
         self.label_5.setMinimumSize(QSize(75, 0))
         self.label_5.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
-        self.gridLayout.addWidget(self.label_5, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.label_5, 2, 0, 1, 1)
+
+        self.horizontalSpacer = QSpacerItem(40, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer, 2, 1, 1, 1)
 
         self.c_savty_space = QCheckBox(self.widget1)
         self.c_savty_space.setObjectName(u"c_savty_space")
         self.c_savty_space.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
 
-        self.gridLayout.addWidget(self.c_savty_space, 0, 2, 1, 1)
-
-        self.horizontalSpacer = QSpacerItem(40, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.gridLayout.addItem(self.horizontalSpacer, 0, 1, 1, 1)
+        self.gridLayout.addWidget(self.c_savty_space, 2, 2, 1, 1)
 
 
         self.General.addWidget(self.widget1)
@@ -388,7 +402,8 @@ class Ui_Settings_Dialog(object):
         self.label_2.setText(QCoreApplication.translate("Settings_Dialog", u"Rendering", None))
         self.label_2.setProperty(u"class", QCoreApplication.translate("Settings_Dialog", u"label", None))
         self.widget1.setProperty(u"class", QCoreApplication.translate("Settings_Dialog", u"container", None))
-        self.label_6.setText(QCoreApplication.translate("Settings_Dialog", u"Show Coordinate System", None))
+        self.label_9.setText(QCoreApplication.translate("Settings_Dialog", u"Show Coordinate System", None))
+        self.label_6.setText(QCoreApplication.translate("Settings_Dialog", u"Show Background Grid", None))
         self.label_5.setText(QCoreApplication.translate("Settings_Dialog", u"Show reserved Savety Space", None))
         self.c_savty_space.setText("")
         self.label_3.setText(QCoreApplication.translate("Settings_Dialog", u"Simulation", None))
