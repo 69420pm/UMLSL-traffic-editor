@@ -5,8 +5,7 @@ from PySide6.QtGui import QBrush, QColor, QPainter, QPen, QPolygonF
 from PySide6.QtWidgets import QStyleOptionGraphicsItem, QWidget
 
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.entities.road import RoadOrientation
-from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import RoadItem
+from pse.umlsl_editor.src.model.entities.road import RoadOrientation, Road
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.selectable_graphics_item import (
     SelectableGraphicsItem,
 )
@@ -24,7 +23,6 @@ class CarItem(SelectableGraphicsItem):
         self._road = application_controller.data_controller.get_road_by_uid(car.lane.road_uid)
         self._polygon = QPolygonF()
 
-        constraint = self._get_constraint_for_orientation(self._road.orientation.opposite)
         super().__init__(application_controller)
 
         self.update_data(car)
@@ -46,6 +44,8 @@ class CarItem(SelectableGraphicsItem):
     def _setup_styles(self) -> None:
         """Configure visual styles based on selection and hover state."""
         self.setZValue(Z_LAYERS.SELECTED_CAR if self.is_selected else Z_LAYERS.CAR)
+        constraint = self._get_constraint_for_orientation(self._road.orientation)
+        super().set_movement_constraint(constraint)
 
         car_color = QColor(self.data(0).color)
         color = car_color.lighter() if self.is_selected else car_color
@@ -69,7 +69,8 @@ class CarItem(SelectableGraphicsItem):
         car = self.data(0)
         delta = delta_y if self._road.orientation == RoadOrientation.VERTICAL else delta_x
         car.position_on_lane += delta
-        self.update_data(car)
+
+        self.application_controller.command_controller.edit_car(car=car, position_on_lane=car.position_on_lane)
 
     # --- Graphics Interface ---
 
@@ -135,13 +136,13 @@ class CarItem(SelectableGraphicsItem):
         """Recalculate polygon geometry based on current car data."""
         self.prepareGeometryChange()
 
-        position = self._calculate_car_position(self._car, self._road, self.road_item)
+        position = self._calculate_car_position(self._car, self._road)
         dimensions = self._calculate_car_dimensions(self._car)
 
         self._polygon = self._create_car_polygon(position, dimensions, self._road.orientation)
         self.update()
 
-    def _calculate_car_position(self, car: Car, road, road_item: RoadItem) -> tuple[float, float]:
+    def _calculate_car_position(self, car: Car, road: Road) -> tuple[float, float]:
         """Calculate the car's x, y position based on lane and road data."""
         lane_width = DIMENSION.LANE_WIDTH
         car_width = DIMENSION.CAR_WIDTH
@@ -153,12 +154,8 @@ class CarItem(SelectableGraphicsItem):
         # Calculate lane offset within the road
         lane_offset = lane_width * lane_index - (lane_width - car_width) / 2.0
 
-        if road.orientation == RoadOrientation.HORIZONTAL:
-            road_offset = road_item.y()
-            y = road.position - lane_offset + road_offset
-        else:
-            road_offset = road_item.x()
-            y = road.position - lane_offset + road_offset
+        road_offset = road.position
+        y = road.position - lane_offset + road_offset
 
         return x, y
 

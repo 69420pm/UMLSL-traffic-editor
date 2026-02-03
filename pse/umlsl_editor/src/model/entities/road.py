@@ -19,7 +19,16 @@ class RoadOrientation(Enum):
     HORIZONTAL = 0
     VERTICAL = 1
 
-    opposite = {HORIZONTAL: VERTICAL, VERTICAL: HORIZONTAL}
+    def opposite(self) -> "RoadOrientation":
+        """
+        Returns the opposite orientation of the road.
+
+        Returns:
+            RoadOrientation: The opposite orientation (HORIZONTAL <-> VERTICAL).
+        """
+        if self == RoadOrientation.HORIZONTAL:
+            return RoadOrientation.VERTICAL
+        return RoadOrientation.HORIZONTAL
 
 
 @dataclass
@@ -158,8 +167,8 @@ class Road(Entity):
             self.validate()
 
     def validate(self) -> None:
-        if not isinstance(self.name, str) or not self.name.strip():
-            raise RoadValidationError(content="Name must be a non-empty string.")
+        if not isinstance(self.name, str):
+            raise RoadValidationError(content="Name must be a string.")
 
         if not isinstance(self.orientation, RoadOrientation):
             raise RoadValidationError(content="Orientation must be a RoadOrientation enum member.")

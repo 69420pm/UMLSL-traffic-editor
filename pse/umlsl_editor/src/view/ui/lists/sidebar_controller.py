@@ -3,6 +3,7 @@ import os
 from PySide6.QtCore import QObject, QUrl, Qt
 
 from pse.umlsl_editor.src.controllers import ApplicationController
+from pse.umlsl_editor.src.view.ui.lists.edit_car_dialog import EditCarDialog
 from pse.umlsl_editor.src.view.ui.lists.edit_road_dialog import EditRoadDialog
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_main import Ui_MainWindow
 
@@ -28,7 +29,8 @@ class SidebarController(QObject):
         """Connect button click signals."""
         self._add_road_button.clicked.connect(lambda: self.open_edit_dialog(EditRoadDialog))
 
-        # self._add_car_button.clicked.connect(lambda: self.open_edit_dialog(EditQueryDialog))
+        self._add_car_button.clicked.connect(lambda: self.open_edit_dialog(EditCarDialog))
+
         # self._add_query_button.clicked.connect(lambda: self.open_edit_dialog(EditQueryDialog))
 
         def setup_quick_widget(quick_widget, model, qml_file_path: str) -> None:

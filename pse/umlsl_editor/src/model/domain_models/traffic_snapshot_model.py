@@ -1,16 +1,16 @@
 from typing import Any
 
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_validator import TrafficSnapshotValidator
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
 from pse.umlsl_editor.src.model.entities.car import Car, CarParams
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation, RoadParams
-from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.helper.directional_graph import Direction, DirectionalGraph
-from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType, SelectionEventType
+from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
 from pse.umlsl_editor.src.model.helper.observables import ObservableDict, Observable, ReadOnlyDictView
+from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.view.view_constants import DIMENSION
 
@@ -35,12 +35,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         # - TrafficSnapshotEventType.CROSSING_SEGMENT_REMOVED: Fired when a crossing segment is removed (data: CrossingSegment)
         # - TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED: Fired when a crossing segment is updated (data: CrossingSegment)
     """
-
-    def select_entity(self, uid: str):
-        self.notify(SelectionEventType.ENTITY_SELECTED, uid)
-
-    def clear_selection(self):
-        self.notify(SelectionEventType.SELECTION_CLEARED, None)
 
     def is_road_existing(self, uid: str) -> bool:
         if uid in self._horizontal_roads or uid in self._vertical_roads:
@@ -516,6 +510,9 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         Serializes the TrafficSnapshot instance to a JSON string.
         """
         raise NotImplementedError
+
+    def debug_get_segments(self) -> dict[str, Segment]:
+        return self._segments
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "TrafficSnapshotModel":

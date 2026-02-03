@@ -15,11 +15,13 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
         self.setupUi(self)
 
         self.road = road
+        self.is_edit = road is not None
+
         self.application_controller = application_controller
 
-        if self.road is None:
+        if not self.is_edit:
             default_road_params = RoadParams(
-                name="R",
+                name="",
                 orientation=RoadOrientation.HORIZONTAL,
                 position=0,
                 number_of_forward_lanes=1,
@@ -40,13 +42,21 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
         self.s_backward.setValue(self.road.number_of_backward_lanes)
 
     def accept(self) -> None:
-        road_params = RoadParams(
-            name=self.t_name.text(),
-            orientation=RoadOrientation(self.d_orientation.currentIndex()),
-            position=self.s_position.value(),
-            number_of_forward_lanes=self.s_forward.value(),
-            number_of_backward_lanes=self.s_backward.value()
-        )
-        self.application_controller.command_controller.upsert_road(road_uid=self.road.uid,
-                                                                   road_params=road_params)
+
+        if self.is_edit:
+            self.application_controller.command_controller.update_road(road=self.road,
+                                                                       name=self.t_name.text(),
+                                                                       orientation=RoadOrientation(
+                                                                           self.d_orientation.currentIndex()),
+                                                                       position=self.s_position.value(),
+                                                                       number_of_forward_lanes=self.s_forward.value(),
+                                                                       number_of_backward_lanes=self.s_backward.value())
+        else:
+            self.application_controller.command_controller.add_road(name=self.t_name.text(),
+                                                                    orientation=RoadOrientation(
+                                                                        self.d_orientation.currentIndex()),
+                                                                    position=self.s_position.value(),
+                                                                    number_of_forward_lanes=self.s_forward.value(),
+                                                                    number_of_backward_lanes=self.s_backward.value())
+
         super().accept()
