@@ -8,9 +8,10 @@ from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.car_environment import CarEnvironment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_interval import LaneInterval
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Path, CarEnvironment
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_interval import SegmentInterval
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Path
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
 
 
@@ -108,13 +109,13 @@ class Car(Entity):
     # laneB: Lane
 
     # reserved_lanes: list[laneIntervalls]
-    reserved_lanes: list[LaneInterval]
+    reserved_lanes: list[SegmentInterval]
 
     # passt
     reserved_crossings: list[CrossingSegment]
 
     # clamied_intervalls: list[laneIntervalls]
-    claimed_lanes: list[LaneInterval]
+    claimed_lanes: list[SegmentInterval]
 
     # Dont need these?, sonst passt
     # todo: curr : I → Z such that curr(C ) is (the index - we save the object) of the path element of pth(C) currently occupied by the rear of C

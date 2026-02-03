@@ -4,7 +4,7 @@ from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment impo
 
 
 @dataclass(frozen=True, kw_only=True)
-class LaneInterval:
+class SegmentInterval:
     """The lane interval describes an interval on a single lane segment."""
     lane_segment: LaneSegment
     start: float
