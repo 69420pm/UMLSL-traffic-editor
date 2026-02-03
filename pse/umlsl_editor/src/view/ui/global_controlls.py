@@ -3,6 +3,7 @@ Global controls for the UMLSL Traffic Editor.
 
 Handles global UI actions such as save, open, and settings from the main menu bar.
 """
+import warnings
 
 from PySide6.QtCore import QObject
 
@@ -50,16 +51,20 @@ class GlobalControls(QObject):
         self._settings_action.triggered.connect(self._on_open_settings)
 
     def _on_save(self) -> None:
-        """Handle the save action."""
-        print("Save button clicked")
+        """Check if the current snapshot can be saved."""
+        warnings.warn("Save functionality not yet implemented.", UserWarning)
+        """Else, save as"""
+        # self._on_save_as()
 
     def _on_save_as(self) -> None:
-        """Handle the save-as action."""
-        print("Save As button clicked")
+        warnings.warn("Save As functionality not yet implemented.", UserWarning)
+
+        # file_name, _ = QFileDialog.getSaveFileName(None, "Save current snapshot", "", ".json Files (*.json)")
 
     def _on_open(self) -> None:
-        """Handle the open file action."""
-        print("Open button clicked")
+        warnings.warn("Open functionality not yet implemented.", UserWarning)
+
+        # file_name, _ = QFileDialog.getOpenFileName(None, "Open new snapshot", "", ".json Files (*.json)")
 
     def _on_open_settings(self) -> None:
         """Open the application settings dialog."""
