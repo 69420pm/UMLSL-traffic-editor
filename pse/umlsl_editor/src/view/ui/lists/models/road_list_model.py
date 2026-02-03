@@ -1,59 +1,134 @@
+"""
+Road list model for the UMLSL Traffic Editor.
+
+Provides a list model for displaying road entities in QML list views,
+with support for selection highlighting and road property display.
+"""
+
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import Qt, QModelIndex, Slot
+from PySide6.QtCore import QModelIndex, Qt, Slot
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
+
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.view.ui.lists.edit_road_dialog import EditRoadDialog
 from pse.umlsl_editor.src.view.ui.lists.models.entity_list_model import EntityModel
 
-# 1. Define custom roles.
-# These are the identifiers QML will use to ask for specific pieces of data.
-NameRole = Qt.UserRole + 1
-IconRole = Qt.UserRole + 2
-ValueRole = Qt.UserRole + 3
-
 
 class RoadListModel(EntityModel):
-    def __init__(self, application_controller: "ApplicationController", parent=None):
-        super().__init__(parent)
-        self._application_controller = application_controller
-        self._data = []
+    """
+    List model for road entities displayed in the sidebar.
 
-    def rowCount(self, parent=QModelIndex()):
+    Provides data roles for road name, orientation icon, and position value.
+    Supports selection highlighting and edit dialog integration.
+
+    Roles:
+        NameRole: The road's display name.
+        IconRole: Boolean indicating if the road icon should be rotated (vertical).
+        ValueRole: Formatted string showing the road's position.
+
+    Attributes:
+        _application_controller: Reference to the application controller.
+    """
+
+    NameRole = EntityModel.NextRole
+    IconRole = EntityModel.NextRole + 1
+    ValueRole = EntityModel.NextRole + 2
+
+    def __init__(
+        self,
+        application_controller: "ApplicationController",
+        parent=None,
+    ) -> None:
+        """
+        Initialize the road list model.
+
+        Args:
+            application_controller: The application controller for commands.
+            parent: The parent QObject. Defaults to None.
+        """
+        super().__init__(parent=parent)
+        self._application_controller = application_controller
+
+    def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
+        """
+        Return the number of roads in the model.
+
+        Args:
+            parent: The parent index (unused for flat lists).
+
+        Returns:
+            The number of road entities.
+        """
         return len(self._data)
 
-    def data(self, index, role=Qt.DisplayRole):
-        """Returns the data for a specific row and role."""
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+        """
+        Return the data for a specific row and role.
+
+        Handles road-specific roles (name, icon, value) and delegates
+        common roles to the parent class.
+
+        Args:
+            index: The model index to query.
+            role: The data role to retrieve.
+
+        Returns:
+            The requested data, or None if invalid.
+        """
+        parent_result = super().data(index, role)
+        if parent_result is not None:
+            return parent_result
+
         if not index.isValid():
             return None
 
-        # Get the dictionary for the current row
-        item = self._data[index.row()]
-        is_vertical = item.orientation == RoadOrientation.VERTICAL
+        road = self._data[index.row()]
+        is_vertical = road.orientation == RoadOrientation.VERTICAL
 
-        if role == NameRole:
-            return item.name
-        elif role == IconRole:
-            return is_vertical
-        elif role == ValueRole:
-            return ("x" if is_vertical else "y") + " = " + str(item.position)
+        if role == RoadListModel.NameRole:
+            return str(road.name)
+        elif role == RoadListModel.IconRole:
+            return bool(is_vertical)
+        elif role == RoadListModel.ValueRole:
+            axis_label = "x" if is_vertical else "y"
+            return f"{axis_label} = {road.position}"
 
         return None
 
-    def roleNames(self):
-        """Maps the integer Role IDs to variable names used in QML."""
-        return {
-            NameRole: b"role_name",  # in QML: model.title
-            IconRole: b"role_isRotated",  # in QML: model.status
-            ValueRole: b"role_value",  # in QML: model.btnText
-        }
+    def roleNames(self) -> dict[int, bytes]:
+        """
+        Return the mapping of role IDs to QML role names.
 
-    # ---------------------------------------------------------
-    # Helper Methods for Interaction
-    # ---------------------------------------------------------
+        Extends the parent class roles with road-specific roles.
+
+        Returns:
+            Dictionary mapping role constants to QML property names.
+        """
+        roles = super().roleNames()
+        roles.update({
+            RoadListModel.NameRole: b"role_name",
+            RoadListModel.IconRole: b"role_isRotated",
+            RoadListModel.ValueRole: b"role_value",
+        })
+        return roles
 
     @Slot(int)
-    def handle_button_click(self, row):
-        EditRoadDialog(self._data[row], application_controller=self._application_controller).exec_()
+    def handle_button_click(self, row: int) -> None:
+        """
+        Handle the edit button click for a road row.
+
+        Opens the edit road dialog for the selected road.
+
+        Args:
+            row: The row index of the road to edit.
+        """
+        if 0 <= row < len(self._data):
+            road = self._data[row]
+            dialog = EditRoadDialog(
+                road,
+                application_controller=self._application_controller,
+            )
+            dialog.exec_()

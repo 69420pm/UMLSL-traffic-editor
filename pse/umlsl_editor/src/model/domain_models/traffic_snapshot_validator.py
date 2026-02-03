@@ -97,10 +97,10 @@ class TrafficSnapshotValidator:
 
     def _check_uid_unique(self, uid: str) -> bool:
         for car in self._model.cars.values():
-            if car.car_uid == uid:
+            if car.uid == uid:
                 return False
         for road in self._model.roads.values():
-            if road.car_uid == uid:
+            if road.uid == uid:
                 return False
         return True
 
@@ -115,6 +115,10 @@ class TrafficSnapshotValidator:
         """Check if the transition value is valid for the given lane. It is not valid if the car changes out of the road,
         because right or left of the road is no lane. The transition value is aligned after the car
         (right is positive transition, left is negative) not the lane direction."""
+        # TODO: Something wrong here
+        if transition == 0.0:
+            return True
+
         road = self._model.get_road_by_uid(lane.road_uid)
         new_lane_index = lane.lane_index + (1 if transition > 0 else -1) * (-1 if car_driving_backwards else 1)
         if new_lane_index > len(road.forward_lanes) - 1 or new_lane_index > -len(road.backward_lanes):

@@ -8,8 +8,9 @@ from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.car_environment import CarEnvironment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_interval import LaneInterval
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Path
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
 
@@ -108,20 +109,20 @@ class Car(Entity):
     # laneB: Lane
 
     # reserved_lanes: list[laneIntervalls]
-    reserved_lanes: list[LaneInterval]
+    reserved_lanes: list[SegmentInterval]
 
     # passt
     reserved_crossings: list[CrossingSegment]
 
     # clamied_intervalls: list[laneIntervalls]
-    claimed_lanes: list[LaneInterval]
+    claimed_lanes: list[SegmentInterval]
 
     # Dont need these?, sonst passt
     # todo: curr : I → Z such that curr(C ) is (the index - we save the object) of the path element of pth(C) currently occupied by the rear of C
     claimed_crossings: list[CrossingSegment]
 
     # passt
-    path: Path
+    car_environment: CarEnvironment
 
     # view_segments: list[LaneInterval and Crossings]
     view_segments: list[Any]
@@ -141,6 +142,8 @@ class Car(Entity):
         Returns:
             A new Car instance with attributes from the params.
         """
+        virtual_lanes = CarEnvironment.create_virtual_lanes()
+
         return cls(
             uid=generate_uid(),
             name=params.name,
@@ -176,14 +179,20 @@ class Car(Entity):
             self.validate()
 
     def validate(self) -> None:
-        if not isinstance(self.name, str) or not self.name.strip():
+        if not isinstance(self.name, str):
             raise CarValidationError(content="Name must be a non-empty string.")
 
         if not isinstance(self.lane, Lane):
             raise CarValidationError(content="Lane must be a Lane instance.")
 
         if not isinstance(self.color, str) or not re.match(r'^#(?:[0-9a-fA-F]{3}){1,2}$', self.color):
-            raise CarValidationError(content="Color must be a valid hex color code.")
+            """
+            No need for color checking. Color can be hex or a color name like red, blue, green, etc.
+            If string doesnt match hex code or color name, it will result in black.
+            If you want to enforce hex color codes only, uncomment the following line.
+            """
+            # raise CarValidationError(content="Color must be a valid hex color code.")
+            pass
 
         # Transition bounds check (-1.0, 1.0) exclusive
         if not (-1.0 < self.transition < 1.0):

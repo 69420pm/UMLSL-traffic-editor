@@ -21,7 +21,7 @@ class DeleteCar(Command[None]):
         """
         self._traffic_snapshot_writer = traffic_snapshot_writer
         self._traffic_snapshot_reader = traffic_snapshot_reader
-        self.car_uid = car_uid
+        self.uid = car_uid
 
     def execute(self) -> None:
         """
@@ -30,6 +30,6 @@ class DeleteCar(Command[None]):
         Raises:
             CarValidationError: If command validation fails.
         """
-        if self._traffic_snapshot_reader.is_car_existing(self.car_uid) is False:
-            raise CarValidationError(content=f"Car with UID {self.car_uid} does not exist and cannot be deleted.")
-        self._traffic_snapshot_writer.remove_car(self.car_uid)
+        if self._traffic_snapshot_reader.is_car_existing(self.uid) is False:
+            raise CarValidationError(content=f"Car with UID {self.uid} does not exist and cannot be deleted.")
+        self._traffic_snapshot_writer.remove_car(self.uid)

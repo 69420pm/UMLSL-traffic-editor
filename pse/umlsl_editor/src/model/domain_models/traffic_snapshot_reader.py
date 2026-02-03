@@ -18,7 +18,7 @@ class TrafficSnapshotReader(ABC):
         pass
 
     @abstractmethod
-    def get_cars(self) -> list[Car]:
+    def get_cars(self) -> dict[str, Car]:
         """
         Returns a list of all cars in the snapshot.
         """
@@ -140,5 +140,12 @@ class TrafficSnapshotReader(ABC):
 
         Returns:
             True if the road exists, False otherwise.
+        """
+        pass
+
+    @abstractmethod
+    def debug_get_segments(self) -> dict[str, Segment]:
+        """
+        Returns all segments in the snapshot for debugging purposes.
         """
         pass

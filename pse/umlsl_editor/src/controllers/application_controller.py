@@ -6,7 +6,6 @@ Provides a unified interface for the application's controller layer.
 from pse.umlsl_editor.src.controllers.command_controller import CommandController
 from pse.umlsl_editor.src.controllers.data_controller import DataController
 from pse.umlsl_editor.src.controllers.event_controller import EventController
-from pse.umlsl_editor.src.model.domain_models.selection_model import SelectionModel
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
@@ -32,14 +31,14 @@ class ApplicationController:
         self._model_settings = SettingsModel(render_safety_distance=True, render_coordinate_system=True,
                                              breaking_acceleration=8.0)
         self._model_umlsl_queries = UMLSLQueriesModel()
-        self._model_selection = SelectionModel()
 
         self.view_event_handler = ViewEventHandlerImplementation(view_model=self._model_view)
 
+        self._model_view.connect_signals(self.view_event_handler)
+
         self.event_controller = EventController(traffic_snapshot=self._model_traffic_snapshot,
                                                 view=self.view_event_handler, settings=self._model_settings,
-                                                umlsl_queries=self._model_umlsl_queries,
-                                                selection=self._model_selection)
+                                                umlsl_queries=self._model_umlsl_queries)
         self.command_controller = CommandController(traffic_snapshot_reader=self._model_traffic_snapshot,
                                                     traffic_snapshot_writer=self._model_traffic_snapshot,
                                                     settings_model=self._model_settings,

@@ -5,6 +5,7 @@ This module contains all visual constants used throughout the view layer,
 organized into logical groups for Z-ordering, dimensions, colors, and UI paths.
 """
 from dataclasses import dataclass, field
+
 from PySide6.QtGui import QColor
 
 
@@ -12,8 +13,8 @@ from PySide6.QtGui import QColor
 class _ZLayers:
     """Controls the drawing order (Z-Index) for scene items."""
     ROAD: int = 0
-    CROSSING: int = 1
-    SELECTED_ROAD: int = 2
+    SELECTED_ROAD: int = 1
+    CROSSING: int = 2
     SELECTED_CROSSING: int = 3
     CAR: int = 4
     SELECTED_CAR: int = 5
@@ -47,7 +48,8 @@ class _Dimension:
     GRID_STEP_FINE: float = 1.0
 
     # Line widths
-    LINE_WIDTH_ROAD_DIVIDER: float = 0.1
+    LINE_WIDTH_ROAD_DIVIDER: float = 0.05
+    LINE_WIDTH_CROSSING_SEGMENT: float = 0.02
 
     # Zoom sensitivity
     TOUCHPAD_ZOOM_SENSITIVITY: float = 0.01
@@ -73,6 +75,7 @@ class _Colors:
 
     # Utility
     TRANSPARENT: QColor = field(default_factory=lambda: QColor(0, 0, 0, 0))
+
 
 @dataclass(frozen=True)
 class _UIPaths:

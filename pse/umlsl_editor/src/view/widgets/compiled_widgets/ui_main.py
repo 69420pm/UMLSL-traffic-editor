@@ -184,7 +184,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addWidget(self.q_roads)
 
-        self.verticalLayout.setStretch(0, 2)
         self.splitter.addWidget(self.layoutWidget)
         self.layoutWidget1 = QWidget(self.splitter)
         self.layoutWidget1.setObjectName(u"layoutWidget1")
@@ -217,7 +216,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_3.addWidget(self.q_cars)
 
-        self.verticalLayout_3.setStretch(0, 2)
         self.splitter.addWidget(self.layoutWidget1)
         self.layoutWidget2 = QWidget(self.splitter)
         self.layoutWidget2.setObjectName(u"layoutWidget2")
@@ -250,7 +248,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_4.addWidget(self.q_queries)
 
-        self.verticalLayout_4.setStretch(0, 1)
         self.splitter.addWidget(self.layoutWidget2)
 
         self.verticalLayout_5.addWidget(self.splitter)

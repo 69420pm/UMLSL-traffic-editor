@@ -1,16 +1,17 @@
 from pse.umlsl_editor.src.model.entities.car import Car
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.query.ast.ast import View, AtomNode
 from pse.umlsl_editor.src.query.ast.car_resolve import CarResolve
-from pse.umlsl_editor.src.query.visible_segments import SegmentView, VisibleSegment
+from pse.umlsl_editor.src.query.visible_segments import VisibleSegment
 
 
 def segment_reserved(view: View, segment: Segment, car: Car) -> bool:
     if segment not in car.reserved_lanes and segment not in car.reserved_crossings:
         return False
 
-    segment_views: list[SegmentView] = VisibleSegment().compute_visible_segments(view, car)
+    segment_views: list[SegmentInterval] = VisibleSegment().compute_visible_segments(view, car)
     # todo: missing space interval check
     return any(map(lambda segment_view: segment == segment_view.segment, segment_views))
 
@@ -33,8 +34,8 @@ class ReserveNode(AtomNode):
         lane = view.seq_lanes[0]
 
         # todo: not quite right i think
-        visible_segments: list[SegmentView] = VisibleSegment().compute_visible_segments(view, car)
-        segment_to_segment_views: dict[Segment, list[SegmentView]] = {}
+        visible_segments: list[SegmentInterval] = VisibleSegment().compute_visible_segments(view, car)
+        segment_to_segment_views: dict[Segment, list[SegmentInterval]] = {}
         for segment_view in visible_segments:
             if segment_view.segment not in segment_to_segment_views:
                 segment_to_segment_views[segment_view.segment] = []

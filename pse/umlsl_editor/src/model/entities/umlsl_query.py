@@ -32,7 +32,7 @@ class UMLSLQuery(Entity):
         UMLSLQueryValidationError: If any validation check fails.
     """
     latex: str
-    assigned_car_name: str
+    assigned_car_uid: str
     validation: bool
 
     @classmethod
@@ -46,7 +46,7 @@ class UMLSLQuery(Entity):
         return cls(
             uid=generate_uid(),
             latex=params.latex,
-            assigned_car_name=params.assigned_car_uid,
+            assigned_car_uid=params.assigned_car_uid,
             validation=False
         )
 
@@ -58,7 +58,7 @@ class UMLSLQuery(Entity):
             params: An instance of UMLSLQueryParams containing the new UMLSL query attributes.
         """
         self.latex = params.latex
-        self.assigned_car_name = params.assigned_car_uid
+        self.assigned_car_uid = params.assigned_car_uid
         self.validation = False
         self.__post_init__()
 
@@ -81,7 +81,7 @@ class UMLSLQuery(Entity):
         if not isinstance(self.latex, str) or not self.latex.strip():
             raise UMLSLQueryValidationError("Latex query must be a non-empty string.")
 
-        if not isinstance(self.assigned_car_name, str) or not self.assigned_car_name.strip():
+        if not isinstance(self.assigned_car_uid, str) or not self.assigned_car_uid.strip():
             raise UMLSLQueryValidationError("Assigned car name must be a non-empty string.")
 
         if not isinstance(self.validation, bool):

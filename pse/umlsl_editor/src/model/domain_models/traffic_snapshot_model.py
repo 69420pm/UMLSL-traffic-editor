@@ -7,6 +7,8 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_validator import 
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
 from pse.umlsl_editor.src.model.entities.car import Car, CarParams
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation, RoadParams
+from pse.umlsl_editor.src.model.helper.directional_graph import Direction, DirectionalGraph
+from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
 from pse.umlsl_editor.src.model.helper.directional_graph import Direction
 from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType, SelectionEventType
 from pse.umlsl_editor.src.model.helper.observables import ObservableDict, Observable, ReadOnlyDictView
@@ -38,12 +40,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         # - TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED: Fired when a crossing segment is updated (data: CrossingSegment)
     """
 
-    def select_entity(self, uid: str):
-        self.notify(SelectionEventType.ENTITY_SELECTED, uid)
-
-    def clear_selection(self):
-        self.notify(SelectionEventType.SELECTION_CLEARED, None)
-
     def is_road_existing(self, uid: str) -> bool:
         if uid in self._horizontal_roads or uid in self._vertical_roads:
             return True
@@ -65,9 +61,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         pass
 
     def get_adjacent_segment(self, segment_uid: str, direction: Direction) -> Segment | None:
-        """Get the adjacent segment in the given direction using the graph."""
-        adjacent_uid = self._get_neighbor_in_direction(segment_uid, direction)
-        if adjacent_uid is not None:
+        if self._connections[segment_uid].get(direction) is not None:
+            adjacent_uid = self._connections[segment_uid][direction]
             return self._segments.get(adjacent_uid)
         return None
 
@@ -123,8 +118,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         # """Dictionary of segment connections, keyed by segment uid. And in the direction dict all connected segments uids."""
         self._segments_by_lane: dict[int, list[str]] = {}
         """Dictionary mapping the hash(lane) to their corresponding segment uids."""
-        # self._graph = DirectionalGraph()
-        self._graph = nx.DiGraph()
+        self._graph = DirectionalGraph()
         """Graph representing the connectivity of segments."""
 
         self._read_only_roads = ReadOnlyDictView(self._horizontal_roads + self._vertical_roads)
@@ -156,8 +150,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     def get_cars_on_road(self, road: Road) -> list[Car]:
         return [car for car in self._cars.values() if car.lane.road_uid == road.uid]
 
-    def get_cars(self) -> list[Car]:
-        pass
+    def get_cars(self) -> dict[str, Car]:
+        return dict(self._read_only_cars)
 
     def get_roads(self) -> dict[str, Road]:
         return {**self._horizontal_roads, **self._vertical_roads}
@@ -241,19 +235,19 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             ValueError: If the car's lane has no segments or segment not found.
         """
         lane = car.lane
-        lane_key = hash(lane)
+        lane_hash = hash(lane)
 
-        if lane_key not in self._segments_by_lane:
+        if lane_hash not in self._segments_by_lane:
             raise ValueError(f"No segments found for lane {lane}")
 
-        segment_uids = self._segments_by_lane[lane_key]
+        segment_uids = self._segments_by_lane[lane_hash]
         if not segment_uids:
-            raise ValueError(f"No segments found for lane {lane}")
+            raise ValueError(f"Empty segment list for lane {lane}")
 
-        # Get the tail position of the car
+        # Get tail position
         tail_x, tail_y = car.get_tail_position(self)
 
-        # Get the road to determine orientation
+        # Determine which coordinate to use based on road orientation
         road = self.get_road_by_uid(lane.road_uid)
 
         # The position along the lane axis
@@ -749,6 +743,9 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         Serializes the TrafficSnapshot instance to a JSON string.
         """
         raise NotImplementedError
+
+    def debug_get_segments(self) -> dict[str, Segment]:
+        return self._segments
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "TrafficSnapshotModel":

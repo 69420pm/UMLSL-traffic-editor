@@ -2,14 +2,13 @@
 from enum import Enum
 
 from pse.umlsl_editor.src.controllers.view_event_contract import ViewEventHandler
-from pse.umlsl_editor.src.model.domain_models.selection_model import SelectionModel
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 from pse.umlsl_editor.src.model.helper.event_types import (
     TrafficSnapshotEventType,
     SettingsEventType,
-    UMLSLQueriesEventType, SelectionEventType
+    UMLSLQueriesEventType
 )
 
 
@@ -24,8 +23,7 @@ class EventController:
                  view: ViewEventHandler,
                  traffic_snapshot: TrafficSnapshotModel,
                  settings: SettingsModel,
-                 umlsl_queries: UMLSLQueriesModel,
-                 selection: SelectionModel, ) -> None:
+                 umlsl_queries: UMLSLQueriesModel) -> None:
         """
         Initialize the view controller.
 
@@ -39,8 +37,6 @@ class EventController:
         self._view = view
         self._settings = settings
         self._umlsl_queries = umlsl_queries
-        self._selection = selection
-
         self._setup_event_listeners()
 
     def _setup_event_listeners(self) -> None:
@@ -50,7 +46,6 @@ class EventController:
         self._traffic_snapshot.attach(self._on_traffic_snapshot_event)
         self._settings.attach(self._on_settings_event)
         self._umlsl_queries.attach(self._on_umlsl_query_event)
-        self._selection.attach(self._on_selection_event)
 
     def _on_traffic_snapshot_event(self, event_type: Enum, data) -> None:
         """
@@ -117,17 +112,3 @@ class EventController:
             self._view.update_query_view(data)
         elif event_type == UMLSLQueriesEventType.UMLSL_QUERY_WARNING:
             self._view.display_warning(data)
-
-    def _on_selection_event(self, event_type: Enum, data) -> None:
-        """
-        Handle events from the selection model.
-
-        Args:
-            event_type: The type of event (SelectionEventType enum)
-            data: The data associated with the event (Entity)
-        """
-        # Route events to appropriate view methods
-        if event_type == SelectionEventType.ENTITY_SELECTED:
-            self._view.select_entity_view(data)
-        elif event_type == SelectionEventType.SELECTION_CLEARED:
-            self._view.clear_selection_view()
