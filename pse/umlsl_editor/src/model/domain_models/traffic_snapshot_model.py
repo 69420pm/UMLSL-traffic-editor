@@ -39,7 +39,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     """
 
     def get_scene_size(self) -> float:
-        return self.scene_size
+        pass
 
     def is_road_existing(self, uid: str) -> bool:
         if uid in self._horizontal_roads or uid in self._vertical_roads:
@@ -490,7 +490,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                         self._graph.add_edge(s_r.uid, s_l.uid, direction=Direction.LEFT)
 
         self.print_graph()
-        self.notify(TrafficSnapshotEventType.SEGMENTS_RECALCULATED, list(self._segments.values()))
 
     def print_graph(self) -> None:
         """
