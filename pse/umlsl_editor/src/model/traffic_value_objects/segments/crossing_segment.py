@@ -23,14 +23,17 @@ class CrossingSegment(Segment):
 
     def get_position(self, traffic_snapshot_reader: TrafficSnapshotReader) -> tuple[float, float]:
         """Return position of the top left corner of the crossing segment.
-        It gets calculated from the position of the two lanes."""
-        horizontal_position = self.horizontal_lane.get_one_dimensional_position(traffic_snapshot_reader)
-        vertical_position = self.vertical_lane.get_one_dimensional_position(traffic_snapshot_reader)
-        return horizontal_position, vertical_position
+        It gets calculated from the position of the two lanes.
+
+        horizontal_lane gives Y position (horizontal road's position is Y-coordinate)
+        vertical_lane gives X position (vertical road's position is X-coordinate)
+        """
+        x = self.vertical_lane.get_one_dimensional_position(traffic_snapshot_reader)
+        y = self.horizontal_lane.get_one_dimensional_position(traffic_snapshot_reader)
+        return x, y
 
     def get_size(self, traffic_snapshot_reader: TrafficSnapshotReader) -> tuple[float, float]:
         """Return size (width, height) of the crossing segment.
         It gets calculated from the lane width."""
         lane_width = traffic_snapshot_reader.get_lane_width()
         return lane_width, lane_width
-
