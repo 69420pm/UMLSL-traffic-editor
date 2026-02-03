@@ -13,18 +13,19 @@ the PyQT6 library (installation in setup tutorial).
 
 1. Clone Repository.
    
-   bash:
+   *bash*:
    
    git clone https://github.com/69420pm/UMLSL-traffic-editor.git
    
 2. Install library dependencies.
 
-   bash:
+   *bash*:
    
    pip install PySide6
 
 ## ▶️ Run Program
-   bash:
+
+   *bash inside the program folder containing the main.py file*:
    
    python main.py
 
