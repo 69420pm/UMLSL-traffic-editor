@@ -26,11 +26,8 @@ class ASTNode(ABC):
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         pass
 
-    def to_latex(self) -> str:
-        return self._render()
-
     @abstractmethod
-    def _render(self) -> str:
+    def to_latex(self) -> str:
         pass
 
 
@@ -40,7 +37,7 @@ class AtomNode(ASTNode, ABC):
         self._latex_code = latex_code
         pass
 
-    def _render(self) -> str:
+    def to_latex(self) -> str:
         return self._latex_code
 
 
@@ -49,8 +46,8 @@ class UnaryNode(ASTNode, ABC):
         super().__init__(Precedence.UNARY)
         self._child = child
 
-    def _render(self) -> str:
-        child_text = self._child._render()
+    def to_latex(self) -> str:
+        child_text = self._child.to_latex()
 
         # For example, NOT (A AND B) -> NOT has precedence over AND -> add parentheses
         if self._precedence > self._child._precedence:
@@ -69,9 +66,9 @@ class BinaryNode(ASTNode, ABC):
         self._left = left
         self._right = right
 
-    def _render(self) -> str:
-        left_text = self._left._render()
-        right_text = self._right._render()
+    def to_latex(self) -> str:
+        left_text = self._left.to_latex()
+        right_text = self._right.to_latex()
 
         if self._precedence > self._left._precedence:
             left_text = f"\\({left_text}\\)"

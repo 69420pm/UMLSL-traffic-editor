@@ -10,7 +10,7 @@ from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_interval import LaneInterval
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Path
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Path, CarEnvironment
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
 
 
@@ -121,7 +121,7 @@ class Car(Entity):
     claimed_crossings: list[CrossingSegment]
 
     # passt
-    path: Path
+    car_environment: CarEnvironment
 
     # view_segments: list[LaneInterval and Crossings]
     view_segments: list[Any]
@@ -141,6 +141,8 @@ class Car(Entity):
         Returns:
             A new Car instance with attributes from the params.
         """
+        virtual_lanes = CarEnvironment.create_virtual_lanes()
+
         return cls(
             uid=generate_uid(),
             name=params.name,

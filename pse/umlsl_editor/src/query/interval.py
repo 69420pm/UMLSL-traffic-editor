@@ -11,3 +11,6 @@ class Interval:
 
     def subset_of(self, other: "Interval"):
         return self.start >= other.start and self.end <= other.end
+
+    def union(self, other: "Interval"):
+        return Interval(min(self.start, other.start), max(self.end, other.end))

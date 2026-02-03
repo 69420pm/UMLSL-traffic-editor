@@ -2,21 +2,26 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
+from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
 
 
 @dataclass(frozen=True)
 class Segment(ABC):
     is_lane_segment: bool
     uid: str
+
     @abstractmethod
     def get_position(self, traffic_snapshot_reader: TrafficSnapshotReader) -> tuple[float, float]:
         """Return position of the top left corner of the path.
         It gets calculated from the position of the first segment."""
         pass
+
     @abstractmethod
     def get_size(self, traffic_snapshot_reader: TrafficSnapshotReader) -> tuple[float, float]:
         """Return size (width, height) of the path."""
         pass
+
 
 @dataclass
 class Path:
@@ -26,8 +31,6 @@ class Path:
     def __post_init__(self) -> None:
         self.validate()
         self._initialized = True
-
-
 
     def __setattr__(self, name: str, value: object) -> None:
         super().__setattr__(name, value)
@@ -40,3 +43,21 @@ class Path:
         for s in self.segments:
             if not isinstance(s, Segment):
                 raise ValueError("All elements in segments must be Segment instances")
+
+
+@dataclass
+class CarEnvironment:
+    path_pursuit: Path
+    virtual_lanes: list[Path]
+
+    @staticmethod
+    def create_virtual_lanes(
+            traffic_snapshot: TrafficSnapshotReader,
+            lane: LaneSegment,
+            turn_intent: TurnIntent
+    ) -> 'CarEnvironment':
+        road_id = lane.lane.road_uid
+        road = traffic_snapshot.get_road_by_uid(road_id)
+
+        # todo
+        pass

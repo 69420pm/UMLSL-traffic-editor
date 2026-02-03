@@ -6,31 +6,34 @@ from pse.umlsl_editor.src.query.interval import Interval
 from pse.umlsl_editor.src.query.lexer import Lexer
 
 
-class UMLSLEvaluator:
-    """Facade for the UI to interact with logic."""
+class QueryResult:
+    def __init__(self, latex_code: str, holds: bool):
+        self.holds = holds
+        self.latex_code = latex_code
 
+
+class UMLSLEvaluator:
     def __init__(self, traffic_snapshot: TrafficSnapshotModel):
         self._traffic_snapshot = traffic_snapshot
 
-    def evaluate_query(self, latex_string: str, car: Car, braking_accel: float) -> bool:
+    def compute_latex(self, latex_string: str) -> str:
         tokens = Lexer(latex_string).tokenize()
         ast = ASTParser(tokens, self._traffic_snapshot.get_cars()).parse_ast()
+        return ast.to_latex()
 
-        views = self._compute_views(car, braking_accel)
-        for view in views:
-            if ast.evaluate(self._traffic_snapshot, view, []):
-                return True
+    def evaluate_query(self, query: str, car: Car, braking_accel: float) -> QueryResult:
+        tokens = Lexer(query).tokenize()
+        ast = ASTParser(tokens, self._traffic_snapshot.get_cars()).parse_ast()
 
-        return False
-
-    def _compute_views(self, car: Car, braking_accel: float) -> list[View]:
         max_v = self._traffic_snapshot.get_max_velocity()
         horizon = max_v * max_v / (2.0 * braking_accel)
-
         horizontal_extension = Interval(
             car.absolute_position() - horizon,
             car.absolute_position() + horizon
         )
-        # todo: depending on next turn intent, compute multi-views (Fig 6 and Fig 3 in paper)
-        lanes = []  # todo
-        return [View(lanes, horizontal_extension, car)]
+        view = View(car.car_environment.virtual_lanes, horizontal_extension, car)
+
+        latex_string = ast.to_latex()
+        query_holds = ast.evaluate(self._traffic_snapshot, view, [])
+
+        return QueryResult(latex_string, query_holds)
