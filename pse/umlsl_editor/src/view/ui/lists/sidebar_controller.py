@@ -11,6 +11,7 @@ from PySide6.QtCore import QObject, Qt, QUrl
 
 from pse.umlsl_editor.src.controllers import ApplicationController
 from pse.umlsl_editor.src.view.ui.lists.edit_car_dialog import EditCarDialog
+from pse.umlsl_editor.src.view.ui.lists.edit_query_dialog import EditQueryDialog
 from pse.umlsl_editor.src.view.ui.lists.edit_road_dialog import EditRoadDialog
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_main import Ui_MainWindow
 
@@ -30,9 +31,9 @@ class SidebarController(QObject):
     """
 
     def __init__(
-        self,
-        main_window: Ui_MainWindow,
-        application_controller: ApplicationController,
+            self,
+            main_window: Ui_MainWindow,
+            application_controller: ApplicationController,
     ) -> None:
         """
         Initialize the sidebar controller.
@@ -71,10 +72,9 @@ class SidebarController(QObject):
         self._add_car_button.clicked.connect(
             lambda: self._open_edit_dialog(EditCarDialog)
         )
-        # TODO: Implement query dialog
-        # self._add_query_button.clicked.connect(
-        #     lambda: self._open_edit_dialog(EditQueryDialog)
-        # )
+        self._add_query_button.clicked.connect(
+            lambda: self._open_edit_dialog(EditQueryDialog)
+        )
 
     def _setup_quick_widgets(self) -> None:
         """Initialize all QML Quick Widgets with their models and QML files."""
@@ -93,7 +93,7 @@ class SidebarController(QObject):
         self._configure_quick_widget(
             self._query_quick_widget,
             self._view_models.query_list_model,
-            os.path.join(qml_folder, "RoadListView.qml"),
+            os.path.join(qml_folder, "QueryListView.qml"),
         )
 
     def _get_qml_folder_path(self) -> str:
@@ -107,10 +107,10 @@ class SidebarController(QObject):
         return os.path.join(base_dir, "qml")
 
     def _configure_quick_widget(
-        self,
-        quick_widget,
-        model,
-        qml_file_path: str,
+            self,
+            quick_widget,
+            model,
+            qml_file_path: str,
     ) -> None:
         """
         Configure a QML Quick Widget with the specified model and QML file.

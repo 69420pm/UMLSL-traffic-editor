@@ -275,7 +275,8 @@ class CommandController:
             latex: The LaTeX representation of the query.
         """
         umlsl_query_params = UMLSLQueryParams(latex, assigned_car_name)
-        add_umlsl_query_command = add_umlsl_query.AddUMLSLQuery(umlsl_query_params, self.umlsl_queries_model)
+        add_umlsl_query_command = add_umlsl_query.AddUMLSLQuery(umlsl_query_params, self.umlsl_queries_model,
+                                                                self.traffic_snapshot_reader)
         self._execute_command(add_umlsl_query_command)
 
     def remove_umlsl_query(self, query_id: str) -> None:
@@ -304,7 +305,7 @@ class CommandController:
         """
         umlsl_query_params = UMLSLQueryParams(
             latex=query.latex if latex is self._UNCHANGED else latex,
-            assigned_car_uid=query.assigned_car_name if assigned_car_name is self._UNCHANGED else assigned_car_name
+            assigned_car_uid=query.assigned_car_uid if assigned_car_name is self._UNCHANGED else assigned_car_name
         )
         edit_umlsl_query_command = edit_umlsl_query.EditUMLSLQuery(query.uid, umlsl_query_params,
                                                                    self.umlsl_queries_model)

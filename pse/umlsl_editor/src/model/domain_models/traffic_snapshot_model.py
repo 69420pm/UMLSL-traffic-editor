@@ -146,8 +146,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     def get_cars_on_road(self, road: Road) -> list[Car]:
         return [car for car in self._cars.values() if car.lane.road_uid == road.uid]
 
-    def get_cars(self) -> list[Car]:
-        pass
+    def get_cars(self) -> dict[str, Car]:
+        return dict(self._read_only_cars)
 
     def get_roads(self) -> dict[str, Road]:
         return {**self._horizontal_roads, **self._vertical_roads}
