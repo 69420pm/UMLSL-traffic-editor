@@ -145,6 +145,17 @@ class TrafficView(QGraphicsView):
 
         event.accept()
 
+    def mousePressEvent(self, event) -> None:
+        """
+        Handle mouse press events.
+
+        Deselects the current entity if the click occurs on the empty background.
+        """
+        if self.itemAt(event.position().toPoint()) is None:
+            self.application_controller.view_event_handler.entity_selected_view("")
+
+        super().mousePressEvent(event)
+
     def _calculate_clamped_scale(self, scale_factor: float) -> float:
         """
         Clamp the scale factor to keep zoom within valid bounds.
