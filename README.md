@@ -15,9 +15,7 @@ the PyQT6 library (installation in setup tutorial).
    
    bash:
    
-   git clone https://github.com/lol.git
-   
-   cd lol
+   git clone https://github.com/69420pm/UMLSL-traffic-editor.git
    
 2. Install library dependencies
    
