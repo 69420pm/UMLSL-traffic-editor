@@ -183,6 +183,13 @@ class ViewEventHandler(QObject):
         pass
 
     @abstractmethod
+    def get_current_selected_uid(self) -> str:
+        """
+        Returns the UID of the currently selected entity.
+        """
+        pass
+
+    @abstractmethod
     def entity_selected_view(self, uid: str) -> None:
         """
         Handle the selection of an entity.

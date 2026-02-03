@@ -40,9 +40,9 @@ class RoadItem(SelectableGraphicsItem):
     """
 
     def __init__(
-        self,
-        road: Road,
-        application_controller: "ApplicationController",
+            self,
+            road: Road,
+            application_controller: "ApplicationController",
     ) -> None:
         """
         Initialize the road graphics item.
@@ -74,6 +74,9 @@ class RoadItem(SelectableGraphicsItem):
         """
         self._road = road
         self.setData(0, road)
+
+        # This ensures selection state is valid if the road orientation changed
+        super().check_current_selection()
 
         constraint = self._get_constraint_for_orientation(road.orientation)
         self.set_movement_constraint(constraint)
@@ -214,10 +217,10 @@ class RoadItem(SelectableGraphicsItem):
         return self._bounding_rect
 
     def paint(
-        self,
-        painter: QPainter,
-        option: QStyleOptionGraphicsItem,
-        widget: Optional[QWidget] = None,
+            self,
+            painter: QPainter,
+            option: QStyleOptionGraphicsItem,
+            widget: Optional[QWidget] = None,
     ) -> None:
         """
         Paint the road including asphalt, lane dividers, and labels.
@@ -248,9 +251,9 @@ class RoadItem(SelectableGraphicsItem):
     # -------------------------------------------------------------------------
 
     def _paint_labels(
-        self,
-        painter: QPainter,
-        option: QStyleOptionGraphicsItem,
+            self,
+            painter: QPainter,
+            option: QStyleOptionGraphicsItem,
     ) -> None:
         """
         Draw road and lane labels that stick to the viewport edges.
@@ -296,13 +299,13 @@ class RoadItem(SelectableGraphicsItem):
         painter.restore()
 
     def _paint_road_name(
-        self,
-        painter: QPainter,
-        road: Road,
-        text_scale: float,
-        visible_left: float,
-        visible_top: float,
-        is_horizontal: bool,
+            self,
+            painter: QPainter,
+            road: Road,
+            text_scale: float,
+            visible_left: float,
+            visible_top: float,
+            is_horizontal: bool,
     ) -> None:
         """
         Draw the road name label.
@@ -325,24 +328,24 @@ class RoadItem(SelectableGraphicsItem):
 
         if is_horizontal:
             name_y = road.position + vertical_offset + (
-                road.number_of_backward_lanes * lane_width
+                    road.number_of_backward_lanes * lane_width
             )
             self._draw_sticky_label(painter, road.name, visible_left, name_y, text_scale)
         else:
             name_x = road.position - (
-                road.number_of_backward_lanes * lane_width
+                    road.number_of_backward_lanes * lane_width
             ) - horizontal_offset
             self._draw_sticky_label(painter, road.name, name_x, visible_top, text_scale)
 
     def _paint_lane_labels(
-        self,
-        painter: QPainter,
-        road: Road,
-        lane_width: float,
-        text_scale: float,
-        visible_left: float,
-        visible_top: float,
-        is_horizontal: bool,
+            self,
+            painter: QPainter,
+            road: Road,
+            lane_width: float,
+            text_scale: float,
+            visible_left: float,
+            visible_top: float,
+            is_horizontal: bool,
     ) -> None:
         """
         Draw lane labels for forward and backward lanes.
@@ -389,12 +392,12 @@ class RoadItem(SelectableGraphicsItem):
                 )
 
     def _draw_sticky_label(
-        self,
-        painter: QPainter,
-        text: str,
-        cx: float,
-        cy: float,
-        text_scale: float,
+            self,
+            painter: QPainter,
+            text: str,
+            cx: float,
+            cy: float,
+            text_scale: float,
     ) -> None:
         """
         Draw a label that remains upright regardless of view transform.
@@ -497,10 +500,10 @@ class RoadItem(SelectableGraphicsItem):
             self._add_divider_line(road.orientation, offset, scene_size)
 
     def _add_divider_line(
-        self,
-        orientation: RoadOrientation,
-        offset: float,
-        scene_size: int,
+            self,
+            orientation: RoadOrientation,
+            offset: float,
+            scene_size: int,
     ) -> None:
         """
         Add a divider line to the dashed lines path.

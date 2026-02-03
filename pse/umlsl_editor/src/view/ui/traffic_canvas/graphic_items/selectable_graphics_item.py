@@ -47,9 +47,9 @@ class SelectableGraphicsItem(QGraphicsItem):
         """
         super().__init__()
 
-        self.is_selected = False
         self.is_hovered = False
         self.application_controller = application_controller
+        self.is_selected = False
 
         self._movement_constraint = self.AXIS_FREE
         self._drag_start_pos = None
@@ -71,6 +71,10 @@ class SelectableGraphicsItem(QGraphicsItem):
             self.application_controller.view_event_handler.get_on_selection_changed_signal()
         )
         selection_signal.connect(self._on_global_selection_change)
+
+    def check_current_selection(self) -> None:
+        self._on_global_selection_change(
+            self.application_controller.view_event_handler.get_current_selected_uid())
 
     # -------------------------------------------------------------------------
     # Movement Constraints

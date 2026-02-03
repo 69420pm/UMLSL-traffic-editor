@@ -36,10 +36,10 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
     """
 
     def __init__(
-        self,
-        car: Car | None,
-        application_controller: "ApplicationController",
-        parent=None,
+            self,
+            car: Car | None,
+            application_controller: "ApplicationController",
+            parent=None,
     ) -> None:
         """
         Initialize the car editing dialog.
@@ -92,7 +92,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
 
         car_params = CarParams(
             name="",
-            color="#eb34d8",
+            color="coral",
             length=1,
             speed=0.0,
             acceleration=0.0,
@@ -154,8 +154,8 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         """Populate turn direction and related fields."""
         directions = [direction.value for direction in TurnDirection]
         car_drives_straight = (
-            self.car.next_turn is None
-            or self.car.next_turn.direction == TurnDirection.STRAIGHT
+                self.car.next_turn is None
+                or self.car.next_turn.direction == TurnDirection.STRAIGHT
         )
 
         self.d_direction.clear()

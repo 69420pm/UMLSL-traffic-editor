@@ -14,9 +14,9 @@ Rectangle {
 
     // --- 1. Selection State Color ---
     // If the row is selected, show lighter blue; otherwise dark.
-    color: role_is_selected ? "#084D68" : "#011C27"
+    color: "#011C26"
 
-    border.color: "#042F40"
+    border.color: role_is_selected ? "#F9F9F9" : "#032F40"
     border.width: 2
     radius: 16
 
