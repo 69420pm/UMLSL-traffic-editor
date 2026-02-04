@@ -25,11 +25,14 @@ the PyQT6 library (installation in setup tutorial).
    
    pip install -r requirements.txt
 
+Now the installation is finished. The program can be run from this folder
+(the root folder) with the following command.
+
 ## ▶️ Run Program
 
-   *bash inside the program folder containing the main.py file*:
+   *bash inside the root folder*:
    
-   python main.py
+   python -m pse.umlsl_editor.main
 
 # Program Usage Guide
 
