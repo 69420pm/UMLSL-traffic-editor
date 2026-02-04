@@ -12,7 +12,7 @@ from pse.umlsl_editor.src.model.traffic_value_objects.segments.car_environment i
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Path
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
-from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent, TurnDirection
+from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
 
 
 @dataclass
@@ -206,13 +206,6 @@ class Car(Entity):
 
         if self.next_turn is not None and not isinstance(self.next_turn, TurnIntent):
             raise CarValidationError(content="Next turn must be None or a TurnIntent instance.")
-
-        if (
-                self.lane.lane_index >= 0 > self.next_turn.target_lane.lane_index and self.next_turn.direction == TurnDirection.RIGHT or
-                self.next_turn.direction == TurnDirection.LEFT and self.next_turn.target_lane.lane_index >= 0) or (
-                self.lane.lane_index < 0 <= self.next_turn.target_lane.lane_index and self.next_turn.direction == TurnDirection.RIGHT or
-                self.next_turn.direction == TurnDirection.LEFT and self.next_turn.target_lane.lane_index < 0):
-            raise CarValidationError(content="Car cannot turn into a wrong-way lane.")
 
     def update_from_params(self, params: CarParams) -> None:
         """

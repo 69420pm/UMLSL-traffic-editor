@@ -41,6 +41,13 @@ class TrafficSnapshotValidator:
         if not self._check_transition_valid(car.transition, car.lane, car.speed < 0):
             raise CarTrafficSnapshotContextValidationError(
                 content=f"Car '{car.name}' has an invalid transition: {car.transition} from lane {car.lane}.")
+        # Todo other checks?
+        # if self._model.get_road_by_uid(
+        #         car.lane.road_uid).orientation == RoadOrientation.HORIZONTAL and car.next_turn.direction == TurnDirection.RIGHT and (
+        #         (car.lane.lane_index >= 0 > car.next_turn.target_lane.lane_index) or (
+        #         car.lane.lane_index < 0 <= car.next_turn.target_lane.lane_index)):
+        #     raise CarTrafficSnapshotContextValidationError(
+        #         content=f"Car '{car.name}' has an invalid turn intent: cannot turn from lane {car.lane} to lane {car.next_turn.target_lane} on a horizontal road.")
 
     def validate_car_and_autocorrect(self, car: "Car") -> bool:
         """
