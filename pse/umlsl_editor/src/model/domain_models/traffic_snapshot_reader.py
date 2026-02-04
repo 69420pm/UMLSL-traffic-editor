@@ -149,3 +149,7 @@ class TrafficSnapshotReader(ABC):
         Returns all segments in the snapshot for debugging purposes.
         """
         pass
+
+    @abstractmethod
+    def get_scene_size(self) -> float:
+        pass
