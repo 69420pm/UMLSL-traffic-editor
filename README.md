@@ -21,7 +21,7 @@ the PyQT6 library (installation in setup tutorial).
 
    *bash*:
    
-   pip install PySide6
+   pip install -r requirements.txt
 
 ## ▶️ Run Program
 
