@@ -17,9 +17,11 @@ the PyQT6 library (installation in setup tutorial).
    
    git clone https://github.com/69420pm/UMLSL-traffic-editor.git
    
-2. Install library dependencies.
+2. Navigate to main project folder and install library dependencies.
 
    *bash*:
+
+   cd UMLSL-traffic-editor
    
    pip install -r requirements.txt
 
