@@ -39,7 +39,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     """
 
     def get_scene_size(self) -> float:
-        pass
+        return self.screen_size
 
     def is_road_existing(self, uid: str) -> bool:
         if uid in self._horizontal_roads or uid in self._vertical_roads:
@@ -128,6 +128,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         """Read-only view of the cars dictionary."""
 
         self.lane_width = DIMENSION.LANE_WIDTH
+        self.screen_size = (DIMENSION.SCENE_SIZE + 100) / 2
 
         self.validator = TrafficSnapshotValidator(self)
 
