@@ -25,8 +25,8 @@ the PyQT6 library (installation in setup tutorial).
    
    pip install -r requirements.txt
 
-Now the installation is finished. The program can be run from this folder
-(the root folder) with the following command.
+Now the installation is finished. The program can be run from this current
+folder (the root folder) with the following command.
 
 ## ▶️ Run Program
 
