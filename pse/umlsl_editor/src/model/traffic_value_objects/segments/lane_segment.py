@@ -37,23 +37,23 @@ class LaneSegment(Segment):
             y = lane_pos
             left_neighbor = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.LEFT)
             if left_neighbor is None:
-                x = -float("inf")
+                x = -traffic_snapshot_reader.get_scene_size()
             elif isinstance(left_neighbor, CrossingSegment):
                 # Start after the crossing ends (crossing's right edge)
                 x = left_neighbor.get_position(traffic_snapshot_reader)[0] + lane_width
             else:
-                x = -float("inf")
+                x = -traffic_snapshot_reader.get_scene_size()
         else:
             # Vertical lane: X is fixed from lane position, Y from top neighbor
             x = lane_pos
             top_neighbor = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.UP)
             if top_neighbor is None:
-                y = -float("inf")
+                y = -traffic_snapshot_reader.get_scene_size()
             elif isinstance(top_neighbor, CrossingSegment):
                 # Start after the crossing ends (crossing's bottom edge)
                 y = top_neighbor.get_position(traffic_snapshot_reader)[1] + lane_width
             else:
-                y = -float("inf")
+                y = -traffic_snapshot_reader.get_scene_size()
 
         return x, y
 
@@ -72,29 +72,37 @@ class LaneSegment(Segment):
             left_neighbor = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.LEFT)
             right_neighbor = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.RIGHT)
 
-            if left_neighbor is None or right_neighbor is None:
-                width = float("inf")
+            if left_neighbor is None and isinstance(right_neighbor, CrossingSegment):
+                right_x = right_neighbor.get_position(traffic_snapshot_reader)[0]
+                width = traffic_snapshot_reader.get_scene_size() - right_x
+            elif right_neighbor is None and isinstance(left_neighbor, CrossingSegment):
+                top_y = left_neighbor.get_position(traffic_snapshot_reader)[0]
+                width = traffic_snapshot_reader.get_scene_size() - (top_y + lane_width)
             elif isinstance(left_neighbor, CrossingSegment) and isinstance(right_neighbor, CrossingSegment):
                 # Width = right_crossing.x - (left_crossing.x + lane_width)
                 right_x = right_neighbor.get_position(traffic_snapshot_reader)[0]
-                left_x = left_neighbor.get_position(traffic_snapshot_reader)[0]
-                width = right_x - (left_x + lane_width)
+                top_y = left_neighbor.get_position(traffic_snapshot_reader)[0]
+                width = right_x - (top_y + lane_width)
             else:
-                width = float("inf")
+                raise ValueError('LaneSegment size calculation error: Lane Segment without neighbouring segments.')
         else:
             # Vertical lane: width is lane_width, height varies based on crossings
             width = lane_width
             top_neighbor = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.UP)
             bottom_neighbor = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.DOWN)
 
-            if top_neighbor is None or bottom_neighbor is None:
-                height = float("inf")
+            if top_neighbor is None and isinstance(bottom_neighbor, CrossingSegment):
+                bottom_y = bottom_neighbor.get_position(traffic_snapshot_reader)[1]
+                height = traffic_snapshot_reader.get_scene_size() - bottom_y
+            elif bottom_neighbor is None and isinstance(top_neighbor, CrossingSegment):
+                top_y = top_neighbor.get_position(traffic_snapshot_reader)[1]
+                height = traffic_snapshot_reader.get_scene_size() - (top_y + lane_width)
             elif isinstance(top_neighbor, CrossingSegment) and isinstance(bottom_neighbor, CrossingSegment):
                 # Height = bottom_crossing.y - (top_crossing.y + lane_width)
                 bottom_y = bottom_neighbor.get_position(traffic_snapshot_reader)[1]
                 top_y = top_neighbor.get_position(traffic_snapshot_reader)[1]
                 height = bottom_y - (top_y + lane_width)
             else:
-                height = float("inf")
+                raise ValueError('LaneSegment size calculation error: Lane Segment without neighbouring segments.')
 
         return width, height
