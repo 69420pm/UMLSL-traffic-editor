@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>320</width>
-    <height>570</height>
+    <width>324</width>
+    <height>620</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,13 +21,13 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>320</width>
-    <height>570</height>
+    <width>0</width>
+    <height>0</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>320</width>
+    <width>16777215</width>
     <height>16777215</height>
    </size>
   </property>
@@ -206,110 +206,9 @@ QPushButton#b_delete:pressed {
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="QWidget" name="widget" native="true">
-     <layout class="QVBoxLayout" name="General">
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <property name="sizeConstraint">
-       <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
-      </property>
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>8</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <item alignment="Qt::AlignmentFlag::AlignLeft">
-       <widget class="QWidget" name="widget_3" native="true">
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <property name="leftMargin">
-          <number>8</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>4</number>
-         </property>
-         <item>
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Preview</string>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
-           <property name="class" stdset="0">
-            <string>label</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QWidget" name="widget" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>32</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>32</height>
-         </size>
-        </property>
-        <property name="class" stdset="0">
-         <string>container</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout" columnstretch="0">
-         <property name="leftMargin">
-          <number>8</number>
-         </property>
-         <property name="topMargin">
-          <number>4</number>
-         </property>
-         <property name="rightMargin">
-          <number>4</number>
-         </property>
-         <property name="bottomMargin">
-          <number>4</number>
-         </property>
-         <property name="horizontalSpacing">
-          <number>4</number>
-         </property>
-         <property name="verticalSpacing">
-          <number>8</number>
-         </property>
-         <item row="0" column="0">
-          <widget class="QLabel" name="l_preview">
-           <property name="text">
-            <string>Preview Label</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignmentFlag::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
+   <property name="sizeConstraint">
+    <enum>QLayout::SizeConstraint::SetFixedSize</enum>
+   </property>
    <item>
     <widget class="QWidget" name="widget_4" native="true">
      <layout class="QVBoxLayout" name="General_2">
@@ -364,6 +263,18 @@ QPushButton#b_delete:pressed {
       </item>
       <item>
        <widget class="QWidget" name="widget_6" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>300</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>300</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="class" stdset="0">
          <string>container</string>
         </property>
@@ -429,17 +340,17 @@ QPushButton#b_delete:pressed {
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QTextEdit" name="t_umlsl">
+          <widget class="QLineEdit" name="t_umlsl">
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>32</height>
+             <height>24</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>100</height>
+             <height>24</height>
             </size>
            </property>
           </widget>

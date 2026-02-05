@@ -187,6 +187,9 @@ QPushButton#b_close:pressed {
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SizeConstraint::SetFixedSize</enum>
+   </property>
    <item>
     <widget class="QLabel" name="l_titel">
      <property name="text">
@@ -199,6 +202,18 @@ QPushButton#b_close:pressed {
    </item>
    <item>
     <widget class="QLabel" name="l_content">
+     <property name="minimumSize">
+      <size>
+       <width>300</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>300</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="text">
       <string>An error occurred while parsing  the selected file.  The file may be corrupted  or not in the valid JSON format.</string>
      </property>
@@ -246,7 +261,7 @@ QPushButton#b_close:pressed {
         <string>Close</string>
        </property>
        <property name="icon">
-        <iconset resource="resources.qrc">
+        <iconset>
          <normaloff>:/icons/icons/Cancel.svg</normaloff>:/icons/icons/Cancel.svg</iconset>
        </property>
       </widget>

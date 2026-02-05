@@ -16,7 +16,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QDialog, QHBoxLayout, QLabel,
-    QPushButton, QSizePolicy, QVBoxLayout, QWidget)
+    QLayout, QPushButton, QSizePolicy, QVBoxLayout,
+    QWidget)
 from . import resources_rc
 
 class Ui_Delete_Dialog(object):
@@ -24,8 +25,8 @@ class Ui_Delete_Dialog(object):
         if not Delete_Dialog.objectName():
             Delete_Dialog.setObjectName(u"Delete_Dialog")
         Delete_Dialog.resize(320, 118)
-        Delete_Dialog.setMinimumSize(QSize(320, 0))
-        Delete_Dialog.setMaximumSize(QSize(320, 16777215))
+        Delete_Dialog.setMinimumSize(QSize(0, 0))
+        Delete_Dialog.setMaximumSize(QSize(16777215, 16777215))
         Delete_Dialog.setStyleSheet(u"QDialog {\n"
 "    background-color: #011C26; \n"
 "}\n"
@@ -202,6 +203,7 @@ class Ui_Delete_Dialog(object):
 "}")
         self.verticalLayout = QVBoxLayout(Delete_Dialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
         self.label = QLabel(Delete_Dialog)
         self.label.setObjectName(u"label")
 
@@ -209,6 +211,8 @@ class Ui_Delete_Dialog(object):
 
         self.l_content = QLabel(Delete_Dialog)
         self.l_content.setObjectName(u"l_content")
+        self.l_content.setMinimumSize(QSize(300, 0))
+        self.l_content.setMaximumSize(QSize(300, 16777215))
 
         self.verticalLayout.addWidget(self.l_content)
 

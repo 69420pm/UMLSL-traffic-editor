@@ -16,8 +16,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QDialog, QHBoxLayout, QLabel,
-    QPushButton, QSizePolicy, QSpacerItem, QVBoxLayout,
-    QWidget)
+    QLayout, QPushButton, QSizePolicy, QSpacerItem,
+    QVBoxLayout, QWidget)
 from . import resources_rc
 
 class Ui_Error_Dialog(object):
@@ -191,6 +191,7 @@ class Ui_Error_Dialog(object):
 "}")
         self.verticalLayout = QVBoxLayout(Error_Dialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
         self.l_titel = QLabel(Error_Dialog)
         self.l_titel.setObjectName(u"l_titel")
 
@@ -198,6 +199,8 @@ class Ui_Error_Dialog(object):
 
         self.l_content = QLabel(Error_Dialog)
         self.l_content.setObjectName(u"l_content")
+        self.l_content.setMinimumSize(QSize(300, 0))
+        self.l_content.setMaximumSize(QSize(300, 16777215))
 
         self.verticalLayout.addWidget(self.l_content)
 
