@@ -28,6 +28,8 @@ from pse.umlsl_editor.src.view.view_constants import DIMENSION
 
 logger = logging.getLogger(__name__)
 
+SHOW_DEBUG_SEGMENTS = True
+
 
 class TrafficScene(QGraphicsScene):
     """
@@ -142,6 +144,8 @@ class TrafficScene(QGraphicsScene):
             self._check_and_create_crossings(graphics_item)
             self._reassign_orphaned_cars(road, graphics_item)
 
+            if SHOW_DEBUG_SEGMENTS: self._refresh_debug_segments()
+
     def _reassign_orphaned_cars(self, road: Road, road_item: RoadItem) -> None:
         """
         Updates existing cars that belong to this new road.
@@ -168,7 +172,7 @@ class TrafficScene(QGraphicsScene):
             if isinstance(road_item, RoadItem):
                 road_item.update_data(road)
 
-        # self._refresh_debug_segments()
+        if SHOW_DEBUG_SEGMENTS: self._refresh_debug_segments()
 
     def _on_roads_removed(self, parent: QModelIndex, first: int, last: int) -> None:
         """Removes RoadItem and associated crossings."""
@@ -188,7 +192,7 @@ class TrafficScene(QGraphicsScene):
 
             self.removeItem(road_item)
 
-        # self._refresh_debug_segments()
+        if SHOW_DEBUG_SEGMENTS: self._refresh_debug_segments()
 
     # -------------------------------------------------------------------------
     # Crossing Management
