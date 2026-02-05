@@ -454,14 +454,14 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                 # Flow Direction Setup
                 if lane.lane_index >= 0:
                     flow_uids = segments_uids
-                    flow_dir = Direction.DOWN
+                    flow_dir = Direction.UP
                 else:
                     flow_uids = list(reversed(segments_uids))
-                    flow_dir = Direction.UP
+                    flow_dir = Direction.DOWN
 
                 # Connect Flow
                 for i in range(len(flow_uids) - 1):
-                    self._graph.add_edge(flow_uids[i], flow_uids[i + 1], direction=flow_dir)
+                    self._graph.add_edge(flow_uids[i + 1], flow_uids[i], direction=flow_dir)
 
             # Connect Lateral
             for i in range(len(v_lanes) - 1):
