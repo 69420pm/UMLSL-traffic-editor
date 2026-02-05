@@ -122,8 +122,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         """Dictionary of segments, keyed by their uid."""
         # self._connections: dict[str, dict[Direction, str]] = {}
         # """Dictionary of segment connections, keyed by segment uid. And in the direction dict all connected segments uids."""
-        self._segments_by_lane: dict[int, list[str]] = {}
-        """Dictionary mapping the hash(lane) to their corresponding segment uids."""
+        self._segments_by_lane: dict[Lane, list[str]] = {}
+        """Dictionary mapping the lane to their corresponding segment uids."""
         self._graph = nx.DiGraph()
         """Graph representing the connectivity of segments."""
 
@@ -183,14 +183,12 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             self._horizontal_roads[road.uid] = road
         else:
             self._vertical_roads[road.uid] = road
-        # self._recalculate_static_segments()
 
     def remove_road(self, road_uid: str) -> None:
         if road_uid in self._horizontal_roads:
             self._horizontal_roads.pop(road_uid)
         elif road_uid in self._vertical_roads:
             self._vertical_roads.pop(road_uid)
-        # self._recalculate_static_segments()
 
     def update_road(self, road_uid: str, road_params: RoadParams) -> None:
         road = self.get_road_by_uid(road_uid)
@@ -211,8 +209,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             else:
                 self._vertical_roads[road_uid] = road
 
-        # self._recalculate_static_segments()
-
     def add_car(self, car: Car) -> None:
         self._cars[car.uid] = car
 
@@ -224,56 +220,26 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         car.update_from_params(car_params)
         self._cars[car_uid] = car
 
-    def _recalculate_car_claimed_and_reserved_segments(self, car: Car) -> None:
-        # calculate claimed segments
+    def get_segment_from_lane_position(self, lane: Lane, position_on_lane: float) -> Segment | None:
+        segment_uids = self._segments_by_lane.get(lane)
+        if segment_uids is None:
+            return None
 
-        # calculate reserved segments
-
-        pass
-
-    def _get_car_tail_segment(self, car: Car) -> Segment:
-        """
-        Get the segment where the tail of the car is positioned.
-
-        Args:
-            car: The car to find the tail segment for.
-
-        Returns:
-            The Segment containing the car's tail position.
-
-        Raises:
-            ValueError: If the car's lane has no segments or segment not found.
-        """
-        tail_x, tail_y = car.get_tail_position(self)
-
-        lane_hash = hash(car.lane)
-        if lane_hash not in self._segments_by_lane:
-            raise ValueError(f"Lane {car.lane} not found in segment map.")
-
-        segment_uids = self._segments_by_lane[lane_hash]
-
-        # Determine orientation
-        road = self.get_road_by_uid(car.lane.road_uid)
-        orientation = road.orientation
-
-        target_pos = tail_x if orientation == RoadOrientation.HORIZONTAL else tail_y
-
-        for uid in segment_uids:
-            segment = self._segments[uid]
-            segment_position = segment.get_position(self)
-            segment_size = segment.get_size(self)
-
-            if orientation == RoadOrientation.HORIZONTAL:
-                start = segment_position[1]
-                end = segment_position[1] + segment_size[1]
-            else:
-                start = segment_position[0]
-                end = segment_position[0] + segment_size[0]
-
-            if start <= target_pos <= end:
-                return segment
-
-        raise ValueError(f"Could not find segment for car tail at {target_pos} on lane {car.lane}")
+        road = self.get_road_by_uid(lane.road_uid)
+        previous_segment: Segment | None = None
+        for segment_uid in segment_uids:
+            segment = self._segments[segment_uid]
+            if road.orientation == RoadOrientation.HORIZONTAL:
+                if segment.get_position(self)[1] <= position_on_lane:
+                    previous_segment = segment
+                else:
+                    return previous_segment
+            if road.orientation == RoadOrientation.VERTICAL:
+                if segment.get_position(self)[0] <= position_on_lane:
+                    previous_segment = segment
+                else:
+                    return previous_segment
+        return None
 
     def _get_neighbor_in_direction(self, segment_uid: str, direction: Direction) -> str | None:
         """Get the neighboring segment UID in a given direction from the graph."""
@@ -356,7 +322,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                     flow_uids = [s.uid for s in segments]
                     flow_dir = Direction.RIGHT
 
-                self._segments_by_lane[hash(lane)] = flow_uids
+                self._segments_by_lane[lane] = flow_uids
 
                 # Connect Flow
                 for i in range(len(flow_uids) - 1):
@@ -410,7 +376,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                     flow_uids = [s.uid for s in reversed(segments)]
                     flow_dir = Direction.UP
 
-                self._segments_by_lane[hash(lane)] = flow_uids
+                self._segments_by_lane[lane] = flow_uids
 
                 # Connect Flow
                 for i in range(len(flow_uids) - 1):
