@@ -13,7 +13,7 @@ class ReserveNode(AtomNode):
         self._car_resolve = car_resolve
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
-        if len(view.seq_lanes) != 1 or view.space_interval.length() <= 0:
+        if len(view.virtual_lanes) != 1 or view.space_interval.length() <= 0:
             return False
 
         # the car to evaluate the reserve node on

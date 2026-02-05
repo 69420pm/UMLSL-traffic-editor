@@ -33,8 +33,8 @@ class HorizontalChopNode(BinaryNode):
             space_interval1 = Interval(space_interval.start, split_value)
             space_interval2 = Interval(split_value, space_interval.end)
 
-            view1 = View(view.seq_lanes, space_interval1, view.car)
-            view2 = View(view.seq_lanes, space_interval2, view.car)
+            view1 = View(view.virtual_lanes, space_interval1, view.car)
+            view2 = View(view.virtual_lanes, space_interval2, view.car)
 
             if (self._left.evaluate(traffic_snapshot, view1, variable_car_map)
                     and self._right.evaluate(traffic_snapshot, view2, variable_car_map)):
@@ -60,7 +60,7 @@ class VerticalChopNode(BinaryNode):
         super().__init__(Precedence.BINARY_CHOP, left, right)
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
-        seq_lanes = view.seq_lanes
+        seq_lanes = view.virtual_lanes
 
         for split_index in range(0, len(seq_lanes) + 1):
             smaller = seq_lanes[:split_index]  # take all lanes whose index is < split_index
