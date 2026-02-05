@@ -7,10 +7,11 @@ from pse.umlsl_editor.src.model.helper.directional_graph import Direction
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.position import Position
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import VirtualLane, Segment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
-from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent, TurnDirection
+from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnDirection
 from pse.umlsl_editor.src.query.view import View
 
 
@@ -25,13 +26,19 @@ class CarEnvironment:
     This class includes information on how the car interacts with the segments of the traffic snapshot.
     """
 
-    # The list of virtual lanes of the car.
-    virtual_lanes: list[VirtualLane]
-    # The virtual lane that corresponds to the pursuit path of the car.
-    path_pursuit: VirtualLane
+    # List of parallel virtual lanes.
+    parallel_virtual_lanes: list[VirtualLane]
+    # The path of the car which is a list of segments.
+    path: VirtualLane
     # The path of the car where each segment is equipped with an interval.
-    # Computes by the seg_V method in the paper - if we assume the View occupies the entire map.
+    # This is analogous to the seg_V method in the paper if we assume the view occupies the entire map.
+    # To access only the visible segments in a view, use the path_segments_in_view function in this class.
     path_segment_intervals: list[SegmentInterval]
+
+    reserved_lanes: list[SegmentInterval]
+    reserved_crossings: list[CrossingSegment]
+    claimed_lanes: list[SegmentInterval]
+    claimed_crossings: list[CrossingSegment]
 
     def path_segments_in_view(self, view: View) -> list[SegmentInterval]:
         # collect visible segments in the view

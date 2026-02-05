@@ -13,7 +13,7 @@ class FreeNode(AtomNode):
 
         return all(
             map(
-                lambda car: len(car.car_environment.path_segments_in_view(view)) == 0,
+                lambda car: len(car.environment.path_segments_in_view(view)) == 0,
                 traffic_snapshot.get_car_list()
             )
         )

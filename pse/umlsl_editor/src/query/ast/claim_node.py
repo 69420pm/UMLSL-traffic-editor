@@ -18,7 +18,7 @@ class ClaimNode(AtomNode):
         car_eval = self._car_resolve.resolve(variable_car_map)
 
         # 1) claim evaluates true if all segment in the lane are crossing segments
-        reserved_crossings = car_eval.reserved_crossings
+        reserved_crossings = car_eval.environment.reserved_crossings
         if all(map(lambda s: s in reserved_crossings, lane.segments)):
             return True
 
@@ -27,7 +27,7 @@ class ClaimNode(AtomNode):
             return False
         target_segment = lane.segments[0]
 
-        for segment_interval in car_eval.car_environment.path_segments_in_view(view):
+        for segment_interval in car_eval.environment.path_segments_in_view(view):
             interval: Interval = segment_interval.interval
             segment: Segment = segment_interval.segment
 
