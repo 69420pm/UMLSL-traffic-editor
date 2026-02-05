@@ -3,6 +3,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
+from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
+from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnDirection
+
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import Direction
     from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
@@ -152,4 +155,22 @@ class TrafficSnapshotReader(ABC):
 
     @abstractmethod
     def get_scene_size(self) -> float:
+        pass
+
+    @abstractmethod
+    def get_valid_turn_intent_lanes(self, car_position: float, car_speed: float, car_lane: Lane,
+                                    turn_direction: TurnDirection) -> list[Lane]:
+        """
+        Returns a valid target lane for the given turn intent, or None if no valid lane exists. A car can't turn into
+        a wrong-way lane.
+
+        Args:
+            car_position: The current position of the car on its lane.
+            car_speed: The current speed of the car to determine in which direction the car is driving.
+            car_lane: The current lane of the car.
+            turn_direction: The intended turn direction (LEFT or RIGHT).
+
+        Returns:
+            A valid target Lane for the turn intent, or None if no valid lane exists.
+        """
         pass
