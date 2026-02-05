@@ -20,7 +20,6 @@ class Orientation(Enum):
     VERTICAL = 1
 
 
-@dataclass
 class CarEnvironment:
     """
     This class includes information on how the car interacts with the segments of the traffic snapshot.
@@ -49,6 +48,7 @@ class CarEnvironment:
         car.absolute_position() + horizon
     )
     """
+
 
     def path_segments_in_view(self, view: View) -> list[SegmentInterval]:
         # collect visible segments in the view
@@ -93,10 +93,10 @@ class CarEnvironment:
         if turn_direction == TurnDirection.STRAIGHT:
             path = _compute_path_straight(ts, car_direction, segment)
             print("path is ", path)
-            return CarEnvironment([], path, [])
+            return CarEnvironment()
         else:
             # todo
-            return CarEnvironment([], VirtualLane([]), [])
+            return CarEnvironment()
         #  visible_segments = _compute_visible_segments(traffic_snapshot, path, pos, car_size)
 
         #  interval_start_offset = pos.clone().lane_pos

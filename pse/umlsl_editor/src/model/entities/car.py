@@ -109,13 +109,7 @@ class Car(Entity):
 
 
 
-
-    # passt
     environment: CarEnvironment
-
-    # view_segments: list[LaneInterval and Crossings]
-    view_segments: list[Any]
-
     acceleration: float
 
     _should_validate: bool = False
@@ -164,12 +158,7 @@ class Car(Entity):
             speed=params.speed,
             length=params.length,
             next_turn=params.next_turn,
-            reserved_lanes=[],
-            claimed_lanes=[],
-            reserved_crossings=[],
-            claimed_crossings=[],
-            view_segments=[],
-            car_environment=car_env,
+            environment=car_env,
             acceleration=params.acceleration,
         )
 
