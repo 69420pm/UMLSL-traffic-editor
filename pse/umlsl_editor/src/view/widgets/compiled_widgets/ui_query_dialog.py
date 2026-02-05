@@ -259,7 +259,7 @@ class Ui_Edit_Query_Dialog(object):
 
         self.label_32 = QLabel(self.widget_6)
         self.label_32.setObjectName(u"label_32")
-        self.label_32.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignTop)
+        self.label_32.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
         self.label_32.setMargin(0)
 
         self.formLayout.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_32)
