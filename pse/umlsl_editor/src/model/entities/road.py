@@ -168,6 +168,8 @@ class Road(Entity):
             self.validate()
 
     def get_bounds(self) -> tuple[float, float]:
+        """Calculate the bounds of the road based on its position and number of lanes on the relevant axis according
+        to its orientation. The first value is the lower bound, the second value the upper bound."""
         if self.orientation == RoadOrientation.HORIZONTAL:
             return self.position - DIMENSION.LANE_WIDTH * len(
                 self.forward_lanes), self.position + DIMENSION.LANE_WIDTH * len(self.backward_lanes)

@@ -467,6 +467,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                         self._graph.add_edge(s_l.uid, s_r.uid, direction=Direction.RIGHT)
                         self._graph.add_edge(s_r.uid, s_l.uid, direction=Direction.LEFT)
 
+        self.print_segments_by_lane()
         self.print_graph()
 
     def print_graph(self) -> None:
@@ -545,3 +546,13 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
         """
         raise NotImplementedError
+
+    def print_segments_by_lane(self):
+        for lane, segment_uids in self._segments_by_lane.items():
+            road = self.get_road_by_uid(lane.road_uid)
+            print(f"Lane {lane.lane_index} on Road {road.name} has segments:")
+            for uid in segment_uids:
+                segment = self._segments[uid]
+                position = segment.get_position(self)
+                print(f"  - {segment.uid}: {type(segment).__name__}, position={position}")
+        pass
