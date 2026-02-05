@@ -142,14 +142,16 @@ class Car(Entity):
         Returns:
             A new Car instance with attributes from the params.
         """
-        car_env = CarEnvironment.create_environment(
-            ts_reader,
-            params.lane,
-            params.position_on_lane,
-            params.length,
-            params.next_turn
-        )
-
+        if params.next_turn is None:
+            car_env = CarEnvironment.empty()
+        else:
+            car_env = CarEnvironment.create_environment(
+                ts_reader,
+                params.lane,
+                params.position_on_lane,
+                params.length,
+                params.next_turn
+            )
         return cls(
             uid=generate_uid(),
             name=params.name,
@@ -213,7 +215,7 @@ class Car(Entity):
         if self.next_turn is not None and not isinstance(self.next_turn, TurnIntent):
             raise CarValidationError(content="Next turn must be None or a TurnIntent instance.")
 
-    def update_from_params(self, params: CarParams) -> None:
+    def update_from_params(self, params: CarParams, ts_reader: TrafficSnapshotReader) -> None:
         """
         Updates the Car instance's attributes based on a CarParams dataclass.
 
@@ -223,6 +225,19 @@ class Car(Entity):
         Raises:
             CarValidationError: If any validation check fails.
         """
+
+        if params.next_turn is None:
+            car_env = CarEnvironment.empty()
+        else:
+            car_env = CarEnvironment.create_environment(
+                ts_reader,
+                params.lane,
+                params.position_on_lane,
+                params.length,
+                params.next_turn
+            )
+        self.car_environment = car_env
+
         self._should_validate = False
         self.name = params.name
         self.lane = params.lane

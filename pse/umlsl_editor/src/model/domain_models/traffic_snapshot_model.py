@@ -216,7 +216,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def update_car_with_params(self, car_uid: str, car_params: CarParams) -> None:
         car = self._cars.get(car_uid)
-        car.update_from_params(car_params)
+        car.update_from_params(car_params, self)
         self._cars[car_uid] = car
 
     def _recalculate_car_claimed_and_reserved_segments(self, car: Car) -> None:

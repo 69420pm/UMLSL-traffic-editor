@@ -2,17 +2,20 @@ from dataclasses import dataclass
 from enum import Enum
 
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.helper.directional_graph import Direction
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.position import Position
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Path
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Path, Segment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
-from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
+from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent, TurnDirection
+
 
 class Orientation(Enum):
     HORIZONTAL = 0
     VERTICAL = 1
+
 
 @dataclass
 class CarEnvironment:
@@ -29,43 +32,59 @@ class CarEnvironment:
     path_segment_intervals: list[SegmentInterval]
 
     @staticmethod
+    def empty():
+        return CarEnvironment([], Path([]), [])
+
+    @staticmethod
     def create_environment(
-            traffic_snapshot: TrafficSnapshotReader,
+            ts: TrafficSnapshotReader,
             car_lane: Lane,
             pos_on_lane: float,
             car_size: float,
             turn_intent: TurnIntent
     ) -> 'CarEnvironment':
         road_id = car_lane.road_uid
+        road = ts.get_road_by_uid(road_id)
 
-        x = car_lane.get_one_dimensional_position(traffic_snapshot)
-        print("pos is " , x)
+        lane_pos = car_lane.get_one_dimensional_position(ts)
+        print("lane pos is ", lane_pos, " pos on lane: ", pos_on_lane)
 
-        road = traffic_snapshot.get_road_by_uid(road_id)
-        path = _compute_path()
-      #  visible_segments = _compute_visible_segments(traffic_snapshot, path, pos, car_size)
+        if turn_intent.direction == TurnDirection.STRAIGHT:
+            path = _compute_path_straight(ts, car_lane)
+            return CarEnvironment([], path, [])
+        else:
+            # todo
+            return CarEnvironment([], Path([]), [])
+        #  visible_segments = _compute_visible_segments(traffic_snapshot, path, pos, car_size)
 
+        #  interval_start_offset = pos.clone().lane_pos
 
-      #  interval_start_offset = pos.clone().x
+def _compute_path_straight(ts: TrafficSnapshotReader, car_direction: Direction, car_lane: Lane) -> Path:
+    car_segment: Segment = None # get segment?
 
+    path = [car_segment]
+    next_segment = ts.get_adjacent_segment(car_segment.uid, car_direction)
+    while next_segment is not None:
+        path.append(next_segment)
+        next_segment = ts.get_adjacent_segment(next_segment.uid, car_direction)
 
-        return CarEnvironment([], path, [])
-        # todo
-        pass
+    return Path(path)
 
 
 def _compute_path() -> Path:
     pass
 
 
-def _compute_visible_segments(ts: TrafficSnapshotReader, path: Path, pos: Position, car_lane: LaneSegment, car_size: float) -> list[SegmentInterval]:
+def _compute_visible_segments(ts: TrafficSnapshotReader, path: Path, pos: Position, car_lane: LaneSegment,
+                              car_size: float) -> list[SegmentInterval]:
     start_pos = car_lane.lane.get_one_dimensional_position(ts)
 
     return []
 
 
 def _compute_visible_segments_iteratively(ts: TrafficSnapshotReader, path: Path, seg_orientations: list[Orientation],
-                              interval_start_offset: float, pos: Position, car_size: float) -> list[SegmentInterval]:
+                                          interval_start_offset: float, pos: Position, car_size: float) -> list[
+    SegmentInterval]:
     # todo: take pos component into account
     result = []
 
