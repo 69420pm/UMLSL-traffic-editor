@@ -163,6 +163,15 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     def get_cars(self) -> dict[str, Car]:
         return dict(self._read_only_cars)
 
+    def get_car_list(self) -> list[Car]:
+        return list(self._cars.values())
+
+    def get_car_by_name(self, name: str) -> Car | None:
+        for car in self._cars.values():
+            if car.name == name:
+                return car
+        return None
+
     def get_roads(self) -> dict[str, Road]:
         return {**self._horizontal_roads, **self._vertical_roads}
 

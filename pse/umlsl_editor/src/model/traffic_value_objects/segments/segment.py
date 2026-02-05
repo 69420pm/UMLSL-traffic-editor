@@ -23,7 +23,7 @@ class Segment(ABC):
 
 
 @dataclass
-class Path:
+class VirtualLane:
     """Describes a list of ordered segments"""
     segments: list[Segment]
 

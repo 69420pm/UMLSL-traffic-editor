@@ -9,7 +9,7 @@ from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.car_environment import CarEnvironment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Path
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import VirtualLane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent, TurnDirection
 
@@ -107,25 +107,9 @@ class Car(Entity):
     # laneA: Lane
     # laneB: Lane
 
-    # reserved_lanes: list[laneIntervalls]
-    reserved_lanes: list[SegmentInterval]
 
-    # passt
-    reserved_crossings: list[CrossingSegment]
 
-    # clamied_intervalls: list[laneIntervalls]
-    claimed_lanes: list[SegmentInterval]
-
-    # Dont need these?, sonst passt
-    # todo: curr : I → Z such that curr(C ) is (the index - we save the object) of the path element of pth(C) currently occupied by the rear of C
-    claimed_crossings: list[CrossingSegment]
-
-    # passt
-    car_environment: CarEnvironment
-
-    # view_segments: list[LaneInterval and Crossings]
-    view_segments: list[Any]
-
+    environment: CarEnvironment
     acceleration: float
 
     _should_validate: bool = False
@@ -174,12 +158,7 @@ class Car(Entity):
             speed=params.speed,
             length=params.length,
             next_turn=params.next_turn,
-            reserved_lanes=[],
-            claimed_lanes=[],
-            reserved_crossings=[],
-            claimed_crossings=[],
-            view_segments=[],
-            car_environment=car_env,
+            environment=car_env,
             acceleration=params.acceleration,
         )
 
@@ -264,7 +243,7 @@ class Car(Entity):
             turn_direction=TurnDirection.STRAIGHT
         )
 
-        self.car_environment = car_env
+        self.environment = car_env
 
         self._should_validate = False
         self.name = params.name

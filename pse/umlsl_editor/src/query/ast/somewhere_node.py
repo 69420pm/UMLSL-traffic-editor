@@ -8,7 +8,7 @@ from pse.umlsl_editor.src.query.view import View
 
 class SomewhereNode(UnaryNode):
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
-        # we treat <phi> as <phi> = true hchop (true vchp (phi vchop true)) hchp true (infix notation for readability)
+        # we treat <phi> as "<phi> = true hchop (true vchp (phi vchop true)) hchp true" (infix notation for readability)
         # todo: iterate through all sub-layers directly for performance optimization
         vertical_somewhere_node = VerticalChopNode(
             TrueNode(),
