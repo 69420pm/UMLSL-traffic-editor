@@ -5,6 +5,7 @@ from pse.umlsl_editor.src.model.errors.car_errors import CarTrafficSnapshotConte
 from pse.umlsl_editor.src.model.errors.road_errors import RoadTrafficSnapshotContextValidationError
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
+from pse.umlsl_editor.src.view.view_constants import DIMENSION
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.model.entities.car import Car, CarParams
@@ -76,6 +77,17 @@ class TrafficSnapshotValidator:
             if not self._check_road_name_unique(road_params.name):
                 raise RoadTrafficSnapshotContextValidationError(
                     content=f"Road name '{road_params.name}' is not unique in the traffic snapshot.")
+
+        roads = self._model.get_roads().values()
+        bounds: tuple[
+            float, float] = road_params.position - road_params.number_of_backward_lanes * DIMENSION.LANE_WIDTH, road_params.position + road_params.number_of_forward_lanes * DIMENSION.LANE_WIDTH
+        for road in roads:
+            if road.orientation == road_params.orientation:
+                road_bounds = road.get_bounds()
+                if road_bounds[0] <= bounds[0] and road_bounds[1] >= bounds[1] or road_bounds[0] >= bounds[0] and \
+                        road_bounds[1] <= bounds[1]:
+                    raise RoadTrafficSnapshotContextValidationError(
+                        content=f"Roads can't overlap each other. Please change position or number of forward or backward lanes.")
 
     def validate_road_and_autocorrect(self, road_uid: str) -> bool:
         """

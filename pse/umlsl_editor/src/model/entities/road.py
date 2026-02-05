@@ -5,6 +5,7 @@ from pse.umlsl_editor.src.model.entities.entity import Entity
 from pse.umlsl_editor.src.model.errors.road_errors import RoadValidationError
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
+from pse.umlsl_editor.src.view.view_constants import DIMENSION
 
 
 class RoadOrientation(Enum):
@@ -165,6 +166,9 @@ class Road(Entity):
         super().__setattr__(name, value)
         if getattr(self, "_initialized", False) and getattr(self, "_should_validate", True):
             self.validate()
+
+    def get_bounds(self) -> tuple[float, float]:
+        return self.position - DIMENSION.LANE_WIDTH * self.backward_lanes, self.position + DIMENSION.LANE_WIDTH * self.forward_lanes
 
     def validate(self) -> None:
         if not isinstance(self.name, str):
