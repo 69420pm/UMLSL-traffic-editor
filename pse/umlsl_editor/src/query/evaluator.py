@@ -31,7 +31,7 @@ class UMLSLEvaluator:
             car.absolute_position() - horizon,
             car.absolute_position() + horizon
         )
-        view = View(car.car_environment.virtual_lanes, horizontal_extension, car)
+        view = View(car.environment.parallel_virtual_lanes, horizontal_extension, car)
 
         latex_string = ast.to_latex()
         query_holds = ast.evaluate(self._traffic_snapshot, view, [])

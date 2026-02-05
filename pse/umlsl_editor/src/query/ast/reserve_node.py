@@ -18,14 +18,14 @@ class ReserveNode(AtomNode):
 
         # the car to evaluate the reserve node on
         eval_car = self._car_resolve.resolve(variable_car_map)
-        reserved_lane_intervals: list[SegmentInterval] = eval_car.reserved_lanes
+        reserved_lane_intervals: list[SegmentInterval] = eval_car.environment.reserved_lanes
 
-        visible_segments: list[SegmentInterval] = eval_car.car_environment.path_segments_in_view(view)
+        visible_segments: list[SegmentInterval] = eval_car.environment.path_segments_in_view(view)
 
         # check if all visible segments are reserved
         # if one of the segments is not reserved, the reserve node fails
         reserved_lanes: list[Segment] = list(map(lambda seg_interval: seg_interval.segment, reserved_lane_intervals))
-        reserved_crossings: list[Segment] = eval_car.reserved_crossings
+        reserved_crossings: list[Segment] = eval_car.environment.reserved_crossings
         for visible_segment in visible_segments:
             if visible_segment.segment not in reserved_lanes and visible_segment.segment not in reserved_crossings:
                 return False

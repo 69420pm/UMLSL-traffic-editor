@@ -107,21 +107,11 @@ class Car(Entity):
     # laneA: Lane
     # laneB: Lane
 
-    # reserved_lanes: list[laneIntervalls]
-    reserved_lanes: list[SegmentInterval]
+
+
 
     # passt
-    reserved_crossings: list[CrossingSegment]
-
-    # clamied_intervalls: list[laneIntervalls]
-    claimed_lanes: list[SegmentInterval]
-
-    # Dont need these?, sonst passt
-    # todo: curr : I → Z such that curr(C ) is (the index - we save the object) of the path element of pth(C) currently occupied by the rear of C
-    claimed_crossings: list[CrossingSegment]
-
-    # passt
-    car_environment: CarEnvironment
+    environment: CarEnvironment
 
     # view_segments: list[LaneInterval and Crossings]
     view_segments: list[Any]
@@ -264,7 +254,7 @@ class Car(Entity):
             turn_direction=TurnDirection.STRAIGHT
         )
 
-        self.car_environment = car_env
+        self.environment = car_env
 
         self._should_validate = False
         self.name = params.name
