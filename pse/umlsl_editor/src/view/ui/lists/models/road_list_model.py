@@ -38,9 +38,9 @@ class RoadListModel(EntityModel):
     ValueRole = EntityModel.NextRole + 2
 
     def __init__(
-        self,
-        application_controller: "ApplicationController",
-        parent=None,
+            self,
+            application_controller: "ApplicationController",
+            parent=None,
     ) -> None:
         """
         Initialize the road list model.
@@ -129,6 +129,7 @@ class RoadListModel(EntityModel):
             road = self._data[row]
             dialog = EditRoadDialog(
                 road,
+                parent=self.parent(),
                 application_controller=self._application_controller,
             )
             dialog.exec_()
