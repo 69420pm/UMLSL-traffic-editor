@@ -8,7 +8,7 @@ class FreeNode(AtomNode):
         super().__init__("free")
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
-        if len(view.seq_lanes) != 1 or view.space_interval.length() <= 0:
+        if len(view.virtual_lanes) != 1 or view.space_interval.length() <= 0:
             return False
 
         return all(

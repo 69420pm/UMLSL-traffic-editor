@@ -12,9 +12,9 @@ class ClaimNode(AtomNode):
         self._car_resolve = car_resolve
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
-        if len(view.seq_lanes) != 1 or view.space_interval.length() <= 0:
+        if len(view.virtual_lanes) != 1 or view.space_interval.length() <= 0:
             return False
-        lane = view.seq_lanes[0]
+        lane = view.virtual_lanes[0]
         car_eval = self._car_resolve.resolve(variable_car_map)
 
         # 1) claim evaluates true if all segment in the lane are crossing segments
