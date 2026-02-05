@@ -39,18 +39,33 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         # - TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED: Fired when a crossing segment is updated (data: CrossingSegment)
     """
 
-    def get_valid_turn_intent_lanes(self, car_position: float, car_speed: float, car_lane: Lane,
+    def get_valid_turn_intent_lanes(self, car_position: float, car_speed: float, car_lane: Lane, car_length: float,
                                     turn_direction: TurnDirection) -> list[Lane]:
         if car_speed <= 0:
             return []
-        segment = self.get_segment_from_position_on_lane(car_lane, car_position)
+
         road_of_lane = self.get_road_by_uid(car_lane.road_uid)
         if road_of_lane is None:
             raise ValueError(f"Road with uid {car_lane.road_uid} not found.")
 
         if road_of_lane.orientation == RoadOrientation.HORIZONTAL:
-            direction = Direction.LEFT if car_lane.lane_index>=0
+            direction = Direction.LEFT if car_lane.lane_index >= 0 else Direction.RIGHT
+        else:
+            direction = Direction.UP if car_lane.lane_index >= 0 else Direction.DOWN
 
+        segment = self.get_segment_from_position_on_lane(car_lane, car_position + car_length * (
+            1 if direction in [Direction.RIGHT, Direction.DOWN] else -1))
+
+        if segment is None:
+            return []
+
+        lanes_to_turn_into: list[Lane] = []
+        current_segment_uid = segment.uid
+        adjacent_segment = self.get_adjacent_segment(current_segment_uid, direction)
+        while isinstance(adjacent_segment, CrossingSegment):
+            lane_to_turn_into = adjacent_segment.horizontal_lane if road_of_lane.orientation == RoadOrientation.VERTICAL else adjacent_segment.vertical_lane
+
+            # go through all cases
 
         pass
 

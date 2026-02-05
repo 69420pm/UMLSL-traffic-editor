@@ -158,7 +158,7 @@ class TrafficSnapshotReader(ABC):
         pass
 
     @abstractmethod
-    def get_valid_turn_intent_lanes(self, car_position: float, car_speed: float, car_lane: Lane,
+    def get_valid_turn_intent_lanes(self, car_position: float, car_speed: float, car_lane: Lane, car_length: float,
                                     turn_direction: TurnDirection) -> list[Lane]:
         """
         Returns a valid target lane for the given turn intent, or None if no valid lane exists. A car can't turn into
@@ -167,6 +167,7 @@ class TrafficSnapshotReader(ABC):
         Args:
             car_position: The current position of the car on its lane.
             car_speed: The current speed of the car to determine in which direction the car is driving.
+            car_length: The length of the car
             car_lane: The current lane of the car.
             turn_direction: The intended turn direction (LEFT or RIGHT).
 
