@@ -286,10 +286,10 @@ class CarItem(SelectableGraphicsItem):
         idx_magnitude = abs(lane_idx)
 
         # Center offset relative to road midline
-        center_offset = (idx_magnitude + 0.5) * lane_width * sign * vertical_sign
+        center_offset = lane_idx * lane_width * vertical_sign + (lane_width / 2.0) * vertical_sign
 
         # Add transition offset (lane changing animation)
-        transition_offset = car.transition * lane_width
+        transition_offset = car.transition * lane_width * sign * vertical_sign
 
         # Get visual position of the road itself
         road_visual_pos = road.position + (road_item.x() if is_vertical else road_item.y())
