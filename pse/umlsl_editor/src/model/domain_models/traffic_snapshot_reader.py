@@ -28,6 +28,20 @@ class TrafficSnapshotReader(ABC):
         pass
 
     @abstractmethod
+    def get_car_list(self) -> list[Car]:
+        """
+        Returns the list of cars.
+        """
+        pass
+
+    @abstractmethod
+    def get_car_by_name(self, name: str) -> Car | None:
+        """
+        Returns the car with the specified name.
+        """
+        pass
+
+    @abstractmethod
     def get_roads(self) -> dict[str, Road]:
         """
         Returns a list of all roads in the snapshot.
@@ -176,7 +190,7 @@ class TrafficSnapshotReader(ABC):
         pass
 
     def get_segment_from_lane_position(self, lane: 'Lane', position_on_lane: float) -> Segment | None:
-         pass
+        pass
 
     def all_segments(self) -> list[Segment]:
         pass

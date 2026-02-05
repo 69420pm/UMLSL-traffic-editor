@@ -7,8 +7,8 @@ class VisibleSegment:
     def __init__(self):
         pass
 
-
-    def compute_visible_segments(self, view: View, car: Car) -> list[SegmentInterval]:
+    @staticmethod
+    def compute_visible_segments(view: View, car: Car) -> list[SegmentInterval]:
         # todo: extract visible lanes based on the space_interval and call the other method
         pass
 

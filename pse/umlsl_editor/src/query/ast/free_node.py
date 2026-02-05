@@ -1,7 +1,6 @@
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.query.ast.ast import AtomNode, View
-from pse.umlsl_editor.src.query.visible_segments import VisibleSegment
 
 
 class FreeNode(AtomNode):
@@ -11,9 +10,10 @@ class FreeNode(AtomNode):
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         if len(view.seq_lanes) != 1 or view.space_interval.length() <= 0:
             return False
+
         return all(
             map(
-                lambda car: len(VisibleSegment().compute_visible_segments(view, car)) == 0,
-                traffic_snapshot.get_cars()
+                lambda car: len(car.car_environment.path_segments_in_view(view)) == 0,
+                traffic_snapshot.get_car_list()
             )
         )
