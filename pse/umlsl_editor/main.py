@@ -8,7 +8,7 @@ import warnings
 from PySide6.QtWidgets import QApplication
 
 from pse.umlsl_editor.src.controllers import ApplicationController
-from pse.umlsl_editor.src.view.ui.exeption_handler import ExceptionHandler
+from pse.umlsl_editor.src.view.ui.exeption_handling.exeption_handler import ExceptionHandler
 from pse.umlsl_editor.src.view.ui.main_window import MainWindow
 
 

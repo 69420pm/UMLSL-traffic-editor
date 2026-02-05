@@ -7,7 +7,9 @@ such as name, color, speed, lane assignment, and turn direction.
 from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QDialog, QMessageBox
+from PySide6.QtWidgets import QDialog
+
+from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
@@ -89,11 +91,12 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
 
     def _show_no_roads_warning(self) -> None:
         """Show a warning message that no roads are available."""
-        QMessageBox.warning(
+        dialog = WarningDialog(
+            "Road Required",
+            "Cars must be placed on a road.\nPlease add a road to your scene first.",
             self.parent(),
-            "Warning",
-            "No roads available for lane assignment.",
         )
+        dialog.exec()
 
     def _create_default_car(self) -> Car:
         """

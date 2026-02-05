@@ -10,6 +10,8 @@ from typing import Optional
 
 from PySide6.QtWidgets import QMessageBox, QWidget
 
+from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+
 
 class ExceptionHandler:
     """
@@ -83,11 +85,7 @@ class ExceptionHandler:
             line: Unused (for compatibility with warnings.showwarning signature).
         """
         msg_text = str(message)
+        title = f"{category.__name__}"
 
-        box = QMessageBox(self._parent)
-        box.setIcon(QMessageBox.Warning)
-        box.setWindowTitle("Warning")
-        box.setText(f"{category.__name__}:\n{msg_text}")
-        box.setDetailedText(f"File: {filename}\nLine: {lineno}")
-        box.setStandardButtons(QMessageBox.Ok)
-        box.exec()
+        dialog = WarningDialog(title, msg_text, self._parent)
+        dialog.exec()

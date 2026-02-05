@@ -6,7 +6,10 @@ Provides a dialog window for creating and editing query entities.
 
 from typing import TYPE_CHECKING
 
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QDialog
+
+from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
@@ -55,9 +58,36 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         self._application_controller = application_controller
 
         self._cars_dict = application_controller.data_controller.get_all_cars()
+
+        if not self._cars_dict:
+            self._is_valid = False
+            return
+
+        self._is_valid = True
         self._cars_list = list(self._cars_dict.values())
 
         self._populate_fields()
+
+    def exec(self) -> int:
+        """
+        Execute the dialog.
+
+        Returns:
+            QDialog.Rejected if the dialog is invalid, otherwise the result of exec().
+        """
+        if not self._is_valid:
+            QTimer.singleShot(0, self._show_no_cars_warning)
+            return QDialog.DialogCode.Rejected
+        return super().exec()
+
+    def _show_no_cars_warning(self) -> None:
+        """Show a warning message that no cars are available."""
+        dialog = WarningDialog(
+            "Car Required",
+            "Queries require a car to evaluate against.\nPlease add a car to your scene first.",
+            self.parent(),
+        )
+        dialog.exec()
 
     def _populate_fields(self) -> None:
         """Populate dialog fields with the current query's values."""

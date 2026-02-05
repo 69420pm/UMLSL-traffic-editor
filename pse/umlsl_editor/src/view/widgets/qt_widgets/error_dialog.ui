@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>320</width>
-    <height>152</height>
+    <height>157</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Error</string>
+   <string/>
   </property>
   <property name="styleSheet">
    <string notr="true">QDialog {
@@ -216,6 +216,9 @@ QPushButton#b_close:pressed {
      </property>
      <property name="text">
       <string>An error occurred while parsing  the selected file.  The file may be corrupted  or not in the valid JSON format.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
