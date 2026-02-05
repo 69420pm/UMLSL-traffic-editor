@@ -207,6 +207,16 @@ QPushButton#b_delete:pressed {
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <widget class="QLabel" name="latexLabel">
+     <property name="text">
+      <string></string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QWidget" name="widget" native="true">
      <layout class="QVBoxLayout" name="General">
       <property name="spacing">

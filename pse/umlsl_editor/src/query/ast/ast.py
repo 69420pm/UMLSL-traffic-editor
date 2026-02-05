@@ -19,7 +19,7 @@ class Precedence(IntEnum):
 class ASTNode(ABC):
     """Abstract Syntax Tree Base Node."""
 
-    def __init(self, precedence: Precedence):
+    def __init__(self, precedence: Precedence):
         self._precedence = precedence
 
     @abstractmethod

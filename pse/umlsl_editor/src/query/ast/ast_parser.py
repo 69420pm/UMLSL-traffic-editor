@@ -33,7 +33,7 @@ class ASTParser:
 
         height = 0
         split_index = -1
-        min_precedence = int('inf')  # smallest int
+        min_precedence = -1 #int('inf')  # smallest int
 
         for i in range(start, end + 1):
             token = tokens[i]

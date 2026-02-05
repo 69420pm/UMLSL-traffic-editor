@@ -8,18 +8,13 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFormLayout,
-    QGridLayout, QHBoxLayout, QLabel, QLayout,
-    QPushButton, QSizePolicy, QTextEdit, QVBoxLayout,
-    QWidget)
-from . import resources_rc
+from PySide6.QtCore import (QCoreApplication, QMetaObject, QSize, Qt)
+from PySide6.QtGui import (QIcon)
+from PySide6.QtWidgets import (QComboBox, QFormLayout,
+                               QGridLayout, QHBoxLayout, QLabel, QLayout,
+                               QPushButton, QSizePolicy, QTextEdit, QVBoxLayout,
+                               QWidget)
+
 
 class Ui_Edit_Query_Dialog(object):
     def setupUi(self, Edit_Query_Dialog):
@@ -209,6 +204,12 @@ class Ui_Edit_Query_Dialog(object):
 "}")
         self.verticalLayout = QVBoxLayout(Edit_Query_Dialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.latexLabel = QLabel(Edit_Query_Dialog)
+        self.latexLabel.setObjectName(u"latexLabel")
+        self.latexLabel.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout.addWidget(self.latexLabel)
+
         self.widget = QWidget(Edit_Query_Dialog)
         self.widget.setObjectName(u"widget")
         self.General = QVBoxLayout(self.widget)
@@ -611,6 +612,7 @@ class Ui_Edit_Query_Dialog(object):
 
     def retranslateUi(self, Edit_Query_Dialog):
         Edit_Query_Dialog.setWindowTitle(QCoreApplication.translate("Edit_Query_Dialog", u"Edit Query", None))
+        self.latexLabel.setText("")
         self.label_2.setText(QCoreApplication.translate("Edit_Query_Dialog", u"Preview", None))
         self.label_2.setProperty(u"class", QCoreApplication.translate("Edit_Query_Dialog", u"label", None))
         self.widget1.setProperty(u"class", QCoreApplication.translate("Edit_Query_Dialog", u"container", None))

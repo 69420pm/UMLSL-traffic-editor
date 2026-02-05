@@ -1,4 +1,4 @@
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.query.ast.ast import View
 from pse.umlsl_editor.src.query.ast.ast_parser import ASTParser
@@ -12,7 +12,7 @@ class QueryResult:
 
 
 class UMLSLEvaluator:
-    def __init__(self, traffic_snapshot: TrafficSnapshotModel):
+    def __init__(self, traffic_snapshot: TrafficSnapshotReader):
         self._traffic_snapshot = traffic_snapshot
 
     def compute_latex(self, latex_string: str) -> str:
