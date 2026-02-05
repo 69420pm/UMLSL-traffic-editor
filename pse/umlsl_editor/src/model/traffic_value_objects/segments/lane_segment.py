@@ -84,7 +84,7 @@ class LaneSegment(Segment):
                 top_y = left_neighbor.get_position(traffic_snapshot_reader)[0]
                 width = right_x - (top_y + lane_width)
             else:
-                raise ValueError('LaneSegment size calculation error: Lane Segment without neighbouring segments.')
+                width = traffic_snapshot_reader.get_scene_size() * 2  # No crossings, lane extends to the edge of the scene
         else:
             # Vertical lane: width is lane_width, height varies based on crossings
             width = lane_width
@@ -103,6 +103,6 @@ class LaneSegment(Segment):
                 top_y = top_neighbor.get_position(traffic_snapshot_reader)[1]
                 height = bottom_y - (top_y + lane_width)
             else:
-                raise ValueError('LaneSegment size calculation error: Lane Segment without neighbouring segments.')
+                height = traffic_snapshot_reader.get_scene_size() * 2  # No crossings, lane extends to the edge of the scene
 
         return width, height

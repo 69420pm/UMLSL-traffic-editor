@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from pse.umlsl_editor.src.model.entities.road import RoadParams
+from pse.umlsl_editor.src.model.entities.road import RoadParams, RoadOrientation
 from pse.umlsl_editor.src.model.errors.car_errors import CarTrafficSnapshotContextValidationError
 from pse.umlsl_editor.src.model.errors.road_errors import RoadTrafficSnapshotContextValidationError
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
@@ -79,13 +79,18 @@ class TrafficSnapshotValidator:
                     content=f"Road name '{road_params.name}' is not unique in the traffic snapshot.")
 
         roads = self._model.get_roads().values()
-        bounds: tuple[
-            float, float] = road_params.position - road_params.number_of_backward_lanes * DIMENSION.LANE_WIDTH, road_params.position + road_params.number_of_forward_lanes * DIMENSION.LANE_WIDTH
+        if road_params.orientation == RoadOrientation.HORIZONTAL:
+            bounds: tuple[
+                float, float] = road_params.position - road_params.number_of_forward_lanes * DIMENSION.LANE_WIDTH, road_params.position + road_params.number_of_backward_lanes * DIMENSION.LANE_WIDTH
+        else:
+            bounds: tuple[
+                float, float] = road_params.position - road_params.number_of_backward_lanes * DIMENSION.LANE_WIDTH, road_params.position + road_params.number_of_forward_lanes * DIMENSION.LANE_WIDTH
         for road in roads:
+            if road.name == road_params.name:
+                continue
             if road.orientation == road_params.orientation:
                 road_bounds = road.get_bounds()
-                if road_bounds[0] <= bounds[0] and road_bounds[1] >= bounds[1] or road_bounds[0] >= bounds[0] and \
-                        road_bounds[1] <= bounds[1]:
+                if max(bounds[0], road_bounds[0]) < min(bounds[1], road_bounds[1]):
                     raise RoadTrafficSnapshotContextValidationError(
                         content=f"Roads can't overlap each other. Please change position or number of forward or backward lanes.")
 

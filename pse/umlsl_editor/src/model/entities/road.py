@@ -168,7 +168,12 @@ class Road(Entity):
             self.validate()
 
     def get_bounds(self) -> tuple[float, float]:
-        return self.position - DIMENSION.LANE_WIDTH * self.backward_lanes, self.position + DIMENSION.LANE_WIDTH * self.forward_lanes
+        if self.orientation == RoadOrientation.HORIZONTAL:
+            return self.position - DIMENSION.LANE_WIDTH * len(
+                self.forward_lanes), self.position + DIMENSION.LANE_WIDTH * len(self.backward_lanes)
+        else:
+            return self.position - DIMENSION.LANE_WIDTH * len(
+                self.backward_lanes), self.position + DIMENSION.LANE_WIDTH * len(self.forward_lanes)
 
     def validate(self) -> None:
         if not isinstance(self.name, str):
