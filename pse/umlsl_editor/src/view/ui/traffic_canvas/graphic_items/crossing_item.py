@@ -49,12 +49,7 @@ class CrossingItem(QGraphicsItem):
 
         self._grid_pen = QPen(COLORS.TEXT, DIMENSION.LINE_WIDTH_CROSSING_SEGMENT)
         self._grid_pen.setStyle(Qt.DashLine)
-
-        dash_px = .05
-        gap_px = .1
-
-        # Pattern values = pixels / width
-        pattern = [dash_px / DIMENSION.LINE_WIDTH_CROSSING_SEGMENT, gap_px / DIMENSION.LINE_WIDTH_CROSSING_SEGMENT]
+        pattern = [.05 / DIMENSION.LINE_WIDTH_CROSSING_SEGMENT, .1 / DIMENSION.LINE_WIDTH_CROSSING_SEGMENT]
         self._grid_pen.setDashPattern(pattern)
         self._update_z_value()
         self.refresh_geometry()

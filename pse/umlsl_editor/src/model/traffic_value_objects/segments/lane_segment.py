@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
@@ -23,36 +24,85 @@ class LaneSegment(Segment):
 
     def get_position(self, traffic_snapshot_reader: TrafficSnapshotReader) -> tuple[float, float]:
         """Return position of the top left corner of the lane segment.
-        It gets calculated from the position of the lane and the road width."""
-        left_adjacent_segment = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.LEFT)
-        top_adjacent_segment = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.UP)
+        It gets calculated from the position of the lane and adjacent crossings."""
+        from pse.umlsl_editor.src.model.helper.directional_graph import Direction
+        from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 
-        if left_adjacent_segment is None:
-            x = -float("inf")
+        road = traffic_snapshot_reader.get_road_by_uid(self.lane.road_uid)
+        lane_pos = self.lane.get_one_dimensional_position(traffic_snapshot_reader)
+        lane_width = traffic_snapshot_reader.get_lane_width()
+
+        if road.orientation == RoadOrientation.HORIZONTAL:
+            # Horizontal lane: Y is fixed from lane position, X from left neighbor
+            y = lane_pos
+            left_neighbor = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.LEFT)
+            if left_neighbor is None:
+                x = -traffic_snapshot_reader.get_scene_size()
+            elif isinstance(left_neighbor, CrossingSegment):
+                # Start after the crossing ends (crossing's right edge)
+                x = left_neighbor.get_position(traffic_snapshot_reader)[0] + lane_width
+            else:
+                x = -traffic_snapshot_reader.get_scene_size()
         else:
-            x = left_adjacent_segment.get_position(traffic_snapshot_reader)[0]
-        if top_adjacent_segment is None:
-            y = -float("inf")
-        else:
-            y = top_adjacent_segment.get_position(traffic_snapshot_reader)[1]
+            # Vertical lane: X is fixed from lane position, Y from top neighbor
+            x = lane_pos
+            top_neighbor = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.UP)
+            if top_neighbor is None:
+                y = -traffic_snapshot_reader.get_scene_size()
+            elif isinstance(top_neighbor, CrossingSegment):
+                # Start after the crossing ends (crossing's bottom edge)
+                y = top_neighbor.get_position(traffic_snapshot_reader)[1] + lane_width
+            else:
+                y = -traffic_snapshot_reader.get_scene_size()
+
         return x, y
 
     def get_size(self, traffic_snapshot_reader: TrafficSnapshotReader) -> tuple[float, float]:
         """Return size (width, height) of the lane segment.
         It gets calculated from the road width and lane width."""
-        left_adjacent_segment = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.LEFT)
-        right_adjacent_segment = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.RIGHT)
-        top_adjacent_segment = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.UP)
-        bottom_adjacent_segment = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.DOWN)
+        from pse.umlsl_editor.src.model.helper.directional_graph import Direction
+        from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 
-        if left_adjacent_segment is None or right_adjacent_segment is None:
-            width = float("inf")
+        road = traffic_snapshot_reader.get_road_by_uid(self.lane.road_uid)
+        lane_width = traffic_snapshot_reader.get_lane_width()
+
+        if road.orientation == RoadOrientation.HORIZONTAL:
+            # Horizontal lane: height is lane_width, width varies based on crossings
+            height = lane_width
+            left_neighbor = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.LEFT)
+            right_neighbor = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.RIGHT)
+
+            if left_neighbor is None and isinstance(right_neighbor, CrossingSegment):
+                right_x = right_neighbor.get_position(traffic_snapshot_reader)[0]
+                width = traffic_snapshot_reader.get_scene_size() - right_x
+            elif right_neighbor is None and isinstance(left_neighbor, CrossingSegment):
+                top_y = left_neighbor.get_position(traffic_snapshot_reader)[0]
+                width = traffic_snapshot_reader.get_scene_size() - (top_y + lane_width)
+            elif isinstance(left_neighbor, CrossingSegment) and isinstance(right_neighbor, CrossingSegment):
+                # Width = right_crossing.x - (left_crossing.x + lane_width)
+                right_x = right_neighbor.get_position(traffic_snapshot_reader)[0]
+                top_y = left_neighbor.get_position(traffic_snapshot_reader)[0]
+                width = right_x - (top_y + lane_width)
+            else:
+                raise ValueError('LaneSegment size calculation error: Lane Segment without neighbouring segments.')
         else:
-            width = right_adjacent_segment.get_position(traffic_snapshot_reader)[0] - \
-                    left_adjacent_segment.get_position(traffic_snapshot_reader)[0]
-        if top_adjacent_segment is None or bottom_adjacent_segment is None:
-            height = float("inf")
-        else:
-            height = bottom_adjacent_segment.get_position(traffic_snapshot_reader)[1] - \
-                     top_adjacent_segment.get_position(traffic_snapshot_reader)[1]
+            # Vertical lane: width is lane_width, height varies based on crossings
+            width = lane_width
+            top_neighbor = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.UP)
+            bottom_neighbor = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.DOWN)
+
+            if top_neighbor is None and isinstance(bottom_neighbor, CrossingSegment):
+                bottom_y = bottom_neighbor.get_position(traffic_snapshot_reader)[1]
+                height = traffic_snapshot_reader.get_scene_size() - bottom_y
+            elif bottom_neighbor is None and isinstance(top_neighbor, CrossingSegment):
+                top_y = top_neighbor.get_position(traffic_snapshot_reader)[1]
+                height = traffic_snapshot_reader.get_scene_size() - (top_y + lane_width)
+            elif isinstance(top_neighbor, CrossingSegment) and isinstance(bottom_neighbor, CrossingSegment):
+                # Height = bottom_crossing.y - (top_crossing.y + lane_width)
+                bottom_y = bottom_neighbor.get_position(traffic_snapshot_reader)[1]
+                top_y = top_neighbor.get_position(traffic_snapshot_reader)[1]
+                height = bottom_y - (top_y + lane_width)
+            else:
+                raise ValueError('LaneSegment size calculation error: Lane Segment without neighbouring segments.')
+
         return width, height

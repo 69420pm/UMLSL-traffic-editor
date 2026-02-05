@@ -1,11 +1,13 @@
 from typing import Any
 
+import networkx as nx
+
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_validator import TrafficSnapshotValidator
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
 from pse.umlsl_editor.src.model.entities.car import Car, CarParams
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation, RoadParams
-from pse.umlsl_editor.src.model.helper.directional_graph import Direction, DirectionalGraph
+from pse.umlsl_editor.src.model.helper.directional_graph import Direction
 from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
 from pse.umlsl_editor.src.model.helper.observables import ObservableDict, Observable, ReadOnlyDictView
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
@@ -36,6 +38,9 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         # - TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED: Fired when a crossing segment is updated (data: CrossingSegment)
     """
 
+    def get_scene_size(self) -> float:
+        return self.screen_size
+
     def is_road_existing(self, uid: str) -> bool:
         if uid in self._horizontal_roads or uid in self._vertical_roads:
             return True
@@ -57,9 +62,9 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         pass
 
     def get_adjacent_segment(self, segment_uid: str, direction: Direction) -> Segment | None:
-        if self._connections[segment_uid].get(direction) is not None:
-            adjacent_uid = self._connections[segment_uid][direction]
-            return self._segments.get(adjacent_uid)
+        adjacent_uid = self._get_neighbor_in_direction(segment_uid, direction)
+        if adjacent_uid is not None:
+            return self._segments[adjacent_uid]
         return None
 
     def get_lane_width(self):
@@ -114,7 +119,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         # """Dictionary of segment connections, keyed by segment uid. And in the direction dict all connected segments uids."""
         self._segments_by_lane: dict[int, list[str]] = {}
         """Dictionary mapping the hash(lane) to their corresponding segment uids."""
-        self._graph = DirectionalGraph()
+        self._graph = nx.DiGraph()
         """Graph representing the connectivity of segments."""
 
         self._read_only_roads = ReadOnlyDictView(self._horizontal_roads + self._vertical_roads)
@@ -123,6 +128,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         """Read-only view of the cars dictionary."""
 
         self.lane_width = DIMENSION.LANE_WIDTH
+        self.screen_size = (DIMENSION.SCENE_SIZE + 100) / 2
 
         self.validator = TrafficSnapshotValidator(self)
 
@@ -136,12 +142,15 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def _on_road_added(self, road: Road):
         self.notify(TrafficSnapshotEventType.ROAD_ADDED, road)
+        self._recalculate_static_segments()
 
     def _on_road_removed(self, road: Road):
         self.notify(TrafficSnapshotEventType.ROAD_REMOVED, road)
+        self._recalculate_static_segments()
 
     def _on_road_updated(self, road: Road):
         self.notify(TrafficSnapshotEventType.ROAD_UPDATED, road)
+        self._recalculate_static_segments()
 
     def get_cars_on_road(self, road: Road) -> list[Car]:
         return [car for car in self._cars.values() if car.lane.road_uid == road.uid]
@@ -230,76 +239,111 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         Raises:
             ValueError: If the car's lane has no segments or segment not found.
         """
-        lane = car.lane
-        lane_hash = hash(lane)
-
-        if lane_hash not in self._segments_by_lane:
-            raise ValueError(f"No segments found for lane {lane}")
-
-        segment_uids = self._segments_by_lane[lane_hash]
-        if not segment_uids:
-            raise ValueError(f"Empty segment list for lane {lane}")
-
-        # Get tail position
         tail_x, tail_y = car.get_tail_position(self)
 
-        # Determine which coordinate to use based on road orientation
-        road = self.get_road_by_uid(lane.road_uid)
-        if road.orientation == RoadOrientation.HORIZONTAL:
-            tail_position = tail_x
-        else:
-            tail_position = tail_y
+        lane_hash = hash(car.lane)
+        if lane_hash not in self._segments_by_lane:
+            raise ValueError(f"Lane {car.lane} not found in segment map.")
 
-        # Get sorted perpendicular road positions to determine segment boundaries
-        if road.orientation == RoadOrientation.HORIZONTAL:
-            perpendicular_roads = sorted(self._vertical_roads.values(), key=lambda r: r.position)
-        else:
-            perpendicular_roads = sorted(self._horizontal_roads.values(), key=lambda r: r.position)
+        segment_uids = self._segments_by_lane[lane_hash]
 
-        # Segments are ordered: lane_segment, crossing, lane_segment, crossing, ..., lane_segment
-        # The boundaries are at the perpendicular road positions
+        # Determine orientation
+        road = self.get_road_by_uid(car.lane.road_uid)
+        orientation = road.orientation
 
-        # Find which segment contains the tail position
-        for i, segment_uid in enumerate(segment_uids):
-            segment = self._segments[segment_uid]
+        target_pos = tail_x if orientation == RoadOrientation.HORIZONTAL else tail_y
 
-            if segment.is_lane_segment:
-                # Lane segment - determine its boundaries
-                # Lane segments alternate with crossing segments
-                # Index 0 is before first crossing, index 2 is between crossing 0 and 1, etc.
-                lane_segment_index = i // 2  # 0, 1, 2, ... for lane segments at positions 0, 2, 4, ...
+        for uid in segment_uids:
+            segment = self._segments[uid]
+            start, end = self._get_segment_position_bounds(segment, orientation)
 
-                if lane_segment_index == 0:
-                    # First lane segment: from -inf to first perpendicular road
-                    left_bound = float('-inf')
-                    if perpendicular_roads:
-                        right_bound = perpendicular_roads[0].position
-                    else:
-                        right_bound = float('inf')
-                elif lane_segment_index > len(perpendicular_roads):
-                    # Last lane segment: from last perpendicular road to +inf
-                    left_bound = perpendicular_roads[-1].position + self.lane_width
-                    right_bound = float('inf')
-                else:
-                    # Middle lane segment: between two perpendicular roads
-                    left_bound = perpendicular_roads[lane_segment_index - 1].position + self.lane_width
-                    right_bound = perpendicular_roads[lane_segment_index].position
+            if start <= target_pos <= end:
+                return segment
 
-                if left_bound <= tail_position < right_bound:
-                    return segment
+        raise ValueError(f"Could not find segment for car tail at {target_pos} on lane {car.lane}")
+
+    def _get_lane_segment_bounds(self, segment: LaneSegment, orientation: RoadOrientation) -> tuple[float, float]:
+        """
+        Get the start and end position of a lane segment along the lane axis.
+
+        Returns:
+            Tuple of (start_position, end_position) along the lane axis.
+        """
+        lane = segment.lane
+
+        # Find the adjacent crossing segments or boundaries
+        if orientation == RoadOrientation.HORIZONTAL:
+            left_neighbor_uid = self._get_neighbor_in_direction(segment.uid, Direction.LEFT)
+            right_neighbor_uid = self._get_neighbor_in_direction(segment.uid, Direction.RIGHT)
+
+            if left_neighbor_uid is None:
+                start = float('-inf')
             else:
-                # Crossing segment - its boundaries are defined by the perpendicular road
-                crossing_index = i // 2  # 0, 1, 2, ... for crossings at positions 1, 3, 5, ...
-                if crossing_index < len(perpendicular_roads):
-                    perp_road = perpendicular_roads[crossing_index]
-                    left_bound = perp_road.position
-                    right_bound = perp_road.position + self.lane_width
+                left_segment = self._segments[left_neighbor_uid]
+                if isinstance(left_segment, CrossingSegment):
+                    v_road = self.get_road_by_uid(left_segment.vertical_lane.road_uid)
+                    start = v_road.position + self.lane_width
+                else:
+                    start = float('-inf')
 
-                    if left_bound <= tail_position < right_bound:
-                        return segment
+            if right_neighbor_uid is None:
+                end = float('inf')
+            else:
+                right_segment = self._segments[right_neighbor_uid]
+                if isinstance(right_segment, CrossingSegment):
+                    v_road = self.get_road_by_uid(right_segment.vertical_lane.road_uid)
+                    end = v_road.position
+                else:
+                    end = float('inf')
+        else:
+            # Vertical orientation
+            up_neighbor_uid = self._get_neighbor_in_direction(segment.uid, Direction.UP)
+            down_neighbor_uid = self._get_neighbor_in_direction(segment.uid, Direction.DOWN)
 
-        # If we reach here, the tail is in the last segment (could be at +inf boundary)
-        return self._segments[segment_uids[-1]]
+            if up_neighbor_uid is None:
+                start = float('-inf')
+            else:
+                up_segment = self._segments[up_neighbor_uid]
+                if isinstance(up_segment, CrossingSegment):
+                    h_road = self.get_road_by_uid(up_segment.horizontal_lane.road_uid)
+                    start = h_road.position + self.lane_width
+                else:
+                    start = float('-inf')
+
+            if down_neighbor_uid is None:
+                end = float('inf')
+            else:
+                down_segment = self._segments[down_neighbor_uid]
+                if isinstance(down_segment, CrossingSegment):
+                    h_road = self.get_road_by_uid(down_segment.horizontal_lane.road_uid)
+                    end = h_road.position
+                else:
+                    end = float('inf')
+
+        return start, end
+
+    def _get_segment_position_bounds(self, segment: Segment, orientation: RoadOrientation) -> tuple[float, float]:
+        """Get position bounds for any segment type."""
+        if isinstance(segment, LaneSegment):
+            return self._get_lane_segment_bounds(segment, orientation)
+        elif isinstance(segment, CrossingSegment):
+            if orientation == RoadOrientation.HORIZONTAL:
+                v_road = self.get_road_by_uid(segment.vertical_lane.road_uid)
+                return v_road.position, v_road.position + self.lane_width
+            else:
+                h_road = self.get_road_by_uid(segment.horizontal_lane.road_uid)
+                return h_road.position, h_road.position + self.lane_width
+        return float('-inf'), float('inf')
+
+    def _get_neighbor_in_direction(self, segment_uid: str, direction: Direction) -> str | None:
+        """Get the neighboring segment UID in a given direction from the graph."""
+        for _, neighbor, data in self._graph.out_edges(segment_uid, data=True):
+            if data.get('direction') == direction:
+                return neighbor
+        for neighbor, _, data in self._graph.in_edges(segment_uid, data=True):
+            if data.get('direction') == direction.opposite:
+                return neighbor
+        return None
 
     def _get_segment_by_uid(self, segment_uid: str) -> Segment:
         segment = self._segments.get(segment_uid)
@@ -317,187 +361,177 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         - Graph connections between all segments
         - _segments_by_lane mapping for quick car position lookup
         """
-        # Clear existing data
         self._segments.clear()
         self._segments_by_lane.clear()
-        self._graph = DirectionalGraph()
+        self._graph.clear()
 
-        # Sort roads by position for consistent ordering
-        sorted_horizontal_roads = sorted(self._horizontal_roads.values(), key=lambda r: r.position)
-        sorted_vertical_roads = sorted(self._vertical_roads.values(), key=lambda r: r.position)
+        horizontal_roads = sorted(self._horizontal_roads.values(), key=lambda r: r.position)
+        vertical_roads = sorted(self._vertical_roads.values(), key=lambda r: r.position)
 
-        # Collect all lanes
-        horizontal_lanes: list[Lane] = []
-        vertical_lanes: list[Lane] = []
+        # 1. Create all CrossingSegments
+        # Key: (horizontal_lane, vertical_lane) -> CrossingSegment
+        crossing_map: dict[tuple[Lane, Lane], CrossingSegment] = {}
 
-        for road in sorted_horizontal_roads:
-            # Add lanes in order from lowest index to highest (backward lanes then forward)
-            all_lanes = sorted(road.backward_lanes + road.forward_lanes, key=lambda l: l.lane_index)
-            horizontal_lanes.extend(all_lanes)
+        for h_road in horizontal_roads:
+            for v_road in vertical_roads:
+                h_lanes = h_road.forward_lanes + h_road.backward_lanes
+                v_lanes = v_road.forward_lanes + v_road.backward_lanes
+                for h_lane in h_lanes:
+                    for v_lane in v_lanes:
+                        cs = CrossingSegment(horizontal_lane=h_lane, vertical_lane=v_lane)
+                        self._segments[cs.uid] = cs
+                        crossing_map[(h_lane, v_lane)] = cs
 
-        for road in sorted_vertical_roads:
-            all_lanes = sorted(road.backward_lanes + road.forward_lanes, key=lambda l: l.lane_index)
-            vertical_lanes.extend(all_lanes)
+        # 2. Process Horizontal Roads
+        for h_road in horizontal_roads:
+            h_lanes = h_road.forward_lanes + h_road.backward_lanes
+            # Sort Top to Bottom for Lateral connections
+            h_lanes.sort(key=lambda l: l.lane_index)
 
-        # Phase 1: Create all crossing segments
-        # crossing_map[(h_lane_hash, v_lane_hash)] = CrossingSegment
-        crossing_map: dict[tuple[int, int], CrossingSegment] = {}
+            lane_physical_segments: dict[Lane, list[Segment]] = {}
 
-        for h_lane in horizontal_lanes:
-            for v_lane in vertical_lanes:
-                crossing = CrossingSegment(horizontal_lane=h_lane, vertical_lane=v_lane)
-                self._segments[crossing.uid] = crossing
-                crossing_map[(hash(h_lane), hash(v_lane))] = crossing
-                self._graph.add_node(crossing.uid)
+            for lane in h_lanes:
+                segments = []
+                # Left Inf
+                left_inf = LaneSegment(lane=lane)
+                self._segments[left_inf.uid] = left_inf
+                segments.append(left_inf)
 
-        # Phase 2: Create lane segments and build _segments_by_lane
-        # For each horizontal lane: segments go left to right (increasing x)
-        # Order: lane_seg, crossing, lane_seg, crossing, ..., lane_seg
+                for v_road in vertical_roads:
+                    v_lanes = sorted(v_road.forward_lanes + v_road.backward_lanes, key=lambda l: l.lane_index)
+                    for v_lane in v_lanes:
+                        segments.append(crossing_map[(lane, v_lane)])
 
-        for h_lane in horizontal_lanes:
-            lane_hash = hash(h_lane)
-            segment_uids: list[str] = []
+                    mid_seg = LaneSegment(lane=lane)
+                    self._segments[mid_seg.uid] = mid_seg
+                    segments.append(mid_seg)
 
-            # Create lane segments between/around crossings
-            # Number of lane segments = number of vertical roads + 1
-            num_lane_segments = len(sorted_vertical_roads) + 1
-            lane_segments: list[LaneSegment] = []
+                lane_physical_segments[lane] = segments
 
-            for _ in range(num_lane_segments):
-                ls = LaneSegment(lane=h_lane)
-                self._segments[ls.uid] = ls
-                self._graph.add_node(ls.uid)
-                lane_segments.append(ls)
+                # Flow Direction Setup
+                if lane.lane_index >= 0:
+                    flow_uids = [s.uid for s in reversed(segments)]
+                    flow_dir = Direction.LEFT
+                else:
+                    flow_uids = [s.uid for s in segments]
+                    flow_dir = Direction.RIGHT
 
-            # Build ordered segment list and connect horizontally (LEFT/RIGHT)
-            for i, v_road in enumerate(sorted_vertical_roads):
-                # Lane segment before this crossing
-                segment_uids.append(lane_segments[i].uid)
+                self._segments_by_lane[hash(lane)] = flow_uids
 
-                # Get the crossing for this horizontal lane and any vertical lane on this road
-                # We need the crossing at this vertical road position
-                v_lane = (v_road.backward_lanes + v_road.forward_lanes)[0]  # Any lane to find crossings
-                # Actually we need the crossing for h_lane with each v_lane on this road
-                # But for the horizontal lane's segment list, we need crossings with vertical lanes
+                # Connect Flow
+                for i in range(len(flow_uids) - 1):
+                    self._graph.add_edge(flow_uids[i], flow_uids[i + 1], direction=flow_dir)
 
-                # Get all vertical lanes on this road, sorted by index
-                v_road_lanes = sorted(v_road.backward_lanes + v_road.forward_lanes, key=lambda l: l.lane_index)
+            # Connect Lateral
+            for i in range(len(h_lanes) - 1):
+                top_lane = h_lanes[i]
+                bottom_lane = h_lanes[i + 1]
 
-                # Add crossings for all vertical lanes on this road
-                for v_lane in v_road_lanes:
-                    crossing = crossing_map[(hash(h_lane), hash(v_lane))]
-                    segment_uids.append(crossing.uid)
+                segs_top = lane_physical_segments[top_lane]
+                segs_bottom = lane_physical_segments[bottom_lane]
 
-                # Connect lane segment to first crossing on the right
-                first_v_lane = v_road_lanes[0]
-                first_crossing = crossing_map[(hash(h_lane), hash(first_v_lane))]
-                self._graph.add_edge(lane_segments[i].uid, first_crossing.uid, Direction.RIGHT)
+                for s_t, s_b in zip(segs_top, segs_bottom):
+                    # Only connect LaneSegments laterally, not CrossingSegments
+                    if isinstance(s_t, LaneSegment) and isinstance(s_b, LaneSegment):
+                        self._graph.add_edge(s_t.uid, s_b.uid, direction=Direction.DOWN)
+                        self._graph.add_edge(s_b.uid, s_t.uid, direction=Direction.UP)
 
-                # Connect last crossing to next lane segment on the right
-                last_v_lane = v_road_lanes[-1]
-                last_crossing = crossing_map[(hash(h_lane), hash(last_v_lane))]
-                self._graph.add_edge(last_crossing.uid, lane_segments[i + 1].uid, Direction.RIGHT)
+        # 3. Process Vertical Roads
+        for v_road in vertical_roads:
+            v_lanes = v_road.forward_lanes + v_road.backward_lanes
+            # Sort Left to Right
+            v_lanes.sort(key=lambda l: l.lane_index)
 
-            # Add the last lane segment
-            segment_uids.append(lane_segments[-1].uid)
+            lane_physical_segments: dict[Lane, list[Segment]] = {}
 
-            self._segments_by_lane[lane_hash] = segment_uids
+            for lane in v_lanes:
+                segments = []
+                # Top Inf
+                top_inf = LaneSegment(lane=lane)
+                self._segments[top_inf.uid] = top_inf
+                segments.append(top_inf)
 
-        # For each vertical lane: segments go top to bottom (increasing y)
-        for v_lane in vertical_lanes:
-            lane_hash = hash(v_lane)
-            segment_uids: list[str] = []
+                for h_road in horizontal_roads:
+                    h_lanes = sorted(h_road.forward_lanes + h_road.backward_lanes, key=lambda l: l.lane_index)
+                    for h_lane in h_lanes:
+                        segments.append(crossing_map[(h_lane, lane)])
 
-            num_lane_segments = len(sorted_horizontal_roads) + 1
-            lane_segments: list[LaneSegment] = []
+                    mid_seg = LaneSegment(lane=lane)
+                    self._segments[mid_seg.uid] = mid_seg
+                    segments.append(mid_seg)
 
-            for _ in range(num_lane_segments):
-                ls = LaneSegment(lane=v_lane)
-                self._segments[ls.uid] = ls
-                self._graph.add_node(ls.uid)
-                lane_segments.append(ls)
+                lane_physical_segments[lane] = segments
 
-            for i, h_road in enumerate(sorted_horizontal_roads):
-                segment_uids.append(lane_segments[i].uid)
+                # Flow Direction Setup
+                if lane.lane_index >= 0:
+                    flow_uids = [s.uid for s in segments]
+                    flow_dir = Direction.DOWN
+                else:
+                    flow_uids = [s.uid for s in reversed(segments)]
+                    flow_dir = Direction.UP
 
-                h_road_lanes = sorted(h_road.backward_lanes + h_road.forward_lanes, key=lambda l: l.lane_index)
+                self._segments_by_lane[hash(lane)] = flow_uids
 
-                for h_lane in h_road_lanes:
-                    crossing = crossing_map[(hash(h_lane), hash(v_lane))]
-                    segment_uids.append(crossing.uid)
+                # Connect Flow
+                for i in range(len(flow_uids) - 1):
+                    self._graph.add_edge(flow_uids[i], flow_uids[i + 1], direction=flow_dir)
 
-                # Connect lane segment to first crossing below (DOWN direction)
-                first_h_lane = h_road_lanes[0]
-                first_crossing = crossing_map[(hash(first_h_lane), hash(v_lane))]
-                self._graph.add_edge(lane_segments[i].uid, first_crossing.uid, Direction.DOWN)
+            # Connect Lateral
+            for i in range(len(v_lanes) - 1):
+                left_lane = v_lanes[i]
+                right_lane = v_lanes[i + 1]
 
-                # Connect last crossing to next lane segment below
-                last_h_lane = h_road_lanes[-1]
-                last_crossing = crossing_map[(hash(last_h_lane), hash(v_lane))]
-                self._graph.add_edge(last_crossing.uid, lane_segments[i + 1].uid, Direction.DOWN)
+                segs_left = lane_physical_segments[left_lane]
+                segs_right = lane_physical_segments[right_lane]
 
-            segment_uids.append(lane_segments[-1].uid)
+                for s_l, s_r in zip(segs_left, segs_right):
+                    # Only connect LaneSegments laterally, not CrossingSegments
+                    if isinstance(s_l, LaneSegment) and isinstance(s_r, LaneSegment):
+                        self._graph.add_edge(s_l.uid, s_r.uid, direction=Direction.RIGHT)
+                        self._graph.add_edge(s_r.uid, s_l.uid, direction=Direction.LEFT)
 
-            self._segments_by_lane[lane_hash] = segment_uids
+        self.print_graph()
 
-        # Phase 3: Connect crossing segments to adjacent crossings (within same road intersection)
-        # Crossings on adjacent horizontal lanes (same vertical road) connect UP/DOWN
-        # Crossings on adjacent vertical lanes (same horizontal road) connect LEFT/RIGHT
+    def print_graph(self) -> None:
+        """
+        Prints the graph structure to stdout for debugging purposes.
+        Shows segments and their outgoing connections with directions.
+        """
+        print("=== Traffic Graph Structure ===")
+        for segment_uid in self._graph.nodes:
+            segment_info = self._get_segment_info_string(segment_uid)
+            print(f"\n[Segment] {segment_info}")
 
-        for v_road in sorted_vertical_roads:
-            v_road_lanes = sorted(v_road.backward_lanes + v_road.forward_lanes, key=lambda l: l.lane_index)
+            # Print outgoing connections
+            out_edges = self._graph.out_edges(segment_uid, data=True)
+            if not out_edges:
+                print("  -> (no outgoing connections)")
+            else:
+                for _, target_uid, data in out_edges:
+                    direction = data.get('direction')
+                    direction_name = direction.name if direction else "UNKNOWN"
+                    target_info = self._get_segment_info_string(target_uid)
+                    print(f"  -> [{direction_name}] to {target_info}")
+        print("===============================")
 
-            for h_lane in horizontal_lanes:
-                # Connect adjacent crossings along vertical direction (different v_lanes, same h_lane)
-                for j in range(len(v_road_lanes) - 1):
-                    v_lane_curr = v_road_lanes[j]
-                    v_lane_next = v_road_lanes[j + 1]
-                    crossing_curr = crossing_map[(hash(h_lane), hash(v_lane_curr))]
-                    crossing_next = crossing_map[(hash(h_lane), hash(v_lane_next))]
-                    self._graph.add_edge(crossing_curr.uid, crossing_next.uid, Direction.RIGHT)
+    def _get_segment_info_string(self, segment_uid: str) -> str:
+        segment = self._segments.get(segment_uid)
+        if segment is None:
+            return f"UNKNOWN_SEGMENT({segment_uid})"
 
-        for h_road in sorted_horizontal_roads:
-            h_road_lanes = sorted(h_road.backward_lanes + h_road.forward_lanes, key=lambda l: l.lane_index)
+        if isinstance(segment, CrossingSegment):
+            h_road = self.get_road_by_uid(segment.horizontal_lane.road_uid)
+            v_road = self.get_road_by_uid(segment.vertical_lane.road_uid)
+            return (f"CrossingSegment({segment_uid[:6]}...) "
+                    f"at {h_road.name}(L{segment.horizontal_lane.lane_index}) x "
+                    f"{v_road.name}(L{segment.vertical_lane.lane_index})")
 
-            for v_lane in vertical_lanes:
-                # Connect adjacent crossings along horizontal direction (different h_lanes, same v_lane)
-                for j in range(len(h_road_lanes) - 1):
-                    h_lane_curr = h_road_lanes[j]
-                    h_lane_next = h_road_lanes[j + 1]
-                    crossing_curr = crossing_map[(hash(h_lane_curr), hash(v_lane))]
-                    crossing_next = crossing_map[(hash(h_lane_next), hash(v_lane))]
-                    self._graph.add_edge(crossing_curr.uid, crossing_next.uid, Direction.DOWN)
+        elif isinstance(segment, LaneSegment):
+            road = self.get_road_by_uid(segment.lane.road_uid)
+            return (f"LaneSegment({segment_uid[:6]}...) "
+                    f"on road: {road.name}(L{segment.lane.lane_index})")
 
-        # Phase 4: Connect parallel lane segments (adjacent lanes in same direction or across directions)
-        # For horizontal lanes: parallel lane segments connect UP/DOWN
-        for i in range(len(horizontal_lanes) - 1):
-            h_lane_curr = horizontal_lanes[i]
-            h_lane_next = horizontal_lanes[i + 1]
-
-            curr_segments = self._segments_by_lane[hash(h_lane_curr)]
-            next_segments = self._segments_by_lane[hash(h_lane_next)]
-
-            # Get only the lane segments (not crossings) - they are at even indices
-            curr_lane_seg_uids = [uid for uid in curr_segments if self._segments[uid].is_lane_segment]
-            next_lane_seg_uids = [uid for uid in next_segments if self._segments[uid].is_lane_segment]
-
-            # Connect corresponding lane segments
-            for curr_uid, next_uid in zip(curr_lane_seg_uids, next_lane_seg_uids):
-                self._graph.add_edge(curr_uid, next_uid, Direction.DOWN)
-
-        # For vertical lanes: parallel lane segments connect LEFT/RIGHT
-        for i in range(len(vertical_lanes) - 1):
-            v_lane_curr = vertical_lanes[i]
-            v_lane_next = vertical_lanes[i + 1]
-
-            curr_segments = self._segments_by_lane[hash(v_lane_curr)]
-            next_segments = self._segments_by_lane[hash(v_lane_next)]
-
-            curr_lane_seg_uids = [uid for uid in curr_segments if self._segments[uid].is_lane_segment]
-            next_lane_seg_uids = [uid for uid in next_segments if self._segments[uid].is_lane_segment]
-
-            for curr_uid, next_uid in zip(curr_lane_seg_uids, next_lane_seg_uids):
-                self._graph.add_edge(curr_uid, next_uid, Direction.RIGHT)
+        return f"Segment({segment_uid[:6]}...)"
 
     def to_dict(self) -> dict[str, Any]:
         """

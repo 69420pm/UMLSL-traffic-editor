@@ -17,7 +17,12 @@ class Main:
     def open_window(self) -> None:
         """Launch the main window with a sample scene for testing."""
         app = QApplication(sys.argv)
+
+        # sys.excepthook = global_exception_handler
+        # warnings.showwarning = global_warning_handler
+
         window = MainWindow(self.application_controller)
+
         window.show()
         sys.exit(app.exec())
 
