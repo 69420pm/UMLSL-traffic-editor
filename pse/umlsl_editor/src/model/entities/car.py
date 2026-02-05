@@ -2,15 +2,16 @@ import re
 from dataclasses import dataclass
 from typing import Optional, Any
 
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.entity import Entity
 from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.car_environment import CarEnvironment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Path
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import VirtualLane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
-from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
+from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent, TurnDirection
 
 
 @dataclass
@@ -106,31 +107,15 @@ class Car(Entity):
     # laneA: Lane
     # laneB: Lane
 
-    # reserved_lanes: list[laneIntervalls]
-    reserved_lanes: list[SegmentInterval]
 
-    # passt
-    reserved_crossings: list[CrossingSegment]
 
-    # clamied_intervalls: list[laneIntervalls]
-    claimed_lanes: list[SegmentInterval]
-
-    # Dont need these?, sonst passt
-    # todo: curr : I → Z such that curr(C ) is (the index - we save the object) of the path element of pth(C) currently occupied by the rear of C
-    claimed_crossings: list[CrossingSegment]
-
-    # passt
-    car_environment: CarEnvironment
-
-    # view_segments: list[LaneInterval and Crossings]
-    view_segments: list[Any]
-
+    environment: CarEnvironment
     acceleration: float
 
     _should_validate: bool = False
 
     @classmethod
-    def from_params(cls, params: CarParams) -> "Car":
+    def from_params(cls, params: CarParams, ts_reader: TrafficSnapshotReader) -> "Car":
         """
         Creates a Car instance from a CarParams dataclass.
 
@@ -140,8 +125,29 @@ class Car(Entity):
         Returns:
             A new Car instance with attributes from the params.
         """
-        virtual_lanes = CarEnvironment.create_virtual_lanes()
 
+        """"
+        if params.next_turn is None:
+            car_env = CarEnvironment.empty()
+        else:
+            car_env = CarEnvironment.create_environment(
+                ts_reader,
+                params.lane,
+                params.position_on_lane,
+                params.length,
+                params.speed,
+                params.next_turn
+            )
+        """
+
+        car_env = CarEnvironment.create_environment(
+            ts_reader,
+            params.lane,
+            params.position_on_lane,
+            params.length,
+            params.speed,
+            turn_direction=TurnDirection.STRAIGHT
+        )
         return cls(
             uid=generate_uid(),
             name=params.name,
@@ -152,12 +158,7 @@ class Car(Entity):
             speed=params.speed,
             length=params.length,
             next_turn=params.next_turn,
-            reserved_lanes=[],
-            claimed_lanes=[],
-            reserved_crossings=[],
-            claimed_crossings=[],
-            view_segments=[],
-            path=Path(segments=[]),
+            environment=car_env,
             acceleration=params.acceleration,
         )
 
@@ -205,7 +206,7 @@ class Car(Entity):
         if self.next_turn is not None and not isinstance(self.next_turn, TurnIntent):
             raise CarValidationError(content="Next turn must be None or a TurnIntent instance.")
 
-    def update_from_params(self, params: CarParams) -> None:
+    def update_from_params(self, params: CarParams, ts_reader: TrafficSnapshotReader) -> None:
         """
         Updates the Car instance's attributes based on a CarParams dataclass.
 
@@ -215,6 +216,35 @@ class Car(Entity):
         Raises:
             CarValidationError: If any validation check fails.
         """
+
+
+        """"
+        
+        if params.next_turn is None:
+            car_env = CarEnvironment.empty()
+        else:
+            car_env = CarEnvironment.create_environment(
+                ts_reader,
+                params.lane,
+                params.position_on_lane,
+                params.length,
+                params.speed,
+                params.next_turn
+            )
+
+        """
+
+        car_env = CarEnvironment.create_environment(
+            ts_reader,
+            params.lane,
+            params.position_on_lane,
+            params.length,
+            params.speed,
+            turn_direction=TurnDirection.STRAIGHT
+        )
+
+        self.environment = car_env
+
         self._should_validate = False
         self.name = params.name
         self.lane = params.lane

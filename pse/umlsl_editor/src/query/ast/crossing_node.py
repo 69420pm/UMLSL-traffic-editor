@@ -8,7 +8,7 @@ class CrossingSegmentNode(AtomNode):
         super().__init__("cs")
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
-        if len(view.seq_lanes) != 1 or view.space_interval.length() <= 0:
+        if len(view.virtual_lanes) != 1 or view.space_interval.length() <= 0:
             return False
-        path = view.seq_lanes[0]
+        path = view.virtual_lanes[0]
         return all(map(lambda segment: not segment.is_lane_segment, path.segments))

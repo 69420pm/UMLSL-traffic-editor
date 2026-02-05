@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-import pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -25,8 +24,6 @@ class Lane:
         if not isinstance(self.lane_index, int):
             raise ValueError("lane_index must be a integer")
 
-    def get_one_dimensional_position(self,
-                                     traffic_snapshot_reader: pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader.TrafficSnapshotReader) -> float:
-
+    def get_one_dimensional_position(self, traffic_snapshot_reader: 'TrafficSnapshotReader') -> float:
         road = traffic_snapshot_reader.get_road_by_uid(self.road_uid)
         return road.position + self.lane_index * traffic_snapshot_reader.get_lane_width()

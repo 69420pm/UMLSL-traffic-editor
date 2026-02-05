@@ -114,7 +114,7 @@ class SidebarController(QObject):
     ) -> None:
         """
         Configure a QML Quick Widget with the specified model and QML file.
-
+ 
         Sets up transparency, resize behavior, and binds the data model
         to the QML context.
 

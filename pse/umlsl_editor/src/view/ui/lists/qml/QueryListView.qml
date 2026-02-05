@@ -4,32 +4,35 @@ import QtQuick.Layouts 1.15
 
 ListView {
     anchors.fill: parent
-    spacing: 12
+    spacing: 8
     model: data_model
 
     delegate: ListRowDelegate {
-        // Connect the button signal
         onEditClicked: data_model.handle_button_click(index)
+        border_color: model.role_valid ? "#799582" : "#D97855"
 
-        // 1. The Name (e.g., "R1")
+
         Text {
-            text: model.role_query + " on " + model.role_ego_name + ": " + (model.role_valid ? "Valid" : "Invalid")
-            color: "white"
+            text: model.role_query
+            color: "#F9F9F9"
             font.bold: true
-            font.pixelSize: 22
-            // Keeps its natural width
+            font.pixelSize: 20
+            Layout.minimumWidth: 0
+            Layout.maximumWidth: 150
+            elide: Text.ElideRight
+            verticalAlignment: Text.AlignVCenter
         }
 
-        Rectangle {
-            Layout.preferredWidth: 24
-            Layout.preferredHeight: 24
-            radius: 16
-            color: model.role_ego_color
-            Image {
-                anchors.centerIn: parent
-                source: "../../../widgets/qt_widgets/icons/car.svg"
-                sourceSize.width: 16; sourceSize.height: 16
-            }
+
+        Text {
+            text: "Ego: " + model.role_ego_name
+            color: "#F9F9F9"
+            font.bold: false
+            font.pixelSize: 20
+            Layout.fillWidth: true
+            Layout.minimumWidth: 0
+            elide: Text.ElideRight
+            verticalAlignment: Text.AlignVCenter
         }
     }
 }

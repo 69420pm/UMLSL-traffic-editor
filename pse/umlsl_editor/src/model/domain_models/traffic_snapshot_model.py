@@ -211,6 +211,15 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     def get_cars(self) -> dict[str, Car]:
         return dict(self._read_only_cars)
 
+    def get_car_list(self) -> list[Car]:
+        return list(self._cars.values())
+
+    def get_car_by_name(self, name: str) -> Car | None:
+        for car in self._cars.values():
+            if car.name == name:
+                return car
+        return None
+
     def get_roads(self) -> dict[str, Road]:
         return {**self._horizontal_roads, **self._vertical_roads}
 
@@ -265,29 +274,43 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def update_car_with_params(self, car_uid: str, car_params: CarParams) -> None:
         car = self._cars.get(car_uid)
-        car.update_from_params(car_params)
+        car.update_from_params(car_params, self)
         self._cars[car_uid] = car
 
-    def get_segment_from_position_on_lane(self, lane: Lane, position_on_lane: float) -> Segment | None:
+    def get_segment_from_lane_position(self, lane: Lane, position_on_lane: float) -> Segment | None:
         segment_uids = self._segments_by_lane.get(lane)
         if segment_uids is None:
             return None
 
         road = self.get_road_by_uid(lane.road_uid)
-        previous_segment: Segment | None = None
+
+        # todo flotsche:
+        # insertion order matters: is self._segments[segment_uids[0]] always the first segment on the road
+        # (the one with lowest position)?
+        # if not, this breaks
+        first_segment_on_road = self._segments[segment_uids[0]]
+        previous_segment: Segment | None = first_segment_on_road
         for segment_uid in segment_uids:
             segment = self._segments[segment_uid]
             if road.orientation == RoadOrientation.HORIZONTAL:
-                if segment.get_position(self)[0] <= position_on_lane:
+                if segment.get_position(self)[1] < position_on_lane:
                     previous_segment = segment
                 else:
                     return previous_segment
-            elif road.orientation == RoadOrientation.VERTICAL:
-                if segment.get_position(self)[1] <= position_on_lane:
+            if road.orientation == RoadOrientation.VERTICAL:
+                if segment.get_position(self)[0] < position_on_lane:
                     previous_segment = segment
                 else:
                     return previous_segment
+
         return previous_segment
+
+    def all_segments(self) -> list[Segment]:
+        segments = []
+        for segment in self._segments.values():
+            segments.append(segment)
+
+        return segments
 
     def _get_neighbor_in_direction(self, segment_uid: str, direction: Direction) -> str | None:
         """Get the neighboring segment UID in a given direction from the graph."""
@@ -476,16 +499,16 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         if isinstance(segment, CrossingSegment):
             h_road = self.get_road_by_uid(segment.horizontal_lane.road_uid)
             v_road = self.get_road_by_uid(segment.vertical_lane.road_uid)
-            return (f"CrossingSegment({segment_uid[:6]}...) "
+            return (f"CrossingSegment({segment_uid}) "
                     f"at {h_road.name}(L{segment.horizontal_lane.lane_index}) x "
                     f"{v_road.name}(L{segment.vertical_lane.lane_index})")
 
         elif isinstance(segment, LaneSegment):
             road = self.get_road_by_uid(segment.lane.road_uid)
-            return (f"LaneSegment({segment_uid[:6]}...) "
+            return (f"LaneSegment({segment_uid}) "
                     f"on road: {road.name}(L{segment.lane.lane_index})")
 
-        return f"Segment({segment_uid[:6]}...)"
+        return f"Segment({segment_uid})"
 
     def to_dict(self) -> dict[str, Any]:
         """

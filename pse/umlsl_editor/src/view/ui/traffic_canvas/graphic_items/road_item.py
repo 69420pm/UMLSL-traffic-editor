@@ -6,12 +6,16 @@ lane dividers, center lines, and sticky labels that remain visible at
 viewport edges.
 """
 
-from typing import TYPE_CHECKING, Optional
+import logging
+from typing import TYPE_CHECKING, List, Optional, Protocol, runtime_checkable
 
 from PySide6.QtCore import QPointF, QRectF, Qt
 from PySide6.QtGui import QBrush, QPainter, QPainterPath, QPen
+from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
+# Resource import (prevent unused import linters from removing it)
+import pse.umlsl_editor.src.view.widgets.qt_widgets.resources_rc as rc  # noqa: F401
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.selectable_graphics_item import (
     SelectableGraphicsItem,
@@ -20,6 +24,30 @@ from pse.umlsl_editor.src.view.view_constants import COLORS, DIMENSION, Z_LAYERS
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
+
+logger = logging.getLogger(__name__)
+
+
+@runtime_checkable
+class GeometryListener(Protocol):
+    """Protocol for objects that listen to geometry changes."""
+
+    def refresh_geometry(self) -> None: ...
+
+
+class RoadItemStyle:
+    """Constants and styling configuration for the RoadItem."""
+    ARROW_SVG_PATH = ":/icons/arrow_downward.svg"
+    ARROW_BASE_SIZE = 16.0
+    LABEL_ARROW_SPACING = 18.0
+
+    # Text and Layout
+    TEXT_PADDING = 10.0
+    NAME_V_OFFSET = 8.0
+    NAME_H_OFFSET = 16.0
+
+    # Line Styling
+    DASH_PATTERN = [4, 8]
 
 
 class RoadItem(SelectableGraphicsItem):
@@ -31,12 +59,6 @@ class RoadItem(SelectableGraphicsItem):
         - Solid center line separating forward and backward lanes
         - Dashed lane dividers between lanes in the same direction
         - Sticky labels that remain visible at viewport edges
-
-    The road can be dragged perpendicular to its orientation to change
-    its position.
-
-    Attributes:
-        position_listeners: List of items to notify when the road moves.
     """
 
     def __init__(
@@ -44,44 +66,37 @@ class RoadItem(SelectableGraphicsItem):
             road: Road,
             application_controller: "ApplicationController",
     ) -> None:
-        """
-        Initialize the road graphics item.
-
-        Args:
-            road: The road entity to display.
-            application_controller: The application controller for commands.
-        """
         super().__init__(application_controller)
 
-        self.position_listeners = []
         self._road = road
+        self._position_listeners: List[GeometryListener] = []
+
+        # Graphics Cache
         self._bounding_rect = QRectF()
         self._center_line = QPainterPath()
         self._dashed_lines = QPainterPath()
-
         self._asphalt_brush = QBrush()
         self._center_pen = QPen()
         self._dashed_pen = QPen()
 
+        self._arrow_renderer = QSvgRenderer(RoadItemStyle.ARROW_SVG_PATH)
+        if not self._arrow_renderer.isValid():
+            logger.warning("Failed to load SVG: %s", RoadItemStyle.ARROW_SVG_PATH)
+
         self.update_data(road)
 
     def update_data(self, road: Road) -> None:
-        """
-        Update the road's display data.
-
-        Args:
-            road: The updated road entity.
-        """
+        """Update the road's display data and refresh geometry."""
         self._road = road
         self.setData(0, road)
 
-        # This ensures selection state is valid if the road orientation changed
+        # Ensure selection state is valid if orientation changed
         super().check_current_selection()
 
         constraint = self._get_constraint_for_orientation(road.orientation)
         self.set_movement_constraint(constraint)
 
-        self._setup_styles()
+        self._update_styles()
         self.prepareGeometryChange()
         self._recalculate_geometry()
         self.update()
@@ -94,17 +109,7 @@ class RoadItem(SelectableGraphicsItem):
 
     @staticmethod
     def _get_constraint_for_orientation(orientation: RoadOrientation) -> int:
-        """
-        Get the movement constraint for the given road orientation.
-
-        Roads can only move perpendicular to their orientation.
-
-        Args:
-            orientation: The road's orientation.
-
-        Returns:
-            The axis constraint constant for movement.
-        """
+        """Return the movement axis constraint based on road orientation."""
         if orientation == RoadOrientation.HORIZONTAL:
             return SelectableGraphicsItem.AXIS_Y_ONLY
         return SelectableGraphicsItem.AXIS_X_ONLY
@@ -113,46 +118,38 @@ class RoadItem(SelectableGraphicsItem):
     # Visual Styling
     # -------------------------------------------------------------------------
 
-    def _setup_styles(self) -> None:
-        """Configure visual styles based on selection and hover state."""
+    def _update_styles(self) -> None:
+        """Update pens and brushes based on selection and hover state."""
+        # Z-Index
         self.setZValue(Z_LAYERS.SELECTED_ROAD if self.is_selected else Z_LAYERS.ROAD)
 
+        # Background Color
         color = COLORS.LAYER.lighter() if self.is_selected else COLORS.LAYER
         if self.is_hovered:
             color = color.lighter(110)
-
         self._asphalt_brush = QBrush(color)
 
+        # Pens
         self._center_pen = QPen(COLORS.TEXT, DIMENSION.LINE_WIDTH_ROAD_DIVIDER)
         self._center_pen.setCosmetic(False)
 
         self._dashed_pen = QPen(COLORS.TEXT, DIMENSION.LINE_WIDTH_ROAD_DIVIDER)
         self._dashed_pen.setStyle(Qt.DashLine)
-        self._dashed_pen.setDashPattern([4, 8])
+        self._dashed_pen.setDashPattern(RoadItemStyle.DASH_PATTERN)
         self._dashed_pen.setCosmetic(False)
 
     # -------------------------------------------------------------------------
-    # SelectableGraphicsItem Hooks
+    # SelectableGraphicsItem Lifecycle Hooks
     # -------------------------------------------------------------------------
 
     def on_selection_changed(self, is_selected: bool) -> None:
-        """Handle selection state change."""
-        self._setup_styles()
+        self._update_styles()
 
     def on_hover_changed(self, is_hovered: bool) -> None:
-        """Handle hover state change."""
-        self._setup_styles()
+        self._update_styles()
 
     def on_move_committed(self, delta_x: float, delta_y: float) -> None:
-        """
-        Handle completed drag movement.
-
-        Updates the road's position based on the drag delta.
-
-        Args:
-            delta_x: The horizontal movement delta.
-            delta_y: The vertical movement delta.
-        """
+        """Calculate new position after drag and issue command."""
         if self._road.orientation == RoadOrientation.HORIZONTAL:
             new_position = self._road.position + delta_y
         else:
@@ -164,56 +161,32 @@ class RoadItem(SelectableGraphicsItem):
         )
 
     # -------------------------------------------------------------------------
-    # Position Listeners
+    # Position Listeners (Observer Pattern)
     # -------------------------------------------------------------------------
 
-    def add_position_listener(self, listener) -> None:
-        """
-        Register an object to be notified when this road moves.
+    def add_position_listener(self, listener: GeometryListener) -> None:
+        """Register an object to be notified when this road moves."""
+        if listener not in self._position_listeners:
+            self._position_listeners.append(listener)
 
-        Args:
-            listener: An object with a refresh_geometry() method.
-        """
-        if listener not in self.position_listeners:
-            self.position_listeners.append(listener)
-
-    def remove_position_listener(self, listener) -> None:
-        """
-        Unregister an object from position change notifications.
-
-        Args:
-            listener: The listener to remove.
-        """
-        if listener in self.position_listeners:
-            self.position_listeners.remove(listener)
+    def remove_position_listener(self, listener: GeometryListener) -> None:
+        if listener in self._position_listeners:
+            self._position_listeners.remove(listener)
 
     def _notify_listeners(self) -> None:
-        """Notify all registered listeners that the road has moved."""
-        for listener in self.position_listeners:
+        for listener in self._position_listeners:
             listener.refresh_geometry()
 
-    def itemChange(self, change, value):
-        """
-        Handle item changes, notifying listeners on position updates.
-
-        Args:
-            change: The type of change occurring.
-            value: The new value for the change.
-
-        Returns:
-            The potentially modified value.
-        """
+    def itemChange(self, change: QGraphicsItem.GraphicsItemChange, value: any) -> any:
         if change == QGraphicsItem.ItemPositionHasChanged:
             self._notify_listeners()
-
         return super().itemChange(change, value)
 
     # -------------------------------------------------------------------------
-    # Graphics Interface
+    # Graphics Interface (Qt)
     # -------------------------------------------------------------------------
 
     def boundingRect(self) -> QRectF:
-        """Return the bounding rectangle of the road."""
         return self._bounding_rect
 
     def paint(
@@ -222,300 +195,258 @@ class RoadItem(SelectableGraphicsItem):
             option: QStyleOptionGraphicsItem,
             widget: Optional[QWidget] = None,
     ) -> None:
-        """
-        Paint the road including asphalt, lane dividers, and labels.
-
-        Args:
-            painter: The QPainter to use for drawing.
-            option: Style options for the item.
-            widget: The widget being painted on.
-        """
-        # Draw asphalt background
+        # 1. Background
         painter.setPen(Qt.NoPen)
         painter.setBrush(self._asphalt_brush)
         painter.drawRect(self._bounding_rect)
 
-        # Draw center line
-        painter.setPen(self._center_pen)
+        # 2. Lines
         painter.setBrush(Qt.NoBrush)
+        painter.setPen(self._center_pen)
         painter.drawPath(self._center_line)
 
-        # Draw lane dividers
         painter.setPen(self._dashed_pen)
         painter.drawPath(self._dashed_lines)
 
-        self._paint_labels(painter, option)
+        # 3. Sticky Labels
+        self._paint_sticky_elements(painter, option)
 
     # -------------------------------------------------------------------------
-    # Label Painting
+    # Label & Arrow Painting
     # -------------------------------------------------------------------------
 
-    def _paint_labels(
+    def _paint_sticky_elements(
             self,
             painter: QPainter,
             option: QStyleOptionGraphicsItem,
     ) -> None:
-        """
-        Draw road and lane labels that stick to the viewport edges.
-
-        Labels remain visible at the edge of the viewport regardless of
-        how much of the road is currently visible.
-
-        Args:
-            painter: The QPainter to use for drawing.
-            option: Style options containing transform info.
-        """
+        """Draw labels and arrows that stick to the viewport edges."""
         transform = painter.worldTransform()
-        lod = option.levelOfDetailFromTransform(transform)
 
+        # Calculate viewport top-left in scene coordinates
         inv_transform, invertible = transform.inverted()
         if not invertible:
             return
 
-        screen_top_left = inv_transform.map(QPointF(0, 0))
-
+        lod = option.levelOfDetailFromTransform(transform)
         text_scale = 1.0 / lod
-        padding = 10 * text_scale
 
-        visible_left = screen_top_left.x() + padding
-        visible_top = screen_top_left.y() - padding
+        screen_top_left = inv_transform.map(QPointF(0, 0))
+        padding = RoadItemStyle.TEXT_PADDING * text_scale
 
-        road = self.data(0)
-        lane_width = DIMENSION.LANE_WIDTH
-        is_horizontal = road.orientation == RoadOrientation.HORIZONTAL
+        view_bounds = QPointF(
+            screen_top_left.x() + padding,
+            screen_top_left.y() - padding
+        )
 
         painter.save()
         painter.setPen(COLORS.TEXT)
 
-        self._paint_road_name(
-            painter, road, text_scale, visible_left, visible_top, is_horizontal
-        )
+        self._paint_road_name(painter, text_scale, view_bounds)
 
         if lod > DIMENSION.GRID_FINE_THRESHOLD:
-            self._paint_lane_labels(
-                painter, road, lane_width, text_scale, visible_left, visible_top, is_horizontal
-            )
+            self._paint_lane_details(painter, text_scale, view_bounds)
 
         painter.restore()
 
     def _paint_road_name(
             self,
             painter: QPainter,
-            road: Road,
-            text_scale: float,
-            visible_left: float,
-            visible_top: float,
-            is_horizontal: bool,
+            scale: float,
+            view_bounds: QPointF
     ) -> None:
-        """
-        Draw the road name label.
-
-        Args:
-            painter: The QPainter to use for drawing.
-            road: The road entity.
-            text_scale: Scale factor for text size.
-            visible_left: The left edge of the visible area in scene coords.
-            visible_top: The top edge of the visible area in scene coords.
-            is_horizontal: True if the road is horizontal.
-        """
+        """Draws the main road name."""
         font = painter.font()
         font.setBold(True)
         painter.setFont(font)
 
-        vertical_offset = 8 * text_scale
-        horizontal_offset = 16 * text_scale
         lane_width = DIMENSION.LANE_WIDTH
+        road = self._road
+        is_horizontal = road.orientation == RoadOrientation.HORIZONTAL
+
+        v_offset = RoadItemStyle.NAME_V_OFFSET * scale
+        h_offset = RoadItemStyle.NAME_H_OFFSET * scale
 
         if is_horizontal:
-            name_y = road.position + vertical_offset + (
-                    road.number_of_backward_lanes * lane_width
-            )
-            self._draw_sticky_label(painter, road.name, visible_left, name_y, text_scale)
+            y_pos = road.position + v_offset + (road.number_of_backward_lanes * lane_width)
+            self._draw_text(painter, road.name, view_bounds.x(), y_pos, scale)
         else:
-            name_x = road.position - (
-                    road.number_of_backward_lanes * lane_width
-            ) - horizontal_offset
-            self._draw_sticky_label(painter, road.name, name_x, visible_top, text_scale)
+            x_pos = road.position - (road.number_of_backward_lanes * lane_width) - h_offset
+            self._draw_text(painter, road.name, x_pos, view_bounds.y(), scale)
 
-    def _paint_lane_labels(
+    def _paint_lane_details(
             self,
             painter: QPainter,
-            road: Road,
-            lane_width: float,
-            text_scale: float,
-            visible_left: float,
-            visible_top: float,
-            is_horizontal: bool,
+            scale: float,
+            view_bounds: QPointF
     ) -> None:
-        """
-        Draw lane labels for forward and backward lanes.
-
-        Args:
-            painter: The QPainter to use for drawing.
-            road: The road entity.
-            lane_width: The width of each lane.
-            text_scale: Scale factor for text size.
-            visible_left: The left edge of the visible area in scene coords.
-            visible_top: The top edge of the visible area in scene coords.
-            is_horizontal: True if the road is horizontal.
-        """
+        """Iterates over lanes to draw IDs and direction arrows."""
         font = painter.font()
         font.setBold(False)
         painter.setFont(font)
 
-        # Forward lanes
-        for i in range(road.number_of_forward_lanes):
-            lane_offset = (i + 0.5) * lane_width
-            label = f"f{i + 1}"
+        road = self._road
+        lane_width = DIMENSION.LANE_WIDTH
+        arrow_dist = RoadItemStyle.LABEL_ARROW_SPACING * scale
+        is_horizontal = road.orientation == RoadOrientation.HORIZONTAL
 
-            if is_horizontal:
-                self._draw_sticky_label(
-                    painter, label, visible_left, road.position - lane_offset, text_scale
-                )
-            else:
-                self._draw_sticky_label(
-                    painter, label, road.position + lane_offset, visible_top, text_scale
-                )
+        def draw_lane_set(count: int, prefix: str, is_forward: bool):
+            for i in range(count):
+                offset = (i + 0.5) * lane_width
 
-        # Backward lanes
-        for i in range(road.number_of_backward_lanes):
-            lane_offset = (i + 0.5) * lane_width
-            label = f"b{i + 1}"
+                # Determine perpendicular offset based on direction
+                if is_forward:
+                    # Standard implementation for forward usually implies specific side
+                    # Assuming standard RHT: Forward is usually Right/Bottom depending on axis system,
+                    # but here we follow the original logic's offset math.
+                    pos_perp = (road.position - offset) if is_horizontal else (road.position + offset)
+                else:
+                    pos_perp = (road.position + offset) if is_horizontal else (road.position - offset)
 
-            if is_horizontal:
-                self._draw_sticky_label(
-                    painter, label, visible_left, road.position + lane_offset, text_scale
-                )
-            else:
-                self._draw_sticky_label(
-                    painter, label, road.position - lane_offset, visible_top, text_scale
-                )
+                # Calculate specific X/Y
+                if is_horizontal:
+                    text_pt = QPointF(view_bounds.x(), pos_perp)
+                    arrow_pt = QPointF(view_bounds.x() + arrow_dist, pos_perp)
+                else:
+                    text_pt = QPointF(pos_perp, view_bounds.y())
+                    arrow_pt = QPointF(pos_perp, view_bounds.y() - arrow_dist)
 
-    def _draw_sticky_label(
+                # Draw
+                self._draw_text(painter, f"{prefix}{i + 1}", text_pt.x(), text_pt.y(), scale)
+                self._draw_arrow(painter, arrow_pt, scale, is_forward, is_horizontal)
+
+        draw_lane_set(road.number_of_forward_lanes, "f", is_forward=True)
+        draw_lane_set(road.number_of_backward_lanes, "b", is_forward=False)
+
+    def _draw_text(
             self,
             painter: QPainter,
             text: str,
-            cx: float,
-            cy: float,
-            text_scale: float,
+            x: float,
+            y: float,
+            scale: float
     ) -> None:
-        """
-        Draw a label that remains upright regardless of view transform.
-
-        Args:
-            painter: The QPainter to use for drawing.
-            text: The text to display.
-            cx: The x-coordinate for the label center.
-            cy: The y-coordinate for the label center.
-            text_scale: Scale factor for text size.
-        """
+        """Helper to draw text that resists viewport scaling."""
         painter.save()
-        painter.translate(cx, cy)
-        painter.scale(text_scale, -text_scale)
+        painter.translate(x, y)
+        painter.scale(scale, -scale)  # Flip Y for text rendering
 
         fm = painter.fontMetrics()
         rect = fm.boundingRect(text)
 
+        # Center horizontally, offset vertically slightly
         painter.drawText(-rect.width() / 2, rect.height() / 4, text)
         painter.restore()
+
+    def _draw_arrow(
+            self,
+            painter: QPainter,
+            pos: QPointF,
+            scale: float,
+            is_forward: bool,
+            is_horizontal: bool
+    ) -> None:
+        """Draws a direction arrow SVG."""
+        if not self._arrow_renderer.isValid():
+            return
+
+        painter.save()
+        painter.translate(pos.x(), pos.y())
+        painter.scale(scale, -scale)
+
+        rotation = self._get_arrow_rotation(is_horizontal, is_forward)
+        painter.rotate(rotation)
+
+        size = RoadItemStyle.ARROW_BASE_SIZE
+        rect = QRectF(-size / 2, -size / 2, size, size)
+        self._arrow_renderer.render(painter, rect)
+
+        painter.restore()
+
+    @staticmethod
+    def _get_arrow_rotation(is_horizontal: bool, is_forward: bool) -> float:
+        """
+        Determines arrow rotation angle.
+        Assumes SVG source points DOWN (90deg in Qt coords).
+        """
+        # Mapping: (is_horizontal, is_forward) -> Rotation Angle
+        rotation_map = {
+            (True, True): -90.0,  # Right
+            (True, False): 90.0,  # Left
+            (False, True): 180.0,  # Up
+            (False, False): 0.0,  # Down
+        }
+        return rotation_map.get((is_horizontal, is_forward), 0.0)
 
     # -------------------------------------------------------------------------
     # Geometry Calculation
     # -------------------------------------------------------------------------
 
     def _recalculate_geometry(self) -> None:
-        """Recalculate the road's bounding rect, center line, and lane dividers."""
-        road = self.data(0)
+        """Recalculate bounding rect and line paths."""
+        road = self._road
         scene_size = DIMENSION.SCENE_SIZE
         lane_width = DIMENSION.LANE_WIDTH
 
-        width_forward = road.number_of_forward_lanes * lane_width
-        width_backward = road.number_of_backward_lanes * lane_width
+        w_fwd = road.number_of_forward_lanes * lane_width
+        w_bwd = road.number_of_backward_lanes * lane_width
+        total_width = w_fwd + w_bwd
 
         if road.orientation == RoadOrientation.HORIZONTAL:
-            y_start = road.position - width_forward
             self._bounding_rect = QRectF(
                 -scene_size / 2,
-                y_start,
+                road.position - w_fwd,
                 scene_size,
-                width_forward + width_backward,
+                total_width,
             )
+            center_p1 = QPointF(-scene_size / 2, road.position)
+            center_p2 = QPointF(scene_size / 2, road.position)
         else:
-            x_start = road.position - width_backward
             self._bounding_rect = QRectF(
-                x_start,
+                road.position - w_bwd,
                 -scene_size / 2,
-                width_forward + width_backward,
+                total_width,
                 scene_size,
             )
+            center_p1 = QPointF(road.position, -scene_size / 2)
+            center_p2 = QPointF(road.position, scene_size / 2)
 
-        self._calculate_center_line(road, scene_size)
-        self._calculate_lane_dividers(road, scene_size)
-
-    def _calculate_center_line(self, road: Road, scene_size: int) -> None:
-        """
-        Calculate the center line path between forward and backward lanes.
-
-        Args:
-            road: The road entity.
-            scene_size: The size of the scene.
-        """
+        # Center Line
         self._center_line = QPainterPath()
+        if road.number_of_forward_lanes >= 1 and road.number_of_backward_lanes >= 1:
+            self._center_line.moveTo(center_p1)
+            self._center_line.lineTo(center_p2)
 
-        if road.number_of_forward_lanes < 1 or road.number_of_backward_lanes < 1:
-            return
-
-        if road.orientation == RoadOrientation.HORIZONTAL:
-            self._center_line.moveTo(-scene_size / 2, road.position)
-            self._center_line.lineTo(scene_size / 2, road.position)
-        else:
-            self._center_line.moveTo(road.position, -scene_size / 2)
-            self._center_line.lineTo(road.position, scene_size / 2)
-
-    def _calculate_lane_dividers(self, road: Road, scene_size: int) -> None:
-        """
-        Calculate the dashed lane divider paths.
-
-        Args:
-            road: The road entity.
-            scene_size: The size of the scene.
-        """
+        # Lane Dividers
         self._dashed_lines = QPainterPath()
+        self._add_dividers(road.number_of_forward_lanes, is_forward=True, scene_size=scene_size)
+        self._add_dividers(road.number_of_backward_lanes, is_forward=False, scene_size=scene_size)
+
+    def _add_dividers(self, num_lanes: int, is_forward: bool, scene_size: int) -> None:
+        """Adds dashed divider lines to the painter path."""
+        road = self._road
         lane_width = DIMENSION.LANE_WIDTH
+        is_horiz = road.orientation == RoadOrientation.HORIZONTAL
 
-        # Forward lane dividers
-        for i in range(1, road.number_of_forward_lanes):
-            if road.orientation == RoadOrientation.HORIZONTAL:
-                offset = road.position - (i * lane_width)
+        for i in range(1, num_lanes):
+            # Calculate offset direction based on lane type
+            # Forward usually implies 'minus' in this coordinate system based on prev logic
+            offset_val = i * lane_width
+            pos_offset = (road.position - offset_val) if is_forward else (road.position + offset_val)
+
+            # For Vertical roads, the logic flips slightly in standard math,
+            # but relying on original code's specific logic:
+            if not is_horiz:
+                # Vertical: Fwd = Pos + Offset, Bwd = Pos - Offset
+                pos_offset = (road.position + offset_val) if is_forward else (road.position - offset_val)
+
+            if is_horiz:
+                self._dashed_lines.moveTo(-scene_size / 2, pos_offset)
+                self._dashed_lines.lineTo(scene_size / 2, pos_offset)
             else:
-                offset = road.position + (i * lane_width)
-            self._add_divider_line(road.orientation, offset, scene_size)
+                self._dashed_lines.moveTo(pos_offset, -scene_size / 2)
+                self._dashed_lines.lineTo(pos_offset, scene_size / 2)
 
-        # Backward lane dividers
-        for i in range(1, road.number_of_backward_lanes):
-            if road.orientation == RoadOrientation.HORIZONTAL:
-                offset = road.position + (i * lane_width)
-            else:
-                offset = road.position - (i * lane_width)
-            self._add_divider_line(road.orientation, offset, scene_size)
-
-    def _add_divider_line(
-            self,
-            orientation: RoadOrientation,
-            offset: float,
-            scene_size: int,
-    ) -> None:
-        """
-        Add a divider line to the dashed lines path.
-
-        Args:
-            orientation: The road orientation.
-            offset: The perpendicular offset for the divider.
-            scene_size: The size of the scene.
-        """
-        if orientation == RoadOrientation.HORIZONTAL:
-            self._dashed_lines.moveTo(-scene_size / 2, offset)
-            self._dashed_lines.lineTo(scene_size / 2, offset)
-        else:
-            self._dashed_lines.moveTo(offset, -scene_size / 2)
-            self._dashed_lines.lineTo(offset, scene_size / 2)
+    @property
+    def position_listeners(self):
+        return self._position_listeners

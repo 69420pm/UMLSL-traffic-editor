@@ -7,9 +7,9 @@ and coordinate labels for navigating the traffic canvas.
 
 import math
 
-from PySide6.QtCore import QPointF, QRectF, Qt, Slot
+from PySide6.QtCore import QPointF, QRectF, Qt, Slot, QEvent
 from PySide6.QtGui import QPainter, QPen, QWheelEvent
-from PySide6.QtWidgets import QGraphicsScene, QGraphicsView
+from PySide6.QtWidgets import QGraphicsScene, QGraphicsView, QPinchGesture
 
 from pse.umlsl_editor.src.controllers import ApplicationController
 from pse.umlsl_editor.src.view.view_constants import COLORS, DIMENSION
@@ -74,6 +74,65 @@ class TrafficView(QGraphicsView):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
         self.setBackgroundBrush(COLORS.GREEN)
+
+        self.viewport().setAttribute(Qt.WA_AcceptTouchEvents)
+        self.grabGesture(Qt.PinchGesture)
+
+    # -------------------------------------------------------------------------
+    # Gesture Handling (Pinch to Zoom)
+    # -------------------------------------------------------------------------
+
+    def event(self, event: QEvent) -> bool:
+        """
+        Intercept standard events to handle gestures.
+        """
+        if event.type() == QEvent.Gesture:
+            return self._handle_gesture(event)
+        return super().event(event)
+
+    def _handle_gesture(self, event: QEvent) -> bool:
+        """
+        Route specific gesture types to their handlers.
+        """
+        pinch = event.gesture(Qt.PinchGesture)
+        if pinch:
+            self._handle_pinch(pinch)
+            return True
+        return False
+
+    def _handle_pinch(self, gesture: QPinchGesture) -> None:
+        """
+        Handle the pinch gesture for zooming.
+
+        Uses manual anchoring (mapToScene) similar to wheelEvent to support
+        the flipped Y-axis coordinate system.
+        """
+        change_flags = gesture.changeFlags()
+
+        # Only zoom if the scale factor has changed
+        if change_flags & QPinchGesture.ScaleFactorChanged:
+            # QPinchGesture.scaleFactor() is a multiplier (e.g., 1.01 or 0.99)
+            # representing the change since the last event.
+            raw_factor = gesture.scaleFactor()
+
+            # Apply your existing clamp logic
+            scale_factor = self._calculate_clamped_scale(raw_factor)
+
+            # Disable automatic anchoring to prevent jumping artifacts
+            self.setTransformationAnchor(QGraphicsView.NoAnchor)
+            self.setResizeAnchor(QGraphicsView.NoAnchor)
+
+            # 1. Get pinch center in scene coordinates
+            anchor_pos = gesture.centerPoint().toPoint()
+            old_scene_pos = self.mapToScene(anchor_pos)
+
+            # 2. Apply scale
+            self.scale(scale_factor, scale_factor)
+
+            # 3. Calculate new position and translate back to maintain center
+            new_scene_pos = self.mapToScene(anchor_pos)
+            delta_scene = new_scene_pos - old_scene_pos
+            self.translate(delta_scene.x(), delta_scene.y())
 
     # -------------------------------------------------------------------------
     # Zoom Handling

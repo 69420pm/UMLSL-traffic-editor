@@ -1,26 +1,26 @@
 <RCC>
-  <qresource prefix="/icons">
-    <file>icons/Checkmark.svg</file>
-    <file>icons/Delete_dark.svg</file>
-    <file>icons/Done_dark.svg</file>
-    <file>icons/down.svg</file>
-    <file>icons/up.svg</file>
-    <file>icons/Add road.svg</file>
-    <file>icons/add.svg</file>
-    <file>icons/Arrow downward.svg</file>
-    <file>icons/Cancel.svg</file>
-    <file>icons/Close.svg</file>
-    <file>icons/Delete.svg</file>
-    <file>icons/Directions car.svg</file>
-    <file>icons/Done.svg</file>
-    <file>icons/File open.svg</file>
-    <file>icons/Function.svg</file>
-    <file>icons/Menu.svg</file>
-    <file>icons/Mode edit.svg</file>
-    <file>icons/Remove.svg</file>
-    <file>icons/Save as.svg</file>
-    <file>icons/Save.svg</file>
-    <file>icons/Settings.svg</file>
-    <file>icons/Side navigation.svg</file>
-  </qresource>
+    <qresource prefix="/">
+        <file>icons/Checkmark.svg</file>
+        <file>icons/Delete_dark.svg</file>
+        <file>icons/Done_dark.svg</file>
+        <file>icons/down.svg</file>
+        <file>icons/up.svg</file>
+        <file>icons/add_road.svg</file>
+        <file>icons/add.svg</file>
+        <file>icons/arrow_downward.svg</file>
+        <file>icons/Cancel.svg</file>
+        <file>icons/Close.svg</file>
+        <file>icons/Delete.svg</file>
+        <file>icons/car.svg</file>
+        <file>icons/Done.svg</file>
+        <file>icons/File open.svg</file>
+        <file>icons/Function.svg</file>
+        <file>icons/Menu.svg</file>
+        <file>icons/edit.svg</file>
+        <file>icons/Remove.svg</file>
+        <file>icons/Save as.svg</file>
+        <file>icons/Save.svg</file>
+        <file>icons/Settings.svg</file>
+        <file>icons/Side navigation.svg</file>
+    </qresource>
 </RCC>

@@ -1,5 +1,5 @@
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.view_models.traffic_snapshot import TrafficSnapshot
 from pse.umlsl_editor.src.query.ast.ast import View, BinaryNode, Precedence, ASTNode
 from pse.umlsl_editor.src.model.interval import Interval
 
@@ -11,14 +11,14 @@ class HorizontalChopNode(BinaryNode):
     def __init__(self, left: ASTNode, right: ASTNode):
         super().__init__(Precedence.BINARY_CHOP, left, right)
 
-    def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
+    def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         for i in range(0, H_CHOP_EVAL_ITERATIONS - 1):
             if self.evaluate_with_step_size(i, traffic_snapshot, view, variable_car_map):
                 return True
 
         return False
 
-    def evaluate_with_step_size(self, eval_iteration: int, traffic_snapshot: TrafficSnapshot, view: View,
+    def evaluate_with_step_size(self, eval_iteration: int, traffic_snapshot: TrafficSnapshotModel, view: View,
                                 variable_car_map: dict[str, Car]):
         step_size = self.compute_step_size(eval_iteration)
 
@@ -33,8 +33,8 @@ class HorizontalChopNode(BinaryNode):
             space_interval1 = Interval(space_interval.start, split_value)
             space_interval2 = Interval(split_value, space_interval.end)
 
-            view1 = View(view.seq_lanes, space_interval1, view.car)
-            view2 = View(view.seq_lanes, space_interval2, view.car)
+            view1 = View(view.virtual_lanes, space_interval1, view.car)
+            view2 = View(view.virtual_lanes, space_interval2, view.car)
 
             if (self._left.evaluate(traffic_snapshot, view1, variable_car_map)
                     and self._right.evaluate(traffic_snapshot, view2, variable_car_map)):
@@ -59,8 +59,8 @@ class VerticalChopNode(BinaryNode):
     def __init__(self, left: ASTNode, right: ASTNode):
         super().__init__(Precedence.BINARY_CHOP, left, right)
 
-    def evaluate(self, traffic_snapshot: TrafficSnapshot, view: View, variable_car_map: dict[str, Car]) -> bool:
-        seq_lanes = view.seq_lanes
+    def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
+        seq_lanes = view.virtual_lanes
 
         for split_index in range(0, len(seq_lanes) + 1):
             smaller = seq_lanes[:split_index]  # take all lanes whose index is < split_index

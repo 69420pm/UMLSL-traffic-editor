@@ -1,23 +1,10 @@
-from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
+from pse.umlsl_editor.src.model.entities.car import Car
+from pse.umlsl_editor.src.model.interval import Interval
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
 from pse.umlsl_editor.src.query.ast.ast import View, AtomNode
 from pse.umlsl_editor.src.query.ast.car_resolve import CarResolve
-from pse.umlsl_editor.src.query.visible_segments import VisibleSegment
-
-
-def segment_reserved(view: View, segment: Segment, car: Car) -> bool:
-    if segment not in car.reserved_lanes and segment not in car.reserved_crossings:
-        return False
-
-    segment_views: list[SegmentInterval] = VisibleSegment().compute_visible_segments(view, car)
-    # todo: missing space interval check
-    return any(map(lambda segment_view: segment == segment_view.segment, segment_views))
-
-
-def evaluate_reserve(view: View, segments: list[Segment], car: Car):
-    return all(map(lambda segment: segment_reserved(view, segment, car), segments))
 
 
 class ReserveNode(AtomNode):
@@ -26,30 +13,32 @@ class ReserveNode(AtomNode):
         self._car_resolve = car_resolve
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
-        if len(view.seq_lanes) != 1 or view.space_interval.length() <= 0:
+        if len(view.virtual_lanes) != 1 or view.space_interval.length() <= 0:
             return False
-        path = view.seq_lanes[0]
-        
-        car = view.car
-        lane = view.seq_lanes[0]
 
-        # todo: not quite right i think
-        visible_segments: list[SegmentInterval] = VisibleSegment().compute_visible_segments(view, car)
-        segment_to_segment_views: dict[Segment, list[SegmentInterval]] = {}
-        for segment_view in visible_segments:
-            if segment_view.segment not in segment_to_segment_views:
-                segment_to_segment_views[segment_view.segment] = []
-            segment_to_segment_views[segment_view.segment].append(segment_view)
-        
-        for segment in lane.segments:
-            # each segment must be reserved
-            if segment not in car.reserved_lanes or segment not in car.reserved_crossings:
+        # the car to evaluate the reserve node on
+        eval_car = self._car_resolve.resolve(variable_car_map)
+        reserved_lane_intervals: list[SegmentInterval] = eval_car.environment.reserved_lanes
+
+        visible_segments: list[SegmentInterval] = eval_car.environment.path_segments_in_view(view)
+
+        # check if all visible segments are reserved
+        # if one of the segments is not reserved, the reserve node fails
+        reserved_lanes: list[Segment] = list(map(lambda seg_interval: seg_interval.segment, reserved_lane_intervals))
+        reserved_crossings: list[Segment] = eval_car.environment.reserved_crossings
+        for visible_segment in visible_segments:
+            if visible_segment.segment not in reserved_lanes and visible_segment.segment not in reserved_crossings:
                 return False
 
-            # each segment must be visible
-            if segment not in segment_to_segment_views:
-                return False
+        # compute intervals
+        space_intervals: list[Interval] = []
+        for visible_reserved_segment in visible_segments:
+            interval = visible_reserved_segment.interval
+            # we need to convert the relative position of the segment to its absolute position
+            absolute_interval = Interval(
+                visible_reserved_segment.virtual_pos + interval.start,
+                visible_reserved_segment.virtual_pos + interval.end
+            )
+            space_intervals.append(absolute_interval)
 
-            # todo: if not (view.space_interval subset of (union of
-
-        return evaluate_reserve(view, path.segments, self._car_resolve.resolve(variable_car_map))
+        return view.space_interval.subset_of(Interval.union(space_intervals))

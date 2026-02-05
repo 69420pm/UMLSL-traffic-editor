@@ -92,7 +92,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
 
         car_params = CarParams(
             name="",
-            color="coral",
+            color="lightblue",
             length=1,
             speed=0.0,
             acceleration=0.0,
@@ -101,7 +101,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
             next_turn=None,
             lane=default_lane,
         )
-        return Car.from_params(car_params)
+        return Car.from_params(car_params, self.application_controller.get_traffic_snapshot_reader())
 
     def _populate_form_fields(self) -> None:
         """Populate all form fields with the current car's values."""

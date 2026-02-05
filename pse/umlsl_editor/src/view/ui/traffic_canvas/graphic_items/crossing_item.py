@@ -5,31 +5,36 @@ Provides a visual representation of the intersection area between two
 perpendicular roads, including a background and lane grid.
 """
 
-from typing import Optional
+from typing import Optional, Tuple
 
 from PySide6.QtCore import QPointF, QRectF, Qt
 from PySide6.QtGui import QBrush, QPainter, QPen
 from PySide6.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
-from pse.umlsl_editor.src.model.entities.road import RoadOrientation
+from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import RoadItem
 from pse.umlsl_editor.src.view.view_constants import COLORS, DIMENSION, Z_LAYERS
+
+
+class CrossingItemStyle:
+    """Constants and styling configuration for the CrossingItem."""
+    PEN_WIDTH = DIMENSION.LINE_WIDTH_CROSSING_SEGMENT
+
+    # Dash pattern: [dash_length, gap_length] relative to pen width
+    # 0.05 / width results in very small dots/dashes appropriate for this scale
+    DASH_PATTERN = [
+        0.05 / DIMENSION.LINE_WIDTH_CROSSING_SEGMENT,
+        0.1 / DIMENSION.LINE_WIDTH_CROSSING_SEGMENT
+    ]
 
 
 class CrossingItem(QGraphicsItem):
     """
     Graphics item representing the intersection of two perpendicular roads.
 
-    Displays a rectangular crossing area with a lane grid overlay. The crossing
-    automatically updates its position and appearance when either connected
-    road is moved or selected.
-
-    The crossing registers as a position listener on both roads so it can
-    respond to road position changes.
-
-    Attributes:
-        road_1: The first connected road item.
-        road_2: The second connected road item (perpendicular to road_1).
+    Displays a rectangular crossing area with a lane grid overlay.
+    It automatically registers itself as a listener to the connected roads
+    to update geometry when they move.
     """
 
     def __init__(self, road_1: RoadItem, road_2: RoadItem) -> None:
@@ -37,22 +42,36 @@ class CrossingItem(QGraphicsItem):
         Initialize the crossing item between two roads.
 
         Args:
-            road_1: The first road item (either horizontal or vertical).
+            road_1: The first road item.
             road_2: The second road item (must be perpendicular to road_1).
         """
         super().__init__()
 
         self.road_1 = road_1
         self.road_2 = road_2
+        self._rect = QRectF()
 
-        self._rect: QRectF = QRectF()
-
-        self._grid_pen = QPen(COLORS.TEXT, DIMENSION.LINE_WIDTH_CROSSING_SEGMENT)
+        # Graphic resources
+        self._grid_pen = QPen(COLORS.TEXT, CrossingItemStyle.PEN_WIDTH)
         self._grid_pen.setStyle(Qt.DashLine)
-        pattern = [.05 / DIMENSION.LINE_WIDTH_CROSSING_SEGMENT, .1 / DIMENSION.LINE_WIDTH_CROSSING_SEGMENT]
-        self._grid_pen.setDashPattern(pattern)
-        self._update_z_value()
+        self._grid_pen.setDashPattern(CrossingItemStyle.DASH_PATTERN)
+
+        # 1. Register Listeners (Same logic as CarItem)
+        self.road_1.add_position_listener(self)
+        self.road_2.add_position_listener(self)
+
+        # 2. Initial geometry calc
         self.refresh_geometry()
+
+    def cleanup(self) -> None:
+        """
+        Disconnects listeners.
+        Must be called by the Scene before removing this item.
+        """
+        if self.road_1:
+            self.road_1.remove_position_listener(self)
+        if self.road_2:
+            self.road_2.remove_position_listener(self)
 
     # -------------------------------------------------------------------------
     # Visual State
@@ -61,26 +80,19 @@ class CrossingItem(QGraphicsItem):
     def _update_z_value(self) -> None:
         """Update the Z-order based on selection state of connected roads."""
         is_selected = self.road_1.is_selected or self.road_2.is_selected
-        z_value = Z_LAYERS.SELECTED_CROSSING if is_selected else Z_LAYERS.CROSSING
-        self.setZValue(z_value)
+        self.setZValue(Z_LAYERS.SELECTED_CROSSING if is_selected else Z_LAYERS.CROSSING)
 
     def _get_brush_color(self) -> QBrush:
-        """
-        Get the brush color based on the selection state of connected roads.
-
-        Returns:
-            A QBrush with the appropriate fill color.
-        """
+        """Returns background color based on selection state."""
         is_selected = self.road_1.is_selected or self.road_2.is_selected
         color = COLORS.LAYER.lighter() if is_selected else COLORS.LAYER
         return QBrush(color)
 
     # -------------------------------------------------------------------------
-    # Graphics Interface
+    # Graphics Interface (Qt)
     # -------------------------------------------------------------------------
 
     def boundingRect(self) -> QRectF:
-        """Return the bounding rectangle of the crossing area."""
         return self._rect
 
     def paint(
@@ -89,150 +101,121 @@ class CrossingItem(QGraphicsItem):
             option: QStyleOptionGraphicsItem,
             widget: Optional[QWidget] = None,
     ) -> None:
-        """
-        Paint the crossing area with background and grid.
-
-        Args:
-            painter: The QPainter to use for drawing.
-            option: Style options for the item.
-            widget: The widget being painted on.
-        """
         self._update_z_value()
 
+        # Background
         painter.setBrush(self._get_brush_color())
         painter.setPen(Qt.NoPen)
         painter.drawRect(self._rect)
 
+        # Grid
         painter.setPen(self._grid_pen)
         self._draw_grid(painter)
 
     def _draw_grid(self, painter: QPainter) -> None:
-        """
-        Draw the lane grid lines within the crossing area.
-
-        Args:
-            painter: The QPainter to use for drawing.
-        """
-        self._draw_vertical_grid_lines(painter)
-        self._draw_horizontal_grid_lines(painter)
-
-    def _draw_vertical_grid_lines(self, painter: QPainter) -> None:
-        """
-        Draw vertical grid lines spaced by lane width.
-
-        Args:
-            painter: The QPainter to use for drawing.
-        """
+        """Draws the lane grid lines."""
         lane_width = DIMENSION.LANE_WIDTH
-        num_lines = int(self._rect.width() / lane_width) + 1
 
-        for i in range(num_lines):
-            x = self._rect.left() + i * lane_width
-            if x <= self._rect.right():
-                painter.drawLine(
-                    QPointF(x, self._rect.top()),
-                    QPointF(x, self._rect.bottom()),
-                )
+        # Draw Vertical Lines
+        self._draw_lines(
+            painter,
+            start_val=self._rect.left(),
+            end_val=self._rect.right(),
+            fixed_start=self._rect.top(),
+            fixed_end=self._rect.bottom(),
+            step=lane_width,
+            is_vertical=True
+        )
 
-    def _draw_horizontal_grid_lines(self, painter: QPainter) -> None:
-        """
-        Draw horizontal grid lines spaced by lane width.
+        # Draw Horizontal Lines
+        self._draw_lines(
+            painter,
+            start_val=self._rect.top(),
+            end_val=self._rect.bottom(),
+            fixed_start=self._rect.left(),
+            fixed_end=self._rect.right(),
+            step=lane_width,
+            is_vertical=False
+        )
 
-        Args:
-            painter: The QPainter to use for drawing.
-        """
-        lane_width = DIMENSION.LANE_WIDTH
-        num_lines = int(self._rect.height() / lane_width) + 1
+    def _draw_lines(
+            self,
+            painter: QPainter,
+            start_val: float,
+            end_val: float,
+            fixed_start: float,
+            fixed_end: float,
+            step: float,
+            is_vertical: bool
+    ) -> None:
+        """Generic method to draw parallel lines across the rect."""
+        current = start_val
+        # Use epsilon to prevent floating point errors skipping the last line
+        limit = end_val + 0.001
 
-        for i in range(num_lines):
-            y = self._rect.top() + i * lane_width
-            if y <= self._rect.bottom():
-                painter.drawLine(
-                    QPointF(self._rect.left(), y),
-                    QPointF(self._rect.right(), y),
-                )
+        while current <= limit:
+            if is_vertical:
+                p1 = QPointF(current, fixed_start)
+                p2 = QPointF(current, fixed_end)
+            else:
+                p1 = QPointF(fixed_start, current)
+                p2 = QPointF(fixed_end, current)
+
+            painter.drawLine(p1, p2)
+            current += step
 
     # -------------------------------------------------------------------------
-    # Geometry Calculation
+    # Geometry Calculation (Listener Implementation)
     # -------------------------------------------------------------------------
 
     def refresh_geometry(self) -> None:
-        """Recalculate the crossing rectangle based on current road positions."""
+        """
+        Recalculate the crossing rectangle based on current road positions.
+        Called by RoadItem via the GeometryListener protocol.
+        """
         self.prepareGeometryChange()
         self._rect = self._calculate_intersection_rect()
         self.update()
 
     def _calculate_intersection_rect(self) -> QRectF:
-        """
-        Calculate the rectangle where the two roads intersect.
-
-        Returns:
-            A QRectF defining the intersection area.
-        """
+        """Calculate the intersection area of the two roads."""
         h_road, v_road = self._identify_road_orientations()
 
-        x, width = self._calculate_vertical_road_bounds(v_road)
-        y, height = self._calculate_horizontal_road_bounds(h_road)
+        # Calculate bounds in scene coordinates
+        y_pos, height = self._get_road_transverse_bounds(h_road, is_horizontal=True)
+        x_pos, width = self._get_road_transverse_bounds(v_road, is_horizontal=False)
 
-        return QRectF(x, y, width, height)
+        return QRectF(x_pos, y_pos, width, height)
 
-    def _identify_road_orientations(self) -> tuple[RoadItem, RoadItem]:
-        """
-        Identify which road is horizontal and which is vertical.
-
-        Returns:
-            A tuple of (horizontal_road, vertical_road) items.
-        """
+    def _identify_road_orientations(self) -> Tuple[RoadItem, RoadItem]:
+        """Returns (Horizontal_Item, Vertical_Item)."""
         if self.road_1.data(0).orientation == RoadOrientation.HORIZONTAL:
             return self.road_1, self.road_2
         return self.road_2, self.road_1
 
-    def _calculate_horizontal_road_bounds(
+    def _get_road_transverse_bounds(
             self,
-            h_road: RoadItem,
-    ) -> tuple[float, float]:
+            item: RoadItem,
+            is_horizontal: bool
+    ) -> Tuple[float, float]:
         """
-        Calculate the Y position and height for the horizontal road portion.
-
-        Args:
-            h_road: The horizontal road item.
-
-        Returns:
-            A tuple of (y_position, height) for the crossing rectangle.
+        Calculates the start position and total width of the road
+        perpendicular to its travel direction.
         """
-        road_data = h_road.data(0)
+        road: Road = item.data(0)
         lane_width = DIMENSION.LANE_WIDTH
 
-        forward_width = road_data.number_of_forward_lanes * lane_width
-        total_width = (
-                              road_data.number_of_forward_lanes + road_data.number_of_backward_lanes
-                      ) * lane_width
+        total_lanes = road.number_of_forward_lanes + road.number_of_backward_lanes
+        total_thickness = total_lanes * lane_width
 
-        y = (road_data.position - forward_width) + h_road.y()
+        # Based on RoadItem geometry logic:
+        # Horiz: Top = Pos - (ForwardLanes * Width)
+        # Vert:  Left = Pos - (BackwardLanes * Width)
+        if is_horizontal:
+            offset = road.number_of_forward_lanes * lane_width
+            start_pos = road.position - offset + item.y()
+        else:
+            offset = road.number_of_backward_lanes * lane_width
+            start_pos = road.position - offset + item.x()
 
-        return y, total_width
-
-    def _calculate_vertical_road_bounds(
-            self,
-            v_road: RoadItem,
-    ) -> tuple[float, float]:
-        """
-        Calculate the X position and width for the vertical road portion.
-
-        Args:
-            v_road: The vertical road item.
-
-        Returns:
-            A tuple of (x_position, width) for the crossing rectangle.
-        """
-        road_data = v_road.data(0)
-        lane_width = DIMENSION.LANE_WIDTH
-
-        backward_width = road_data.number_of_backward_lanes * lane_width
-        total_width = (
-                              road_data.number_of_forward_lanes + road_data.number_of_backward_lanes
-                      ) * lane_width
-
-        x = (road_data.position - backward_width) + v_road.x()
-
-        return x, total_width
+        return start_pos, total_thickness
