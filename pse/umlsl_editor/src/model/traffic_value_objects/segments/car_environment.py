@@ -27,7 +27,7 @@ class CarEnvironment:
     """
 
     # List of parallel virtual lanes.
-    parallel_virtual_lanes: list[VirtualLane]
+    parallel_virtual_lanes: list[list[VirtualLane]]
     # The path of the car which is a list of segments.
     path: VirtualLane
     # The path of the car where each segment is equipped with an interval.
@@ -39,6 +39,16 @@ class CarEnvironment:
     reserved_crossings: list[CrossingSegment]
     claimed_lanes: list[SegmentInterval]
     claimed_crossings: list[CrossingSegment]
+
+    space_interval: Interval
+    """"
+    max_v = self._traffic_snapshot.get_max_velocity()
+    horizon = max_v * max_v / (2.0 * braking_accel)
+    horizontal_extension = Interval(
+        car.absolute_position() - horizon,
+        car.absolute_position() + horizon
+    )
+    """
 
     def path_segments_in_view(self, view: View) -> list[SegmentInterval]:
         # collect visible segments in the view
