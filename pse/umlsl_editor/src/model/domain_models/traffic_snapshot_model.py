@@ -362,8 +362,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         # 2. Process Horizontal Roads
         for h_road in horizontal_roads:
             h_lanes = h_road.forward_lanes + h_road.backward_lanes
-            # Sort Top to Bottom for Lateral connections
-            h_lanes.sort(key=lambda l: l.lane_index)
+            # Sort Top to Bottom (low y to high y) based on physical lane position
+            h_lanes.sort(key=lambda l: l.get_one_dimensional_position(self))
 
             lane_physical_segments: dict[Lane, list[Segment]] = {}
 
@@ -375,7 +375,10 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                 segments.append(left_inf)
 
                 for v_road in vertical_roads:
-                    v_lanes = sorted(v_road.forward_lanes + v_road.backward_lanes, key=lambda l: l.lane_index)
+                    v_lanes = sorted(
+                        v_road.forward_lanes + v_road.backward_lanes,
+                        key=lambda l: l.get_one_dimensional_position(self)
+                    )
                     for v_lane in v_lanes:
                         segments.append(crossing_map[(lane, v_lane)])
 
@@ -385,15 +388,17 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
                 lane_physical_segments[lane] = segments
 
+                # Store spatial order (low x to high x)
+                segments_uids = [s.uid for s in segments]
+                self._segments_by_lane[lane] = segments_uids
+
                 # Flow Direction Setup
                 if lane.lane_index >= 0:
-                    flow_uids = [s.uid for s in reversed(segments)]
-                    flow_dir = Direction.LEFT
-                else:
-                    flow_uids = [s.uid for s in segments]
+                    flow_uids = segments_uids
                     flow_dir = Direction.RIGHT
-
-                self._segments_by_lane[lane] = flow_uids
+                else:
+                    flow_uids = list(reversed(segments_uids))
+                    flow_dir = Direction.LEFT
 
                 # Connect Flow
                 for i in range(len(flow_uids) - 1):
@@ -416,8 +421,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         # 3. Process Vertical Roads
         for v_road in vertical_roads:
             v_lanes = v_road.forward_lanes + v_road.backward_lanes
-            # Sort Left to Right
-            v_lanes.sort(key=lambda l: l.lane_index)
+            # Sort Left to Right (low x to high x) based on physical lane position
+            v_lanes.sort(key=lambda l: l.get_one_dimensional_position(self))
 
             lane_physical_segments: dict[Lane, list[Segment]] = {}
 
@@ -429,7 +434,10 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                 segments.append(top_inf)
 
                 for h_road in horizontal_roads:
-                    h_lanes = sorted(h_road.forward_lanes + h_road.backward_lanes, key=lambda l: l.lane_index)
+                    h_lanes = sorted(
+                        h_road.forward_lanes + h_road.backward_lanes,
+                        key=lambda l: l.get_one_dimensional_position(self)
+                    )
                     for h_lane in h_lanes:
                         segments.append(crossing_map[(h_lane, lane)])
 
@@ -439,15 +447,17 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
                 lane_physical_segments[lane] = segments
 
+                # Store spatial order (low y to high y)
+                segments_uids = [s.uid for s in segments]
+                self._segments_by_lane[lane] = segments_uids
+
                 # Flow Direction Setup
                 if lane.lane_index >= 0:
-                    flow_uids = [s.uid for s in segments]
+                    flow_uids = segments_uids
                     flow_dir = Direction.DOWN
                 else:
-                    flow_uids = [s.uid for s in reversed(segments)]
+                    flow_uids = list(reversed(segments_uids))
                     flow_dir = Direction.UP
-
-                self._segments_by_lane[lane] = flow_uids
 
                 # Connect Flow
                 for i in range(len(flow_uids) - 1):
