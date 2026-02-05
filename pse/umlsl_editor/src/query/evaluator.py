@@ -18,12 +18,12 @@ class UMLSLEvaluator:
 
     def compute_latex(self, latex_string: str) -> str:
         tokens = Lexer(latex_string).tokenize()
-        ast = ASTParser(tokens, self._traffic_snapshot.get_cars()).parse_ast()
+        ast = ASTParser(tokens, self._traffic_snapshot.get_car_list()).parse_ast()
         return ast.to_latex()
 
     def evaluate_query(self, query: str, car: Car, braking_accel: float) -> QueryResult:
         tokens = Lexer(query).tokenize()
-        ast = ASTParser(tokens, self._traffic_snapshot.get_cars()).parse_ast()
+        ast = ASTParser(tokens, self._traffic_snapshot.get_car_list()).parse_ast()
 
         max_v = self._traffic_snapshot.get_max_velocity()
         horizon = max_v * max_v / (2.0 * braking_accel)

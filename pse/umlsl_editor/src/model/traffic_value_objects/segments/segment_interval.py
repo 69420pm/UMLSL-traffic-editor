@@ -9,3 +9,4 @@ class SegmentInterval:
     """ Represents an interval on a segment. The interval completely captures crossing segments. """
     segment: Segment
     interval: Interval
+    virtual_pos: float

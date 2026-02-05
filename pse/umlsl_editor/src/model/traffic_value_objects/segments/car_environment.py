@@ -11,6 +11,7 @@ from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment impo
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Path, Segment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent, TurnDirection
+from pse.umlsl_editor.src.query.view import View
 
 
 class Orientation(Enum):
@@ -29,8 +30,21 @@ class CarEnvironment:
     # The virtual lane that corresponds to the pursuit path of the car.
     path_pursuit: Path
     # The path of the car where each segment is equipped with an interval.
-    # Computes by the seg_V method in the paper.
+    # Computes by the seg_V method in the paper - if we assume the View occupies the entire map.
     path_segment_intervals: list[SegmentInterval]
+
+    def path_segments_in_view(self, view: View) -> list[SegmentInterval]:
+        # collect visible segments in the view
+        visible_segments: list[Segment] = []
+        for lane in view.seq_lanes:
+            for segment in lane.segments:
+                visible_segments.append(segment)
+
+        # for each path_segment_interval we have to check if it is visible
+        return list(filter(
+            lambda path_seg_interval: path_seg_interval.segment in visible_segments,
+            self.path_segment_intervals
+        ))
 
     @staticmethod
     def empty():
@@ -55,7 +69,7 @@ class CarEnvironment:
         else:
             car_direction = Direction.UP if speed < 0 else Direction.DOWN
 
-        print("car lane ", car_lane, " pos on lane: ", pos_on_lane, " segment " , segment, " car dir ", car_direction)
+        print("car lane ", car_lane, " pos on lane: ", pos_on_lane, " segment ", segment, " car dir ", car_direction)
         lane_pos = car_lane.get_one_dimensional_position(ts)
         print("lane pos is ", lane_pos, " pos on lane: ", pos_on_lane, " direction is ", car_direction)
 
@@ -69,6 +83,7 @@ class CarEnvironment:
         #  visible_segments = _compute_visible_segments(traffic_snapshot, path, pos, car_size)
 
         #  interval_start_offset = pos.clone().lane_pos
+
 
 def _compute_path_straight(ts: TrafficSnapshotReader, car_direction: Direction, segment: Segment) -> Path:
     path = [segment]
@@ -117,7 +132,7 @@ def _compute_visible_segments_iteratively(ts: TrafficSnapshotReader, path: Path,
         if next_size > 0:
             interval_start_offset = 0
         else:
-            result.append(SegmentInterval(seg_i, interval))
+            result.append(SegmentInterval(seg_i, interval, 0))  # todo: virtual pos
 
         if next_size <= 0:
             return result
