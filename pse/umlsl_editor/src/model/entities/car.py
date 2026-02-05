@@ -132,7 +132,7 @@ class Car(Entity):
     _should_validate: bool = False
 
     @classmethod
-    def from_params(cls, params: CarParams) -> "Car":
+    def from_params(cls, params: CarParams, ts_reader: TrafficSnapshotReader) -> "Car":
         """
         Creates a Car instance from a CarParams dataclass.
 
@@ -142,7 +142,13 @@ class Car(Entity):
         Returns:
             A new Car instance with attributes from the params.
         """
-        virtual_lanes = CarEnvironment.create_environment()
+        car_env = CarEnvironment.create_environment(
+            ts_reader,
+            params.lane,
+            params.position_on_lane,
+            params.length,
+            params.next_turn
+        )
 
         return cls(
             uid=generate_uid(),
@@ -159,7 +165,7 @@ class Car(Entity):
             reserved_crossings=[],
             claimed_crossings=[],
             view_segments=[],
-            path=Path(segments=[]),
+            car_environment=car_env,
             acceleration=params.acceleration,
         )
 

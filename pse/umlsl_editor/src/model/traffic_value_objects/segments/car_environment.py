@@ -4,6 +4,7 @@ from enum import Enum
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.position import Position
+from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Path
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
@@ -30,20 +31,25 @@ class CarEnvironment:
     @staticmethod
     def create_environment(
             traffic_snapshot: TrafficSnapshotReader,
-            car_lane: LaneSegment,
-            pos: Position,
+            car_lane: Lane,
+            pos_on_lane: float,
             car_size: float,
             turn_intent: TurnIntent
     ) -> 'CarEnvironment':
-        road_id = car_lane.lane.road_uid
+        road_id = car_lane.road_uid
+
+        x = car_lane.get_one_dimensional_position(traffic_snapshot)
+        print("pos is " , x)
+
         road = traffic_snapshot.get_road_by_uid(road_id)
         path = _compute_path()
-        visible_segments = _compute_visible_segments(traffic_snapshot, path, pos, car_size)
+      #  visible_segments = _compute_visible_segments(traffic_snapshot, path, pos, car_size)
 
 
-        interval_start_offset = pos.clone().x
+      #  interval_start_offset = pos.clone().x
 
 
+        return CarEnvironment([], path, [])
         # todo
         pass
 
@@ -54,6 +60,8 @@ def _compute_path() -> Path:
 
 def _compute_visible_segments(ts: TrafficSnapshotReader, path: Path, pos: Position, car_lane: LaneSegment, car_size: float) -> list[SegmentInterval]:
     start_pos = car_lane.lane.get_one_dimensional_position(ts)
+
+    return []
 
 
 def _compute_visible_segments_iteratively(ts: TrafficSnapshotReader, path: Path, seg_orientations: list[Orientation],

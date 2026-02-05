@@ -34,5 +34,5 @@ class AddCarCommand(Command[None]):
             CommandValidationError: If command validation fails.
         """
         self._traffic_snapshot_reader.validate_car_params(self.car_params, True)
-        car = Car.from_params(self.car_params)
+        car = Car.from_params(self.car_params, self._traffic_snapshot_reader)
         self._traffic_snapshot_writer.add_car(car)
