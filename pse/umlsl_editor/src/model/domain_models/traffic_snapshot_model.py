@@ -41,6 +41,17 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def get_valid_turn_intent_lanes(self, car_position: float, car_speed: float, car_lane: Lane,
                                     turn_direction: TurnDirection) -> list[Lane]:
+        if car_speed <= 0:
+            return []
+        segment = self.get_segment_from_position_on_lane(car_lane, car_position)
+        road_of_lane = self.get_road_by_uid(car_lane.road_uid)
+        if road_of_lane is None:
+            raise ValueError(f"Road with uid {car_lane.road_uid} not found.")
+
+        if road_of_lane.orientation == RoadOrientation.HORIZONTAL:
+            direction = Direction.LEFT if car_lane.lane_index>=0
+
+
         pass
 
     def get_scene_size(self) -> float:
@@ -220,7 +231,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         car.update_from_params(car_params)
         self._cars[car_uid] = car
 
-    def get_segment_from_lane_position(self, lane: Lane, position_on_lane: float) -> Segment | None:
+    def get_segment_from_position_on_lane(self, lane: Lane, position_on_lane: float) -> Segment | None:
         segment_uids = self._segments_by_lane.get(lane)
         if segment_uids is None:
             return None
@@ -230,16 +241,16 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         for segment_uid in segment_uids:
             segment = self._segments[segment_uid]
             if road.orientation == RoadOrientation.HORIZONTAL:
-                if segment.get_position(self)[1] <= position_on_lane:
-                    previous_segment = segment
-                else:
-                    return previous_segment
-            if road.orientation == RoadOrientation.VERTICAL:
                 if segment.get_position(self)[0] <= position_on_lane:
                     previous_segment = segment
                 else:
                     return previous_segment
-        return None
+            elif road.orientation == RoadOrientation.VERTICAL:
+                if segment.get_position(self)[1] <= position_on_lane:
+                    previous_segment = segment
+                else:
+                    return previous_segment
+        return previous_segment
 
     def _get_neighbor_in_direction(self, segment_uid: str, direction: Direction) -> str | None:
         """Get the neighboring segment UID in a given direction from the graph."""
