@@ -65,7 +65,7 @@ class CarEnvironment:
 
     @staticmethod
     def empty():
-        return CarEnvironment([], VirtualLane([]), [])
+        return CarEnvironment()
 
     @staticmethod
     def create_environment(
@@ -149,7 +149,7 @@ def _compute_visible_segments_iteratively(ts: TrafficSnapshotReader, path: Virtu
         if next_size > 0:
             interval_start_offset = 0
         else:
-            result.append(SegmentInterval(seg_i, interval, 0))  # todo: virtual pos
+            result.append(SegmentInterval(seg_i, interval))
 
         if next_size <= 0:
             return result
