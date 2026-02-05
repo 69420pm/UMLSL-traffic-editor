@@ -1,8 +1,14 @@
+"""
+Main entry point for the UMLSL Traffic Editor application.
+"""
+
 import sys
+import warnings
 
 from PySide6.QtWidgets import QApplication
 
 from pse.umlsl_editor.src.controllers import ApplicationController
+from pse.umlsl_editor.src.view.ui.exeption_handler import ExceptionHandler
 from pse.umlsl_editor.src.view.ui.main_window import MainWindow
 
 
@@ -18,10 +24,11 @@ class Main:
         """Launch the main window with a sample scene for testing."""
         app = QApplication(sys.argv)
 
-        # sys.excepthook = global_exception_handler
-        # warnings.showwarning = global_warning_handler
-
         window = MainWindow(self.application_controller)
+
+        exception_handler = ExceptionHandler(parent=window)
+        # sys.excepthook = exception_handler.handle_exception
+        warnings.showwarning = exception_handler.handle_warning
 
         window.show()
         sys.exit(app.exec())

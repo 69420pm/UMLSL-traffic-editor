@@ -4,10 +4,10 @@ Car editing dialog for the UMLSL Traffic Editor.
 Provides a dialog for creating new cars or editing existing car properties
 such as name, color, speed, lane assignment, and turn direction.
 """
-
 from typing import TYPE_CHECKING
 
-from PySide6.QtWidgets import QDialog
+from PySide6.QtCore import QTimer
+from PySide6.QtWidgets import QDialog, QMessageBox
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
@@ -60,6 +60,13 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         self.application_controller = application_controller
 
         self.road_dict = application_controller.data_controller.get_all_roads()
+
+        if not self.road_dict:
+            self._is_valid = False
+            return
+
+        self._is_valid = True
+
         self.roads_list = list(self.road_dict.values())
 
         if not self.is_edit:
@@ -67,6 +74,26 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
 
         self._populate_form_fields()
         self._connect_signals()
+
+    def exec(self) -> int:
+        """
+        Execute the dialog.
+
+        Returns:
+            QDialog.Rejected if the dialog is invalid, otherwise the result of exec().
+        """
+        if not self._is_valid:
+            QTimer.singleShot(0, self._show_no_roads_warning)
+            return QDialog.DialogCode.Rejected
+        return super().exec()
+
+    def _show_no_roads_warning(self) -> None:
+        """Show a warning message that no roads are available."""
+        QMessageBox.warning(
+            self.parent(),
+            "Warning",
+            "No roads available for lane assignment.",
+        )
 
     def _create_default_car(self) -> Car:
         """
@@ -78,10 +105,6 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         Raises:
             RuntimeError: If no roads are available for lane assignment.
         """
-        if not self.road_dict:
-            raise RuntimeError(
-                "No roads available to assign default lane to the new car."
-            )
 
         first_road = self.roads_list[0]
         default_lane = (

@@ -1,7 +1,10 @@
+import warnings
+
 from pse.umlsl_editor.src.commands.command import Command
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
 from pse.umlsl_editor.src.model.entities.car import CarParams, Car
+from pse.umlsl_editor.src.model.errors.car_errors import CarTrafficSnapshotContextValidationError
 
 
 class AddCarCommand(Command[None]):
@@ -33,6 +36,10 @@ class AddCarCommand(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        self._traffic_snapshot_reader.validate_car_params(self.car_params, True)
+        try:
+            self._traffic_snapshot_reader.validate_car_params(self.car_params, True)
+        except CarTrafficSnapshotContextValidationError:
+            warnings.warn("CarTrafficSnapshotContextValidationError")
+        
         car = Car.from_params(self.car_params, self._traffic_snapshot_reader)
         self._traffic_snapshot_writer.add_car(car)
