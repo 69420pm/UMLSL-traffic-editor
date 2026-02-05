@@ -40,10 +40,10 @@ class CarItem(SelectableGraphicsItem):
     """
 
     def __init__(
-        self,
-        car: Car,
-        road_item: RoadItem,
-        application_controller: "ApplicationController",
+            self,
+            car: Car,
+            road_item: RoadItem,
+            application_controller: "ApplicationController",
     ) -> None:
         """
         Initialize the car graphics item.
@@ -162,10 +162,10 @@ class CarItem(SelectableGraphicsItem):
         return self._polygon.boundingRect()
 
     def paint(
-        self,
-        painter: QPainter,
-        option: QStyleOptionGraphicsItem,
-        widget: Optional[QWidget] = None,
+            self,
+            painter: QPainter,
+            option: QStyleOptionGraphicsItem,
+            widget: Optional[QWidget] = None,
     ) -> None:
         """
         Paint the car shape.
@@ -182,9 +182,9 @@ class CarItem(SelectableGraphicsItem):
         self._paint_label(painter, option)
 
     def _paint_label(
-        self,
-        painter: QPainter,
-        option: QStyleOptionGraphicsItem,
+            self,
+            painter: QPainter,
+            option: QStyleOptionGraphicsItem,
     ) -> None:
         """
         Draw the car's name label centered on the car body.
@@ -249,10 +249,10 @@ class CarItem(SelectableGraphicsItem):
         self.update()
 
     def _calculate_car_position(
-        self,
-        car: Car,
-        road: Road,
-        road_item: RoadItem,
+            self,
+            car: Car,
+            road: Road,
+            road_item: RoadItem,
     ) -> tuple[float, float]:
         """
         Calculate the car's position in scene coordinates.
@@ -276,7 +276,7 @@ class CarItem(SelectableGraphicsItem):
             lane_index = -car.lane.lane_index
 
         lane_offset = (
-            lane_width * lane_index - (lane_width - car_width) / 2.0 - car_width
+                lane_width * lane_index - (lane_width - car_width) / 2.0 - car_width
         )
 
         if road.orientation == RoadOrientation.VERTICAL:
@@ -284,7 +284,9 @@ class CarItem(SelectableGraphicsItem):
         else:
             road_offset = road.position + road_item.y()
 
-        y = lane_offset + road_offset
+        transition_offset = car.transition * lane_width
+
+        y = lane_offset + road_offset + transition_offset
 
         return x, y
 
@@ -315,10 +317,10 @@ class CarItem(SelectableGraphicsItem):
         return car_length, triangle_length
 
     def _create_car_polygon(
-        self,
-        position: tuple[float, float],
-        dimensions: tuple[float, float],
-        orientation: RoadOrientation,
+            self,
+            position: tuple[float, float],
+            dimensions: tuple[float, float],
+            orientation: RoadOrientation,
     ) -> QPolygonF:
         """
         Create the pentagon polygon representing the car shape.
