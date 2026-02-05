@@ -83,6 +83,8 @@ class QueryListModel(EntityModel):
             query = self._data[row]
             dialog = EditQueryDialog(
                 query,
+                parent=self.parent(),
+
                 application_controller=self._application_controller,
             )
             dialog.exec_()

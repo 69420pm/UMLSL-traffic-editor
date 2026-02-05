@@ -8,15 +8,14 @@ Rectangle {
     signal editClicked()
 
     default property alias content: contentArea.data
+    property color border_color: "#032F40"
 
     width: ListView.view.width
-    height: 48
+    height: 44
 
-    // --- 1. Selection State Color ---
-    // If the row is selected, show lighter blue; otherwise dark.
-    color: "#011C26"
+    color: role_is_selected ? "#032F40" : "#011C26"
 
-    border.color: role_is_selected ? "#F9F9F9" : "#032F40"
+    border.color: border_color
     border.width: 2
     radius: 16
 
@@ -33,28 +32,26 @@ Rectangle {
 
     RowLayout {
         anchors.fill: parent
-        anchors.leftMargin: 16
+        anchors.leftMargin: 8
         anchors.rightMargin: 8
-        anchors.topMargin: 8
-        anchors.bottomMargin: 8
-        spacing: 8
-
-        // REMOVED: inputDriven: false (This line caused the error)
+        anchors.topMargin: 0
+        anchors.bottomMargin: 0
+        spacing: 4
 
         RowLayout {
             id: contentArea
             Layout.fillWidth: true
-            spacing: 16
+            spacing: 8
         }
 
-        // --- 3. The Edit Button ---
+        // --- The Edit Button ---
         Rectangle {
             Layout.preferredWidth: 32
             Layout.preferredHeight: 32
             radius: 16
 
             // Button visual states
-            color: editMouseArea.pressed ? "#042F40" : (editMouseArea.containsMouse ? "#084D68" : "#042F40")
+            color: editMouseArea.pressed ? "transparent" : (editMouseArea.containsMouse ? "#084D68" : "transparent")
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
             Image {
@@ -63,8 +60,6 @@ Rectangle {
                 sourceSize.width: 16; sourceSize.height: 16
             }
 
-            // This MouseArea sits ON TOP of the background one.
-            // It swallows the click event, so the row is NOT selected when you click edit.
             MouseArea {
                 id: editMouseArea
                 anchors.fill: parent

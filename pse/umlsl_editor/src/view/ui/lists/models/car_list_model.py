@@ -38,9 +38,9 @@ class CarModel(EntityModel):
     ValueRole = EntityModel.NextRole + 2
 
     def __init__(
-        self,
-        application_controller: "ApplicationController",
-        parent=None,
+            self,
+            application_controller: "ApplicationController",
+            parent=None,
     ) -> None:
         """
         Initialize the car list model.
@@ -90,7 +90,7 @@ class CarModel(EntityModel):
         elif role == CarModel.ColorRole:
             return str(car.color)
         elif role == CarModel.ValueRole:
-            return f"R: {car.lane.road_uid} L: {car.lane.lane_index}"
+            return f"R: {self._application_controller.data_controller.get_road_by_uid(car.lane.road_uid).name} L: {car.lane.lane_index}"
 
         return None
 
@@ -123,6 +123,7 @@ class CarModel(EntityModel):
             car = self._data[row]
             dialog = EditCarDialog(
                 car,
+                parent=self.parent(),
                 application_controller=self._application_controller,
             )
             dialog.exec_()
