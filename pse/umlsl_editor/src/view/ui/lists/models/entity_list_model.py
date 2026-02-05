@@ -6,7 +6,7 @@ entity collections. Handles common functionality including selection state
 management and row operations.
 """
 
-from PySide6.QtCore import QAbstractListModel, QModelIndex, Qt, Slot
+from PySide6.QtCore import QAbstractListModel, QModelIndex, Qt, Signal, Slot
 
 from pse.umlsl_editor.src.controllers.view_event_contract import ViewEventHandler
 from pse.umlsl_editor.src.model.entities.entity import Entity
@@ -32,6 +32,8 @@ class EntityModel(QAbstractListModel):
 
     IsSelectedRole = Qt.UserRole + 1
     NextRole = IsSelectedRole + 1
+
+    edit_requested = Signal(int)  # Emits row index when edit is requested
 
     def __init__(self, parent=None) -> None:
         """
@@ -216,10 +218,11 @@ class EntityModel(QAbstractListModel):
         """
         Handle button click for a specific row.
 
-        Override in subclasses to provide row-specific button functionality
-        (e.g., opening an edit dialog).
+        Emits the edit_requested signal with the row index. Connect to this
+        signal to open an edit dialog with the appropriate parent widget.
 
         Args:
             row: The index of the row whose button was clicked.
         """
-        pass
+        if 0 <= row < len(self._data):
+            self.edit_requested.emit(row)

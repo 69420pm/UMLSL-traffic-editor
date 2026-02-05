@@ -62,6 +62,7 @@ class SidebarController(QObject):
     def _setup_ui(self) -> None:
         """Configure button connections and initialize QML list views."""
         self._connect_add_buttons()
+        self._connect_edit_signals()
         self._setup_quick_widgets()
 
     def _connect_add_buttons(self) -> None:
@@ -74,6 +75,24 @@ class SidebarController(QObject):
         )
         self._add_query_button.clicked.connect(
             lambda: self._open_edit_dialog(EditQueryDialog)
+        )
+
+    def _connect_edit_signals(self) -> None:
+        """Connect model edit_requested signals to dialog handlers."""
+        self._view_models.road_list_model.edit_requested.connect(
+            lambda row: self._open_edit_dialog_for_row(
+                EditRoadDialog, self._view_models.road_list_model, row
+            )
+        )
+        self._view_models.car_list_model.edit_requested.connect(
+            lambda row: self._open_edit_dialog_for_row(
+                EditCarDialog, self._view_models.car_list_model, row
+            )
+        )
+        self._view_models.query_list_model.edit_requested.connect(
+            lambda row: self._open_edit_dialog_for_row(
+                EditQueryDialog, self._view_models.query_list_model, row
+            )
         )
 
     def _setup_quick_widgets(self) -> None:
@@ -114,7 +133,7 @@ class SidebarController(QObject):
     ) -> None:
         """
         Configure a QML Quick Widget with the specified model and QML file.
- 
+
         Sets up transparency, resize behavior, and binds the data model
         to the QML context.
 
@@ -140,6 +159,23 @@ class SidebarController(QObject):
         """
         dialog = dialog_class(
             None,
+            parent=self._window,
+            application_controller=self._application_controller,
+        )
+        dialog.exec()
+
+    def _open_edit_dialog_for_row(self, dialog_class, model, row: int) -> None:
+        """
+        Open an edit dialog for an existing entity.
+
+        Args:
+            dialog_class: The dialog class to instantiate (e.g., EditRoadDialog).
+            model: The entity list model containing the entity.
+            row: The row index of the entity to edit.
+        """
+        entity = model.get_entity_at(row)
+        dialog = dialog_class(
+            entity,
             parent=self._window,
             application_controller=self._application_controller,
         )
