@@ -41,7 +41,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def get_valid_turn_intent_lanes(self, car_position: float, car_speed: float, car_lane: Lane, car_length: float,
                                     turn_direction: TurnDirection) -> list[Lane]:
-        if car_speed <= 0:
+        if car_speed <= 0 or turn_direction not in [TurnDirection.LEFT, TurnDirection.RIGHT]:
             return []
 
         road_of_lane = self.get_road_by_uid(car_lane.road_uid)
@@ -53,7 +53,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         else:
             direction = Direction.UP if car_lane.lane_index >= 0 else Direction.DOWN
 
-        segment = self.get_segment_from_position_on_lane(car_lane, car_position + car_length * (
+        segment = self.get_segment_from_position_on_lane(car_lane, car_position + car_length * 0.5 * (
             1 if direction in [Direction.RIGHT, Direction.DOWN] else -1))
 
         if segment is None:
@@ -65,9 +65,31 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         while isinstance(adjacent_segment, CrossingSegment):
             lane_to_turn_into = adjacent_segment.horizontal_lane if road_of_lane.orientation == RoadOrientation.VERTICAL else adjacent_segment.vertical_lane
 
-            # go through all cases
+            # go through all 4 casees
+            if road_of_lane.orientation == RoadOrientation.HORIZONTAL:
+                if turn_direction == TurnDirection.LEFT:
+                    # lane indeces must be different
+                    if (car_lane.lane_index >= 0 and lane_to_turn_into.lane_index >= 0) or (
+                            car_lane.lane_index < 0 and lane_to_turn_into.lane_index < 0):
+                        lanes_to_turn_into.append(lane_to_turn_into)
+                elif turn_direction == TurnDirection.RIGHT:
+                    # lane indeces must be the same
+                    if (car_lane.lane_index >= 0 and lane_to_turn_into.lane_index < 0) or (
+                            car_lane.lane_index < 0 and lane_to_turn_into.lane_index >= 0):
+                        lanes_to_turn_into.append(lane_to_turn_into)
+            if road_of_lane.orientation == RoadOrientation.VERTICAL:
+                if turn_direction == TurnDirection.LEFT:
+                    # lane indeces must be different
+                    if (car_lane.lane_index >= 0 and lane_to_turn_into.lane_index < 0) or (
+                            car_lane.lane_index < 0 and lane_to_turn_into.lane_index >= 0):
+                        lanes_to_turn_into.append(lane_to_turn_into)
+                elif turn_direction == TurnDirection.RIGHT:
+                    # lane indeces must be the same
+                    if (car_lane.lane_index >= 0 and lane_to_turn_into.lane_index >= 0) or (
+                            car_lane.lane_index < 0 and lane_to_turn_into.lane_index < 0):
+                        lanes_to_turn_into.append(lane_to_turn_into)
 
-        pass
+        return lanes_to_turn_into
 
     def get_scene_size(self) -> float:
         return self.screen_size
