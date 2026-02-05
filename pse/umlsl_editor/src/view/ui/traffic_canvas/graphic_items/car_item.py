@@ -278,14 +278,15 @@ class CarItem(SelectableGraphicsItem):
 
         is_vertical = road.orientation == RoadOrientation.VERTICAL
 
-        sign = -1 if lane_idx < 0 != is_vertical else 1
+        sign = -1 if lane_idx < 0 else 1
+        vertical_sign = 1 if is_vertical else -1
 
         # Center of lane i is at: (i + 0.5) * Width (if i is 0-based)
         # Using abs() to handle negative indices safely
         idx_magnitude = abs(lane_idx)
 
         # Center offset relative to road midline
-        center_offset = -(idx_magnitude + 0.5) * lane_width * sign
+        center_offset = (idx_magnitude + 0.5) * lane_width * sign * vertical_sign
 
         # Add transition offset (lane changing animation)
         transition_offset = car.transition * lane_width
