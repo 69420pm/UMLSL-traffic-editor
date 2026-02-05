@@ -174,3 +174,9 @@ class TrafficSnapshotReader(ABC):
             A valid target Lane for the turn intent, or None if no valid lane exists.
         """
         pass
+
+    def get_segment_from_lane_position(self, lane: 'Lane', position_on_lane: float) -> Segment | None:
+         pass
+
+    def all_segments(self) -> list[Segment]:
+        pass

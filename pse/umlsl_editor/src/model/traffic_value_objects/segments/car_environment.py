@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.model.helper.directional_graph import Direction
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.position import Position
@@ -41,16 +42,26 @@ class CarEnvironment:
             car_lane: Lane,
             pos_on_lane: float,
             car_size: float,
-            turn_intent: TurnIntent
+            speed: float,
+            turn_direction: TurnDirection
     ) -> 'CarEnvironment':
         road_id = car_lane.road_uid
         road = ts.get_road_by_uid(road_id)
+        segment = ts.get_segment_from_lane_position(car_lane, pos_on_lane)
 
+        # todo: extract into separate method
+        if road.orientation == RoadOrientation.HORIZONTAL:
+            car_direction = Direction.LEFT if speed < 0 else Direction.RIGHT
+        else:
+            car_direction = Direction.UP if speed < 0 else Direction.DOWN
+
+        print("car lane ", car_lane, " pos on lane: ", pos_on_lane, " segment " , segment, " car dir ", car_direction)
         lane_pos = car_lane.get_one_dimensional_position(ts)
-        print("lane pos is ", lane_pos, " pos on lane: ", pos_on_lane)
+        print("lane pos is ", lane_pos, " pos on lane: ", pos_on_lane, " direction is ", car_direction)
 
-        if turn_intent.direction == TurnDirection.STRAIGHT:
-            path = _compute_path_straight(ts, car_lane)
+        if turn_direction == TurnDirection.STRAIGHT:
+            path = _compute_path_straight(ts, car_direction, segment)
+            print("path is ", path)
             return CarEnvironment([], path, [])
         else:
             # todo
@@ -59,11 +70,9 @@ class CarEnvironment:
 
         #  interval_start_offset = pos.clone().lane_pos
 
-def _compute_path_straight(ts: TrafficSnapshotReader, car_direction: Direction, car_lane: Lane) -> Path:
-    car_segment: Segment = None # get segment?
-
-    path = [car_segment]
-    next_segment = ts.get_adjacent_segment(car_segment.uid, car_direction)
+def _compute_path_straight(ts: TrafficSnapshotReader, car_direction: Direction, segment: Segment) -> Path:
+    path = [segment]
+    next_segment = ts.get_adjacent_segment(segment.uid, car_direction)
     while next_segment is not None:
         path.append(next_segment)
         next_segment = ts.get_adjacent_segment(next_segment.uid, car_direction)

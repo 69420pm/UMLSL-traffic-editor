@@ -2,6 +2,7 @@ import re
 from dataclasses import dataclass
 from typing import Optional, Any
 
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.entity import Entity
 from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
@@ -10,7 +11,7 @@ from pse.umlsl_editor.src.model.traffic_value_objects.segments.car_environment i
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Path
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
-from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
+from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent, TurnDirection
 
 
 @dataclass
@@ -140,6 +141,8 @@ class Car(Entity):
         Returns:
             A new Car instance with attributes from the params.
         """
+
+        """"
         if params.next_turn is None:
             car_env = CarEnvironment.empty()
         else:
@@ -148,8 +151,19 @@ class Car(Entity):
                 params.lane,
                 params.position_on_lane,
                 params.length,
+                params.speed,
                 params.next_turn
             )
+        """
+
+        car_env = CarEnvironment.create_environment(
+            ts_reader,
+            params.lane,
+            params.position_on_lane,
+            params.length,
+            params.speed,
+            turn_direction=TurnDirection.STRAIGHT
+        )
         return cls(
             uid=generate_uid(),
             name=params.name,
@@ -224,6 +238,9 @@ class Car(Entity):
             CarValidationError: If any validation check fails.
         """
 
+
+        """"
+        
         if params.next_turn is None:
             car_env = CarEnvironment.empty()
         else:
@@ -232,8 +249,21 @@ class Car(Entity):
                 params.lane,
                 params.position_on_lane,
                 params.length,
+                params.speed,
                 params.next_turn
             )
+
+        """
+
+        car_env = CarEnvironment.create_environment(
+            ts_reader,
+            params.lane,
+            params.position_on_lane,
+            params.length,
+            params.speed,
+            turn_direction=TurnDirection.STRAIGHT
+        )
+
         self.car_environment = car_env
 
         self._should_validate = False
