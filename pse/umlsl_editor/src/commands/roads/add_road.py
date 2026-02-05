@@ -1,7 +1,11 @@
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
-from pse.umlsl_editor.src.model.entities.road import RoadParams, Road
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import (
+    TrafficSnapshotReader,
+)
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import (
+    TrafficSnapshotWriter,
+)
+from pse.umlsl_editor.src.model.entities.road import Road, RoadParams
 
 
 class AddRoadCommand(Command[None]):
@@ -31,7 +35,8 @@ class AddRoadCommand(Command[None]):
         Road.__post_init__, and adds it to the traffic snapshot.
 
         Raises:
-            RoadValidationError: If command validation fails.
+            RoadValidationError: If road parameter validation fails.
+            RoadTrafficSnapshotContextValidationError: If road is invalid in traffic snapshot context.
         """
         self._traffic_snapshot_reader.validate_road_params(self.road_params, True)
         road = Road.from_params(self.road_params)

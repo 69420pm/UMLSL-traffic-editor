@@ -1,8 +1,14 @@
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
-from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQueryParams, UMLSLQuery
-from pse.umlsl_editor.src.model.errors.umlsl_query_errors import UMLSLQueryValidationError
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import (
+    TrafficSnapshotReader,
+)
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import (
+    UMLSLQueriesModel,
+)
+from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery, UMLSLQueryParams
+from pse.umlsl_editor.src.model.errors.umlsl_query_errors import (
+    UMLSLQueryValidationError,
+)
 
 
 class AddUMLSLQuery(Command[None]):
@@ -28,6 +34,9 @@ class AddUMLSLQuery(Command[None]):
     def execute(self) -> None:
         """
         Creates a UMLSLQuery instance and adds it to the model.
+
+        Raises:
+            UMLSLQueryValidationError: If query validation fails.
         """
         if not self.traffic_snapshot_reader.is_car_existing(self.umlsl_query_params.assigned_car_uid):
             raise UMLSLQueryValidationError("Assigned car does not exist in the current traffic snapshot.")

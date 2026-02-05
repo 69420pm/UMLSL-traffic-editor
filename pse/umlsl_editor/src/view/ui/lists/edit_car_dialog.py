@@ -9,6 +9,10 @@ from typing import TYPE_CHECKING
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QDialog
 
+from pse.umlsl_editor.src.model.errors.car_errors import (
+    CarTrafficSnapshotContextValidationError,
+    CarValidationError,
+)
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
 
 if TYPE_CHECKING:
@@ -219,10 +223,19 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         """Save the car data and close the dialog."""
         car_data = self._collect_form_data()
 
-        if self.is_edit:
-            self._update_existing_car(car_data)
-        else:
-            self._create_new_car(car_data)
+        try:
+            if self.is_edit:
+                self._update_existing_car(car_data)
+            else:
+                self._create_new_car(car_data)
+        except (CarValidationError, CarTrafficSnapshotContextValidationError) as e:
+            dialog = WarningDialog(
+                "Validation Error",
+                str(e),
+                self,
+            )
+            dialog.exec()
+            return
 
         self.accept()
 

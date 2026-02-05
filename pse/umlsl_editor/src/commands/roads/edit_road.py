@@ -1,6 +1,10 @@
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import (
+    TrafficSnapshotReader,
+)
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import (
+    TrafficSnapshotWriter,
+)
 from pse.umlsl_editor.src.model.entities.road import RoadParams
 from pse.umlsl_editor.src.model.errors.road_errors import RoadValidationError
 
@@ -34,10 +38,10 @@ class EditRoadCommand(Command[None]):
         Edits the properties of the road with the specified unique identifier in the traffic snapshot.
 
         Raises:
-            RoadValidationError: If command validation fails.
+            RoadValidationError: If road parameter validation fails.
+            RoadTrafficSnapshotContextValidationError: If road is invalid in traffic snapshot context.
         """
         if not self._traffic_snapshot_reader.is_road_existing(self.road_uid):
             raise RoadValidationError(content=f"Road with UID {self.road_uid} does not exist and cannot be edited.")
-
         self._traffic_snapshot_reader.validate_road_params(self.road_params, False)
         self._traffic_snapshot_writer.update_road(self.road_uid, self.road_params)

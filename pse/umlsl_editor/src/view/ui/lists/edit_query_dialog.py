@@ -9,6 +9,9 @@ from typing import TYPE_CHECKING
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QDialog
 
+from pse.umlsl_editor.src.model.errors.umlsl_query_errors import (
+    UMLSLQueryValidationError,
+)
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
 
 if TYPE_CHECKING:
@@ -131,16 +134,25 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         selected_car = self._cars_list[selected_car_index]
         latex = self.t_umlsl.toPlainText()
 
-        if self._is_edit and self._query is not None:
-            self._application_controller.command_controller.update_umlsl_query(
-                query=self._query,
-                assigned_car_name=selected_car.uid,
-                latex=latex,
+        try:
+            if self._is_edit and self._query is not None:
+                self._application_controller.command_controller.update_umlsl_query(
+                    query=self._query,
+                    assigned_car_name=selected_car.uid,
+                    latex=latex,
+                )
+            else:
+                self._application_controller.command_controller.add_umlsl_query(
+                    assigned_car_name=selected_car.uid,
+                    latex=latex,
+                )
+        except UMLSLQueryValidationError as e:
+            dialog = WarningDialog(
+                "Validation Error",
+                str(e),
+                self,
             )
-        else:
-            self._application_controller.command_controller.add_umlsl_query(
-                assigned_car_name=selected_car.uid,
-                latex=latex,
-            )
+            dialog.exec()
+            return
 
         super().accept()

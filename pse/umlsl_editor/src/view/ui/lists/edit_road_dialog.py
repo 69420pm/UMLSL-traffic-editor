@@ -9,6 +9,12 @@ from typing import TYPE_CHECKING
 
 from PySide6.QtWidgets import QDialog
 
+from pse.umlsl_editor.src.model.errors.road_errors import (
+    RoadTrafficSnapshotContextValidationError,
+    RoadValidationError,
+)
+from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
 
@@ -34,10 +40,10 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
     """
 
     def __init__(
-        self,
-        road: Road | None,
-        application_controller: "ApplicationController",
-        parent=None,
+            self,
+            road: Road | None,
+            application_controller: "ApplicationController",
+            parent=None,
     ) -> None:
         """
         Initialize the road edit dialog.
@@ -101,22 +107,31 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
         forward_lanes = self.s_forward.value()
         backward_lanes = self.s_backward.value()
 
-        if self._is_edit:
-            self._application_controller.command_controller.update_road(
-                road=self._road,
-                name=name,
-                orientation=orientation,
-                position=position,
-                number_of_forward_lanes=forward_lanes,
-                number_of_backward_lanes=backward_lanes,
+        try:
+            if self._is_edit:
+                self._application_controller.command_controller.update_road(
+                    road=self._road,
+                    name=name,
+                    orientation=orientation,
+                    position=position,
+                    number_of_forward_lanes=forward_lanes,
+                    number_of_backward_lanes=backward_lanes,
+                )
+            else:
+                self._application_controller.command_controller.add_road(
+                    name=name,
+                    orientation=orientation,
+                    position=position,
+                    number_of_forward_lanes=forward_lanes,
+                    number_of_backward_lanes=backward_lanes,
+                )
+        except (RoadValidationError, RoadTrafficSnapshotContextValidationError) as e:
+            dialog = WarningDialog(
+                "Validation Error",
+                str(e),
+                self,
             )
-        else:
-            self._application_controller.command_controller.add_road(
-                name=name,
-                orientation=orientation,
-                position=position,
-                number_of_forward_lanes=forward_lanes,
-                number_of_backward_lanes=backward_lanes,
-            )
+            dialog.exec()
+            return
 
         super().accept()
