@@ -95,6 +95,7 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         latex_label = self.findChild(QLabel, "latexLabel")
 
         input = self.t_umlsl.toPlainText()
+        print("input: ", input)
         latex_code = UMLSLEvaluator(self._application_controller.get_traffic_snapshot_reader()).compute_latex(input)
         print("render: ", latex_code)
         try:

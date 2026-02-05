@@ -1,13 +1,8 @@
 import io
 
-from PySide6.QtGui import QPixmap
-
 import matplotlib.pyplot as plt
-
-from PySide6.QtWidgets import QApplication, QLabel
-from PySide6.QtUiTools import QUiLoader
-from PySide6.QtCore import QFile
 from PySide6.QtGui import QPixmap, QImage
+
 
 def latex_to_pixmap(latex_str, font_size=12, color="black"):
     """

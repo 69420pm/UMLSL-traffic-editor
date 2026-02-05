@@ -21,19 +21,22 @@ class ASTParser:
     def parse_ast(self):
         if not self._tokens:
             raise SyntaxError("Empty token list")
+        print("tokens: ", list(map(lambda token: token.value(), self._tokens)))
         return self.parse_ast_rec(0, len(self._tokens) - 1, [])
 
     def parse_ast_rec(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
         if start > end:
             raise SyntaxError("Unexpected end of expression")
 
+        print("parse rec from ", start, " to ", end, " (variables in scope: ", declared_variables, ")")
+        print(" ^ tokens: ", list(map(lambda token: token.__str__(), self._tokens)))
         tokens = self._tokens
 
         # todo: parse <phi> (Somewhere Node)
 
         height = 0
         split_index = -1
-        min_precedence = -1 #int('inf')  # smallest int
+        min_precedence = 100 #int('inf')  # smallest int
 
         for i in range(start, end + 1):
             token = tokens[i]
@@ -48,6 +51,8 @@ class ASTParser:
                 if precedence <= min_precedence:
                     min_precedence = precedence
                     split_index = i
+
+        print("split index: ", split_index)
 
         if height != 0:
             raise SyntaxError("Unbalanced parentheses: missing closing ')' or '}'")
@@ -86,6 +91,7 @@ class ASTParser:
 
     def parse_prefix(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
         token = self._tokens[start]
+        print("parse prefix: ", token, " at ", start)
         token_type = token.type
 
         if token_type.is_atom_op:
@@ -134,9 +140,9 @@ class ASTParser:
         # todo: forall not parsed
         if token_type == TokenType.EXITS:
             literal = self._tokens[start + 1]
-            if literal != TokenType.LITERAL:
+            if literal.type != TokenType.LITERAL:
                 raise SyntaxError("Exits operator requires exactly one literal argument (i.e. \\exists c:)")
-            value = literal.value
+            value = literal.value()
             if not value.endswith(":"):
                 raise SyntaxError("Exists operator requires ':' after car-variable (i.e. \\exists c:)")
             variable = value[:-1]
@@ -151,11 +157,11 @@ class ASTParser:
             arg1_start = start + 1
             arg1_end = self.find_closing_argument_index(arg1_start, end)
             # todo: strip the curly braces
-            operand1 = self.parse_ast_rec(arg1_start, arg1_end, declared_variables)
+            operand1 = self.parse_argument(arg1_start, arg1_end, declared_variables)
             arg2_start = arg1_end + 1
             arg2_end = self.find_closing_argument_index(arg2_start, end)
             # todo: strip the curly braces
-            operand2 = self.parse_ast_rec(arg2_start, arg2_end, declared_variables)
+            operand2 = self.parse_argument(arg2_start, arg2_end, declared_variables)
             match token_type:
                 case TokenType.H_CHOP:
                     return HorizontalChopNode(operand1, operand2)
@@ -192,3 +198,12 @@ class ASTParser:
             return VariableCarResolve(value)
 
         raise SyntaxError(f"Car '{value}' neither refers to a defined car nor a declared variable")
+
+    def parse_argument(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
+        if self._tokens[start].type != TokenType.L_CURLY:
+            raise SyntaxError(f"Open curly braces required around expression, at {start}")
+
+        if self._tokens[end].type != TokenType.R_CURLY:
+            raise SyntaxError(f"Close curly braces required around expression, at {end}")
+        return self.parse_ast_rec(start + 1, end - 1, declared_variables)
+

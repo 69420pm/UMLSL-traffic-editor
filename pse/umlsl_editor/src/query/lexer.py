@@ -62,8 +62,6 @@ _UNARY_OPS = {
     TokenType.NEGATION_SHORT,
     TokenType.CLAIM,
     TokenType.RESERVE,
-    TokenType.EXITS,
-    TokenType.FORALL
 }
 
 ### For tokens that correspond to operations and require 2 parameters, we specify whether they are infix ({p1} op {p2}) or
@@ -76,6 +74,8 @@ _INFIX_BINARY_OPS = {
 _PREFIX_BINARY_OPS = {
     TokenType.H_CHOP,
     TokenType.V_CHOP,
+    TokenType.EXITS,
+    TokenType.FORALL
 }
 _INFIX_BINARY_OPS_PRECEDENCE = {
     TokenType.AND: 2,

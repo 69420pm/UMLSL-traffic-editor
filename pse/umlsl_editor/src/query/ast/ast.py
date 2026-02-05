@@ -51,7 +51,7 @@ class UnaryNode(ASTNode, ABC):
 
         # For example, NOT (A AND B) -> NOT has precedence over AND -> add parentheses
         if self._precedence > self._child._precedence:
-            child_text = f"\\({child_text}\\)"
+            child_text = f"\\left({child_text}\\right)"
 
         return self._format(child_text)
 
@@ -71,10 +71,10 @@ class BinaryNode(ASTNode, ABC):
         right_text = self._right.to_latex()
 
         if self._precedence > self._left._precedence:
-            left_text = f"\\({left_text}\\)"
+            left_text = f"\\left({left_text}\\right)"
 
         if self._precedence > self._right._precedence:
-            right_text = f"\\({right_text}\\)"
+            right_text = f"\\left({right_text}\\right)"
 
         return self._format(left_text, right_text)
 
