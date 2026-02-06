@@ -91,7 +91,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         )
 
         car_params = CarParams(
-            name="",
+            name="default",
             color="lightblue",
             length=1,
             speed=0.0,

@@ -44,16 +44,16 @@ class LaneSegment(Segment):
             else:
                 x = -traffic_snapshot_reader.get_scene_size()
         else:
-            # Vertical lane: X is fixed from lane position, Y from top neighbor
+            # Vertical lane: X is fixed from lane position, Y from top neighbor (higher y)
             x = lane_pos
             top_neighbor = traffic_snapshot_reader.get_adjacent_segment(self.uid, Direction.UP)
             if top_neighbor is None:
-                y = -traffic_snapshot_reader.get_scene_size()
+                y = traffic_snapshot_reader.get_scene_size()
             elif isinstance(top_neighbor, CrossingSegment):
-                # Start after the crossing ends (crossing's bottom edge)
-                y = top_neighbor.get_position(traffic_snapshot_reader)[1] + lane_width
+                # Start after the crossing ends (crossing's bottom edge, higher y is up)
+                y = top_neighbor.get_position(traffic_snapshot_reader)[1] - lane_width
             else:
-                y = -traffic_snapshot_reader.get_scene_size()
+                y = traffic_snapshot_reader.get_scene_size()
 
         return x, y
 
@@ -95,15 +95,15 @@ class LaneSegment(Segment):
             scene_size = traffic_snapshot_reader.get_scene_size()
             if top_neighbor is None and isinstance(bottom_neighbor, CrossingSegment):
                 bottom_y = bottom_neighbor.get_position(traffic_snapshot_reader)[1]
-                height = bottom_y + scene_size
+                height = scene_size - bottom_y
             elif bottom_neighbor is None and isinstance(top_neighbor, CrossingSegment):
                 top_y = top_neighbor.get_position(traffic_snapshot_reader)[1]
-                height = scene_size - (top_y + lane_width)
+                height = scene_size + top_y - lane_width
             elif isinstance(top_neighbor, CrossingSegment) and isinstance(bottom_neighbor, CrossingSegment):
-                # Height = bottom_crossing.y - (top_crossing.y + lane_width)
+                # Height = (top_crossing.y - lane_width) - bottom_crossing.y
                 bottom_y = bottom_neighbor.get_position(traffic_snapshot_reader)[1]
                 top_y = top_neighbor.get_position(traffic_snapshot_reader)[1]
-                height = bottom_y - (top_y + lane_width)
+                height = (top_y - lane_width) - bottom_y
             else:
                 height = scene_size * 2  # No crossings, lane extends to the edge of the scene
 

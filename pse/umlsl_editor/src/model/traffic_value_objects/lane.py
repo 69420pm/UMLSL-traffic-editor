@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 
 
-
-
-
 @dataclass(frozen=True, kw_only=True)
 class Lane:
     """Represents a lane on a road, this is an immutable data structure and should act like a tuple.
@@ -32,6 +29,6 @@ class Lane:
         if getattr(road.orientation, "name", None) == "HORIZONTAL":
             # Horizontal lanes: forward indices are lower y than backward indices.
             if self.lane_index >= 0:
-                return road.position - (self.lane_index + 1) * lane_width
-            return road.position + (abs(self.lane_index) - 1) * lane_width
+                return road.position - self.lane_index * lane_width
+            return road.position + (abs(self.lane_index)) * lane_width
         return road.position + self.lane_index * lane_width

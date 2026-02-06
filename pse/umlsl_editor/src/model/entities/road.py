@@ -170,16 +170,23 @@ class Road(Entity):
     def get_bounds(self) -> tuple[float, float]:
         """Calculate the bounds of the road based on its position and number of lanes on the relevant axis according
         to its orientation. The first value is the lower bound, the second value the upper bound."""
+        lane_width = DIMENSION.LANE_WIDTH
+
         if self.orientation == RoadOrientation.HORIZONTAL:
-            return self.position - DIMENSION.LANE_WIDTH * len(
-                self.forward_lanes), self.position + DIMENSION.LANE_WIDTH * len(self.backward_lanes)
+            lower_bound = self.position - lane_width * len(self.forward_lanes)
+            upper_bound = self.position + lane_width * len(self.backward_lanes)
         else:
-            return self.position - DIMENSION.LANE_WIDTH * len(
-                self.backward_lanes), self.position + DIMENSION.LANE_WIDTH * len(self.forward_lanes)
+            lower_bound = self.position - lane_width * len(self.backward_lanes)
+            upper_bound = self.position + lane_width * len(self.forward_lanes)
+
+        return lower_bound, upper_bound
 
     def validate(self) -> None:
         if not isinstance(self.name, str):
             raise RoadValidationError(content="Name must be a string.")
+
+        if self.name.strip() == "":
+            raise RoadValidationError(content="Name cannot be empty.")
 
         if not isinstance(self.orientation, RoadOrientation):
             raise RoadValidationError(content="Orientation must be a RoadOrientation enum member.")

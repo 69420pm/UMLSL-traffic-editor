@@ -84,7 +84,7 @@ class CarEnvironment:
         if road.orientation == RoadOrientation.HORIZONTAL:
             car_direction = Direction.LEFT if speed < 0 else Direction.RIGHT
         else:
-            car_direction = Direction.UP if speed < 0 else Direction.DOWN
+            car_direction = Direction.DOWN if speed < 0 else Direction.UP
 
         print("car lane ", car_lane, " pos on lane: ", pos_on_lane, " segment ", segment, " car dir ", car_direction)
         lane_pos = car_lane.get_one_dimensional_position(ts)

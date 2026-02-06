@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass
-from typing import Optional, Any
+from typing import Optional
 
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.entity import Entity
@@ -8,9 +8,6 @@ from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.car_environment import CarEnvironment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import VirtualLane
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent, TurnDirection
 
 
@@ -107,8 +104,6 @@ class Car(Entity):
     # laneA: Lane
     # laneB: Lane
 
-
-
     environment: CarEnvironment
     acceleration: float
 
@@ -181,6 +176,9 @@ class Car(Entity):
         if not isinstance(self.name, str):
             raise CarValidationError(content="Name must be a non-empty string.")
 
+        if self.name.strip() == "":
+            raise CarValidationError(content="Name cannot be empty.")
+
         if not isinstance(self.lane, Lane):
             raise CarValidationError(content="Lane must be a Lane instance.")
 
@@ -216,7 +214,6 @@ class Car(Entity):
         Raises:
             CarValidationError: If any validation check fails.
         """
-
 
         """"
         
