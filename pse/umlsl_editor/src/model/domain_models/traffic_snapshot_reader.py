@@ -49,13 +49,6 @@ class TrafficSnapshotReader(ABC):
         pass
 
     @abstractmethod
-    def get_max_velocity(self) -> float:
-        """
-        Returns the maximum velocity of all cars in the snapshot.
-        """
-        pass
-
-    @abstractmethod
     def validate_lane(self, road: Road, lane_index: int, lane_direction: str) -> bool:
         """
         Validates if the specified lane index and direction exist on the given road.

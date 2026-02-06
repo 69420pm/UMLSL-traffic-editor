@@ -197,9 +197,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     def get_roads_in_rectangle(self, x_min: float, y_min: float, x_max: float, y_max: float) -> list[Road]:
         pass
 
-    def get_max_velocity(self) -> float:
-        pass
-
     def validate_lane(self, road: Road, lane_index: int, lane_direction: str) -> bool:
         pass
 

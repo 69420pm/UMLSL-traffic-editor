@@ -28,8 +28,8 @@ class ApplicationController:
         """
         self._model_view = ViewModels(self)
         self._model_traffic_snapshot = TrafficSnapshotModel()
-        self._model_settings = SettingsModel(render_safety_distance=True, render_coordinate_system=True,
-                                             breaking_acceleration=8.0)
+        self._model_settings = SettingsModel(
+            breaking_deceleration=8.0, max_acceleration=100)
         self._model_umlsl_queries = UMLSLQueriesModel()
 
         self.view_event_handler = ViewEventHandlerImplementation(view_model=self._model_view)

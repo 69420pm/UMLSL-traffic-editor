@@ -31,4 +31,4 @@ class ChangeBreakingAccelerationCommand(Command[None]):
         """
         if self.value <= 0:
             raise SettingsValidationError("Breaking acceleration must be a positive value.")
-        self._settings.set_breaking_acceleration(self.value)
+        self._settings.set_breaking_deceleration(self.value)
