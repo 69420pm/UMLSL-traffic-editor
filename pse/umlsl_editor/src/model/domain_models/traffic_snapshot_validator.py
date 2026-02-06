@@ -5,6 +5,7 @@ from pse.umlsl_editor.src.model.errors.car_errors import CarTrafficSnapshotConte
 from pse.umlsl_editor.src.model.errors.road_errors import RoadTrafficSnapshotContextValidationError
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
+from pse.umlsl_editor.src.query.lexer import TokenType
 from pse.umlsl_editor.src.view.view_constants import DIMENSION
 
 if TYPE_CHECKING:
@@ -42,6 +43,9 @@ class TrafficSnapshotValidator:
         if not self._check_transition_valid(car.transition, car.lane, car.speed < 0):
             raise CarTrafficSnapshotContextValidationError(
                 content=f"Car '{car.name}' has an invalid transition: {car.transition} from lane {car.lane}.")
+        if not self._check_no_tokens_contained(car.name):
+            raise CarTrafficSnapshotContextValidationError(
+                content=f"Car '{car.name}' can not contain any of the umlsl language tokens.")
 
     def validate_car_and_autocorrect(self, car: "Car") -> bool:
         """
@@ -78,6 +82,10 @@ class TrafficSnapshotValidator:
                 raise RoadTrafficSnapshotContextValidationError(
                     content=f"Road name '{road_params.name}' is not unique in the traffic snapshot.")
 
+        if not self._check_no_tokens_contained(road_params.name):
+            raise RoadTrafficSnapshotContextValidationError(
+                content=f"Road '{road_params.name}' can not contain any of the umlsl language tokens.")
+
         roads = self._model.get_roads().values()
         if road_params.orientation == RoadOrientation.HORIZONTAL:
             bounds: tuple[
@@ -102,6 +110,9 @@ class TrafficSnapshotValidator:
             road_uid: The UID of the Road instance to validate.
         """
         raise NotImplementedError("Road validation and autocorrection is not implemented yet.")
+
+    def _check_no_tokens_contained(self, text: str) -> bool:
+        return not any(token.value in text for token in TokenType)
 
     def _check_car_name_unique(self, car_name: str) -> bool:
         for car in self._model.cars.values():
