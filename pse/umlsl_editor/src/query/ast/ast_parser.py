@@ -61,7 +61,7 @@ class ASTParser:
                 "unbalanced parentheses",
                 start,
                 end,
-                "Considering adding ')' or '}'"
+                "Considering adding/removing ')' or '}'"
             )
 
         if split_index != -1:
@@ -239,7 +239,8 @@ class ASTParser:
             raise ASTParserError(
                 "expected arguments here",
                 min(start_index, end_index + 1),
-                start_index
+                start_index,
+                "Consider adding an argument like '{arg}'"
             )
 
         parentheses_depth = 0
