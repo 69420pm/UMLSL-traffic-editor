@@ -53,15 +53,6 @@ class ApplicationController:
     def get_traffic_snapshot_writer(self) -> TrafficSnapshotWriter:
         return self._model_traffic_snapshot
 
-    def set_traffic_snapshot(self, traffic_snapshot: TrafficSnapshotModel):
-        """
-        Update the traffic snapshot model for all sub-controllers.
-
-        Args:
-            traffic_snapshot: The new traffic snapshot model.
-        """
-        self.replace_snapshot(traffic_snapshot, self._model_umlsl_queries)
-
     def replace_snapshot(
             self,
             traffic_snapshot: TrafficSnapshotModel,
