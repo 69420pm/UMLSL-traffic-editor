@@ -138,7 +138,6 @@ class TrafficSnapshotValidator:
         (right is positive transition, left is negative) not the lane direction."""
         if transition == 0.0:
             return True
-
         try:
             road = self._model.get_road_by_uid(lane.road_uid)
         except ValueError:
