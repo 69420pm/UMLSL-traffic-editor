@@ -9,6 +9,7 @@ from pse.umlsl_editor.src.query.ast.free_node import FreeNode
 from pse.umlsl_editor.src.query.ast.logic_node import ConjunctionNode, DisjunctionNode, NegationNode, TrueNode
 from pse.umlsl_editor.src.query.ast.quantor_node import ExistsNode, ForallNode
 from pse.umlsl_editor.src.query.ast.reserve_node import ReserveNode
+from pse.umlsl_editor.src.query.ast.somewhere_node import SomewhereNode
 from pse.umlsl_editor.src.query.lexer import Token, TokenType
 
 
@@ -32,7 +33,10 @@ class ASTParser:
 
         tokens = self._tokens
 
-        # todo: parse <phi> (Somewhere Node)
+        # parsing of somewhere node
+        if tokens[start].type == TokenType.LESS_THAN:
+            scope_end = self.find_closing_index(start, end, TokenType.LESS_THAN, TokenType.GREATER_THAN)
+            return SomewhereNode(self.parse_ast_rec(start + 1, scope_end - 1, declared_variables))
 
         height = 0
         split_index = -1
@@ -243,20 +247,29 @@ class ASTParser:
                 "Consider adding an argument like '{arg}'"
             )
 
+        return self.find_closing_index(start_index, end_index, TokenType.L_CURLY, TokenType.R_CURLY)
+
+    def find_closing_index(
+            self,
+            start_index: int,
+            end_index: int,
+            open_type: TokenType,
+            close_type: TokenType
+    ) -> int:
         parentheses_depth = 0
         for i in range(start_index, end_index + 1):
             token = self._tokens[i]
-            if token.type == TokenType.L_CURLY:
+            if token.type == open_type:
                 parentheses_depth += 1
-            elif token.type == TokenType.R_CURLY:
+            elif token.type == close_type:
                 parentheses_depth -= 1
                 if parentheses_depth == 0:
                     return i
         raise ASTParserError(
-            "unbalanced curly braces",
+            f"unbalanced '{open_type.value}' and '{close_type.value}'",
             start_index,
             end_index,
-            "Consider adding '}'"
+            f"Consider adding/removing '{open_type.value}' or '{close_type.value}'"
         )
 
     def parse_expression_argument(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:

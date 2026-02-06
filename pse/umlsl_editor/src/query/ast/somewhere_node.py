@@ -20,5 +20,9 @@ class SomewhereNode(UnaryNode):
         )
         return horizontal_somewhere_node.evaluate(traffic_snapshot, view, variable_car_map)
 
+    def to_latex(self) -> str:
+        # we do not need to encapsulate anything in parentheses, it is already clear because of <...>
+        return self._format(self._child.to_latex())
+
     def _format(self, child: str) -> str:
-        return f"<{child}>"
+        return f"\\langle {child}\\rangle"
