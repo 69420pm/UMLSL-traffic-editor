@@ -14,6 +14,8 @@ from PySide6.QtWidgets import QStyleOptionGraphicsItem, QWidget
 
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation
+from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError, CarTrafficSnapshotContextValidationError
+from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import RoadItem
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.selectable_graphics_item import (
     SelectableGraphicsItem,
@@ -158,10 +160,20 @@ class CarItem(SelectableGraphicsItem):
 
         new_position = self._car.position_on_lane + delta
 
-        self.application_controller.command_controller.edit_car(
-            car=self._car,
-            position_on_lane=new_position,
-        )
+        try:
+            self.application_controller.command_controller.edit_car(
+                car=self._car,
+                position_on_lane=new_position,
+            )
+        except (CarValidationError, CarTrafficSnapshotContextValidationError) as e:
+            view = self.scene().views()[0] if self.scene().views() else None
+
+            dialog = WarningDialog(
+                "Cannot Move Car",
+                str(e),
+                view,
+            )
+            dialog.exec()
 
     # -------------------------------------------------------------------------
     # Graphics Interface (Qt)
