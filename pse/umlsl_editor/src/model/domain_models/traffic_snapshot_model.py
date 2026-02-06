@@ -63,7 +63,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             raise ValueError(f"Road with uid {car_lane.road_uid} not found.")
 
         if road_of_lane.orientation == RoadOrientation.HORIZONTAL:
-            direction = Direction.LEFT if car_lane.lane_index >= 0 else Direction.RIGHT
+            direction = Direction.RIGHT if car_lane.lane_index >= 0 else Direction.LEFT
         else:
             direction = Direction.UP if car_lane.lane_index >= 0 else Direction.DOWN
 

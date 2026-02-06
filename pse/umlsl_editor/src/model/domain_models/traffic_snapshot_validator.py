@@ -91,6 +91,7 @@ class TrafficSnapshotValidator:
             if road.orientation == road_params.orientation:
                 road_bounds = road.get_bounds()
                 if max(bounds[0], road_bounds[0]) < min(bounds[1], road_bounds[1]):
+                    print('errrorrrr')
                     raise RoadTrafficSnapshotContextValidationError(
                         content=f"Roads can't overlap each other. Please change position or number of forward or backward lanes.")
 
