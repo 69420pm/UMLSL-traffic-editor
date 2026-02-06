@@ -169,9 +169,11 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
                 f'{pre_err}'
                 f'<span style="color: red; font-weight: bold;">{err}</span>'
                 f'{post_err}<br>'
-                f'<span style="color: red;">{caret_line}: error originates here</span><br>'
-                f'<span style="color: red;">{e.reason}</span>'
+                f'<span style="color: red;">{caret_line}: {e.reason}</span><br>'
             )
+            if e.help is not None:
+                error_html += f'<span style="color: red;">Help: {e.help}.</span>'
+
             error_html += '</div>'
 
             latex_label.setAlignment(Qt.AlignmentFlag.AlignLeft)

@@ -50,6 +50,7 @@ class ParserError(Exception):
         super().__init__(ast_parser_error)
 
         self.input = input
-        self.reason = ast_parser_error.args[0]
+        self.reason = ast_parser_error.reason
+        self.help = ast_parser_error.help
         self.scope_start = tokens[scope_start].start_index
         self.scope_end = tokens[scope_end].end_index

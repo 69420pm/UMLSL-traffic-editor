@@ -128,9 +128,9 @@ class ASTParser:
         else:
             match token_type:
                 case TokenType.CLAIM:
-                    return ClaimNode(self.parse_car_argument(start + 1, end, declared_variables))
+                    return ClaimNode(self.parse_car_argument(token_type, start + 1, end, declared_variables))
                 case TokenType.RESERVE:
-                    return ReserveNode(self.parse_car_argument(start + 1, end, declared_variables))
+                    return ReserveNode(self.parse_car_argument(token_type, start + 1, end, declared_variables))
                 case _:
                     raise ASTParserError(f"Invalid unary operator {token_type}", start, end)
 
@@ -205,19 +205,32 @@ class ASTParser:
 
         return self.parse_ast_rec(start + 1, end - 1, declared_variables)
 
-    def parse_car_argument(self, start: int, end: int, declared_variables: list[str]) -> CarResolve:
+    def parse_car_argument(self, token_type: TokenType, start: int, end: int, declared_variables: list[str]) -> CarResolve:
         if self._tokens[start].type != TokenType.L_CURLY:
-            raise ASTParserError(f"Open curly braces required around expression, at {start}", start, start)
+            raise ASTParserError(
+                f"Open curly braces required around expression, at {start}",
+                start,
+                start
+            )
 
         if self._tokens[end].type != TokenType.R_CURLY:
-            raise ASTParserError(f"Close curly braces required around expression, at {end}", end, end)
+            raise ASTParserError(
+                f"Close curly braces required around expression, at {end}",
+                end,
+                end
+            )
 
             # argument was wrapped in multiple curly braces, so we strip them
         if self._tokens[start + 1].type == TokenType.L_CURLY and self._tokens[end - 1].type == TokenType.R_CURLY:
-            return self.parse_car_argument(start + 2, end - 2, declared_variables)
+            return self.parse_car_argument(token_type, start + 2, end - 2, declared_variables)
 
         if start + 1 != end - 1:
-            raise ASTParserError("Car argument requires exactly one literal token", start, end)
+            raise ASTParserError(
+                "expected exactly one literal token",
+                start,
+                end,
+                f"Consider defining the operator like '{token_type.value}{{name}}'"
+            )
 
         return self.parse_car(start + 1,declared_variables)
 
@@ -225,7 +238,12 @@ class ASTParser:
         token = self._tokens[index]
         value = token.value()
         if value is None:
-            raise ASTParserError("Car expression requires a literal token", index, index)
+            raise ASTParserError(
+                "expected literal token",
+                index,
+                index,
+                "Use letters to refer to cars or variables"
+            )
 
         # check if value is a car
         for car in self._cars:
@@ -238,15 +256,23 @@ class ASTParser:
 
         available_cars = list(map(lambda car: car.name, self._cars))
         available_variables = declared_variables
+
+        help_msg = f"Consider referring to one of {available_cars} (cars)"
+        if len(available_variables) > 0:
+            help_msg += f" or {available_variables} (vars)"
+
         raise ASTParserError(
-            f"Car '{value}' neither refers to a defined car nor a declared variable: candidates are {available_cars} and {available_variables}.",
+            f"'{value}' neither refers to a car nor a variable",
             index,
-            index
+            index,
+            help_msg
         )
 
 
 class ASTParserError(Exception):
-    def __init__(self, message: str, scope_start: int, scope_end: int):
-        super().__init__(message)
+    def __init__(self, reason: str, scope_start: int, scope_end: int, help: str | None = None):
+        super().__init__(reason)
+        self.reason = reason
+        self.help = help
         self.scope_start = scope_start
         self.scope_end = scope_end
