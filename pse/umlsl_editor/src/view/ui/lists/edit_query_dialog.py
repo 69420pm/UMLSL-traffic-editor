@@ -3,13 +3,14 @@ Edit query dialog for the UMLSL Traffic Editor.
 
 Provides a dialog window for creating and editing query entities.
 """
-
+import html
 from typing import TYPE_CHECKING
 
-from PySide6.QtGui import QResizeEvent
+from PySide6.QtGui import QResizeEvent, Qt
 from PySide6.QtWidgets import QDialog, QLabel
 
-from pse.umlsl_editor.src.query.evaluator import UMLSLEvaluator
+from pse.umlsl_editor.src.query.ast.ast_parser import ASTParserError
+from pse.umlsl_editor.src.query.evaluator import UMLSLEvaluator, ParserError
 from pse.umlsl_editor.src.view.ui.lists.latex_renderer import latex_to_pixmap
 
 if TYPE_CHECKING:
@@ -98,20 +99,73 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
     def resizeEvent(self, event: QResizeEvent) -> None:
         self.render_latex()
 
-    def render_latex(self) :
+    def render_latex(self):
         latex_label = self.findChild(QLabel, "l_preview")
+        latex_label.setStyleSheet("color: white;")
         if latex_label is None:
             return
 
         input = self.t_umlsl.toPlainText()
-        latex_code = UMLSLEvaluator(self._application_controller.get_traffic_snapshot_reader()).compute_latex(input)
+        if input.strip() == "":
+            latex_label.setText("No input")
+            return
+
+        latex_code: str
+        try:
+            latex_code = UMLSLEvaluator(self._application_controller.get_traffic_snapshot_reader()).compute_latex(input)
+        except ParserError as e:
+            input = e.input
+            text = input
+            print("write error")
+
+            pre_scope = html.escape(text[:e.scope_start])
+            scope = html.escape(text[e.scope_start:e.scope_end])
+            post_scope = html.escape(text[e.scope_end:])
+
+            caret_indent = " " * len(text[:e.scope_start])
+            caret_marker = "^" * len(text[e.scope_start:e.scope_end])
+            caret_line = caret_indent + caret_marker
+
+            error_html = (
+                f'<div style="font-family: \'Consolas\', \'Courier New\', monospace; '
+                f'font-size: 14px; white-space: pre; color: white;">'
+                f'{pre_scope}'
+                f'<span style="color: red; font-weight: bold;">{scope}</span>'
+                f'{post_scope}<br>'
+                f'<span style="color: red;">{caret_line}: error originates here</span><br>'
+                f'<span style="color: red;">{e.reason}</span>'
+            )
+            error_html += '</div>'
+
+            latex_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+            latex_label.setText(error_html)
+            print(error_html)
+          #  latex_label.setStyleSheet("color: red;")
+            return
+        except Exception as e:
+            message = e.args[0].replace("\n", "<br>'")
+
+            precise_error = f"""
+            <table align="center">
+                <tr>
+                    <td style="white-space: pre">{message}</td>
+                </tr>
+            </table>
+            """
+
+            latex_label.setText(precise_error)
+            latex_label.setStyleSheet("color: red;")
+            print(e)
+            return
+
         max_width = latex_label.width() * 0.95
         try:
-            my_latex = latex_code
-            pixmap = latex_to_pixmap(my_latex, font_size=20, color="#FFFFFF", max_width=max_width)
+            pixmap = latex_to_pixmap(latex_code, font_size=20, color="#FFFFFF", max_width=max_width)
             latex_label.setPixmap(pixmap)
+            latex_label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
             latex_label.setScaledContents(False)
         except Exception as e:
+            latex_label.setText("Error converting LaTeX to image")
             print(e)
 
     def accept(self) -> None:

@@ -24,10 +24,10 @@ class ASTParser:
 
     def parse_ast_rec(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
         if start > end:
-            raise SyntaxError("Unexpected end of expression")
+            raise ASTParserError("Unexpected end of expression", end, end)
 
-        print("parse rec from ", start, " to ", end, " (variables in scope: ", declared_variables, ")")
-        print(" ^ tokens: ", list(map(lambda token: token.__str__(), self._tokens)))
+        #       print("parse rec from ", start, " to ", end, " (variables in scope: ", declared_variables, ")")
+        #        print(" ^ tokens: ", list(map(lambda token: token.__str__(), self._tokens)))
         tokens = self._tokens
 
         # todo: parse <phi> (Somewhere Node)
@@ -54,10 +54,10 @@ class ASTParser:
                     min_precedence = precedence
                     split_index = i
 
-        print("split index: ", split_index)
+        #   print("split index: ", split_index)
 
         if height != 0:
-            raise SyntaxError("Unbalanced parentheses: missing closing ')' or '}'")
+            raise ASTParserError("Unbalanced parentheses: missing closing ')' or '}'", start, end)
 
         if split_index != -1:
             return self.parse_infix(start, end, split_index, declared_variables)
@@ -68,16 +68,16 @@ class ASTParser:
         return self.parse_prefix(start, end, declared_variables)
 
     def parse_infix(self, start: int, end: int, split_index: int, declared_variables: list[str]) -> ASTNode:
-        print("parse infix from ", start, " to ", end, " with split index ", split_index)
+        #  print("parse infix from ", start, " to ", end, " with split index ", split_index)
         if not (0 <= start < split_index < end <= len(self._tokens) - 1):
-            raise SyntaxError("Invalid infix expression: expected operator between tokens")
+            raise ASTParserError("Invalid infix expression: expected operator between tokens", start, end)
 
         token = self._tokens[split_index]
         token_type = token.type
 
         if token_type == TokenType.CAR_EQUALS:
             if start != split_index - 1 or end != split_index + 1:
-                raise SyntaxError("Car equality requires exactly two tokens (i.e. car1 == car2)")
+                raise ASTParserError("Car equality requires exactly two tokens (i.e. car1 == car2)", start, end)
             car1 = self.parse_car(start, declared_variables)
             car2 = self.parse_car(end, declared_variables)
             return EqualityCarNode(car1, car2)
@@ -90,11 +90,11 @@ class ASTParser:
                 case TokenType.OR:
                     return DisjunctionNode(left_ast, right_ast)
                 case _:
-                    raise SyntaxError(f"Unknown binary operator {token_type}")
+                    raise ASTParserError(f"Unknown binary operator {token_type}", start, end)
 
     def parse_prefix(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
         token = self._tokens[start]
-        print("parse prefix: ", token, " at ", start)
+        #   print("parse prefix: ", token, " at ", start)
         token_type = token.type
 
         if token_type.is_atom_op:
@@ -104,11 +104,11 @@ class ASTParser:
         elif token_type.is_binary_op:
             return self.parse_binary_node(start, end, declared_variables)
         else:
-            raise SyntaxError(f"Unexpected token or format at {start}: {token}")
+            raise ASTParserError(f"Unexpected token or format at {start}: {token}", start, end)
 
     def parse_nullary_node(self, token_type: TokenType, start: int, end: int) -> ASTNode:
         if start != end:
-            raise SyntaxError(f"Nullary operator {token_type} requires no arguments")
+            raise ASTParserError(f"Nullary operator {token_type} requires no arguments", start, end)
         match token_type:
             case TokenType.TRUE:
                 return TrueNode()
@@ -117,7 +117,7 @@ class ASTParser:
             case TokenType.CROSSING:
                 return CrossingSegmentNode()
             case _:
-                raise NotImplementedError("Nullary node parsing not implemented yet")
+                raise ASTParserError("Unexpected nullary node", start, end)
 
     def parse_unary_node(self, token_type: TokenType, start: int, end: int, declared_variables: list[str]) -> ASTNode:
         if start == end:
@@ -132,7 +132,7 @@ class ASTParser:
                 case TokenType.RESERVE:
                     return ReserveNode(self.parse_car_argument(start + 1, end, declared_variables))
                 case _:
-                    raise NotImplementedError(f"Invalid unary operator {token_type}")
+                    raise ASTParserError(f"Invalid unary operator {token_type}", start, end)
 
     def parse_binary_node(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
         token = self._tokens[start]
@@ -141,15 +141,18 @@ class ASTParser:
         if token_type.is_quantor_op:
             literal = self._tokens[start + 1]
             if literal.type != TokenType.LITERAL:
-                raise SyntaxError("Quantor operator requires exactly one literal argument (e.g. \\exists c: ...)")
+                raise ASTParserError("Quantor operator requires exactly one literal argument (e.g. \\exists c: ...)",
+                                     start + 1, start + 1)
             variable = literal.value()
             if variable in map(lambda car: car.name, self._cars):
-                raise SyntaxError(f"Variable {variable} is a car name and cannot be used as a variable name in a quantor")
+                raise SyntaxError(
+                    f"Variable {variable} is a car name and cannot be used as a variable name in a quantor")
             if variable in declared_variables:
-                raise SyntaxError(f"Variable {variable} declared twice in scope")
+                raise ASTParserError(f"Variable {variable} declared twice in scope", start + 1, start + 1)
             colon = self._tokens[start + 2]
             if colon.type != TokenType.COLON:
-                raise SyntaxError("Quantor operator requires ':' after car-variable (e.g. \\exists c: ...)")
+                raise ASTParserError("Quantor operator requires ':' after car-variable (e.g. \\exists c: ...)",
+                                     start + 2, end + 2)
             new_declared_variables = declared_variables.copy()
             new_declared_variables.append(variable)
             match token_type:
@@ -158,7 +161,7 @@ class ASTParser:
                 case TokenType.FORALL:
                     return ForallNode(variable, self.parse_ast_rec(start + 3, end, new_declared_variables))
                 case _:
-                    raise SyntaxError(f"Invalid quantor operator {token_type}")
+                    raise ASTParserError(f"Invalid quantor operator {token_type}", start, end)
         else:
             # first operand
             arg1_start = start + 1
@@ -175,7 +178,7 @@ class ASTParser:
                 case TokenType.V_CHOP:
                     return VerticalChopNode(operand2, operand1)
                 case _:
-                    raise SyntaxError(f"Invalid binary operator {token_type}")
+                    raise ASTParserError(f"Invalid binary operator {token_type}", start, end)
 
     def find_closing_argument_index(self, start_index: int, end_index: int) -> int:
         parentheses_depth = 0
@@ -187,14 +190,14 @@ class ASTParser:
                 parentheses_depth -= 1
                 if parentheses_depth == 0:
                     return i
-        raise SyntaxError("Unbalanced curly braces")
+        raise ASTParserError("Unbalanced curly braces", start_index, end_index)
 
     def parse_expression_argument(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
         if self._tokens[start].type != TokenType.L_CURLY:
-            raise SyntaxError(f"Open curly braces required around expression, at {start}")
+            raise ASTParserError(f"Open curly braces required around expression, at {start}", start, start)
 
         if self._tokens[end].type != TokenType.R_CURLY:
-            raise SyntaxError(f"Close curly braces required around expression, at {end}")
+            raise ASTParserError(f"Close curly braces required around expression, at {end}", end, end)
 
         # argument was wrapped in multiple curly braces, so we strip them
         if self._tokens[start + 1].type == TokenType.L_CURLY and self._tokens[end - 1].type == TokenType.R_CURLY:
@@ -204,25 +207,25 @@ class ASTParser:
 
     def parse_car_argument(self, start: int, end: int, declared_variables: list[str]) -> CarResolve:
         if self._tokens[start].type != TokenType.L_CURLY:
-            raise SyntaxError(f"Open curly braces required around expression, at {start}")
+            raise ASTParserError(f"Open curly braces required around expression, at {start}", start, start)
 
         if self._tokens[end].type != TokenType.R_CURLY:
-            raise SyntaxError(f"Close curly braces required around expression, at {end}")
+            raise ASTParserError(f"Close curly braces required around expression, at {end}", end, end)
 
             # argument was wrapped in multiple curly braces, so we strip them
         if self._tokens[start + 1].type == TokenType.L_CURLY and self._tokens[end - 1].type == TokenType.R_CURLY:
             return self.parse_car_argument(start + 2, end - 2, declared_variables)
 
         if start + 1 != end - 1:
-            raise SyntaxError("Car argument requires exactly one literal token")
+            raise ASTParserError("Car argument requires exactly one literal token", start, end)
 
-        return self.parse_car(start + 1, declared_variables)
+        return self.parse_car(start + 1,declared_variables)
 
     def parse_car(self, index: int, declared_variables: list[str]):
         token = self._tokens[index]
         value = token.value()
         if value is None:
-            raise SyntaxError("Car expression requires a literal token")
+            raise ASTParserError("Car expression requires a literal token", index, index)
 
         # check if value is a car
         for car in self._cars:
@@ -235,4 +238,15 @@ class ASTParser:
 
         available_cars = list(map(lambda car: car.name, self._cars))
         available_variables = declared_variables
-        raise SyntaxError(f"Car '{value}' neither refers to a defined car nor a declared variable: candidates are {available_cars} and {available_variables}.")
+        raise ASTParserError(
+            f"Car '{value}' neither refers to a defined car nor a declared variable: candidates are {available_cars} and {available_variables}.",
+            index,
+            index
+        )
+
+
+class ASTParserError(Exception):
+    def __init__(self, message: str, scope_start: int, scope_end: int):
+        super().__init__(message)
+        self.scope_start = scope_start
+        self.scope_end = scope_end

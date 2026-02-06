@@ -94,8 +94,10 @@ _INFIX_BINARY_OPS_PRECEDENCE = {
 
 
 class Token(ABC):
-    def __init__(self, type: TokenType):
+    def __init__(self, type: TokenType, start_index: int, end_index: int):
         self.type = type
+        self.start_index = start_index
+        self.end_index = end_index
 
     @abstractmethod
     def value(self) -> str | None:
@@ -111,8 +113,8 @@ class SimpleToken(Token):
 
 
 class Literal(Token):
-    def __init__(self, literal_value: str):
-        super().__init__(TokenType.LITERAL)
+    def __init__(self, literal_value: str, start_index: int = 0, end_index: int = 0):
+        super().__init__(TokenType.LITERAL, start_index, end_index)
         self._literal_value = literal_value
 
     def value(self) -> str:
@@ -127,8 +129,7 @@ class Lexer:
         self._input = text
 
     def tokenize(self) -> list[Token]:
-        # Remove whitespace and tabs
-        text = self._input.replace(" ", "").replace("\t", "")
+        input = self._input
 
         token_patterns = []
         for t in TokenType:
@@ -141,19 +142,28 @@ class Lexer:
         tokens = []
         last_pos = 0
 
-        for match in master_pattern.finditer(text):
-            if match.start() > last_pos:
-                literal_text = text[last_pos:match.start()]
-                tokens.append(Literal(literal_text))
+        for match in master_pattern.finditer(input):
+            start = match.start()
+            if start > last_pos:
+                literal_start = last_pos
+                literal_end = match.start()
+                literal_text = input[literal_start:literal_end].strip()
+
+                if len(literal_text) != 0:
+                    tokens.append(Literal(literal_text, literal_start, literal_end))
 
             kind = match.lastgroup
             value = match.group()
-            # todo: value should be token_type?
-            tokens.append(SimpleToken(TokenType[kind]))
+            end = match.end()
+            tokens.append(SimpleToken(TokenType[kind], start, start + len(value)))
 
-            last_pos = match.end()
+            last_pos = end
 
-        if last_pos < len(text):
-            tokens.append(Literal(text[last_pos:]))
+        if last_pos < len(input):
+            tokens.append(Literal(input[last_pos:], last_pos, len(input)))
+
+        for token in tokens:
+            token_text = input[token.start_index:token.end_index]
+            print("token ", token.__str__(), " has input '", token_text, "' indices: ", token.start_index, token.end_index)
 
         return tokens
