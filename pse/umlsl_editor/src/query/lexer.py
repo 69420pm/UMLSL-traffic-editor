@@ -149,7 +149,7 @@ class Lexer:
                 literal_end = match.start()
                 literal_text = input[literal_start:literal_end].strip()
 
-                if len(literal_text) != 0:
+                if len(literal_text) != 0 and literal_text != " ":
                     tokens.append(Literal(literal_text, literal_start, literal_end))
 
             kind = match.lastgroup
@@ -160,10 +160,13 @@ class Lexer:
             last_pos = end
 
         if last_pos < len(input):
-            tokens.append(Literal(input[last_pos:], last_pos, len(input)))
+            literal_text = input[last_pos:].strip()
+            if len(literal_text) != 0 and literal_text != " ":
+                tokens.append(Literal(literal_text, last_pos, len(input)))
 
         for token in tokens:
             token_text = input[token.start_index:token.end_index]
-            print("token ", token.__str__(), " has input '", token_text, "' indices: ", token.start_index, token.end_index)
+            print("token ", token.__str__(), " has input '", token_text, "' indices: ", token.start_index,
+                  token.end_index)
 
         return tokens

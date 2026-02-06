@@ -159,8 +159,8 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
             err = html.escape(input[e.scope_start:e.scope_end])
             post_err = html.escape(input[e.scope_end:])
 
-            caret_indent = " " * len(input[:e.scope_start])
-            caret_marker = "^" * len(input[e.scope_start:e.scope_end])
+            caret_indent = " " * e.scope_start
+            caret_marker = "^" * (e.scope_end - e.scope_start)
             caret_line = caret_indent + caret_marker
 
             error_html = (
@@ -178,22 +178,6 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
 
             latex_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
             latex_label.setText(error_html)
-            return
-        except Exception as e:
-            # for unhandled errors, just show the error message
-            message = e.args[0].replace("\n", "<br>'")
-
-            precise_error = f"""
-            <table align="center">
-                <tr>
-                    <td style="white-space: pre">{message}</td>
-                </tr>
-            </table>
-            """
-
-            latex_label.setText(precise_error)
-            latex_label.setStyleSheet("color: red;")
-            print(e)
             return
 
         max_width = latex_label.width() * 0.95

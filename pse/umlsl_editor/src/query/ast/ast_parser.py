@@ -24,10 +24,13 @@ class ASTParser:
 
     def parse_ast_rec(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
         if start > end:
-            raise ASTParserError("Unexpected end of expression", end, end)
+            raise ASTParserError(
+                "expected expression here",
+                start,
+                start,
+                "Consider adding an expression at the end"
+            )
 
-        #       print("parse rec from ", start, " to ", end, " (variables in scope: ", declared_variables, ")")
-        #        print(" ^ tokens: ", list(map(lambda token: token.__str__(), self._tokens)))
         tokens = self._tokens
 
         # todo: parse <phi> (Somewhere Node)
@@ -54,10 +57,13 @@ class ASTParser:
                     min_precedence = precedence
                     split_index = i
 
-        #   print("split index: ", split_index)
-
         if height != 0:
-            raise ASTParserError("Unbalanced parentheses: missing closing ')' or '}'", start, end)
+            raise ASTParserError(
+                "unbalanced parentheses",
+                start,
+                end,
+                "Considering adding ')' or '}'"
+            )
 
         if split_index != -1:
             return self.parse_infix(start, end, split_index, declared_variables)
@@ -68,12 +74,25 @@ class ASTParser:
         return self.parse_prefix(start, end, declared_variables)
 
     def parse_infix(self, start: int, end: int, split_index: int, declared_variables: list[str]) -> ASTNode:
-        #  print("parse infix from ", start, " to ", end, " with split index ", split_index)
-        if not (0 <= start < split_index < end <= len(self._tokens) - 1):
-            raise ASTParserError("Invalid infix expression: expected operator between tokens", start, end)
-
         token = self._tokens[split_index]
         token_type = token.type
+
+        if not (start < split_index < end <= len(self._tokens) - 1):
+            if not start < split_index:
+                raise ASTParserError(
+                    f"missing first operand",
+                    start,
+                    split_index,
+                    f"Consider adding the argument before '{token_type.value}'"
+                )
+            else:
+                scope_end = len(self._tokens) if end == len(self._tokens) - 1 else end
+                raise ASTParserError(
+                    f"missing second operand",
+                    split_index,
+                    scope_end,
+                    f"Consider adding the argument after the operator '{token_type.value}'"
+                )
 
         if token_type == TokenType.CAR_EQUALS:
             if start != split_index - 1 or end != split_index + 1:
@@ -90,25 +109,34 @@ class ASTParser:
                 case TokenType.OR:
                     return DisjunctionNode(left_ast, right_ast)
                 case _:
-                    raise ASTParserError(f"Unknown binary operator {token_type}", start, end)
+                    raise NotImplementedError(f"Unknown binary operator {token_type}")
 
     def parse_prefix(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
         token = self._tokens[start]
-        #   print("parse prefix: ", token, " at ", start)
         token_type = token.type
 
         if token_type.is_atom_op:
-            return self.parse_nullary_node(token_type, start, end)
+            return self.parse_atom_node(token_type, start, end)
         elif token_type.is_unary_op:
             return self.parse_unary_node(token_type, start, end, declared_variables)
         elif token_type.is_binary_op:
             return self.parse_binary_node(start, end, declared_variables)
         else:
-            raise ASTParserError(f"Unexpected token or format at {start}: {token}", start, end)
+            raise ASTParserError(
+                f"unknown token '{token}'",
+                start,
+                end,
+                "Consider using one the operators of the help page below"
+            )
 
-    def parse_nullary_node(self, token_type: TokenType, start: int, end: int) -> ASTNode:
+    def parse_atom_node(self, token_type: TokenType, start: int, end: int) -> ASTNode:
         if start != end:
-            raise ASTParserError(f"Nullary operator {token_type} requires no arguments", start, end)
+            raise ASTParserError(
+                f"expected no arguments",
+                start + 1,
+                end,
+                f"Consider removing the arguments after '{token_type.value}'"
+            )
         match token_type:
             case TokenType.TRUE:
                 return TrueNode()
@@ -117,11 +145,16 @@ class ASTParser:
             case TokenType.CROSSING:
                 return CrossingSegmentNode()
             case _:
-                raise ASTParserError("Unexpected nullary node", start, end)
+                raise NotImplementedError(f"Unknown atom operator {token_type}")
 
     def parse_unary_node(self, token_type: TokenType, start: int, end: int, declared_variables: list[str]) -> ASTNode:
         if start == end:
-            raise SyntaxError(f"Unary operator {token_type} requires exactly one argument")
+            raise ASTParserError(
+                f"expected exactly one argument",
+                start,
+                end,
+                f"Consider defining the operator like '{token_type.value}{{arg}}'"
+            )
 
         if token_type in {TokenType.NEGATION, TokenType.NEGATION_SHORT}:
             return NegationNode(self.parse_ast_rec(start + 1, end, declared_variables))
@@ -132,27 +165,44 @@ class ASTParser:
                 case TokenType.RESERVE:
                     return ReserveNode(self.parse_car_argument(token_type, start + 1, end, declared_variables))
                 case _:
-                    raise ASTParserError(f"Invalid unary operator {token_type}", start, end)
+                    raise NotImplementedError(f"Unknown unary operator {token_type}")
 
     def parse_binary_node(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
         token = self._tokens[start]
         token_type = token.type
 
         if token_type.is_quantor_op:
-            literal = self._tokens[start + 1]
-            if literal.type != TokenType.LITERAL:
-                raise ASTParserError("Quantor operator requires exactly one literal argument (e.g. \\exists c: ...)",
-                                     start + 1, start + 1)
+            help_message = f"Consider defining {token_type.value} like '{token_type.value} c: ...'"
+            literal = None if start >= end else self._tokens[start + 1]
+            if literal is None or literal.type != TokenType.LITERAL:
+                raise ASTParserError(
+                    "expected variable name",
+                    start,
+                    start + 1,
+                    help_message
+                )
             variable = literal.value()
             if variable in map(lambda car: car.name, self._cars):
-                raise SyntaxError(
-                    f"Variable {variable} is a car name and cannot be used as a variable name in a quantor")
-            if variable in declared_variables:
-                raise ASTParserError(f"Variable {variable} declared twice in scope", start + 1, start + 1)
-            colon = self._tokens[start + 2]
-            if colon.type != TokenType.COLON:
-                raise ASTParserError("Quantor operator requires ':' after car-variable (e.g. \\exists c: ...)",
-                                     start + 2, end + 2)
+                raise ASTParserError(
+                    f"'{variable}' is a car name",
+                    start + 1,
+                    start + 1,
+                    "Consider using a different variable name"
+                )
+            if variable in declared_variables: raise ASTParserError(
+                f"'{variable}' is declared twice in scope",
+                start + 1,
+                start + 1,
+                "Consider using a different variable name"
+            )
+            colon = None if start >= end - 1 else self._tokens[start + 2]
+            if colon is None or colon.type != TokenType.COLON:
+                raise ASTParserError(
+                    "expected ':' after variable",
+                    min(start + 2, end),
+                    max(start + 2, end),
+                    help_message
+                )
             new_declared_variables = declared_variables.copy()
             new_declared_variables.append(variable)
             match token_type:
@@ -161,7 +211,7 @@ class ASTParser:
                 case TokenType.FORALL:
                     return ForallNode(variable, self.parse_ast_rec(start + 3, end, new_declared_variables))
                 case _:
-                    raise ASTParserError(f"Invalid quantor operator {token_type}", start, end)
+                    raise NotImplementedError(f"Unknown quantor operator {token_type}")
         else:
             # first operand
             arg1_start = start + 1
@@ -178,7 +228,7 @@ class ASTParser:
                 case TokenType.V_CHOP:
                     return VerticalChopNode(operand2, operand1)
                 case _:
-                    raise ASTParserError(f"Invalid binary operator {token_type}", start, end)
+                    raise NotImplementedError(f"Unknown binary operator {token_type}")
 
     def find_closing_argument_index(self, start_index: int, end_index: int) -> int:
         parentheses_depth = 0
@@ -190,39 +240,45 @@ class ASTParser:
                 parentheses_depth -= 1
                 if parentheses_depth == 0:
                     return i
-        raise ASTParserError("Unbalanced curly braces", start_index, end_index)
+        raise ASTParserError(
+            "unbalanced curly braces",
+            start_index,
+            end_index,
+            "Consider adding '}'"
+        )
 
     def parse_expression_argument(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
         if self._tokens[start].type != TokenType.L_CURLY:
-            raise ASTParserError(f"Open curly braces required around expression, at {start}", start, start)
-
-        if self._tokens[end].type != TokenType.R_CURLY:
-            raise ASTParserError(f"Close curly braces required around expression, at {end}", end, end)
-
-        # argument was wrapped in multiple curly braces, so we strip them
-        if self._tokens[start + 1].type == TokenType.L_CURLY and self._tokens[end - 1].type == TokenType.R_CURLY:
-            return self.parse_ast_rec(start + 2, end - 2, declared_variables)
-
-        return self.parse_ast_rec(start + 1, end - 1, declared_variables)
-
-    def parse_car_argument(self, token_type: TokenType, start: int, end: int, declared_variables: list[str]) -> CarResolve:
-        if self._tokens[start].type != TokenType.L_CURLY:
             raise ASTParserError(
-                f"Open curly braces required around expression, at {start}",
+                "argument must start by '}'",
                 start,
-                start
-            )
-
-        if self._tokens[end].type != TokenType.R_CURLY:
-            raise ASTParserError(
-                f"Close curly braces required around expression, at {end}",
-                end,
                 end
             )
 
-            # argument was wrapped in multiple curly braces, so we strip them
-        if self._tokens[start + 1].type == TokenType.L_CURLY and self._tokens[end - 1].type == TokenType.R_CURLY:
-            return self.parse_car_argument(token_type, start + 2, end - 2, declared_variables)
+        if self._tokens[end].type != TokenType.R_CURLY:
+            raise ASTParserError(
+                "argument must end in '}'",
+                start,
+                end
+            )
+
+        return self.parse_ast_rec(start + 1, end - 1, declared_variables)
+
+    def parse_car_argument(self, token_type: TokenType, start: int, end: int,
+                           declared_variables: list[str]) -> CarResolve:
+        if self._tokens[start].type != TokenType.L_CURLY:
+            raise ASTParserError(
+                "argument must start by '}'",
+                start,
+                end
+            )
+
+        if self._tokens[end].type != TokenType.R_CURLY:
+            raise ASTParserError(
+                "argument must end in '}'",
+                start,
+                end
+            )
 
         if start + 1 != end - 1:
             raise ASTParserError(
@@ -232,7 +288,7 @@ class ASTParser:
                 f"Consider defining the operator like '{token_type.value}{{name}}'"
             )
 
-        return self.parse_car(start + 1,declared_variables)
+        return self.parse_car(start + 1, declared_variables)
 
     def parse_car(self, index: int, declared_variables: list[str]):
         token = self._tokens[index]
