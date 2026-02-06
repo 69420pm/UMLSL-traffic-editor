@@ -14,6 +14,7 @@ from pse.umlsl_editor.src.model.entities.entity import Entity
 from pse.umlsl_editor.src.view.ui.lists.edit_car_dialog import EditCarDialog
 from pse.umlsl_editor.src.view.ui.lists.edit_query_dialog import EditQueryDialog
 from pse.umlsl_editor.src.view.ui.lists.edit_road_dialog import EditRoadDialog
+from pse.umlsl_editor.src.view.ui.lists.models.latex_image_provider import LatexImageProvider
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_main import Ui_MainWindow
 
 
@@ -110,6 +111,12 @@ class SidebarController(QObject):
             self._view_models.car_list_model,
             os.path.join(qml_folder, "CarListView.qml"),
         )
+        # Register the LaTeX image provider before loading the QML
+        self._latex_image_provider = LatexImageProvider()
+        self._query_quick_widget.engine().addImageProvider(
+            "latex", self._latex_image_provider
+        )
+
         self._configure_quick_widget(
             self._query_quick_widget,
             self._view_models.query_list_model,
