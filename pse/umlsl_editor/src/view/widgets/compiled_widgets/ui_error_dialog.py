@@ -16,15 +16,15 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QDialog, QHBoxLayout, QLabel,
-    QPushButton, QSizePolicy, QSpacerItem, QVBoxLayout,
-    QWidget)
+    QLayout, QPushButton, QSizePolicy, QSpacerItem,
+    QVBoxLayout, QWidget)
 from . import resources_rc
 
 class Ui_Error_Dialog(object):
     def setupUi(self, Error_Dialog):
         if not Error_Dialog.objectName():
             Error_Dialog.setObjectName(u"Error_Dialog")
-        Error_Dialog.resize(320, 152)
+        Error_Dialog.resize(320, 157)
         Error_Dialog.setMinimumSize(QSize(320, 0))
         Error_Dialog.setMaximumSize(QSize(320, 16777215))
         Error_Dialog.setStyleSheet(u"QDialog {\n"
@@ -191,6 +191,7 @@ class Ui_Error_Dialog(object):
 "}")
         self.verticalLayout = QVBoxLayout(Error_Dialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
         self.l_titel = QLabel(Error_Dialog)
         self.l_titel.setObjectName(u"l_titel")
 
@@ -198,6 +199,9 @@ class Ui_Error_Dialog(object):
 
         self.l_content = QLabel(Error_Dialog)
         self.l_content.setObjectName(u"l_content")
+        self.l_content.setMinimumSize(QSize(300, 0))
+        self.l_content.setMaximumSize(QSize(300, 16777215))
+        self.l_content.setWordWrap(True)
 
         self.verticalLayout.addWidget(self.l_content)
 
@@ -234,7 +238,7 @@ class Ui_Error_Dialog(object):
     # setupUi
 
     def retranslateUi(self, Error_Dialog):
-        Error_Dialog.setWindowTitle(QCoreApplication.translate("Error_Dialog", u"Error", None))
+        Error_Dialog.setWindowTitle("")
         self.l_titel.setText(QCoreApplication.translate("Error_Dialog", u"Unable to Load File", None))
         self.l_titel.setProperty(u"class", QCoreApplication.translate("Error_Dialog", u"title", None))
         self.l_content.setText(QCoreApplication.translate("Error_Dialog", u"An error occurred while parsing \u2028the selected file. \u2028The file may be corrupted \u2028or not in the valid JSON format.", None))

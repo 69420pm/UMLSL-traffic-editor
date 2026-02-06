@@ -8,7 +8,7 @@ import warnings
 from PySide6.QtCore import QObject
 
 from pse.umlsl_editor.src.controllers import ApplicationController
-from pse.umlsl_editor.src.view.ui.settings.SettingsDialog import SettingsDialog
+from pse.umlsl_editor.src.view.ui.settings.settings_dialog import SettingsDialog
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_main import Ui_MainWindow
 
 

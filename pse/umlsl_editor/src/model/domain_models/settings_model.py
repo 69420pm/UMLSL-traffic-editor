@@ -7,29 +7,19 @@ from pse.umlsl_editor.src.model.helper.observables import Observable
 @dataclass
 class SettingsModel(Observable):
     """
-    Application settings model using Observable pattern.
-
-    Events:
-        - SettingsEventType.CHANGE_BREAKING_ACCELERATION: Fired when breaking acceleration changes (data: float)
-        - SettingsEventType.TOGGLE_COORDINATE_SYSTEM: Fired when coordinate system is toggled (data: bool)
-        - SettingsEventType.TOGGLE_SAFETY_DISTANCE: Fired when safety distance is toggled (data: bool)
     """
-    render_coordinate_system: bool
-    render_safety_distance: bool
-    breaking_acceleration: float
+
+    breaking_deceleration: float
+    max_acceleration: float
 
     def __post_init__(self):
         """Initialize Observable after dataclass initialization."""
         Observable.__init__(self)
 
-    def set_breaking_acceleration(self, breaking_acceleration: float):
-        self.breaking_acceleration = breaking_acceleration
-        self.notify(SettingsEventType.CHANGE_BREAKING_ACCELERATION, breaking_acceleration)
+    def set_breaking_deceleration(self, breaking_deceleration: float):
+        self.breaking_deceleration = breaking_deceleration
+        self.notify(SettingsEventType.CHANGE_BREAKING_DECELERATION, breaking_deceleration)
 
-    def set_render_coordinate_system(self, render_coordinate_system: bool):
-        self.render_coordinate_system = render_coordinate_system
-        self.notify(SettingsEventType.SET_COORDINATE_SYSTEM, self.render_coordinate_system)
-
-    def set_render_safety_distance(self, render_safety_distance: bool):
-        self.render_safety_distance = render_safety_distance
-        self.notify(SettingsEventType.SET_SAFETY_DISTANCE, self.render_safety_distance)
+    def set_max_acceleration(self, max_acceleration: float):
+        self.max_acceleration = max_acceleration
+        self.notify(SettingsEventType.CHANGE_MAX_ACCELERATION, max_acceleration)

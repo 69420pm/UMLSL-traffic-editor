@@ -32,14 +32,13 @@ class ReserveNode(AtomNode):
 
         # compute intervals
         space_intervals: list[Interval] = []
-        current_pos: float = 0
         for visible_reserved_segment in visible_segments:
             interval = visible_reserved_segment.interval
-
             # we need to convert the relative position of the segment to its absolute position
-            absolute_interval = Interval(current_pos + interval.start, current_pos + interval.end)
-            current_pos += interval.length()
-
+            absolute_interval = Interval(
+                visible_reserved_segment.virtual_pos + interval.start,
+                visible_reserved_segment.virtual_pos + interval.end
+            )
             space_intervals.append(absolute_interval)
 
         return view.space_interval.subset_of(Interval.union(space_intervals))

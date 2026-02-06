@@ -12,13 +12,13 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>320</width>
+    <width>0</width>
     <height>0</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>320</width>
+    <width>16777215</width>
     <height>16777215</height>
    </size>
   </property>
@@ -198,6 +198,9 @@ QPushButton#b_delete:pressed {
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SizeConstraint::SetFixedSize</enum>
+   </property>
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
@@ -210,6 +213,18 @@ QPushButton#b_delete:pressed {
    </item>
    <item>
     <widget class="QLabel" name="l_content">
+     <property name="minimumSize">
+      <size>
+       <width>300</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>300</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="text">
       <string>This Action can not be undone.</string>
      </property>
@@ -238,7 +253,7 @@ QPushButton#b_delete:pressed {
         <string>Delete</string>
        </property>
        <property name="icon">
-        <iconset resource="resources.qrc">
+        <iconset>
          <normaloff>:/icons/icons/Delete_dark.svg</normaloff>:/icons/icons/Delete_dark.svg</iconset>
        </property>
       </widget>
@@ -267,7 +282,7 @@ QPushButton#b_delete:pressed {
         <string>Cancel</string>
        </property>
        <property name="icon">
-        <iconset resource="resources.qrc">
+        <iconset>
          <normaloff>:/icons/icons/Cancel.svg</normaloff>:/icons/icons/Cancel.svg</iconset>
        </property>
       </widget>

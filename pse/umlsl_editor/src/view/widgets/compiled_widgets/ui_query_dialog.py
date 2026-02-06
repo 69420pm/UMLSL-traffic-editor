@@ -8,26 +8,32 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QMetaObject, QSize, Qt)
-from PySide6.QtGui import (QIcon)
-from PySide6.QtWidgets import (QComboBox, QFormLayout,
-                               QGridLayout, QHBoxLayout, QLabel, QLayout,
-                               QPushButton, QSizePolicy, QTextEdit, QVBoxLayout,
-                               QWidget)
-
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFormLayout,
+    QGridLayout, QHBoxLayout, QLabel, QLayout,
+    QPushButton, QSizePolicy, QTextEdit, QVBoxLayout,
+    QWidget)
+from . import resources_rc
 
 class Ui_Edit_Query_Dialog(object):
     def setupUi(self, Edit_Query_Dialog):
         if not Edit_Query_Dialog.objectName():
             Edit_Query_Dialog.setObjectName(u"Edit_Query_Dialog")
         Edit_Query_Dialog.setEnabled(True)
-        Edit_Query_Dialog.resize(320, 770)
+        Edit_Query_Dialog.resize(320, 570)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Edit_Query_Dialog.sizePolicy().hasHeightForWidth())
         Edit_Query_Dialog.setSizePolicy(sizePolicy)
         Edit_Query_Dialog.setMinimumSize(QSize(320, 570))
+        Edit_Query_Dialog.setMaximumSize(QSize(320, 16777215))
         Edit_Query_Dialog.setStyleSheet(u"QDialog {\n"
 "    background-color: #011C26; \n"
 "}\n"
@@ -226,7 +232,8 @@ class Ui_Edit_Query_Dialog(object):
 
         self.widget1 = QWidget(self.widget)
         self.widget1.setObjectName(u"widget1")
-        self.widget1.setMinimumSize(QSize(0, 80))
+        self.widget1.setMinimumSize(QSize(0, 32))
+        self.widget1.setMaximumSize(QSize(16777215, 32))
         self.gridLayout = QGridLayout(self.widget1)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setHorizontalSpacing(4)
@@ -298,8 +305,8 @@ class Ui_Edit_Query_Dialog(object):
 
         self.t_umlsl = QTextEdit(self.widget_6)
         self.t_umlsl.setObjectName(u"t_umlsl")
-        self.t_umlsl.setMinimumSize(QSize(16777215, 100))
-        self.t_umlsl.setMaximumSize(QSize(16777215, 1000))
+        self.t_umlsl.setMinimumSize(QSize(0, 32))
+        self.t_umlsl.setMaximumSize(QSize(16777215, 100))
 
         self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.t_umlsl)
 

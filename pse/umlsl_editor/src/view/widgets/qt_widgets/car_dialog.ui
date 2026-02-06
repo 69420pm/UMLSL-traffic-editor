@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>320</width>
+    <width>324</width>
     <height>529</height>
    </rect>
   </property>
@@ -21,13 +21,13 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>320</width>
+    <width>0</width>
     <height>0</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>320</width>
+    <width>16777215</width>
     <height>999999</height>
    </size>
   </property>
@@ -206,6 +206,9 @@ QPushButton#b_delete:pressed {
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SizeConstraint::SetFixedSize</enum>
+   </property>
    <item>
     <widget class="QWidget" name="widget" native="true">
      <layout class="QVBoxLayout" name="General">
@@ -262,8 +265,14 @@ QPushButton#b_delete:pressed {
        <widget class="QWidget" name="widget" native="true">
         <property name="minimumSize">
          <size>
-          <width>75</width>
+          <width>300</width>
           <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>300</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="class" stdset="0">
@@ -1055,38 +1064,5 @@ QPushButton#b_delete:pressed {
  <resources>
   <include location="resources.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>b_delete</sender>
-   <signal>clicked()</signal>
-   <receiver>Edit_Car_Dialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>276</x>
-     <y>540</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>400</x>
-     <y>545</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>b_save</sender>
-   <signal>clicked()</signal>
-   <receiver>Edit_Car_Dialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>64</x>
-     <y>550</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>129</x>
-     <y>593</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

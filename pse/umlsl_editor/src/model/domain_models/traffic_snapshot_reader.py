@@ -44,14 +44,21 @@ class TrafficSnapshotReader(ABC):
     @abstractmethod
     def get_roads(self) -> dict[str, Road]:
         """
-        Returns a list of all roads in the snapshot.
+        Returns the list of cars.
         """
         pass
 
     @abstractmethod
-    def get_max_velocity(self) -> float:
+    def get_car_by_name(self, name: str) -> Car | None:
         """
-        Returns the maximum velocity of all cars in the snapshot.
+        Returns the car with the specified name.
+        """
+        pass
+
+    @abstractmethod
+    def get_roads(self) -> dict[str, Road]:
+        """
+        Returns a list of all roads in the snapshot.
         """
         pass
 

@@ -110,17 +110,6 @@ class ViewEventHandler(QObject):
         """
         pass
 
-    # Settings-related events
-    @abstractmethod
-    def change_breaking_acceleration(self, breaking_acceleration: float) -> None:
-        """
-        Handle the change of breaking acceleration setting.
-
-        Args:
-            breaking_acceleration: The new breaking acceleration value.
-        """
-        pass
-
     @abstractmethod
     def set_coordinate_system(self, render_coordinate_system: bool) -> None:
         """

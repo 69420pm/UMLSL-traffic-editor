@@ -14,9 +14,9 @@ class TurnDirection(Enum):
         RIGHT: The car intends to turn right at the next intersection.
     """
 
-    LEFT = "left"
-    RIGHT = "right"
-    STRAIGHT = "straight"
+    LEFT = 0
+    RIGHT = 1
+    STRAIGHT = 2
 
 
 @dataclass(frozen=True)

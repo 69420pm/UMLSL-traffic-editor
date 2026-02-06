@@ -7,9 +7,8 @@ Exposes car properties such as name, color, and lane assignment as model roles.
 
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QModelIndex, Qt, Slot
+from PySide6.QtCore import QModelIndex, Qt
 
-from pse.umlsl_editor.src.view.ui.lists.edit_car_dialog import EditCarDialog
 from pse.umlsl_editor.src.view.ui.lists.models.entity_list_model import EntityModel
 
 if TYPE_CHECKING:
@@ -108,22 +107,3 @@ class CarModel(EntityModel):
             CarModel.ValueRole: b"role_value",
         })
         return roles
-
-    @Slot(int)
-    def handle_button_click(self, row: int) -> None:
-        """
-        Handle the edit button click for a car row.
-
-        Opens the car edit dialog for the car at the specified row.
-
-        Args:
-            row: The row index of the car to edit.
-        """
-        if 0 <= row < len(self._data):
-            car = self._data[row]
-            dialog = EditCarDialog(
-                car,
-                parent=self.parent(),
-                application_controller=self._application_controller,
-            )
-            dialog.exec_()

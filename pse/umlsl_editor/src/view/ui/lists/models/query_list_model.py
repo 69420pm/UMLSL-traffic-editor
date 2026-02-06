@@ -1,8 +1,6 @@
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QModelIndex, Qt, Slot
-
-from pse.umlsl_editor.src.view.ui.lists.edit_query_dialog import EditQueryDialog
+from PySide6.QtCore import QModelIndex, Qt
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
@@ -68,23 +66,3 @@ class QueryListModel(EntityModel):
             QueryListModel.EgoCarColorRole: b"role_ego_color",
         })
         return roles
-
-    @Slot(int)
-    def handle_button_click(self, row: int) -> None:
-        """
-        Handle the edit button click for a road row.
-
-        Opens the edit road dialog for the selected road.
-
-        Args:
-            row: The row index of the road to edit.
-        """
-        if 0 <= row < len(self._data):
-            query = self._data[row]
-            dialog = EditQueryDialog(
-                query,
-                parent=self.parent(),
-
-                application_controller=self._application_controller,
-            )
-            dialog.exec_()

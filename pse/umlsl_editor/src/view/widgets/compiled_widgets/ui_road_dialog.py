@@ -25,14 +25,14 @@ class Ui_Edit_Road_Dialog(object):
     def setupUi(self, Edit_Road_Dialog):
         if not Edit_Road_Dialog.objectName():
             Edit_Road_Dialog.setObjectName(u"Edit_Road_Dialog")
-        Edit_Road_Dialog.resize(320, 291)
+        Edit_Road_Dialog.resize(324, 291)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Edit_Road_Dialog.sizePolicy().hasHeightForWidth())
         Edit_Road_Dialog.setSizePolicy(sizePolicy)
-        Edit_Road_Dialog.setMinimumSize(QSize(320, 0))
-        Edit_Road_Dialog.setMaximumSize(QSize(320, 99999))
+        Edit_Road_Dialog.setMinimumSize(QSize(0, 0))
+        Edit_Road_Dialog.setMaximumSize(QSize(16777215, 16777215))
         Edit_Road_Dialog.setAutoFillBackground(False)
         Edit_Road_Dialog.setStyleSheet(u"QDialog {\n"
 "    background-color: #011C26; \n"
@@ -209,6 +209,7 @@ class Ui_Edit_Road_Dialog(object):
 "}")
         self.verticalLayout_3 = QVBoxLayout(Edit_Road_Dialog)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.verticalLayout_3.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
         self.widget = QWidget(Edit_Road_Dialog)
         self.widget.setObjectName(u"widget")
         self.General = QVBoxLayout(self.widget)
@@ -232,6 +233,8 @@ class Ui_Edit_Road_Dialog(object):
 
         self.widget1 = QWidget(self.widget)
         self.widget1.setObjectName(u"widget1")
+        self.widget1.setMinimumSize(QSize(300, 0))
+        self.widget1.setMaximumSize(QSize(300, 16777215))
         self.gridLayout = QGridLayout(self.widget1)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setHorizontalSpacing(4)
@@ -431,8 +434,6 @@ class Ui_Edit_Road_Dialog(object):
 
 
         self.retranslateUi(Edit_Road_Dialog)
-        self.b_save.clicked.connect(Edit_Road_Dialog.accept)
-        self.b_delete.clicked.connect(Edit_Road_Dialog.reject)
 
         self.b_save.setDefault(True)
 
