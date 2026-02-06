@@ -503,7 +503,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         """
         print("=== Traffic Graph Structure ===")
         for segment_uid in self._graph.nodes:
-            segment_info = self._get_segment_info_string(segment_uid)
+            segment_info = self.get_segment_info(segment_uid)
             print(f"\n[Segment] {segment_info}")
 
             # Print outgoing connections
@@ -514,11 +514,11 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                 for _, target_uid, data in out_edges:
                     direction = data.get('direction')
                     direction_name = direction.name if direction else "UNKNOWN"
-                    target_info = self._get_segment_info_string(target_uid)
+                    target_info = self.get_segment_info(target_uid)
                     print(f"  -> [{direction_name}] to {target_info}")
         print("===============================")
 
-    def _get_segment_info_string(self, segment_uid: str) -> str:
+    def get_segment_info(self, segment_uid: str) -> str:
         segment = self._segments.get(segment_uid)
         if segment is None:
             return f"UNKNOWN_SEGMENT({segment_uid})"
