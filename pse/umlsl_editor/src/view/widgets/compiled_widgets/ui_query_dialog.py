@@ -27,7 +27,7 @@ class Ui_Edit_Query_Dialog(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Edit_Query_Dialog.sizePolicy().hasHeightForWidth())
         Edit_Query_Dialog.setSizePolicy(sizePolicy)
-        Edit_Query_Dialog.setMinimumSize(QSize(320, 570))
+        Edit_Query_Dialog.setMinimumSize(QSize(720, 870))
         Edit_Query_Dialog.setMaximumSize(QSize(16777215, 16777215))
         Edit_Query_Dialog.setStyleSheet(u"QDialog {\n"
 "    background-color: #011C26; \n"

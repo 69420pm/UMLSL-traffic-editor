@@ -155,11 +155,9 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         try:
             latex_code = UMLSLEvaluator(self._application_controller.get_traffic_snapshot_reader()).compute_latex(input)
         except ParserError as e:
-            print("write error")
-
-            pre_scope = html.escape(input[:e.scope_start])
-            scope = html.escape(input[e.scope_start:e.scope_end])
-            post_scope = html.escape(input[e.scope_end:])
+            pre_err = html.escape(input[:e.scope_start])
+            err = html.escape(input[e.scope_start:e.scope_end])
+            post_err = html.escape(input[e.scope_end:])
 
             caret_indent = " " * len(input[:e.scope_start])
             caret_marker = "^" * len(input[e.scope_start:e.scope_end])
@@ -168,9 +166,9 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
             error_html = (
                 f'<div style="font-family: \'Consolas\', \'Courier New\', monospace; '
                 f'font-size: 14px; white-space: pre; color: white;">'
-                f'{pre_scope}'
-                f'<span style="color: red; font-weight: bold;">{scope}</span>'
-                f'{post_scope}<br>'
+                f'{pre_err}'
+                f'<span style="color: red; font-weight: bold;">{err}</span>'
+                f'{post_err}<br>'
                 f'<span style="color: red;">{caret_line}: error originates here</span><br>'
                 f'<span style="color: red;">{e.reason}</span>'
             )
@@ -178,10 +176,9 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
 
             latex_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
             latex_label.setText(error_html)
-            print(error_html)
-          #  latex_label.setStyleSheet("color: red;")
             return
         except Exception as e:
+            # for unhandled errors, just show the error message
             message = e.args[0].replace("\n", "<br>'")
 
             precise_error = f"""
