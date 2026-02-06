@@ -44,6 +44,20 @@ class TrafficSnapshotReader(ABC):
     @abstractmethod
     def get_roads(self) -> dict[str, Road]:
         """
+        Returns the list of cars.
+        """
+        pass
+
+    @abstractmethod
+    def get_car_by_name(self, name: str) -> Car | None:
+        """
+        Returns the car with the specified name.
+        """
+        pass
+
+    @abstractmethod
+    def get_roads(self) -> dict[str, Road]:
+        """
         Returns a list of all roads in the snapshot.
         """
         pass

@@ -48,6 +48,7 @@ class CarEnvironment:
     )
     """
 
+
     def path_segments_in_view(self, view: View) -> list[SegmentInterval]:
         # collect visible segments in the view
         visible_segments: list[Segment] = []
@@ -63,7 +64,7 @@ class CarEnvironment:
 
     @staticmethod
     def empty():
-        return CarEnvironment([], VirtualLane([]), [])
+        return CarEnvironment()
 
     @staticmethod
     def create_environment(
@@ -121,8 +122,7 @@ def _compute_visible_segments(ts: TrafficSnapshotReader, path: VirtualLane, pos:
     return []
 
 
-def _compute_visible_segments_iteratively(ts: TrafficSnapshotReader, path: VirtualLane,
-                                          seg_orientations: list[Orientation],
+def _compute_visible_segments_iteratively(ts: TrafficSnapshotReader, path: VirtualLane, seg_orientations: list[Orientation],
                                           interval_start_offset: float, pos: Position, car_size: float) -> list[
     SegmentInterval]:
     # todo: take pos component into account
