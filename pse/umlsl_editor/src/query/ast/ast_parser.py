@@ -95,7 +95,12 @@ class ASTParser:
 
         if token_type == TokenType.CAR_EQUALS:
             if start != split_index - 1 or end != split_index + 1:
-                raise ASTParserError("Car equality requires exactly two tokens (i.e. car1 == car2)", start, end)
+                raise ASTParserError(
+                    "expected car names as arguments",
+                    start,
+                    end,
+                    "Consider writing the equality as 'a = b', where a and b are car names or variables"
+                )
             car1 = self.parse_car(start, declared_variables)
             car2 = self.parse_car(end, declared_variables)
             return EqualityCarNode(car1, car2)
@@ -125,7 +130,7 @@ class ASTParser:
                 f"unknown token '{token}'",
                 start,
                 end,
-                "Consider using one the operators of the help page below"
+                "Consider using an operator from the help page below"
             )
 
     def parse_atom_node(self, token_type: TokenType, start: int, end: int) -> ASTNode:
