@@ -33,11 +33,6 @@ class ASTParser:
 
         tokens = self._tokens
 
-        # parsing of somewhere node
-        if tokens[start].type == TokenType.LESS_THAN:
-            scope_end = self.find_closing_index(start, end, TokenType.LESS_THAN, TokenType.GREATER_THAN)
-            return SomewhereNode(self.parse_ast_rec(start + 1, scope_end - 1, declared_variables))
-
         height = 0
         split_index = -1
         # we need a value that is bigger than all others, in python there is no "max_int"
@@ -73,6 +68,11 @@ class ASTParser:
 
         if tokens[start].type == TokenType.L_PAREN and tokens[end].type == TokenType.R_PAREN:
             return self.parse_ast_rec(start + 1, end - 1, declared_variables)
+
+        # parsing of somewhere node
+        if tokens[start].type == TokenType.LESS_THAN:
+            scope_end = self.find_closing_index(start, end, TokenType.LESS_THAN, TokenType.GREATER_THAN)
+            return SomewhereNode(self.parse_ast_rec(start + 1, scope_end - 1, declared_variables))
 
         return self.parse_prefix(start, end, declared_variables)
 
