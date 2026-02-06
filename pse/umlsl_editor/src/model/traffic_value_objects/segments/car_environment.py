@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from enum import Enum
 
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
@@ -49,7 +48,6 @@ class CarEnvironment:
     )
     """
 
-
     def path_segments_in_view(self, view: View) -> list[SegmentInterval]:
         # collect visible segments in the view
         visible_segments: list[Segment] = []
@@ -91,8 +89,8 @@ class CarEnvironment:
         print("lane pos is ", lane_pos, " pos on lane: ", pos_on_lane, " direction is ", car_direction)
 
         if turn_direction == TurnDirection.STRAIGHT:
-            path = _compute_path_straight(ts, car_direction, segment)
-            print("path is ", path)
+            # path = _compute_path_straight(ts, car_direction, segment)
+            # print("path is ", path)
             return CarEnvironment()
         else:
             # todo
@@ -123,7 +121,8 @@ def _compute_visible_segments(ts: TrafficSnapshotReader, path: VirtualLane, pos:
     return []
 
 
-def _compute_visible_segments_iteratively(ts: TrafficSnapshotReader, path: VirtualLane, seg_orientations: list[Orientation],
+def _compute_visible_segments_iteratively(ts: TrafficSnapshotReader, path: VirtualLane,
+                                          seg_orientations: list[Orientation],
                                           interval_start_offset: float, pos: Position, car_size: float) -> list[
     SegmentInterval]:
     # todo: take pos component into account
