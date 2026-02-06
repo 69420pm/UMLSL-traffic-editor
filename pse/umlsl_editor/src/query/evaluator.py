@@ -48,9 +48,21 @@ class ParserError(Exception):
             scope_end: int,
     ):
         super().__init__(ast_parser_error)
+        assert scope_start <= scope_end
 
         self.input = input
         self.reason = ast_parser_error.reason
         self.help = ast_parser_error.help
-        self.scope_start = tokens[scope_start].start_index
-        self.scope_end = tokens[scope_end].end_index
+
+        if scope_start >= len(tokens):
+            # ASTParser expects new tokens only after the input
+            # we indicate this by starting the error after the input
+            self.scope_start = len(input) + 1
+            self.scope_end = len(input) + 4
+        elif scope_end >= len(tokens):
+            # ASTParser expects a token after the end of the input, but the starting token is still in bounds
+            self.scope_start = tokens[scope_start].start_index
+            self.scope_end = len(input) + 3
+        else:
+            self.scope_start = tokens[scope_start].start_index
+            self.scope_end = tokens[scope_end].end_index

@@ -295,8 +295,9 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         err = html.escape(user_input[error.scope_start: error.scope_end])
         post_err = html.escape(user_input[error.scope_end:])
 
-        caret_indent = " " * len(user_input[: error.scope_start])
-        caret_marker = "^" * len(user_input[error.scope_start: error.scope_end])
+
+        caret_indent = " " * e.scope_start
+        caret_marker = "^" * (e.scope_end - e.scope_start)
         caret_line = caret_indent + caret_marker
 
         error_html = (
@@ -313,23 +314,19 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
 
         error_html += "</div>"
 
-        self.l_preview.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.l_preview.setText(error_html)
+            latex_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+            latex_label.setText(error_html)
+            return
 
-    def _display_generic_error(self, error: Exception) -> None:
-        """Display a generic error message."""
-        message = str(error.args[0]).replace("\n", "<br>") if error.args else "Unknown error"
-
-        error_html = f"""
-        <table align="center">
-            <tr>
-                <td style="white-space: pre">{message}</td>
-            </tr>
-        </table>
-        """
-
-        self.l_preview.setText(error_html)
-        self.l_preview.setStyleSheet("color: red;")
+        max_width = latex_label.width() * 0.95
+        try:
+            pixmap = latex_to_pixmap(latex_code, font_size=20, color="#FFFFFF", max_width=max_width)
+            latex_label.setPixmap(pixmap)
+            latex_label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+            latex_label.setScaledContents(False)
+        except Exception as e:
+            latex_label.setText("Error converting LaTeX to image")
+            print(e)
 
     def _on_delete_clicked(self) -> None:
         """Handle delete action for existing queries."""
