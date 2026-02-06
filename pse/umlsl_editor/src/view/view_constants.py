@@ -16,8 +16,9 @@ class _ZLayers:
     SELECTED_ROAD: int = 1
     CROSSING: int = 2
     SELECTED_CROSSING: int = 3
-    CAR: int = 4
-    SELECTED_CAR: int = 5
+    SEGMENT_INTERVAL: int = 4
+    CAR: int = 5
+    SELECTED_CAR: int = 6
     OVERLAY: int = 100
 
 
