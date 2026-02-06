@@ -13,13 +13,14 @@ from pse.umlsl_editor.src.model.errors.car_errors import (
     CarTrafficSnapshotContextValidationError,
     CarValidationError,
 )
+from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
 
 from pse.umlsl_editor.src.model.entities.car import Car, CarParams
-from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnDirection
+from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnDirection, TurnIntent
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_car_dialog import (
     Ui_Edit_Car_Dialog,
 )
@@ -171,18 +172,16 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
             road: The road entity to generate lane labels for.
 
         Returns:
-            List of lane label strings (e.g., "Lane -1", "Lane 0", "Lane 1").
+            List of lane label strings.
         """
         return [
-            f"Lane {i}"
-            for i in range(
-                -road.number_of_backward_lanes, road.number_of_forward_lanes
-            )
+            i.get_name()
+            for i in road.backward_lanes + road.forward_lanes
         ]
 
     def _populate_turn_fields(self) -> None:
         """Populate turn direction and related fields."""
-        directions = [direction.value for direction in TurnDirection]
+        directions = [direction.name for direction in TurnDirection]
         car_drives_straight = (
                 self.car.next_turn is None
                 or self.car.next_turn.direction == TurnDirection.STRAIGHT
@@ -190,12 +189,15 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
 
         self.d_direction.clear()
         self.d_direction.addItems(directions)
-        self.d_direction.setCurrentText(
+        self.d_direction.setCurrentIndex(
             TurnDirection.STRAIGHT.value
             if car_drives_straight
             else self.car.next_turn.direction.value
         )
 
+        self._check_turn_visibility(car_drives_straight)
+
+    def _check_turn_visibility(self, car_drives_straight) -> None:
         if car_drives_straight:
             self._hide_turn_fields()
         else:
@@ -218,6 +220,8 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
     def _connect_signals(self) -> None:
         """Connect UI signals to their handlers."""
         self.b_save.clicked.connect(self._save_and_close)
+        self.d_direction.currentIndexChanged.connect(
+            lambda index: self._check_turn_visibility(index == TurnDirection.STRAIGHT.value))
 
     def _save_and_close(self) -> None:
         """Save the car data and close the dialog."""
@@ -248,6 +252,10 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         """
         road = self.roads_list[self.d_road.currentIndex()]
         lane_index = self.d_lane.currentIndex() - road.number_of_backward_lanes
+        turn_lane = Lane(lane_index=0, road_uid="")
+
+        turn_intent = TurnIntent(direction=TurnDirection(self.d_direction.currentIndex()),
+                                 target_lane=turn_lane)
 
         return {
             "name": self.t_name.text(),
@@ -259,7 +267,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
             "transition": self.s_transition.value(),
             "road": road,
             "lane_index": lane_index,
-            "next_turn": None,
+            "next_turn": turn_intent,
         }
 
     def _update_existing_car(self, data: dict) -> None:
