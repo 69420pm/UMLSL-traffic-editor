@@ -18,7 +18,7 @@ from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventTy
 from pse.umlsl_editor.src.model.helper.observables import (
     Observable,
     ObservableDict,
-    ReadOnlyDictView,
+    ReadOnlyMergedDictView,
 )
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import (
@@ -53,9 +53,58 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         # - TrafficSnapshotEventType.CROSSING_SEGMENT_UPDATED: Fired when a crossing segment is updated (data: CrossingSegment)
     """
 
-    def get_valid_turn_intent_lanes(self, car_position: float, car_speed: float, car_lane: Lane,
+    def get_valid_turn_intent_lanes(self, car_position: float, car_speed: float, car_lane: Lane, car_length: float,
                                     turn_direction: TurnDirection) -> list[Lane]:
-        pass
+        if car_speed < 0 or turn_direction not in [TurnDirection.LEFT, TurnDirection.RIGHT]:
+            return []
+
+        road_of_lane = self.get_road_by_uid(car_lane.road_uid)
+        if road_of_lane is None:
+            raise ValueError(f"Road with uid {car_lane.road_uid} not found.")
+
+        if road_of_lane.orientation == RoadOrientation.HORIZONTAL:
+            direction = Direction.RIGHT if car_lane.lane_index >= 0 else Direction.LEFT
+        else:
+            direction = Direction.UP if car_lane.lane_index >= 0 else Direction.DOWN
+
+        segment = self.get_segment_from_lane_position(car_lane, car_position + car_length * 0.5 * (
+            1 if direction in [Direction.RIGHT, Direction.DOWN] else -1))
+
+        if segment is None:
+            return []
+
+        lanes_to_turn_into: list[Lane] = []
+        current_segment_uid = segment.uid
+        adjacent_segment = self.get_adjacent_segment(current_segment_uid, direction)
+        while isinstance(adjacent_segment, CrossingSegment):
+            lane_to_turn_into = adjacent_segment.horizontal_lane if road_of_lane.orientation == RoadOrientation.VERTICAL else adjacent_segment.vertical_lane
+
+            # go through all 4 casees
+            if road_of_lane.orientation == RoadOrientation.HORIZONTAL:
+                if turn_direction == TurnDirection.LEFT:
+                    # lane indeces must be different
+                    if (car_lane.lane_index >= 0 and lane_to_turn_into.lane_index >= 0) or (
+                            car_lane.lane_index < 0 and lane_to_turn_into.lane_index < 0):
+                        lanes_to_turn_into.append(lane_to_turn_into)
+                elif turn_direction == TurnDirection.RIGHT:
+                    # lane indeces must be the same
+                    if (car_lane.lane_index >= 0 and lane_to_turn_into.lane_index < 0) or (
+                            car_lane.lane_index < 0 and lane_to_turn_into.lane_index >= 0):
+                        lanes_to_turn_into.append(lane_to_turn_into)
+            if road_of_lane.orientation == RoadOrientation.VERTICAL:
+                if turn_direction == TurnDirection.LEFT:
+                    # lane indeces must be different
+                    if (car_lane.lane_index >= 0 and lane_to_turn_into.lane_index < 0) or (
+                            car_lane.lane_index < 0 and lane_to_turn_into.lane_index >= 0):
+                        lanes_to_turn_into.append(lane_to_turn_into)
+                elif turn_direction == TurnDirection.RIGHT:
+                    # lane indeces must be the same
+                    if (car_lane.lane_index >= 0 and lane_to_turn_into.lane_index >= 0) or (
+                            car_lane.lane_index < 0 and lane_to_turn_into.lane_index < 0):
+                        lanes_to_turn_into.append(lane_to_turn_into)
+            adjacent_segment = self.get_adjacent_segment(adjacent_segment.uid, direction)
+
+        return lanes_to_turn_into
 
     def get_scene_size(self) -> float:
         return self.screen_size
@@ -141,9 +190,9 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self._graph = nx.DiGraph()
         """Graph representing the connectivity of segments."""
 
-        self._read_only_roads = ReadOnlyDictView(self._horizontal_roads + self._vertical_roads)
+        self._read_only_roads = ReadOnlyMergedDictView([self._horizontal_roads, self._vertical_roads])
         """Read-only view of the roads dictionary."""
-        self._read_only_cars = ReadOnlyDictView(self._cars)
+        self._read_only_cars = ReadOnlyMergedDictView([self._cars])
         """Read-only view of the cars dictionary."""
 
         self.lane_width = DIMENSION.LANE_WIDTH
@@ -233,6 +282,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def add_car(self, car: Car) -> None:
         self._cars[car.uid] = car
+        self.get_valid_turn_intent_lanes(car.position_on_lane, car.speed, car.lane, car.length, TurnDirection.LEFT)
 
     def remove_car(self, car_uid: str) -> None:
         self._cars.pop(car_uid)
@@ -241,6 +291,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         car = self._cars.get(car_uid)
         car.update_from_params(car_params, self)
         self._cars[car_uid] = car
+        self.get_valid_turn_intent_lanes(car.position_on_lane, car.speed, car.lane, car.length, TurnDirection.LEFT)
 
     def get_segment_from_lane_position(self, lane: Lane, position_on_lane: float) -> Segment | None:
         segment_uids = self._segments_by_lane.get(lane)
@@ -258,17 +309,17 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         for segment_uid in segment_uids:
             segment = self._segments[segment_uid]
             if road.orientation == RoadOrientation.HORIZONTAL:
-                if segment.get_position(self)[1] < position_on_lane:
-                    previous_segment = segment
-                else:
-                    return previous_segment
-            if road.orientation == RoadOrientation.VERTICAL:
                 if segment.get_position(self)[0] < position_on_lane:
                     previous_segment = segment
                 else:
                     return previous_segment
+            if road.orientation == RoadOrientation.VERTICAL:
+                if segment.get_position(self)[1] < position_on_lane:
+                    previous_segment = segment
+                else:
+                    return previous_segment
 
-        return None
+        return previous_segment
 
     def all_segments(self) -> list[Segment]:
         segments = []
@@ -327,8 +378,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         # 2. Process Horizontal Roads
         for h_road in horizontal_roads:
             h_lanes = h_road.forward_lanes + h_road.backward_lanes
-            # Sort Top to Bottom for Lateral connections
-            h_lanes.sort(key=lambda l: l.lane_index)
+            # Sort Bottom to Top (low y to high y) based on physical lane position
+            h_lanes.sort(key=lambda l: l.get_one_dimensional_position(self))
 
             lane_physical_segments: dict[Lane, list[Segment]] = {}
 
@@ -340,7 +391,10 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                 segments.append(left_inf)
 
                 for v_road in vertical_roads:
-                    v_lanes = sorted(v_road.forward_lanes + v_road.backward_lanes, key=lambda l: l.lane_index)
+                    v_lanes = sorted(
+                        v_road.forward_lanes + v_road.backward_lanes,
+                        key=lambda l: l.get_one_dimensional_position(self)
+                    )
                     for v_lane in v_lanes:
                         segments.append(crossing_map[(lane, v_lane)])
 
@@ -350,15 +404,17 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
                 lane_physical_segments[lane] = segments
 
+                # Store spatial order (low x to high x)
+                segments_uids = [s.uid for s in segments]
+                self._segments_by_lane[lane] = segments_uids
+
                 # Flow Direction Setup
                 if lane.lane_index >= 0:
-                    flow_uids = [s.uid for s in reversed(segments)]
-                    flow_dir = Direction.LEFT
-                else:
-                    flow_uids = [s.uid for s in segments]
+                    flow_uids = segments_uids
                     flow_dir = Direction.RIGHT
-
-                self._segments_by_lane[lane] = flow_uids
+                else:
+                    flow_uids = list(reversed(segments_uids))
+                    flow_dir = Direction.LEFT
 
                 # Connect Flow
                 for i in range(len(flow_uids) - 1):
@@ -381,20 +437,23 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         # 3. Process Vertical Roads
         for v_road in vertical_roads:
             v_lanes = v_road.forward_lanes + v_road.backward_lanes
-            # Sort Left to Right
-            v_lanes.sort(key=lambda l: l.lane_index)
+            # Sort Left to Right (low x to high x) based on physical lane position
+            v_lanes.sort(key=lambda l: l.get_one_dimensional_position(self))
 
             lane_physical_segments: dict[Lane, list[Segment]] = {}
 
             for lane in v_lanes:
                 segments = []
-                # Top Inf
+                # Bottom Inf
                 top_inf = LaneSegment(lane=lane)
                 self._segments[top_inf.uid] = top_inf
                 segments.append(top_inf)
 
                 for h_road in horizontal_roads:
-                    h_lanes = sorted(h_road.forward_lanes + h_road.backward_lanes, key=lambda l: l.lane_index)
+                    h_lanes = sorted(
+                        h_road.forward_lanes + h_road.backward_lanes,
+                        key=lambda l: l.get_one_dimensional_position(self)
+                    )
                     for h_lane in h_lanes:
                         segments.append(crossing_map[(h_lane, lane)])
 
@@ -404,15 +463,17 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
                 lane_physical_segments[lane] = segments
 
+                # Store spatial order (low y to high y)
+                segments_uids = [s.uid for s in segments]
+                self._segments_by_lane[lane] = segments_uids
+
                 # Flow Direction Setup
                 if lane.lane_index >= 0:
-                    flow_uids = [s.uid for s in segments]
-                    flow_dir = Direction.DOWN
-                else:
-                    flow_uids = [s.uid for s in reversed(segments)]
+                    flow_uids = segments_uids
                     flow_dir = Direction.UP
-
-                self._segments_by_lane[lane] = flow_uids
+                else:
+                    flow_uids = list(reversed(segments_uids))
+                    flow_dir = Direction.DOWN
 
                 # Connect Flow
                 for i in range(len(flow_uids) - 1):
@@ -432,6 +493,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                         self._graph.add_edge(s_l.uid, s_r.uid, direction=Direction.RIGHT)
                         self._graph.add_edge(s_r.uid, s_l.uid, direction=Direction.LEFT)
 
+        self.print_segments_by_lane()
         self.print_graph()
 
     def print_graph(self) -> None:
@@ -441,7 +503,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         """
         print("=== Traffic Graph Structure ===")
         for segment_uid in self._graph.nodes:
-            segment_info = self._get_segment_info_string(segment_uid)
+            segment_info = self.get_segment_info(segment_uid)
             print(f"\n[Segment] {segment_info}")
 
             # Print outgoing connections
@@ -452,11 +514,11 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                 for _, target_uid, data in out_edges:
                     direction = data.get('direction')
                     direction_name = direction.name if direction else "UNKNOWN"
-                    target_info = self._get_segment_info_string(target_uid)
+                    target_info = self.get_segment_info(target_uid)
                     print(f"  -> [{direction_name}] to {target_info}")
         print("===============================")
 
-    def _get_segment_info_string(self, segment_uid: str) -> str:
+    def get_segment_info(self, segment_uid: str) -> str:
         segment = self._segments.get(segment_uid)
         if segment is None:
             return f"UNKNOWN_SEGMENT({segment_uid})"
@@ -510,3 +572,14 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
         """
         raise NotImplementedError
+
+    def print_segments_by_lane(self):
+        for lane, segment_uids in self._segments_by_lane.items():
+            road = self.get_road_by_uid(lane.road_uid)
+            print(f"Lane {lane.lane_index} on Road {road.name} has segments:")
+            for uid in segment_uids:
+                segment = self._segments[uid]
+                position = segment.get_position(self)
+                size = segment.get_size(self)
+                print(f"  - {segment.uid}: {type(segment).__name__}, position={position}, size={size}")
+        pass

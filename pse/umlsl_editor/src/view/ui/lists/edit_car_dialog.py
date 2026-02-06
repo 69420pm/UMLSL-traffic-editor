@@ -110,7 +110,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         )
 
         params = CarParams(
-            name="",
+            name="default",
             color=DEFAULT_CAR_CONFIG["color"],
             length=DEFAULT_CAR_CONFIG["length"],
             speed=DEFAULT_CAR_CONFIG["speed"],

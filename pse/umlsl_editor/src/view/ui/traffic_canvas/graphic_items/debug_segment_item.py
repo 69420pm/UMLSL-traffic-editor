@@ -104,5 +104,5 @@ class DebugSegmentItem(QGraphicsItem):
         position = self._segment.get_position(snapshot_reader)
         size = self._segment.get_size(snapshot_reader)
 
-        self._rect = QRectF(position[0], position[1], size[0], size[1])
+        self._rect = QRectF(position[0], position[1] - size[1], size[0], size[1])
         self.update()

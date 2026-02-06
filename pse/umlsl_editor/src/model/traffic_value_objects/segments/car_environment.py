@@ -83,22 +83,22 @@ class CarEnvironment:
         if road.orientation == RoadOrientation.HORIZONTAL:
             car_direction = Direction.LEFT if speed < 0 else Direction.RIGHT
         else:
-            car_direction = Direction.UP if speed < 0 else Direction.DOWN
+            car_direction = Direction.DOWN if speed < 0 else Direction.UP
 
         print("car lane ", car_lane, " pos on lane: ", pos_on_lane, " segment ", segment, " car dir ", car_direction)
         lane_pos = car_lane.get_one_dimensional_position(ts)
         print("lane pos is ", lane_pos, " pos on lane: ", pos_on_lane, " direction is ", car_direction)
 
         if turn_direction == TurnDirection.STRAIGHT:
-            # path = _compute_path_straight(ts, car_direction, segment)
-            # print("path is ", path)
-            return CarEnvironment()
+             path = _compute_path_straight(ts, car_direction, segment)
+        #     print("path is ", path)
+             path_segs = list(map(lambda x: ts.get_segment_info(x.uid), path.segments))
+         #    print("path segments are ", path_segs)
+             return CarEnvironment()
         else:
             # todo
             return CarEnvironment()
         #  visible_segments = _compute_visible_segments(traffic_snapshot, path, pos, car_size)
-
-        #  interval_start_offset = pos.clone().lane_pos
 
 
 def _compute_path_straight(ts: TrafficSnapshotReader, car_direction: Direction, segment: Segment) -> VirtualLane:

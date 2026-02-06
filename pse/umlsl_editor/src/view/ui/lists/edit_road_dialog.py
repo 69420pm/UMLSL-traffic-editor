@@ -119,7 +119,7 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
             A new Road instance with default configuration.
         """
         default_params = RoadParams(
-            name="",
+            name="default",
             orientation=RoadOrientation.HORIZONTAL,
             position=0,
             number_of_forward_lanes=1,
