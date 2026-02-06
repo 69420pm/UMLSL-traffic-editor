@@ -18,7 +18,7 @@ from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventTy
 from pse.umlsl_editor.src.model.helper.observables import (
     Observable,
     ObservableDict,
-    ReadOnlyDictView,
+    ReadOnlyMergedDictView,
 )
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import (
@@ -190,9 +190,9 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self._graph = nx.DiGraph()
         """Graph representing the connectivity of segments."""
 
-        self._read_only_roads = ReadOnlyDictView(self._horizontal_roads + self._vertical_roads)
+        self._read_only_roads = ReadOnlyMergedDictView([self._horizontal_roads, self._vertical_roads])
         """Read-only view of the roads dictionary."""
-        self._read_only_cars = ReadOnlyDictView(self._cars)
+        self._read_only_cars = ReadOnlyMergedDictView([self._cars])
         """Read-only view of the cars dictionary."""
 
         self.lane_width = DIMENSION.LANE_WIDTH

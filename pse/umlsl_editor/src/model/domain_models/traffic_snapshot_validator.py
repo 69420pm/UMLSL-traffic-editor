@@ -91,7 +91,6 @@ class TrafficSnapshotValidator:
             if road.orientation == road_params.orientation:
                 road_bounds = road.get_bounds()
                 if max(bounds[0], road_bounds[0]) < min(bounds[1], road_bounds[1]):
-                    print('errrorrrr')
                     raise RoadTrafficSnapshotContextValidationError(
                         content=f"Roads can't overlap each other. Please change position or number of forward or backward lanes.")
 
@@ -105,7 +104,10 @@ class TrafficSnapshotValidator:
         raise NotImplementedError("Road validation and autocorrection is not implemented yet.")
 
     def _check_car_name_unique(self, car_name: str) -> bool:
-        return car_name not in self._model.cars
+        for car in self._model.cars.values():
+            if car.name == car_name:
+                return False
+        return True
 
     def _check_road_name_unique(self, road_name: str) -> bool:
         for road in self._model.roads.values():
@@ -124,24 +126,31 @@ class TrafficSnapshotValidator:
 
     def _check_lane_valid(self, lane: Lane) -> bool:
         """Check if the lane exists in the traffic snapshot."""
-        road = self._model.get_road_by_uid(lane.road_uid)
-        if lane in (road.forward_lanes + road.backward_lanes):
-            return True
-        return False
+        try:
+            road = self._model.get_road_by_uid(lane.road_uid)
+        except ValueError:
+            return False
+        return lane in (road.forward_lanes + road.backward_lanes)
 
     def _check_transition_valid(self, transition: float, lane: Lane, car_driving_backwards: bool) -> bool:
         """Check if the transition value is valid for the given lane. It is not valid if the car changes out of the road,
         because right or left of the road is no lane. The transition value is aligned after the car
         (right is positive transition, left is negative) not the lane direction."""
-        # TODO: Something wrong here
         if transition == 0.0:
             return True
 
-        road = self._model.get_road_by_uid(lane.road_uid)
-        new_lane_index = lane.lane_index + (1 if transition > 0 else -1) * (-1 if car_driving_backwards else 1)
-        if new_lane_index > len(road.forward_lanes) - 1 or new_lane_index > -len(road.backward_lanes):
+        try:
+            road = self._model.get_road_by_uid(lane.road_uid)
+        except ValueError:
             return False
-        return True
+
+        direction = -1 if car_driving_backwards else 1
+        delta = 1 if transition > 0 else -1
+        new_lane_index = lane.lane_index + delta * direction
+
+        if new_lane_index >= 0:
+            return new_lane_index <= len(road.forward_lanes) - 1
+        return new_lane_index >= -len(road.backward_lanes)
 
     def _check_turn_intent_valid(self, turn_intent: TurnIntent) -> bool:
         target_lane = turn_intent.target_lane

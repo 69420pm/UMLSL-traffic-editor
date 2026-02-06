@@ -183,48 +183,59 @@ class ObservableList(MutableSequence[T]):
             self._on_add(value)
 
 
-class ReadOnlyDictView(Mapping[str, Any]):
-    """
-    A read-only view over an ObservableDict that properly wraps its internal dictionary.
 
-    This provides a true read-only Mapping interface by delegating to the internal
-    _data dict of the ObservableDict, ensuring immutability while maintaining
-    compatibility with the Observable pattern.
+
+
+class ReadOnlyMergedDictView(Mapping[str, Any]):
+    """
+    A read-only view over multiple ObservableDicts, merged into a single Mapping.
+
+    Later dictionaries in the list override earlier ones for duplicate keys.
     """
 
-    def __init__(self, observable_dict: ObservableDict):
+    def __init__(self, observable_dicts: list[ObservableDict]):
         """
-        Initialize a read-only view.
+        Initialize a read-only merged view.
 
         Args:
-            observable_dict: The ObservableDict to create a read-only view over
+            observable_dicts: A list of ObservableDicts to merge in order
         """
-        self._observable_dict = observable_dict
+        self._observable_dicts = observable_dicts
 
     def __getitem__(self, key: str) -> Any:
-        """Get an item by key from the underlying dict."""
-        return self._observable_dict[key]
+        """Get an item by key from the merged dicts."""
+        for observable_dict in reversed(self._observable_dicts):
+            if key in observable_dict:
+                return observable_dict[key]
+        raise KeyError(key)
 
     def __iter__(self) -> Iterator[str]:
-        """Iterate over keys in the underlying dict."""
-        return iter(self._observable_dict)
+        """Iterate over keys in the merged dicts."""
+        return iter(self.keys())
 
     def __len__(self) -> int:
-        """Return the number of items in the underlying dict."""
-        return len(self._observable_dict)
+        """Return the number of unique items across merged dicts."""
+        return len(self.keys())
 
     def __contains__(self, key: object) -> bool:
-        """Check if key exists in the underlying dict."""
-        return key in self._observable_dict
+        """Check if key exists in any underlying dict."""
+        return any(key in observable_dict for observable_dict in self._observable_dicts)
 
     def keys(self) -> KeysView[str]:
-        """Return keys view of the underlying dict."""
-        return self._observable_dict.keys()
+        """Return keys view of the merged dicts."""
+        return self._merge_dicts().keys()
 
     def values(self) -> ValuesView[Any]:
-        """Return values view of the underlying dict."""
-        return self._observable_dict.values()
+        """Return values view of the merged dicts."""
+        return self._merge_dicts().values()
 
     def items(self) -> ItemsView[str, Any]:
-        """Return items view of the underlying dict."""
-        return self._observable_dict.items()
+        """Return items view of the merged dicts."""
+        return self._merge_dicts().items()
+
+    def _merge_dicts(self) -> dict[str, Any]:
+        """Merge all dicts into a single standard dict."""
+        merged: dict[str, Any] = {}
+        for observable_dict in self._observable_dicts:
+            merged.update(observable_dict)
+        return merged
