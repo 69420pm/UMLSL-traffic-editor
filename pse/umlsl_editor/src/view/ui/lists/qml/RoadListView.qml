@@ -25,7 +25,7 @@ ListView {
         Image {
             source: "../../../widgets/qt_widgets/icons/add_road.svg"
             sourceSize.width: 16; sourceSize.height: 16
-            rotation: model.role_isRotated ? 90 : 0
+            rotation: model.role_isRotated ? 0 : 90
 
             // Good practice: Ensure the layout knows the size and alignment
             Layout.preferredWidth: 16

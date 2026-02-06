@@ -1,10 +1,12 @@
 from typing import TYPE_CHECKING
+from urllib.parse import quote
 
 from PySide6.QtCore import QModelIndex, Qt
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
 
+from pse.umlsl_editor.src.query.evaluator import ParserError, UMLSLEvaluator
 from pse.umlsl_editor.src.view.ui.lists.models.entity_list_model import EntityModel
 
 
@@ -13,6 +15,7 @@ class QueryListModel(EntityModel):
     IsValidRole = EntityModel.NextRole + 1
     EgoCarNameRole = EntityModel.NextRole + 2
     EgoCarColorRole = EntityModel.NextRole + 3
+    LatexImageSourceRole = EntityModel.NextRole + 4
 
     def __init__(
             self,
@@ -46,6 +49,19 @@ class QueryListModel(EntityModel):
             return str(ego_car.name)
         elif role == QueryListModel.EgoCarColorRole:
             return str(ego_car.color)
+        elif role == QueryListModel.LatexImageSourceRole:
+            # Convert the query's latex input to rendered LaTeX and create image URL
+            try:
+                evaluator = UMLSLEvaluator(
+                    self._application_controller.get_traffic_snapshot_reader()
+                )
+                latex_code = evaluator.compute_latex(query.latex)
+                # URL-encode the latex string to safely pass it to the image provider
+                encoded_latex = quote(latex_code, safe='')
+                return f"image://latex/{encoded_latex}"
+            except (ParserError, Exception):
+                # If parsing fails, return empty string (no image)
+                return ""
 
         return None
 
@@ -64,5 +80,6 @@ class QueryListModel(EntityModel):
             QueryListModel.IsValidRole: b"role_valid",
             QueryListModel.EgoCarNameRole: b"role_ego_name",
             QueryListModel.EgoCarColorRole: b"role_ego_color",
+            QueryListModel.LatexImageSourceRole: b"role_latex_image",
         })
         return roles

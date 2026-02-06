@@ -16,8 +16,9 @@ class _ZLayers:
     SELECTED_ROAD: int = 1
     CROSSING: int = 2
     SELECTED_CROSSING: int = 3
-    CAR: int = 4
-    SELECTED_CAR: int = 5
+    SEGMENT_INTERVAL: int = 4
+    CAR: int = 5
+    SELECTED_CAR: int = 6
     OVERLAY: int = 100
 
 
@@ -27,7 +28,7 @@ class _Dimension:
     # Lane and car dimensions (in scene units)
     LANE_WIDTH: float = 1.0
 
-    CAR_WIDTH: float = 0.7
+    CAR_WIDTH: float = 0.6
     CAR_TRIANGLE_LENGTH: float = 0.4
 
     # Scene configuration

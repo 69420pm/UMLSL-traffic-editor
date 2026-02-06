@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>320</width>
-    <height>770</height>
+    <width>536</width>
+    <height>933</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,8 +21,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>720</width>
-    <height>870</height>
+    <width>0</width>
+    <height>0</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -206,6 +206,9 @@ QPushButton#b_delete:pressed {
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SizeConstraint::SetFixedSize</enum>
+   </property>
    <item>
     <widget class="QWidget" name="widget" native="true">
      <layout class="QVBoxLayout" name="General">
@@ -290,11 +293,35 @@ QPushButton#b_delete:pressed {
          </property>
          <item row="0" column="0">
           <widget class="QLabel" name="l_preview">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>500</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>500</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="text">
             <string>Preview Label</string>
            </property>
+           <property name="scaledContents">
+            <bool>false</bool>
+           </property>
            <property name="alignment">
             <set>Qt::AlignmentFlag::AlignCenter</set>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -358,7 +385,6 @@ QPushButton#b_delete:pressed {
       </item>
       <item>
        <widget class="QWidget" name="widget_6" native="true">
-
         <property name="class" stdset="0">
          <string>container</string>
         </property>
@@ -416,7 +442,7 @@ QPushButton#b_delete:pressed {
             <string>UMLSL</string>
            </property>
            <property name="alignment">
-             <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
+            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
            </property>
            <property name="margin">
             <number>0</number>
@@ -427,7 +453,7 @@ QPushButton#b_delete:pressed {
           <widget class="QTextEdit" name="t_umlsl">
            <property name="minimumSize">
             <size>
-             <width>16777215</width>
+             <width>0</width>
              <height>100</height>
             </size>
            </property>
@@ -1191,38 +1217,5 @@ QPushButton#b_delete:pressed {
  <resources>
   <include location="resources.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>b_delete</sender>
-   <signal>clicked()</signal>
-   <receiver>Edit_Query_Dialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>276</x>
-     <y>540</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>400</x>
-     <y>545</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>b_save</sender>
-   <signal>clicked()</signal>
-   <receiver>Edit_Query_Dialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>64</x>
-     <y>550</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>129</x>
-     <y>593</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
