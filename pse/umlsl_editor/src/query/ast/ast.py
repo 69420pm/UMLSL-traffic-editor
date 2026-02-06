@@ -11,10 +11,11 @@ from pse.umlsl_editor.src.query.view import View
 class Precedence(IntEnum):
     ATOM = 50  # Nullary Nodes
     UNARY = 40
-    EQUALITY = 35
+    UNARY_EQUALITY = 35
     BINARY_CHOP = 30  # Horizontal Chop, Vertical Chop
     BINARY_CONJUNCTION = 20  # And
     BINARY_DISJUNCTION = 10  # Or
+    UNARY_QUANTOR = 0
 
 
 class ASTNode(ABC):

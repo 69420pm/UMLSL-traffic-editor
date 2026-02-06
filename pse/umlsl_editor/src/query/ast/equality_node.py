@@ -10,7 +10,7 @@ class EqualityCarNode(AtomNode):
         super().__init__(f"{car_resolve1.name} = {car_resolve2.name}")
         self._car_resolve1 = car_resolve1
         self._car_resolve2 = car_resolve2
-        self._precedence = Precedence.EQUALITY
+        self._precedence = Precedence.UNARY_EQUALITY
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         return self._car_resolve1.resolve(variable_car_map) is self._car_resolve2.resolve(variable_car_map)
