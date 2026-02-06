@@ -355,6 +355,7 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         pre_err = html.escape(user_input[: error.scope_start])
         err = html.escape(user_input[error.scope_start: error.scope_end])
         post_err = html.escape(user_input[error.scope_end:])
+        reason = html.escape(error.reason)
 
         caret_indent = " " * error.scope_start
         caret_marker = "^" * (error.scope_end - error.scope_start)
@@ -369,11 +370,12 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
             f"{pre_err}"
             f'<span style="color: red; font-weight: bold;">{err}</span>'
             f"{post_err}<br>"
-            f'<span style="color: red;">{caret_line}: {error.reason}</span><br>'
+            f'<span style="color: red;">{caret_line}: {reason}</span><br>'
         )
 
         if error.help is not None:
-            error_html += f'<span style="color: red;">Help: {error.help}.</span>'
+            help = html.escape(error.help)
+            error_html += f'<span style="color: red;">Help: {help}.</span>'
 
         error_html += "</div>"
 
