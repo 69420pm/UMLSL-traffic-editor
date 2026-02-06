@@ -20,23 +20,11 @@ class DataController:
         """
         self._traffic_snapshot_reader = traffic_snapshot_reader
 
-    def get_all_cars(self) -> list["Car"]:
+    def get_all_cars(self) -> dict[str, "Car"]:
         return self._traffic_snapshot_reader.get_cars()
 
     def get_all_roads(self) -> dict[str, "Road"]:
         return self._traffic_snapshot_reader.get_roads()
-
-    def get_breaking_acceleration(self) -> float:
-        """Returns state of the breaking acceleration setting for the cars."""
-        raise NotImplementedError
-
-    def should_render_coordinate_system(self) -> bool:
-        """Returns true if coordinate system is rendered."""
-        raise NotImplementedError
-
-    def should_render_safety_distance(self) -> bool:
-        """Returns true if safety distance is rendered."""
-        raise NotImplementedError
 
     def get_road_by_uid(self, uid: str) -> "Road":
         """Returns the road with the given uid."""

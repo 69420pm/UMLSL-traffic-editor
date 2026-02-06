@@ -7,13 +7,12 @@ with support for selection highlighting and road property display.
 
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QModelIndex, Qt, Slot
+from PySide6.QtCore import QModelIndex, Qt
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
 
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation
-from pse.umlsl_editor.src.view.ui.lists.edit_road_dialog import EditRoadDialog
 from pse.umlsl_editor.src.view.ui.lists.models.entity_list_model import EntityModel
 
 
@@ -114,22 +113,3 @@ class RoadListModel(EntityModel):
             RoadListModel.ValueRole: b"role_value",
         })
         return roles
-
-    @Slot(int)
-    def handle_button_click(self, row: int) -> None:
-        """
-        Handle the edit button click for a road row.
-
-        Opens the edit road dialog for the selected road.
-
-        Args:
-            row: The row index of the road to edit.
-        """
-        if 0 <= row < len(self._data):
-            road = self._data[row]
-            dialog = EditRoadDialog(
-                road,
-                parent=self.parent(),
-                application_controller=self._application_controller,
-            )
-            dialog.exec_()

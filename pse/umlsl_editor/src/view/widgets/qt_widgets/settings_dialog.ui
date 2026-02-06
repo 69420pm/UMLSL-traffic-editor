@@ -18,13 +18,13 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>320</width>
+    <width>0</width>
     <height>0</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>320</width>
+    <width>999999</width>
     <height>9999</height>
    </size>
   </property>
@@ -226,6 +226,9 @@ QCheckBox::indicator:checked {
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
+   <property name="sizeConstraint">
+    <enum>QLayout::SizeConstraint::SetFixedSize</enum>
+   </property>
    <item>
     <widget class="QWidget" name="widget" native="true">
      <layout class="QVBoxLayout" name="General">
@@ -280,6 +283,18 @@ QCheckBox::indicator:checked {
       </item>
       <item>
        <widget class="QWidget" name="widget" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>300</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>300</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="class" stdset="0">
          <string>container</string>
         </property>

@@ -6,7 +6,16 @@ Provides a dialog window for creating and editing query entities.
 
 from typing import TYPE_CHECKING
 
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QDialog
+
+from pse.umlsl_editor.src.model.errors.umlsl_query_errors import (
+    UMLSLQueryValidationError,
+)
+from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+from pse.umlsl_editor.src.view.ui.lists.confirm_deletion_dialog import (
+    ConfirmDeletionDialog,
+)
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
@@ -55,9 +64,42 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         self._application_controller = application_controller
 
         self._cars_dict = application_controller.data_controller.get_all_cars()
+
+        if not self._cars_dict:
+            self._is_valid = False
+            return
+
+        self._is_valid = True
         self._cars_list = list(self._cars_dict.values())
 
         self._populate_fields()
+        self._connect_signals()
+
+    def _connect_signals(self) -> None:
+        """Connect UI signals to their handlers."""
+        self.b_save.clicked.connect(self.accept)
+        self.b_delete.clicked.connect(self._on_delete_clicked)
+
+    def exec(self) -> int:
+        """
+        Execute the dialog.
+
+        Returns:
+            QDialog.Rejected if the dialog is invalid, otherwise the result of exec().
+        """
+        if not self._is_valid:
+            QTimer.singleShot(0, self._show_no_cars_warning)
+            return QDialog.DialogCode.Rejected
+        return super().exec()
+
+    def _show_no_cars_warning(self) -> None:
+        """Show a warning message that no cars are available."""
+        dialog = WarningDialog(
+            "Car Required",
+            "Queries require a car to evaluate against.\nPlease add a car to your scene first.",
+            self.parent(),
+        )
+        dialog.exec()
 
     def _populate_fields(self) -> None:
         """Populate dialog fields with the current query's values."""
@@ -86,6 +128,24 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         else:
             self.t_umlsl.setText("")
 
+    def _on_delete_clicked(self) -> None:
+        """Handle delete action for existing queries."""
+        if not self._is_edit or self._query is None:
+            return
+
+        # Confirm deletion with the user
+        confirm = ConfirmDeletionDialog(
+            f"Are you sure you want to delete this query?",
+            self,
+        ).exec()
+
+        if confirm == 1:
+            # Defer deletion to next event loop iteration to allow QML signal
+            # handlers to complete before the underlying data is destroyed.
+            query_uid = self._query.uid
+            QTimer.singleShot(0, lambda: self._application_controller.command_controller.remove_umlsl_query(query_uid))
+            self.accept()
+
     def accept(self) -> None:
         """
         Handle dialog acceptance by saving query changes.
@@ -99,18 +159,27 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
             return
 
         selected_car = self._cars_list[selected_car_index]
-        latex = self.t_umlsl.toPlainText()
+        latex = self.t_umlsl.text()
 
-        if self._is_edit and self._query is not None:
-            self._application_controller.command_controller.update_umlsl_query(
-                query=self._query,
-                assigned_car_name=selected_car.uid,
-                latex=latex,
+        try:
+            if self._is_edit and self._query is not None:
+                self._application_controller.command_controller.update_umlsl_query(
+                    query=self._query,
+                    assigned_car_name=selected_car.uid,
+                    latex=latex,
+                )
+            else:
+                self._application_controller.command_controller.add_umlsl_query(
+                    assigned_car_name=selected_car.uid,
+                    latex=latex,
+                )
+        except UMLSLQueryValidationError as e:
+            dialog = WarningDialog(
+                "Validation Error",
+                str(e),
+                self,
             )
-        else:
-            self._application_controller.command_controller.add_umlsl_query(
-                assigned_car_name=selected_car.uid,
-                latex=latex,
-            )
+            dialog.exec()
+            return
 
         super().accept()

@@ -30,8 +30,8 @@ class Ui_Settings_Dialog(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Settings_Dialog.sizePolicy().hasHeightForWidth())
         Settings_Dialog.setSizePolicy(sizePolicy)
-        Settings_Dialog.setMinimumSize(QSize(320, 0))
-        Settings_Dialog.setMaximumSize(QSize(320, 9999))
+        Settings_Dialog.setMinimumSize(QSize(0, 0))
+        Settings_Dialog.setMaximumSize(QSize(999999, 9999))
         Settings_Dialog.setAutoFillBackground(False)
         Settings_Dialog.setStyleSheet(u"QDialog {\n"
 "    background-color: #011C26; \n"
@@ -228,6 +228,7 @@ class Ui_Settings_Dialog(object):
 "}")
         self.verticalLayout_3 = QVBoxLayout(Settings_Dialog)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.verticalLayout_3.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
         self.widget = QWidget(Settings_Dialog)
         self.widget.setObjectName(u"widget")
         self.General = QVBoxLayout(self.widget)
@@ -251,6 +252,8 @@ class Ui_Settings_Dialog(object):
 
         self.widget1 = QWidget(self.widget)
         self.widget1.setObjectName(u"widget1")
+        self.widget1.setMinimumSize(QSize(300, 0))
+        self.widget1.setMaximumSize(QSize(300, 16777215))
         self.gridLayout = QGridLayout(self.widget1)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setVerticalSpacing(16)

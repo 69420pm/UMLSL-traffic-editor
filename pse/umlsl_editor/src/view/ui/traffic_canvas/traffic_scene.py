@@ -28,7 +28,7 @@ from pse.umlsl_editor.src.view.view_constants import DIMENSION
 
 logger = logging.getLogger(__name__)
 
-SHOW_DEBUG_SEGMENTS = True
+SHOW_DEBUG_SEGMENTS = False
 
 
 class TrafficScene(QGraphicsScene):

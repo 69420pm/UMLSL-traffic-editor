@@ -7,7 +7,17 @@ such as name, orientation, position, and lane counts.
 
 from typing import TYPE_CHECKING
 
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QDialog
+
+from pse.umlsl_editor.src.model.errors.road_errors import (
+    RoadTrafficSnapshotContextValidationError,
+    RoadValidationError,
+)
+from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+from pse.umlsl_editor.src.view.ui.lists.confirm_deletion_dialog import (
+    ConfirmDeletionDialog,
+)
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
@@ -34,10 +44,10 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
     """
 
     def __init__(
-        self,
-        road: Road | None,
-        application_controller: "ApplicationController",
-        parent=None,
+            self,
+            road: Road | None,
+            application_controller: "ApplicationController",
+            parent=None,
     ) -> None:
         """
         Initialize the road edit dialog.
@@ -58,6 +68,48 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
             self._road = self._create_default_road()
 
         self._populate_fields()
+        self._connect_signals()
+
+    def _connect_signals(self) -> None:
+        """Connect UI signals to their handlers."""
+        self.b_save.clicked.connect(self._on_save_clicked)
+        self.b_delete.clicked.connect(self._on_delete_clicked)
+
+    def _on_save_clicked(self) -> None:
+        self.accept()
+
+    def _on_delete_clicked(self) -> None:
+        """Handle delete action for existing cars."""
+        if not self._is_edit:
+            return
+
+        cars = self._application_controller.data_controller.get_all_cars().values()
+        cars_on_road = []
+        for car in cars:
+            if car.lane.road_uid == self._road.uid:
+                cars_on_road.append(car.name)
+                break
+
+        if cars_on_road:
+            dialog = WarningDialog(
+                "Deletion Error",
+                f"Cannot delete road '{self._road.name}' because the following cars are on it:\n{cars_on_road}",
+                self,
+            )
+            dialog.exec()
+            return
+        # Confirm deletion with the user
+        confirm = ConfirmDeletionDialog(
+            f"Are you sure you want to delete road '{self._road.name}'?",
+            self,
+        ).exec()
+
+        if confirm == 1:
+            # Defer deletion to next event loop iteration to allow QML signal
+            # handlers to complete before the underlying data is destroyed.
+            road_uid = self._road.uid
+            QTimer.singleShot(0, lambda: self._application_controller.command_controller.remove_road(road_uid))
+            self.accept()
 
     def _create_default_road(self) -> Road:
         """
@@ -101,22 +153,31 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
         forward_lanes = self.s_forward.value()
         backward_lanes = self.s_backward.value()
 
-        if self._is_edit:
-            self._application_controller.command_controller.update_road(
-                road=self._road,
-                name=name,
-                orientation=orientation,
-                position=position,
-                number_of_forward_lanes=forward_lanes,
-                number_of_backward_lanes=backward_lanes,
+        try:
+            if self._is_edit:
+                self._application_controller.command_controller.update_road(
+                    road=self._road,
+                    name=name,
+                    orientation=orientation,
+                    position=position,
+                    number_of_forward_lanes=forward_lanes,
+                    number_of_backward_lanes=backward_lanes,
+                )
+            else:
+                self._application_controller.command_controller.add_road(
+                    name=name,
+                    orientation=orientation,
+                    position=position,
+                    number_of_forward_lanes=forward_lanes,
+                    number_of_backward_lanes=backward_lanes,
+                )
+        except (RoadValidationError, RoadTrafficSnapshotContextValidationError) as e:
+            dialog = WarningDialog(
+                "Validation Error",
+                str(e),
+                self,
             )
-        else:
-            self._application_controller.command_controller.add_road(
-                name=name,
-                orientation=orientation,
-                position=position,
-                number_of_forward_lanes=forward_lanes,
-                number_of_backward_lanes=backward_lanes,
-            )
+            dialog.exec()
+            return
 
         super().accept()
