@@ -47,6 +47,10 @@ class TokenType(Enum):
     def is_atom_op(self):
         return self in _ATOM_OPS
 
+    @property
+    def is_quantor_op(self):
+        return self in _QUANTOR_OPS
+
     def get_infix_binary_op_precedence(self):
         if not self.is_infix_binary_op:
             raise ValueError(f"Token {self} is not an infix binary operation.")
@@ -75,6 +79,10 @@ _INFIX_BINARY_OPS = {
 _PREFIX_BINARY_OPS = {
     TokenType.H_CHOP,
     TokenType.V_CHOP,
+    TokenType.EXITS,
+    TokenType.FORALL
+}
+_QUANTOR_OPS = {
     TokenType.EXITS,
     TokenType.FORALL
 }

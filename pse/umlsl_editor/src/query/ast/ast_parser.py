@@ -7,7 +7,7 @@ from pse.umlsl_editor.src.query.ast.crossing_node import CrossingSegmentNode
 from pse.umlsl_editor.src.query.ast.equality_node import EqualityCarNode
 from pse.umlsl_editor.src.query.ast.free_node import FreeNode
 from pse.umlsl_editor.src.query.ast.logic_node import ConjunctionNode, DisjunctionNode, NegationNode, TrueNode
-from pse.umlsl_editor.src.query.ast.quantor_node import ExistsNode
+from pse.umlsl_editor.src.query.ast.quantor_node import ExistsNode, ForallNode
 from pse.umlsl_editor.src.query.ast.reserve_node import ReserveNode
 from pse.umlsl_editor.src.query.lexer import Token, TokenType
 
@@ -138,23 +138,27 @@ class ASTParser:
         token = self._tokens[start]
         token_type = token.type
 
-        # todo: forall not parsed
-        if token_type == TokenType.EXITS:
+        if token_type.is_quantor_op:
             literal = self._tokens[start + 1]
             if literal.type != TokenType.LITERAL:
-                raise SyntaxError("Exits operator requires exactly one literal argument (i.e. \\exists c:)")
+                raise SyntaxError("Quantor operator requires exactly one literal argument (e.g. \\exists c: ...)")
             variable = literal.value()
             if variable in map(lambda car: car.name, self._cars):
-                raise SyntaxError(f"Variable {variable} is a car name and cannot be used in an exists expression")
+                raise SyntaxError(f"Variable {variable} is a car name and cannot be used as a variable name in a quantor")
             if variable in declared_variables:
                 raise SyntaxError(f"Variable {variable} declared twice in scope")
             colon = self._tokens[start + 2]
             if colon.type != TokenType.COLON:
-                raise SyntaxError("Exists operator requires ':' after car-variable (i.e. \\exists c:)")
+                raise SyntaxError("Quantor operator requires ':' after car-variable (e.g. \\exists c: ...)")
             new_declared_variables = declared_variables.copy()
             new_declared_variables.append(variable)
-            print("append new variable ", variable, " to scope: ", new_declared_variables,)
-            return ExistsNode(variable, self.parse_ast_rec(start + 3, end, new_declared_variables))
+            match token_type:
+                case TokenType.EXITS:
+                    return ExistsNode(variable, self.parse_ast_rec(start + 3, end, new_declared_variables))
+                case TokenType.FORALL:
+                    return ForallNode(variable, self.parse_ast_rec(start + 3, end, new_declared_variables))
+                case _:
+                    raise SyntaxError(f"Invalid quantor operator {token_type}")
         else:
             # first operand
             arg1_start = start + 1
