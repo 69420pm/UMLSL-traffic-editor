@@ -93,7 +93,35 @@ QSplitter::handle:vertical {
 QSplitter::handle:vertical:hover {
     background-color: #084D68; 
 }
-</string>
+
+/* --- Menu Bar Styling --- */
+QMenuBar {
+    background-color: #011C26;
+    color: #F9F9F9;
+}
+
+QMenuBar::item {
+    background-color: transparent;
+}
+
+QMenuBar::item:selected {
+    background-color: #084D68; /* Matches your button hover color */
+}
+
+/* --- Dropdown Menu Styling --- */
+QMenu {
+    background-color: #032F40; /* Slightly lighter than main window to stand out */
+    color: #F9F9F9;
+    border: 1px solid #084D68; /* Optional: adds a border to define the menu */
+}
+
+QMenu::item {
+    padding: 5px 20px; /* Gives the items some breathing room */
+}
+
+QMenu::item:selected {
+    background-color: #084D68; /* Hover color for menu items */
+}</string>
   </property>
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>false</bool>

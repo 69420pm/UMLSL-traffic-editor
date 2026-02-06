@@ -88,8 +88,12 @@ class EventController:
             data: The data associated with the event
         """
         # Route events to appropriate view methods
-        if event_type == SettingsEventType.CHANGE_BREAKING_ACCELERATION:
-            self._view.change_breaking_acceleration(data)
+        if event_type == SettingsEventType.CHANGE_BREAKING_DECELERATION:
+            # TODO: Reevaluate queries, update frontend
+            pass
+        elif event_type == SettingsEventType.CHANGE_MAX_ACCELERATION:
+            # TODO: Reevaluate queries, update frontend
+            pass
 
     def _on_umlsl_query_event(self, event_type: Enum, data) -> None:
         """

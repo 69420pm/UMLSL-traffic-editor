@@ -28,7 +28,7 @@ class ConjunctionNode(BinaryNode):
                 and self._right.evaluate(traffic_snapshot, view, variable_car_map))
 
     def _format(self, left: str, right: str) -> str:
-        return f"{left} \\land {right}"
+        return f"{left} \\wedge {right}"
 
 
 class DisjunctionNode(BinaryNode):
@@ -40,4 +40,4 @@ class DisjunctionNode(BinaryNode):
                 or self._right.evaluate(traffic_snapshot, view, variable_car_map))
 
     def _format(self, left: str, right: str) -> str:
-        return f"{left} \\lor {right}"
+        return f"{left} \\vee {right}"

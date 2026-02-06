@@ -1,12 +1,13 @@
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
-from pse.umlsl_editor.src.query.ast.ast import UnaryNode, ASTNode, View
+from pse.umlsl_editor.src.query.ast.ast import UnaryNode, ASTNode, View, Precedence
 
 
 class ExistsNode(UnaryNode):
     def __init__(self, variable: str, child: ASTNode):
         super().__init__(child)
         self._variable = variable
+        self._precedence = Precedence.UNARY_QUANTOR
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         # the AST parser guarantees that the variable is not already in the map
@@ -26,6 +27,7 @@ class ForallNode(UnaryNode):
     def __init__(self, variable: str, child: ASTNode):
         super().__init__(child)
         self._variable = variable
+        self._precedence = Precedence.UNARY_QUANTOR
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         # the AST parser guarantees that the variable is not already in the map

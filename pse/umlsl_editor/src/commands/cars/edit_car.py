@@ -31,7 +31,8 @@ class EditCarCommand(Command[None]):
         Edits the properties of the car with the specified unique identifier in the traffic snapshot.
 
         Raises:
-            CommandValidationError: If command validation fails.
+            CarValidationError: If car parameter validation fails.
+            CarTrafficSnapshotContextValidationError: If car is invalid in traffic snapshot context.
         """
         if not self._traffic_snapshot_reader.is_car_existing(self.car_uid):
             raise CarValidationError(content=f"Car with UID {self.car_uid} does not exist and cannot be edited.")

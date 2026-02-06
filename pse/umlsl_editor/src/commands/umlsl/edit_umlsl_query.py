@@ -1,5 +1,7 @@
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import (
+    UMLSLQueriesModel,
+)
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQueryParams
 
 
@@ -29,8 +31,7 @@ class EditUMLSLQuery(Command[None]):
         Edits the properties of the query with the specified unique identifier.
 
         Raises:
-            UMLSLQueriesValidationError: If the query does not exist.
+            UMLSLQueryValidationError: If the query does not exist or validation fails.
         """
-
         query = self.umlsl_queries_model.get_query_by_id(self.query_id)
         self.umlsl_queries_model.update_umlsl_query(query, self.umlsl_query_params)

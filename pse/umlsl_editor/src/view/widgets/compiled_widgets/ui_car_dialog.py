@@ -26,14 +26,14 @@ class Ui_Edit_Car_Dialog(object):
         if not Edit_Car_Dialog.objectName():
             Edit_Car_Dialog.setObjectName(u"Edit_Car_Dialog")
         Edit_Car_Dialog.setEnabled(True)
-        Edit_Car_Dialog.resize(320, 529)
+        Edit_Car_Dialog.resize(324, 529)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Edit_Car_Dialog.sizePolicy().hasHeightForWidth())
         Edit_Car_Dialog.setSizePolicy(sizePolicy)
-        Edit_Car_Dialog.setMinimumSize(QSize(320, 0))
-        Edit_Car_Dialog.setMaximumSize(QSize(320, 999999))
+        Edit_Car_Dialog.setMinimumSize(QSize(0, 0))
+        Edit_Car_Dialog.setMaximumSize(QSize(16777215, 999999))
         Edit_Car_Dialog.setStyleSheet(u"QDialog {\n"
 "    background-color: #011C26; \n"
 "}\n"
@@ -209,6 +209,7 @@ class Ui_Edit_Car_Dialog(object):
 "}")
         self.verticalLayout = QVBoxLayout(Edit_Car_Dialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
         self.widget = QWidget(Edit_Car_Dialog)
         self.widget.setObjectName(u"widget")
         self.General = QVBoxLayout(self.widget)
@@ -232,7 +233,8 @@ class Ui_Edit_Car_Dialog(object):
 
         self.widget1 = QWidget(self.widget)
         self.widget1.setObjectName(u"widget1")
-        self.widget1.setMinimumSize(QSize(75, 0))
+        self.widget1.setMinimumSize(QSize(300, 0))
+        self.widget1.setMaximumSize(QSize(300, 16777215))
         self.gridLayout = QGridLayout(self.widget1)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setSizeConstraint(QLayout.SizeConstraint.SetDefaultConstraint)
@@ -578,8 +580,6 @@ class Ui_Edit_Car_Dialog(object):
 
 
         self.retranslateUi(Edit_Car_Dialog)
-        self.b_delete.clicked.connect(Edit_Car_Dialog.reject)
-        self.b_save.clicked.connect(Edit_Car_Dialog.accept)
 
         self.d_direction.setCurrentIndex(0)
         self.b_save.setDefault(True)

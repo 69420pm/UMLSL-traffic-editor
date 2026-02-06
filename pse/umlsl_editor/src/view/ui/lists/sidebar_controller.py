@@ -10,6 +10,7 @@ import os
 from PySide6.QtCore import QObject, Qt, QUrl
 
 from pse.umlsl_editor.src.controllers import ApplicationController
+from pse.umlsl_editor.src.model.entities.entity import Entity
 from pse.umlsl_editor.src.view.ui.lists.edit_car_dialog import EditCarDialog
 from pse.umlsl_editor.src.view.ui.lists.edit_query_dialog import EditQueryDialog
 from pse.umlsl_editor.src.view.ui.lists.edit_road_dialog import EditRoadDialog
@@ -62,18 +63,37 @@ class SidebarController(QObject):
     def _setup_ui(self) -> None:
         """Configure button connections and initialize QML list views."""
         self._connect_add_buttons()
+        self._connect_edit_signals()
         self._setup_quick_widgets()
 
     def _connect_add_buttons(self) -> None:
         """Connect add buttons to their respective dialog handlers."""
         self._add_road_button.clicked.connect(
-            lambda: self._open_edit_dialog(EditRoadDialog)
+            lambda: self._open_edit_dialog(EditRoadDialog, None)
         )
         self._add_car_button.clicked.connect(
-            lambda: self._open_edit_dialog(EditCarDialog)
+            lambda: self._open_edit_dialog(EditCarDialog, None)
         )
         self._add_query_button.clicked.connect(
-            lambda: self._open_edit_dialog(EditQueryDialog)
+            lambda: self._open_edit_dialog(EditQueryDialog, None)
+        )
+
+    def _connect_edit_signals(self) -> None:
+        """Connect model edit_requested signals to dialog handlers."""
+        self._view_models.road_list_model.edit_requested.connect(
+            lambda row: self._open_edit_dialog(
+                EditRoadDialog, self._view_models.road_list_model.get_entity_at(row)
+            )
+        )
+        self._view_models.car_list_model.edit_requested.connect(
+            lambda row: self._open_edit_dialog(
+                EditCarDialog, self._view_models.car_list_model.get_entity_at(row)
+            )
+        )
+        self._view_models.query_list_model.edit_requested.connect(
+            lambda row: self._open_edit_dialog(
+                EditQueryDialog, self._view_models.query_list_model.get_entity_at(row)
+            )
         )
 
     def _setup_quick_widgets(self) -> None:
@@ -114,7 +134,7 @@ class SidebarController(QObject):
     ) -> None:
         """
         Configure a QML Quick Widget with the specified model and QML file.
- 
+
         Sets up transparency, resize behavior, and binds the data model
         to the QML context.
 
@@ -131,16 +151,20 @@ class SidebarController(QObject):
         quick_widget.rootContext().setContextProperty("data_model", model)
         quick_widget.setSource(QUrl.fromLocalFile(qml_file_path))
 
-    def _open_edit_dialog(self, dialog_class) -> None:
+    def _open_edit_dialog(self, dialog_class, entity: Entity | None) -> None:
         """
-        Open an edit dialog for creating a new entity.
+        Open an edit dialog for an existing entity.
 
         Args:
             dialog_class: The dialog class to instantiate (e.g., EditRoadDialog).
+            model: The entity list model containing the entity.
+            row: The row index of the entity to edit.
         """
+
         dialog = dialog_class(
-            None,
+            entity,
             parent=self._window,
             application_controller=self._application_controller,
         )
+        dialog.setAttribute(Qt.WA_DeleteOnClose)
         dialog.exec()

@@ -52,7 +52,7 @@ class HorizontalChopNode(BinaryNode):
         return iteration % 2 == 0
 
     def _format(self, left: str, right: str) -> str:
-        return f"{left} \\smallfrown {right}"
+        return f"{left} \\frown {right}"
 
 
 class VerticalChopNode(BinaryNode):
@@ -76,4 +76,4 @@ class VerticalChopNode(BinaryNode):
         return False
 
     def _format(self, left: str, right: str) -> str:
-        return f"_{left}^{right}"
+        return f"_{{{left}}}^{{{right}}}"

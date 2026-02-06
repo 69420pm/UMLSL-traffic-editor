@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 
+
 @dataclass(frozen=True, kw_only=True)
 class Lane:
     """Represents a lane on a road, this is an immutable data structure and should act like a tuple.
@@ -32,3 +33,6 @@ class Lane:
                 return road.position - self.lane_index * lane_width
             return road.position + (abs(self.lane_index)) * lane_width
         return road.position + self.lane_index * lane_width
+
+    def get_name(self) -> str:
+        return f"f{self.lane_index + 1}" if self.lane_index >= 0 else f"b{-self.lane_index}"

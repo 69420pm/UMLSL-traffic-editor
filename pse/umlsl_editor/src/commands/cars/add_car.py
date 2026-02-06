@@ -1,7 +1,11 @@
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
-from pse.umlsl_editor.src.model.entities.car import CarParams, Car
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import (
+    TrafficSnapshotReader,
+)
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import (
+    TrafficSnapshotWriter,
+)
+from pse.umlsl_editor.src.model.entities.car import Car, CarParams
 
 
 class AddCarCommand(Command[None]):
@@ -29,9 +33,10 @@ class AddCarCommand(Command[None]):
         """
         Creates a Car instance using the provided parameters, validates it through
         Car.__post_init__, and adds it to the traffic snapshot.
-        
+
         Raises:
-            CommandValidationError: If command validation fails.
+            CarValidationError: If car parameter validation fails.
+            CarTrafficSnapshotContextValidationError: If car is invalid in traffic snapshot context.
         """
         self._traffic_snapshot_reader.validate_car_params(self.car_params, True)
         car = Car.from_params(self.car_params, self._traffic_snapshot_reader)
