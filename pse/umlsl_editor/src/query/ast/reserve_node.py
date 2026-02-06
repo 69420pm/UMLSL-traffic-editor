@@ -9,7 +9,7 @@ from pse.umlsl_editor.src.query.ast.car_resolve import CarResolve
 
 class ReserveNode(AtomNode):
     def __init__(self, car_resolve: CarResolve):
-        super().__init__("re")
+        super().__init__(f"re\\left({car_resolve.name}\\right)")
         self._car_resolve = car_resolve
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
