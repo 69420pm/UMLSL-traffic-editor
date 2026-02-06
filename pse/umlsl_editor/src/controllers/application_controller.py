@@ -11,6 +11,7 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import Traf
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
+from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
 from pse.umlsl_editor.src.view.view_event_handler_impl import ViewEventHandlerImplementation
 from pse.umlsl_editor.src.view.view_models import ViewModels
 
@@ -42,7 +43,8 @@ class ApplicationController:
         self.command_controller = CommandController(traffic_snapshot_reader=self._model_traffic_snapshot,
                                                     traffic_snapshot_writer=self._model_traffic_snapshot,
                                                     settings_model=self._model_settings,
-                                                    umlsl_queries_model=self._model_umlsl_queries)
+                                                    umlsl_queries_model=self._model_umlsl_queries,
+                                                    application_controller=self)
         self.data_controller = DataController(traffic_snapshot_reader=self._model_traffic_snapshot)
 
     def get_traffic_snapshot_reader(self) -> TrafficSnapshotReader:
@@ -58,5 +60,31 @@ class ApplicationController:
         Args:
             traffic_snapshot: The new traffic snapshot model.
         """
+        self.replace_snapshot(traffic_snapshot, self._model_umlsl_queries)
+
+    def replace_snapshot(
+            self,
+            traffic_snapshot: TrafficSnapshotModel,
+            umlsl_queries: UMLSLQueriesModel
+    ) -> None:
+        """
+        Replace snapshot and queries across all controllers and emit a bulk reload event.
+
+        Args:
+            traffic_snapshot: The new traffic snapshot model.
+            umlsl_queries: The new UMLSL queries model.
+        """
         self._model_traffic_snapshot = traffic_snapshot
-        # self._view_event_handler.initialize_view()
+        self._model_umlsl_queries = umlsl_queries
+
+        self.command_controller.traffic_snapshot_reader = traffic_snapshot
+        self.command_controller.traffic_snapshot_writer = traffic_snapshot
+        self.command_controller.umlsl_queries_model = umlsl_queries
+
+        self.data_controller.replace_snapshot_reader(traffic_snapshot)
+        self.event_controller.replace_models(traffic_snapshot, umlsl_queries)
+
+        self._model_traffic_snapshot.notify(
+            TrafficSnapshotEventType.SNAPSHOT_RELOADED,
+            {"snapshot": traffic_snapshot, "queries": umlsl_queries},
+        )

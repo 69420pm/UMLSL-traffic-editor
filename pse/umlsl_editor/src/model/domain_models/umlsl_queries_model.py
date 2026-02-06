@@ -40,6 +40,10 @@ class UMLSLQueriesModel(Observable):
             raise UMLSLQueryValidationError(f"UMLSL Query with UID {uid} does not exist.")
         return self._queries[uid]
 
+    def get_queries(self) -> dict[str, UMLSLQuery]:
+        """Return all UMLSL queries as a plain dictionary."""
+        return dict(self._queries.__dict__())
+
     def add_umlsl_query(self, umlsl_query: UMLSLQuery) -> None:
         """
         Adds a UMLSL query to the snapshot and validates all attributes in the context of the snapshot.
@@ -64,35 +68,60 @@ class UMLSLQueriesModel(Observable):
         umlsl_query_data.update_from_params(query_params)
         self._queries[umlsl_query_data.uid] = umlsl_query_data
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> list[dict[str, Any]]:
         """
-        Serializes the UMLSL_queries instance to a dictionary suitable for JSON encoding.
+        Serializes the UMLSL_queries instance to a list of dictionaries suitable for JSON encoding.
         """
-        return self._queries.__dict__()
+        return [
+            {
+                "uid": query.uid,
+                "latex": query.latex,
+                "assigned_car_uid": query.assigned_car_uid,
+            }
+            for query in self._queries.__dict__().values()
+        ]
 
     def to_json(self) -> str:
         """
         Serializes the UMLSL_queries instance to a JSON string.
         """
-        raise NotImplementedError
+        import json
+        return json.dumps(self.to_dict(), indent=2)
 
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "UMLSLQuery":
+    def clear(self) -> None:
+        """Remove all queries."""
+        for query_id in list(self._queries.__dict__().keys()):
+            self._queries.pop(query_id)
+
+    def from_dict(self, data: list[dict[str, Any]]) -> None:
         """
-        Creates a UMLSL_queries instance from a dictionary.
+        Loads queries from a list of dictionaries.
 
         Args:
-            data: A dictionary containing the queries.
+            data: A list containing query dictionaries.
         """
-        raise NotImplementedError
+        if not isinstance(data, list):
+            raise ValueError("Queries payload must be a list.")
+        self.clear()
+        for entry in data:
+            if not isinstance(entry, dict):
+                raise ValueError("Each query must be a dictionary.")
+            params = UMLSLQueryParams(
+                latex=entry["latex"],
+                assigned_car_uid=entry["assigned_car_uid"],
+            )
+            query = UMLSLQuery.from_params(params)
+            if "uid" in entry:
+                query.uid = entry["uid"]
+            self.add_umlsl_query(query)
 
-    @classmethod
-    def from_json(cls, json_string: str) -> "UMLSLQuery":
+    def from_json(self, json_string: str) -> None:
         """
-        Creates a UMLSLQuery instance from a JSON string.
+        Loads queries from a JSON string.
 
         Args:
             json_string: A JSON-formatted string containing umlsl query data.
-
         """
-        raise NotImplementedError
+        import json
+        data = json.loads(json_string)
+        self.from_dict(data)

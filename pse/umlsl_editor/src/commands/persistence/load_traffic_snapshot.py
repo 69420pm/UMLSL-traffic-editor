@@ -1,11 +1,19 @@
-from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.controllers import ApplicationController
+import json
+from typing import TYPE_CHECKING
+
+from pse.umlsl_editor.src.commands.command import Command, CommandValidationError
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
+from pse.umlsl_editor.src.services.persistence_service import PersistenceService
+
+if TYPE_CHECKING:
+    from pse.umlsl_editor.src.controllers import ApplicationController
 
 
 class LoadTrafficSnapshot(Command[None]):
     """Loads a traffic_snapshot from a specified file path and updates the application controller's traffic snapshot,
     which in turn basically reloads the program with the new traffic_snapshot."""
-    def __init__(self, file_path: str, application_controller: ApplicationController):
+    def __init__(self, file_path: str, application_controller: "ApplicationController"):
         self._file_path = file_path
         self._application_controller = application_controller
 
@@ -16,4 +24,31 @@ class LoadTrafficSnapshot(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        pass
+        if not self._file_path:
+            raise CommandValidationError("File path is required to load a snapshot.")
+
+        try:
+            with open(self._file_path, "r", encoding="utf-8") as file:
+                raw_data = file.read()
+        except OSError as exc:
+            raise CommandValidationError(f"Failed to open snapshot: {exc}") from exc
+
+        try:
+            payload = json.loads(raw_data)
+        except json.JSONDecodeError as exc:
+            raise CommandValidationError(f"Invalid JSON format: {exc}") from exc
+
+        new_snapshot = TrafficSnapshotModel()
+        new_queries = UMLSLQueriesModel()
+
+        try:
+            PersistenceService.deserialize(
+                payload,
+                new_snapshot,
+                new_snapshot,
+                new_queries,
+            )
+        except ValueError as exc:
+            raise CommandValidationError(f"Failed to deserialize snapshot: {exc}") from exc
+
+        self._application_controller.replace_snapshot(new_snapshot, new_queries)

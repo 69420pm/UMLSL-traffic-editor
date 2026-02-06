@@ -109,6 +109,18 @@ class EntityModel(QAbstractListModel):
         self._data.remove(entity)
         self.endRemoveRows()
 
+    def clear_all(self) -> None:
+        """
+        Remove all entities from the model in a single reset.
+        """
+        if not self._data:
+            return
+
+        self.beginResetModel()
+        self._data.clear()
+        self._selected_uid = ""
+        self.endResetModel()
+
     def update_entity(self, entity: Entity) -> None:
         """
         Notify that an entity's data has changed.

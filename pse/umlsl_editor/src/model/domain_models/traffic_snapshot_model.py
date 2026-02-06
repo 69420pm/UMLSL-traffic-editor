@@ -1,3 +1,4 @@
+import json
 from typing import Any
 
 import networkx as nx
@@ -28,7 +29,7 @@ from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment impo
     LaneSegment,
 )
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
-from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnDirection
+from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnDirection, TurnIntent
 from pse.umlsl_editor.src.view.view_constants import DIMENSION
 
 
@@ -541,26 +542,173 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         """
         Serializes the TrafficSnapshot instance to a dictionary suitable for JSON encoding.
         """
-        raise NotImplementedError
+        roads_data: list[dict[str, Any]] = []
+        for road in self.get_roads().values():
+            roads_data.append({
+                "uid": road.uid,
+                "name": road.name,
+                "orientation": road.orientation.name,
+                "position": road.position,
+                "number_of_forward_lanes": road.number_of_forward_lanes,
+                "number_of_backward_lanes": road.number_of_backward_lanes,
+            })
+
+        cars_data: list[dict[str, Any]] = []
+        for car in self.get_car_list():
+            car_payload: dict[str, Any] = {
+                "uid": car.uid,
+                "name": car.name,
+                "road_uid": car.lane.road_uid,
+                "lane_index": car.lane.lane_index,
+                "position_on_lane": car.position_on_lane,
+                "transition": car.transition,
+                "speed": car.speed,
+                "length": car.length,
+                "color": car.color,
+                "acceleration": car.acceleration,
+            }
+
+            if car.next_turn is not None:
+                car_payload["next_turn"] = {
+                    "direction": car.next_turn.direction.name,
+                    "target_lane": {
+                        "road_uid": car.next_turn.target_lane.road_uid,
+                        "lane_index": car.next_turn.target_lane.lane_index,
+                    },
+                }
+            else:
+                car_payload["next_turn"] = None
+
+            cars_data.append(car_payload)
+
+        return {"roads": roads_data, "cars": cars_data}
 
     def to_json(self) -> str:
         """
         Serializes the TrafficSnapshot instance to a JSON string.
         """
-        raise NotImplementedError
+        return json.dumps(self.to_dict(), indent=2)
 
     def debug_get_segments(self) -> dict[str, Segment]:
         return self._segments
 
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "TrafficSnapshotModel":
+    @staticmethod
+    def from_dict(
+            data: dict[str, Any],
+            writer: TrafficSnapshotWriter,
+            reader: TrafficSnapshotReader,
+    ) -> "TrafficSnapshotModel":
         """
         Creates a TrafficSnapshot instance from a dictionary.
 
         Args:
             data: A dictionary containing 'roads' and 'cars' keys.
         """
-        raise NotImplementedError
+        if not isinstance(data, dict):
+            raise ValueError("Traffic snapshot data must be a dictionary.")
+
+        roads_data = data.get("roads", [])
+        cars_data = data.get("cars", [])
+
+        if not isinstance(roads_data, list):
+            raise ValueError("Traffic snapshot 'roads' must be a list.")
+        if not isinstance(cars_data, list):
+            raise ValueError("Traffic snapshot 'cars' must be a list.")
+
+        for road_data in roads_data:
+            if not isinstance(road_data, dict):
+                raise ValueError("Each road must be a dictionary.")
+
+            orientation_raw = road_data.get("orientation")
+            if isinstance(orientation_raw, RoadOrientation):
+                orientation = orientation_raw
+            elif isinstance(orientation_raw, str):
+                orientation = RoadOrientation[orientation_raw]
+            else:
+                orientation = RoadOrientation(orientation_raw)
+
+            road_params = RoadParams(
+                name=road_data["name"],
+                orientation=orientation,
+                position=road_data["position"],
+                number_of_forward_lanes=road_data["number_of_forward_lanes"],
+                number_of_backward_lanes=road_data["number_of_backward_lanes"],
+            )
+            reader.validate_road_params(road_params, True)
+
+            road_uid = road_data.get("uid")
+            if not road_uid:
+                raise ValueError("Road uid is required.")
+            forward_lanes = [
+                Lane(lane_index=i, road_uid=road_uid)
+                for i in range(road_params.number_of_forward_lanes)
+            ]
+            backward_lanes = [
+                Lane(lane_index=-(i + 1), road_uid=road_uid)
+                for i in range(road_params.number_of_backward_lanes)
+            ]
+            road = Road(
+                uid=road_uid,
+                name=road_params.name,
+                orientation=road_params.orientation,
+                position=road_params.position,
+                number_of_forward_lanes=road_params.number_of_forward_lanes,
+                number_of_backward_lanes=road_params.number_of_backward_lanes,
+                forward_lanes=forward_lanes,
+                backward_lanes=backward_lanes,
+            )
+
+            writer.add_road(road)
+
+        for car_data in cars_data:
+            if not isinstance(car_data, dict):
+                raise ValueError("Each car must be a dictionary.")
+
+            lane = Lane(
+                road_uid=car_data["road_uid"],
+                lane_index=car_data["lane_index"],
+            )
+
+            next_turn_data = car_data.get("next_turn")
+            next_turn = None
+            if isinstance(next_turn_data, dict):
+                direction_raw = next_turn_data.get("direction")
+                if isinstance(direction_raw, TurnDirection):
+                    direction = direction_raw
+                elif isinstance(direction_raw, str):
+                    direction = TurnDirection[direction_raw]
+                else:
+                    direction = TurnDirection(direction_raw)
+
+                target_lane_data = next_turn_data.get("target_lane", {})
+                if isinstance(target_lane_data, dict) and "road_uid" in target_lane_data and "lane_index" in target_lane_data:
+                    target_lane = Lane(
+                        road_uid=target_lane_data["road_uid"],
+                        lane_index=target_lane_data["lane_index"],
+                    )
+                    next_turn = TurnIntent(direction=direction, target_lane=target_lane)
+
+            car_params = CarParams(
+                name=car_data["name"],
+                lane=lane,
+                color=car_data["color"],
+                position_on_lane=car_data["position_on_lane"],
+                transition=car_data.get("transition", 0.0),
+                speed=car_data["speed"],
+                length=car_data["length"],
+                next_turn=next_turn,
+                acceleration=car_data.get("acceleration", 0.0),
+            )
+            reader.validate_car_params(car_params, True)
+
+            car = Car.from_params(car_params, reader)
+            car_uid = car_data.get("uid")
+            if not car_uid:
+                raise ValueError("Car uid is required.")
+            car.uid = car_uid
+            writer.add_car(car)
+
+        return writer if isinstance(writer, TrafficSnapshotModel) else None
 
     @classmethod
     def from_json(cls, json_string: str) -> "TrafficSnapshotModel":
@@ -571,7 +719,10 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             json_string: A JSON-formatted string containing traffic snapshot data.
 
         """
-        raise NotImplementedError
+        data = json.loads(json_string)
+        snapshot = cls()
+        cls.from_dict(data, snapshot, snapshot)
+        return snapshot
 
     def print_segments_by_lane(self):
         for lane, segment_uids in self._segments_by_lane.items():

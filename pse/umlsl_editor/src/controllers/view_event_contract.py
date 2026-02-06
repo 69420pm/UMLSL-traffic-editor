@@ -1,5 +1,6 @@
 """Interface for handling view events from the event controller."""
 from abc import abstractmethod
+from typing import Any
 
 from PySide6.QtCore import SignalInstance, QObject
 
@@ -107,6 +108,17 @@ class ViewEventHandler(QObject):
 
         Args:
             query: The UMLSL query that was updated.
+        """
+        pass
+
+    @abstractmethod
+    def on_snapshot_reloaded(self, snapshot: Any, queries: Any) -> None:
+        """
+        Handle a bulk snapshot reload event.
+
+        Args:
+            snapshot: The new traffic snapshot model.
+            queries: The new UMLSL queries model.
         """
         pass
 

@@ -22,6 +22,12 @@ class DataController:
         """
         self._traffic_snapshot_reader = traffic_snapshot_reader
 
+    def replace_snapshot_reader(self, traffic_snapshot_reader: TrafficSnapshotReader) -> None:
+        """
+        Replace the underlying traffic snapshot reader (used during bulk reloads).
+        """
+        self._traffic_snapshot_reader = traffic_snapshot_reader
+
     def get_all_cars(self) -> dict[str, "Car"]:
         return self._traffic_snapshot_reader.get_cars()
 
