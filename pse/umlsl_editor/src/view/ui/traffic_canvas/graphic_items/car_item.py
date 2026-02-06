@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 class CarItemStyle:
     """Constants and styling configuration for the CarItem."""
-    PEN_WIDTH = 0.1
+    PEN_WIDTH = 0.07
     HOVER_LIGHTNESS = 110
     LABEL_SCALE_THRESHOLD = DIMENSION.GRID_FINE_THRESHOLD
 
@@ -132,14 +132,15 @@ class CarItem(SelectableGraphicsItem):
         self.set_movement_constraint(constraint)
 
         # Color calculation
-        base_color = QColor(self._car.color)
-        display_color = base_color.lighter() if self.is_selected else base_color
+        car_color = QColor(self._car.color)
 
         if self.is_hovered:
-            display_color = display_color.lighter(CarItemStyle.HOVER_LIGHTNESS)
+            car_color = car_color.lighter(CarItemStyle.HOVER_LIGHTNESS)
 
-        self._body_brush = QBrush(display_color)
-        self._body_pen = QPen(display_color.lighter(), CarItemStyle.PEN_WIDTH)
+        border_color = COLORS.TEXT if self.is_selected else COLORS.TRANSPARENT
+
+        self._body_brush = QBrush(car_color)
+        self._body_pen = QPen(border_color, CarItemStyle.PEN_WIDTH)
 
     # -------------------------------------------------------------------------
     # SelectableGraphicsItem Lifecycle Hooks

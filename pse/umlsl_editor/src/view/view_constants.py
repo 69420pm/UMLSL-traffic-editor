@@ -27,7 +27,7 @@ class _Dimension:
     # Lane and car dimensions (in scene units)
     LANE_WIDTH: float = 1.0
 
-    CAR_WIDTH: float = 0.7
+    CAR_WIDTH: float = 0.6
     CAR_TRIANGLE_LENGTH: float = 0.4
 
     # Scene configuration
