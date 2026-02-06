@@ -1,7 +1,9 @@
-from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.controllers import ApplicationController
+import json
+
+from pse.umlsl_editor.src.commands.command import Command, CommandValidationError
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
+from pse.umlsl_editor.src.services.persistence_service import PersistenceService
 
 
 class SaveAsTrafficSnapshot(Command[None]):
@@ -27,4 +29,19 @@ class SaveAsTrafficSnapshot(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        raise NotImplementedError
+        if not self._file_path:
+            raise CommandValidationError("File path is required to save a snapshot.")
+
+        try:
+            payload = PersistenceService.serialize(
+                snapshot=self._traffic_snapshot_reader,
+                queries=self._umlsl_queries,
+            )
+        except ValueError as exc:
+            raise CommandValidationError(f"Failed to serialize snapshot: {exc}") from exc
+
+        try:
+            with open(self._file_path, "w", encoding="utf-8") as file:
+                json.dump(payload, file, indent=2)
+        except OSError as exc:
+            raise CommandValidationError(f"Failed to save snapshot: {exc}") from exc

@@ -39,16 +39,16 @@ class QueryListModel(EntityModel):
             return None
 
         query = self._data[index.row()]
-        ego_car = self._application_controller.data_controller.get_all_cars()[query.assigned_car_uid]
+        ego_car = self._application_controller.data_controller.get_all_cars().get(query.assigned_car_uid)
 
         if role == QueryListModel.QueryRole:
             return str(query.latex)
         elif role == QueryListModel.IsValidRole:
             return bool(query.validation)
         elif role == QueryListModel.EgoCarNameRole:
-            return str(ego_car.name)
+            return str(ego_car.name) if ego_car else ""
         elif role == QueryListModel.EgoCarColorRole:
-            return str(ego_car.color)
+            return str(ego_car.color) if ego_car else ""
         elif role == QueryListModel.LatexImageSourceRole:
             # Convert the query's latex input to rendered LaTeX and create image URL
             try:

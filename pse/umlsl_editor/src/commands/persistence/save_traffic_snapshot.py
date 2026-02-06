@@ -1,19 +1,24 @@
-from pse.umlsl_editor.src.commands.command import Command
+import json
+
+from pse.umlsl_editor.src.commands.command import Command, CommandValidationError
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
+from pse.umlsl_editor.src.services.persistence_service import PersistenceService
 
 
 class SaveTrafficSnapshot(Command[None]):
     """Saves the current traffic snapshot to its associated file path, where a traffic_snapshot is already stored."""
 
-    def __init__(self, traffic_snapshot_reader: TrafficSnapshotReader, umlsl_queries: UMLSLQueriesModel):
+    def __init__(self, file_path: str, traffic_snapshot_reader: TrafficSnapshotReader, umlsl_queries: UMLSLQueriesModel):
         """
         Initialize the SaveTrafficSnapshot command.
 
         Args:
+            file_path: The path where the traffic snapshot will be saved.
             traffic_snapshot_reader: The traffic snapshot reader for the current application.
             umlsl_queries: The UMLSL queries interface for accessing UMLSL-related data.
         """
+        self._file_path = file_path
         self._traffic_snapshot_reader = traffic_snapshot_reader
         self._umlsl_queries = umlsl_queries
 
@@ -24,4 +29,19 @@ class SaveTrafficSnapshot(Command[None]):
         Raises:
             CommandValidationError: If command validation fails.
         """
-        raise NotImplementedError
+        if not self._file_path:
+            raise CommandValidationError("No snapshot file path is set. Use Save As first.")
+
+        try:
+            payload = PersistenceService.serialize(
+                snapshot=self._traffic_snapshot_reader,
+                queries=self._umlsl_queries,
+            )
+        except ValueError as exc:
+            raise CommandValidationError(f"Failed to serialize snapshot: {exc}") from exc
+
+        try:
+            with open(self._file_path, "w", encoding="utf-8") as file:
+                json.dump(payload, file, indent=2)
+        except OSError as exc:
+            raise CommandValidationError(f"Failed to save snapshot: {exc}") from exc

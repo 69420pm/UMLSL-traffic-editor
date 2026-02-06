@@ -25,7 +25,7 @@ class UMLSLQuery(Entity):
     Attributes:
         uid (str): The unique identifier of the UMLSL query.
         latex (str): The UMLSL query in LaTeX format.
-        assigned_car_name (str): The name of the car associated with the query.
+        assigned_car_uid (str): The name of the car associated with the query.
         validation (bool): A flag indicating whether the query is true of false in the current context.
 
     Raises:

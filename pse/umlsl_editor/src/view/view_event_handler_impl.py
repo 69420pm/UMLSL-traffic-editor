@@ -61,6 +61,31 @@ class ViewEventHandlerImplementation(ViewEventHandler):
     def update_query_view(self, query: UMLSLQuery) -> None:
         self.view_models.query_list_model.update_entity(query)
 
+    def on_snapshot_reloaded(self, snapshot, queries=None) -> None:
+        if queries is None and isinstance(snapshot, dict):
+            snapshot_model = snapshot.get("snapshot")
+            queries_model = snapshot.get("queries")
+        else:
+            snapshot_model = snapshot
+            queries_model = queries
+
+        if snapshot_model is None or queries_model is None:
+            return
+
+        self.view_models.car_list_model.clear_all()
+        self.view_models.road_list_model.clear_all()
+        self.view_models.query_list_model.clear_all()
+
+        for road in snapshot_model.get_roads().values():
+            self.view_models.road_list_model.add_entity(road)
+        for car in snapshot_model.get_cars().values():
+            self.view_models.car_list_model.add_entity(car)
+        for query in queries_model.get_queries().values():
+            self.view_models.query_list_model.add_entity(query)
+
+        self.current_selected_uid = ""
+        self.selection_changed.emit(self.current_selected_uid)
+
     def set_coordinate_system(self, render_coordinate_system: bool) -> None:
         self.should_render_coordinate_system = render_coordinate_system
         self.toggle_coordinate_system_signal.emit(render_coordinate_system)

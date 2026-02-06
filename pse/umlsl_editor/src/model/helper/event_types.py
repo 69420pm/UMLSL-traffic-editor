@@ -10,6 +10,7 @@ class TrafficSnapshotEventType(Enum):
     ROAD_ADDED = auto()
     ROAD_REMOVED = auto()
     ROAD_UPDATED = auto()
+    SNAPSHOT_RELOADED = auto()
     CROSSING_SEGMENT_ADDED = auto()
     CROSSING_SEGMENT_REMOVED = auto()
     CROSSING_SEGMENT_UPDATED = auto()

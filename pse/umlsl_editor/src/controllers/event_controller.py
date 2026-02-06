@@ -47,6 +47,23 @@ class EventController:
         self._settings.attach(self._on_settings_event)
         self._umlsl_queries.attach(self._on_umlsl_query_event)
 
+    def replace_models(
+            self,
+            traffic_snapshot: TrafficSnapshotModel,
+            umlsl_queries: UMLSLQueriesModel
+    ) -> None:
+        """
+        Swap the underlying models and rewire event listeners.
+        """
+        self._traffic_snapshot.detach(self._on_traffic_snapshot_event)
+        self._umlsl_queries.detach(self._on_umlsl_query_event)
+
+        self._traffic_snapshot = traffic_snapshot
+        self._umlsl_queries = umlsl_queries
+
+        self._traffic_snapshot.attach(self._on_traffic_snapshot_event)
+        self._umlsl_queries.attach(self._on_umlsl_query_event)
+
     def _on_traffic_snapshot_event(self, event_type: Enum, data) -> None:
         """
         Handle events from the traffic snapshot model.
@@ -68,6 +85,12 @@ class EventController:
             self._view.remove_road_view(data)
         elif event_type == TrafficSnapshotEventType.ROAD_UPDATED:
             self._view.update_road_view(data)
+        elif event_type == TrafficSnapshotEventType.SNAPSHOT_RELOADED:
+            if hasattr(self._view, "on_snapshot_reloaded"):
+                if isinstance(data, dict):
+                    self._view.on_snapshot_reloaded(data.get("snapshot"), data.get("queries"))
+                else:
+                    self._view.on_snapshot_reloaded(data, None)
         # elif event_type == TrafficSnapshotEventType.CROSSING_SEGMENT_ADDED:
         #     self._view.add_crossing_segment_view(data)
         # elif event_type == TrafficSnapshotEventType.CROSSING_SEGMENT_REMOVED:

@@ -68,11 +68,26 @@ class TrafficScene(QGraphicsScene):
         self._car_model.rowsInserted.connect(self._on_cars_added)
         self._car_model.rowsAboutToBeRemoved.connect(self._on_cars_removed)
         self._car_model.dataChanged.connect(self._on_car_data_changed)
+        self._car_model.modelReset.connect(self._on_models_reset)
 
         # Roads
         self._road_model.rowsInserted.connect(self._on_roads_added)
         self._road_model.rowsAboutToBeRemoved.connect(self._on_roads_removed)
         self._road_model.dataChanged.connect(self._on_road_data_changed)
+        self._road_model.modelReset.connect(self._on_models_reset)
+
+    def _on_models_reset(self) -> None:
+        """Clear all rendered items when list models reset."""
+        for item in list(self._item_registry.values()):
+            if isinstance(item, CarItem):
+                item.cleanup()
+            elif isinstance(item, RoadItem):
+                for listener in list(item.position_listeners):
+                    if isinstance(listener, CrossingItem):
+                        self._remove_crossing(listener)
+        self.clear()
+        self._item_registry.clear()
+        self._debug_registry.clear()
 
     # -------------------------------------------------------------------------
     # Car Model Handlers

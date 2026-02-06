@@ -3,11 +3,12 @@ Global controls for the UMLSL Traffic Editor.
 
 Handles global UI actions such as save, open, and settings from the main menu bar.
 """
-import warnings
-
 from PySide6.QtCore import QObject
+from PySide6.QtWidgets import QFileDialog
 
+from pse.umlsl_editor.src.commands.command import CommandValidationError
 from pse.umlsl_editor.src.controllers import ApplicationController
+from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.settings.settings_dialog import SettingsDialog
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_main import Ui_MainWindow
 
@@ -54,19 +55,38 @@ class GlobalControls(QObject):
 
     def _on_save(self) -> None:
         """Check if the current snapshot can be saved."""
-        warnings.warn("Save functionality not yet implemented.", UserWarning)
-        """Else, save as"""
-        # self._on_save_as()
+        try:
+            self.application_controller.command_controller.save_traffic_snapshot()
+        except CommandValidationError as exc:
+            WarningDialog("Save Error", str(exc), self._window).exec()
 
     def _on_save_as(self) -> None:
-        warnings.warn("Save As functionality not yet implemented.", UserWarning)
-
-        # file_name, _ = QFileDialog.getSaveFileName(None, "Save current snapshot", "", ".json Files (*.json)")
+        file_name, _ = QFileDialog.getSaveFileName(
+            None,
+            "Save current snapshot",
+            "",
+            "JSON Files (*.json)"
+        )
+        if not file_name:
+            return
+        try:
+            self.application_controller.command_controller.save_as_traffic_snapshot(file_name)
+        except CommandValidationError as exc:
+            WarningDialog("Save Error", str(exc), self._window).exec()
 
     def _on_open(self) -> None:
-        warnings.warn("Open functionality not yet implemented.", UserWarning)
-
-        # file_name, _ = QFileDialog.getOpenFileName(None, "Open new snapshot", "", ".json Files (*.json)")
+        file_name, _ = QFileDialog.getOpenFileName(
+            None,
+            "Open new snapshot",
+            "",
+            "JSON Files (*.json)"
+        )
+        if not file_name:
+            return
+        try:
+            self.application_controller.command_controller.load_traffic_snapshot(file_name)
+        except CommandValidationError as exc:
+            WarningDialog("Open Error", str(exc), self._window).exec()
 
     def _on_open_settings(self) -> None:
         """Open the application settings dialog."""
