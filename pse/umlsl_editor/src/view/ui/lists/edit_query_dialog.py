@@ -295,9 +295,8 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         err = html.escape(user_input[error.scope_start: error.scope_end])
         post_err = html.escape(user_input[error.scope_end:])
 
-
-        caret_indent = " " * e.scope_start
-        caret_marker = "^" * (e.scope_end - e.scope_start)
+        caret_indent = " " * error.scope_start
+        caret_marker = "^" * (error.scope_end - error.scope_start)
         caret_line = caret_indent + caret_marker
 
         error_html = (
@@ -312,20 +311,20 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         if error.help is not None:
             error_html += f'<span style="color: red;">Help: {error.help}.</span>'
 
-        error_html += "</div>"
+            error_html += "</div>"
 
-            latex_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
-            latex_label.setText(error_html)
+            self.l_preview.setAlignment(Qt.AlignmentFlag.AlignLeft)
+            self.l_preview.setText(error_html)
             return
 
-        max_width = latex_label.width() * 0.95
+        max_width = self.l_preview.width() * 0.95
         try:
-            pixmap = latex_to_pixmap(latex_code, font_size=20, color="#FFFFFF", max_width=max_width)
-            latex_label.setPixmap(pixmap)
-            latex_label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
-            latex_label.setScaledContents(False)
+            pixmap = latex_to_pixmap(self.l_preview, font_size=20, color="#FFFFFF", max_width=max_width)
+            self.l_preview.setPixmap(pixmap)
+            self.l_preview.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+            self.l_preview.setScaledContents(False)
         except Exception as e:
-            latex_label.setText("Error converting LaTeX to image")
+            self.l_preview.setText("Error converting LaTeX to image")
             print(e)
 
     def _on_delete_clicked(self) -> None:
