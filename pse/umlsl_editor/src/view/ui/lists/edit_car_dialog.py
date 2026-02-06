@@ -26,7 +26,6 @@ from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_car_dialog import (
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
-    from pse.umlsl_editor.src.model.traffic_value_objects.road import Road
 
 # Default values for new cars
 DEFAULT_CAR_CONFIG = {

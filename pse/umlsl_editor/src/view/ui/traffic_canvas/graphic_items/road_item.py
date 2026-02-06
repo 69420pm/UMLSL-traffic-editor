@@ -17,6 +17,8 @@ from PySide6.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 # Resource import (prevent unused import linters from removing it)
 import pse.umlsl_editor.src.view.widgets.qt_widgets.resources_rc as rc  # noqa: F401
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation
+from pse.umlsl_editor.src.model.errors.road_errors import RoadValidationError, RoadTrafficSnapshotContextValidationError
+from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.selectable_graphics_item import (
     SelectableGraphicsItem,
 )
@@ -155,10 +157,20 @@ class RoadItem(SelectableGraphicsItem):
         else:
             new_position = self._road.position + delta_x
 
-        self.application_controller.command_controller.update_road(
-            road=self._road,
-            position=new_position,
-        )
+        try:
+            self.application_controller.command_controller.update_road(
+                road=self._road,
+                position=new_position,
+            )
+        except (RoadValidationError, RoadTrafficSnapshotContextValidationError) as e:
+            view = self.scene().views()[0] if self.scene().views() else None
+
+            dialog = WarningDialog(
+                "Cannot Move Road",
+                str(e),
+                view,
+            )
+            dialog.exec()
 
     # -------------------------------------------------------------------------
     # Position Listeners (Observer Pattern)
