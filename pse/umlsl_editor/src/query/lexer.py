@@ -164,9 +164,4 @@ class Lexer:
             if len(literal_text) != 0 and literal_text != " ":
                 tokens.append(Literal(literal_text, last_pos, len(input)))
 
-        for token in tokens:
-            token_text = input[token.start_index:token.end_index]
-            print("token ", token.__str__(), " has input '", token_text, "' indices: ", token.start_index,
-                  token.end_index)
-
         return tokens

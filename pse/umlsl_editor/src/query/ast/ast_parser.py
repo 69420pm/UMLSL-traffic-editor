@@ -26,9 +26,8 @@ class ASTParser:
         if start > end:
             raise ASTParserError(
                 "expected expression here",
-                start,
-                start,
-                "Consider adding an expression at the end"
+                min(start, end + 1),
+                start
             )
 
         tokens = self._tokens
@@ -80,18 +79,18 @@ class ASTParser:
         if not (start < split_index < end <= len(self._tokens) - 1):
             if not start < split_index:
                 raise ASTParserError(
-                    f"missing first operand",
+                    f"missing first argument",
                     start,
                     split_index,
-                    f"Consider adding the argument before '{token_type.value}'"
+                    f"Consider adding an argument before '{token_type.value}'"
                 )
             else:
                 scope_end = len(self._tokens) if end == len(self._tokens) - 1 else end
                 raise ASTParserError(
-                    f"missing second operand",
+                    f"missing second argument",
                     split_index,
                     scope_end,
-                    f"Consider adding the argument after the operator '{token_type.value}'"
+                    f"Consider adding an argument after '{token_type.value}'"
                 )
 
         if token_type == TokenType.CAR_EQUALS:
@@ -231,6 +230,13 @@ class ASTParser:
                     raise NotImplementedError(f"Unknown binary operator {token_type}")
 
     def find_closing_argument_index(self, start_index: int, end_index: int) -> int:
+        if start_index >= end_index:
+            raise ASTParserError(
+                "expected arguments here",
+                min(start_index, end_index + 1),
+                start_index
+            )
+
         parentheses_depth = 0
         for i in range(start_index, end_index + 1):
             token = self._tokens[i]
