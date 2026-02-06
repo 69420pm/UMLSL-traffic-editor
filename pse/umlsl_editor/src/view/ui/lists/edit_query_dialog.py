@@ -3,19 +3,23 @@ Edit query dialog for the UMLSL Traffic Editor.
 
 Provides a dialog window for creating and editing query entities.
 """
+import html
 
 from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QDialog
+from PySide6.QtGui import QResizeEvent, Qt
+from PySide6.QtWidgets import QDialog, QLabel
 
 from pse.umlsl_editor.src.model.errors.umlsl_query_errors import (
     UMLSLQueryValidationError,
 )
+from pse.umlsl_editor.src.query.evaluator import UMLSLEvaluator, ParserError
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.lists.confirm_deletion_dialog import (
     ConfirmDeletionDialog,
 )
+from pse.umlsl_editor.src.view.ui.lists.latex_renderer import latex_to_pixmap
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
