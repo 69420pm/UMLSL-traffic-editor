@@ -7,11 +7,11 @@ for display in QML list views.
 
 from urllib.parse import unquote
 
-from PySide6.QtCore import QSize
-from PySide6.QtGui import QPixmap
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtQuick import QQuickImageProvider
 
-from pse.umlsl_editor.src.view.ui.lists.latex_renderer import latex_to_pixmap
+from pse.umlsl_editor.src.view.ui.lists.latex_renderer import latex_to_bytes
 
 
 class LatexImageProvider(QQuickImageProvider):
@@ -47,7 +47,7 @@ class LatexImageProvider(QQuickImageProvider):
         # URL-decode the LaTeX string (Qt does not auto-decode image provider IDs)
         latex_string = unquote(id)
 
-        # Use requested size as max dimensions, or default to 150x36
+        # Use requested size as max dimensions, or default to 200x36
         max_width = requestedSize.width() if requestedSize.width() > 0 else 200
         max_height = requestedSize.height() if requestedSize.height() > 0 else 36
 
@@ -55,15 +55,14 @@ class LatexImageProvider(QQuickImageProvider):
         cache_key = f"{latex_string}_{max_width}_{max_height}"
 
         if cache_key not in self._cache:
-            # Render the LaTeX to a pixmap
+            # Render the LaTeX to bytes, then convert to pixmap
             try:
-                pixmap = latex_to_pixmap(
+                image_bytes = latex_to_bytes(
                     latex_string,
                     font_size=10,
                     color="#FFFFFF",
-                    max_width=max_width,
-                    max_height=max_height,
                 )
+                pixmap = self._bytes_to_pixmap(image_bytes, max_width, max_height)
             except Exception:
                 pixmap = QPixmap()
             self._cache[cache_key] = pixmap
@@ -72,6 +71,83 @@ class LatexImageProvider(QQuickImageProvider):
 
         if pixmap.isNull():
             return QPixmap()
+
+        return pixmap
+
+    def _bytes_to_pixmap(
+            self,
+            image_bytes: bytes,
+            max_width: int | None,
+            max_height: int | None,
+    ) -> QPixmap:
+        """
+        Convert image bytes to a QPixmap, scaled to fit within max dimensions.
+
+        Args:
+            image_bytes: The PNG image data.
+            max_width: Maximum width. If None, no width limit.
+            max_height: Maximum height. If None, no height limit.
+
+        Returns:
+            The scaled pixmap, or an empty pixmap on error.
+        """
+        if not image_bytes:
+            return QPixmap()
+
+        qimg = QImage.fromData(image_bytes)
+        if qimg.isNull():
+            return QPixmap()
+
+        pixmap = QPixmap.fromImage(qimg)
+        return self._scale_pixmap_to_fit(pixmap, max_width, max_height)
+
+    def _scale_pixmap_to_fit(
+            self,
+            pixmap: QPixmap,
+            max_width: int | None,
+            max_height: int | None,
+    ) -> QPixmap:
+        """
+        Scale a pixmap to fit within the given max dimensions while preserving aspect ratio.
+
+        Only scales down if the pixmap exceeds the max dimensions. Does not scale up.
+
+        Args:
+            pixmap: The pixmap to scale.
+            max_width: Maximum width. If None, no width limit.
+            max_height: Maximum height. If None, no height limit.
+
+        Returns:
+            The scaled pixmap.
+        """
+        if pixmap.isNull():
+            return pixmap
+
+        current_width = pixmap.width()
+        current_height = pixmap.height()
+
+        # Calculate scale factors for each dimension
+        width_scale = 1.0
+        height_scale = 1.0
+
+        if max_width is not None and current_width > max_width:
+            width_scale = max_width / current_width
+
+        if max_height is not None and current_height > max_height:
+            height_scale = max_height / current_height
+
+        # Use the smaller scale factor to ensure we fit within both constraints
+        scale = min(width_scale, height_scale)
+
+        if scale < 1.0:
+            new_width = int(current_width * scale)
+            new_height = int(current_height * scale)
+            pixmap = pixmap.scaled(
+                new_width,
+                new_height,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
 
         return pixmap
 

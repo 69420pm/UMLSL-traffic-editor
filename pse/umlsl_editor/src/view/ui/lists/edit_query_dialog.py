@@ -8,7 +8,7 @@ import html
 from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QObject, QThread, QTimer, Signal
-from PySide6.QtGui import QPixmap, QResizeEvent, Qt
+from PySide6.QtGui import QFontDatabase, QImage, QPixmap, QResizeEvent, Qt
 from PySide6.QtWidgets import QDialog
 
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
@@ -20,7 +20,7 @@ from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import Warnin
 from pse.umlsl_editor.src.view.ui.lists.confirm_deletion_dialog import (
     ConfirmDeletionDialog,
 )
-from pse.umlsl_editor.src.view.ui.lists.latex_renderer import latex_to_pixmap
+from pse.umlsl_editor.src.view.ui.lists.latex_renderer import latex_to_bytes
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_query_dialog import (
     Ui_Edit_Query_Dialog,
 )
@@ -31,14 +31,17 @@ if TYPE_CHECKING:
 
 class LatexRenderWorker(QObject):
     """
-    Worker that renders LaTeX strings to pixmaps in a background thread.
+    Worker that renders LaTeX strings to image bytes in a background thread.
+
+    This worker uses the Agg backend which is thread-safe and doesn't require
+    access to the GUI/main thread.
 
     Signals:
-        finished: Emitted when rendering is complete, with the resulting pixmap.
+        finished: Emitted when rendering is complete, with the resulting image bytes.
         error: Emitted when an error occurs, with the error message.
     """
 
-    finished = Signal(QPixmap)
+    finished = Signal(bytes)
     error = Signal(str)
 
     def __init__(
@@ -46,9 +49,7 @@ class LatexRenderWorker(QObject):
             latex_code: str,
             font_size: int = 20,
             color: str = "#FFFFFF",
-            max_width: int | None = 270,
-            max_height: int | None = None,
-            device_pixel_ratio: float = 1.0,
+            dpi: int = 300,
     ) -> None:
         """
         Initialize the render worker.
@@ -57,30 +58,24 @@ class LatexRenderWorker(QObject):
             latex_code: The LaTeX code to render.
             font_size: Font size for rendering.
             color: Text color for rendering.
-            max_width: Maximum width for the output pixmap.
-            max_height: Maximum height for the output pixmap.
-            device_pixel_ratio: The device pixel ratio for high-DPI displays.
+            dpi: Resolution of the output image.
         """
         super().__init__()
         self._latex_code = latex_code
         self._font_size = font_size
         self._color = color
-        self._max_width = max_width
-        self._max_height = max_height
-        self._device_pixel_ratio = device_pixel_ratio
+        self._dpi = dpi
 
     def run(self) -> None:
         """Perform the LaTeX rendering."""
         try:
-            pixmap = latex_to_pixmap(
+            image_bytes = latex_to_bytes(
                 self._latex_code,
                 font_size=self._font_size,
                 color=self._color,
-                max_width=self._max_width,
-                max_height=self._max_height,
-                device_pixel_ratio=self._device_pixel_ratio,
+                dpi=self._dpi,
             )
-            self.finished.emit(pixmap)
+            self.finished.emit(image_bytes)
         except Exception as e:
             self.error.emit(str(e))
 
@@ -101,9 +96,6 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         _cars_list: List of all available cars for indexing.
         _is_valid: Whether the dialog has valid state (cars available).
     """
-
-    # Debounce delay in milliseconds
-    RENDER_DEBOUNCE_MS = 150
 
     def __init__(
             self,
@@ -130,10 +122,11 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         # Threading state
         self._render_thread: QThread | None = None
         self._render_worker: LatexRenderWorker | None = None
-        self._debounce_timer = QTimer(self)
-        self._debounce_timer.setSingleShot(True)
-        self._debounce_timer.timeout.connect(self._do_render_latex)
-        self._pending_render_input: str | None = None
+
+        # Store device pixel ratio for pixmap conversion on main thread
+        self._device_pixel_ratio: float = 1.0
+        self._max_width: int | None = None
+        self._max_height: int | None = None
 
         if not self._cars_dict:
             self._is_valid = False
@@ -149,7 +142,7 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         """Connect UI signals to their handlers."""
         self.b_save.clicked.connect(self.accept)
         self.b_delete.clicked.connect(self._on_delete_clicked)
-        self.t_umlsl.document().contentsChanged.connect(self._schedule_render_latex)
+        self.t_umlsl.document().contentsChanged.connect(self._render_latex)
 
     def exec(self) -> int:
         """
@@ -201,18 +194,11 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
     def resizeEvent(self, event: QResizeEvent) -> None:
         """Handle resize events by re-rendering the LaTeX preview."""
         super().resizeEvent(event)
-        self._schedule_render_latex()
+        self._render_latex()
 
-    def _schedule_render_latex(self) -> None:
-        """Schedule a LaTeX render with debouncing to avoid excessive renders while typing."""
-        self._pending_render_input = self.t_umlsl.toPlainText()
-        self._debounce_timer.start(self.RENDER_DEBOUNCE_MS)
-
-    def _do_render_latex(self) -> None:
-        """Perform the actual LaTeX rendering (called after debounce timer)."""
-        user_input = self._pending_render_input
-        if user_input is None:
-            return
+    def _render_latex(self) -> None:
+        """Render the LaTeX preview."""
+        user_input = self.t_umlsl.toPlainText()
 
         if not user_input.strip():
             self.l_preview.setText("No input")
@@ -237,9 +223,10 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         # Clean up any existing render thread
         self._cleanup_render_thread()
 
-        max_width = int(self.l_preview.width() * 0.9)
-        max_height = int(self.l_preview.height() * 0.8)
-        device_pixel_ratio = self.devicePixelRatioF()
+        # Store dimensions for use when converting bytes to pixmap on main thread
+        self._max_width = int(self.l_preview.width() * 0.9)
+        self._max_height = int(self.l_preview.height() * 0.8)
+        self._device_pixel_ratio = self.devicePixelRatioF()
 
         # Create worker and thread
         self._render_thread = QThread()
@@ -247,9 +234,7 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
             latex_code=latex_code,
             font_size=10,
             color="#F9F9F9",
-            max_width=max_width,
-            max_height=max_height,
-            device_pixel_ratio=device_pixel_ratio,
+            dpi=300,
         )
         self._render_worker.moveToThread(self._render_thread)
 
@@ -276,13 +261,89 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
             self._render_worker.deleteLater()
             self._render_worker = None
 
-    def _on_render_finished(self, pixmap: QPixmap) -> None:
-        """Handle successful LaTeX render completion."""
+    def _on_render_finished(self, image_bytes: bytes) -> None:
+        """
+        Handle successful LaTeX render completion.
+
+        Converts the image bytes to a QPixmap on the main thread (thread-safe).
+
+        Args:
+            image_bytes: The PNG image data from the worker thread.
+        """
+        if not image_bytes:
+            self.l_preview.setText("Error rendering LaTeX")
+            return
+
+        # Convert bytes to QPixmap on the main thread (thread-safe)
+        qimg = QImage.fromData(image_bytes)
+        if qimg.isNull():
+            self.l_preview.setText("Error converting image")
+            return
+
+        pixmap = QPixmap.fromImage(qimg)
+
+        # Scale to fit within the preview area
+        pixmap = self._scale_pixmap_to_fit(pixmap, self._max_width, self._max_height)
+
+        # Set device pixel ratio for high-DPI displays
+        if self._device_pixel_ratio != 1.0:
+            pixmap.setDevicePixelRatio(self._device_pixel_ratio)
+
         self.l_preview.setPixmap(pixmap)
         self.l_preview.setAlignment(
             Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter
         )
         self.l_preview.setScaledContents(False)
+
+    def _scale_pixmap_to_fit(
+            self,
+            pixmap: QPixmap,
+            max_width: int | None,
+            max_height: int | None,
+    ) -> QPixmap:
+        """
+        Scale a pixmap to fit within the given max dimensions while preserving aspect ratio.
+
+        Only scales down if the pixmap exceeds the max dimensions. Does not scale up.
+
+        Args:
+            pixmap: The pixmap to scale.
+            max_width: Maximum width. If None, no width limit.
+            max_height: Maximum height. If None, no height limit.
+
+        Returns:
+            The scaled pixmap.
+        """
+        if pixmap.isNull():
+            return pixmap
+
+        current_width = pixmap.width()
+        current_height = pixmap.height()
+
+        # Calculate scale factors for each dimension
+        width_scale = 1.0
+        height_scale = 1.0
+
+        if max_width is not None and current_width > max_width:
+            width_scale = max_width / current_width
+
+        if max_height is not None and current_height > max_height:
+            height_scale = max_height / current_height
+
+        # Use the smaller scale factor to ensure we fit within both constraints
+        scale = min(width_scale, height_scale)
+
+        if scale < 1.0:
+            new_width = int(current_width * scale)
+            new_height = int(current_height * scale)
+            pixmap = pixmap.scaled(
+                new_width,
+                new_height,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+
+        return pixmap
 
     def _on_render_error(self, error_message: str) -> None:
         """Handle LaTeX render error."""
@@ -299,8 +360,11 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         caret_marker = "^" * (error.scope_end - error.scope_start)
         caret_line = caret_indent + caret_marker
 
+        # Get system monospace font to avoid font lookup delays
+        mono_font = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont).family()
+
         error_html = (
-            f'<div style="font-family: \'Consolas\', \'Courier New\', monospace; '
+            f'<div style="font-family: \'{mono_font}\'; '
             f'font-size: 14px; white-space: pre-wrap; color: white;">'
             f"{pre_err}"
             f'<span style="color: red; font-weight: bold;">{err}</span>'
@@ -311,21 +375,15 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         if error.help is not None:
             error_html += f'<span style="color: red;">Help: {error.help}.</span>'
 
-            error_html += "</div>"
+        error_html += "</div>"
 
-            self.l_preview.setAlignment(Qt.AlignmentFlag.AlignLeft)
-            self.l_preview.setText(error_html)
-            return
+        self.l_preview.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.l_preview.setText(error_html)
 
-        max_width = self.l_preview.width() * 0.95
-        try:
-            pixmap = latex_to_pixmap(self.l_preview, font_size=20, color="#FFFFFF", max_width=max_width)
-            self.l_preview.setPixmap(pixmap)
-            self.l_preview.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
-            self.l_preview.setScaledContents(False)
-        except Exception as e:
-            self.l_preview.setText("Error converting LaTeX to image")
-            print(e)
+    def _display_generic_error(self, error: Exception) -> None:
+        """Display a generic error message."""
+        self.l_preview.setText(f"Error: {error}")
+        print(f"LaTeX parsing error: {error}")
 
     def _on_delete_clicked(self) -> None:
         """Handle delete action for existing queries."""
@@ -355,7 +413,6 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         a new query, adds it to the queries model. Then closes the dialog.
         """
         self._cleanup_render_thread()
-        self._debounce_timer.stop()
 
         selected_car_index = self.d_car.currentIndex()
 
@@ -392,11 +449,9 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
     def reject(self) -> None:
         """Handle dialog rejection by cleaning up resources."""
         self._cleanup_render_thread()
-        self._debounce_timer.stop()
         super().reject()
 
     def closeEvent(self, event) -> None:
         """Handle dialog close by cleaning up resources."""
         self._cleanup_render_thread()
-        self._debounce_timer.stop()
         super().closeEvent(event)
