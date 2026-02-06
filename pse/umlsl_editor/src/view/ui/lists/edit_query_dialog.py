@@ -155,16 +155,14 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         try:
             latex_code = UMLSLEvaluator(self._application_controller.get_traffic_snapshot_reader()).compute_latex(input)
         except ParserError as e:
-            input = e.input
-            text = input
             print("write error")
 
-            pre_scope = html.escape(text[:e.scope_start])
-            scope = html.escape(text[e.scope_start:e.scope_end])
-            post_scope = html.escape(text[e.scope_end:])
+            pre_scope = html.escape(input[:e.scope_start])
+            scope = html.escape(input[e.scope_start:e.scope_end])
+            post_scope = html.escape(input[e.scope_end:])
 
-            caret_indent = " " * len(text[:e.scope_start])
-            caret_marker = "^" * len(text[e.scope_start:e.scope_end])
+            caret_indent = " " * len(input[:e.scope_start])
+            caret_marker = "^" * len(input[e.scope_start:e.scope_end])
             caret_line = caret_indent + caret_marker
 
             error_html = (
@@ -240,7 +238,7 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
             return
 
         selected_car = self._cars_list[selected_car_index]
-        latex = self.t_umlsl.text()
+        latex = self.t_umlsl.toPlainText()
 
         try:
             if self._is_edit and self._query is not None:
@@ -260,5 +258,7 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
                 str(e),
                 self,
             )
+            dialog.exec()
+            return
 
         super().accept()
