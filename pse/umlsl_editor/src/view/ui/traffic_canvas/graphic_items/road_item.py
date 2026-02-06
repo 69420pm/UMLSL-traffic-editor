@@ -17,7 +17,10 @@ from PySide6.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 # Resource import (prevent unused import linters from removing it)
 import pse.umlsl_editor.src.view.widgets.qt_widgets.resources_rc as rc  # noqa: F401
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation
-from pse.umlsl_editor.src.model.errors.road_errors import RoadValidationError, RoadTrafficSnapshotContextValidationError
+from pse.umlsl_editor.src.model.errors.road_errors import (
+    RoadTrafficSnapshotContextValidationError,
+    RoadValidationError,
+)
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.selectable_graphics_item import (
     SelectableGraphicsItem,
@@ -41,12 +44,14 @@ class RoadItemStyle:
     """Constants and styling configuration for the RoadItem."""
     ARROW_SVG_PATH = ":/icons/arrow_downward.svg"
     ARROW_BASE_SIZE = 16.0
-    LABEL_ARROW_SPACING = 18.0
+    LABEL_ARROW_SPACING_H = 24.0
+    LABEL_ARROW_SPACING_V = 18.0
 
     # Text and Layout
-    TEXT_PADDING = 10.0
+    TEXT_PADDING_H = 10.0
+    TEXT_PADDING_V = 15.0
     NAME_V_OFFSET = 8.0
-    NAME_H_OFFSET = 16.0
+    NAME_H_OFFSET = 8.0
 
     # Line Styling
     DASH_PATTERN = [4, 8]
@@ -244,11 +249,12 @@ class RoadItem(SelectableGraphicsItem):
         text_scale = 1.0 / lod
 
         screen_top_left = inv_transform.map(QPointF(0, 0))
-        padding = RoadItemStyle.TEXT_PADDING * text_scale
+        padding_h = RoadItemStyle.TEXT_PADDING_H * text_scale
+        padding_v = RoadItemStyle.TEXT_PADDING_V * text_scale
 
         view_bounds = QPointF(
-            screen_top_left.x() + padding,
-            screen_top_left.y() - padding
+            screen_top_left.x() + padding_h,
+            screen_top_left.y() - padding_v
         )
 
         painter.save()
@@ -281,10 +287,12 @@ class RoadItem(SelectableGraphicsItem):
 
         if is_horizontal:
             y_pos = road.position + v_offset + (road.number_of_backward_lanes * lane_width)
-            self._draw_text(painter, road.name, view_bounds.x(), y_pos, scale)
+            x_pos = view_bounds.x()
+            self._draw_text(painter, road.name, x_pos, y_pos, scale, align_left=True)
         else:
             x_pos = road.position - (road.number_of_backward_lanes * lane_width) - h_offset
-            self._draw_text(painter, road.name, x_pos, view_bounds.y(), scale)
+            y_pos = view_bounds.y()
+            self._draw_text(painter, road.name, x_pos, y_pos, scale, align_right=True)
 
     def _paint_lane_details(
             self,
@@ -299,8 +307,9 @@ class RoadItem(SelectableGraphicsItem):
 
         road = self._road
         lane_width = DIMENSION.LANE_WIDTH
-        arrow_dist = RoadItemStyle.LABEL_ARROW_SPACING * scale
         is_horizontal = road.orientation == RoadOrientation.HORIZONTAL
+        arrow_dist = (
+                         RoadItemStyle.LABEL_ARROW_SPACING_H if is_horizontal else RoadItemStyle.LABEL_ARROW_SPACING_V) * scale
 
         def draw_lane_set(count: int, prefix: str, is_forward: bool):
             for i in range(count):
@@ -308,9 +317,6 @@ class RoadItem(SelectableGraphicsItem):
 
                 # Determine perpendicular offset based on direction
                 if is_forward:
-                    # Standard implementation for forward usually implies specific side
-                    # Assuming standard RHT: Forward is usually Right/Bottom depending on axis system,
-                    # but here we follow the original logic's offset math.
                     pos_perp = (road.position - offset) if is_horizontal else (road.position + offset)
                 else:
                     pos_perp = (road.position + offset) if is_horizontal else (road.position - offset)
@@ -324,7 +330,16 @@ class RoadItem(SelectableGraphicsItem):
                     arrow_pt = QPointF(pos_perp, view_bounds.y() - arrow_dist)
 
                 # Draw
-                self._draw_text(painter, f"{prefix}{i + 1}", text_pt.x(), text_pt.y(), scale)
+                # FIXED: Force Left Alignment for horizontal roads so text starts
+                # at the same X-line as the road name.
+                self._draw_text(
+                    painter,
+                    f"{prefix}{i + 1}",
+                    text_pt.x(),
+                    text_pt.y(),
+                    scale,
+                    align_left=is_horizontal
+                )
                 self._draw_arrow(painter, arrow_pt, scale, is_forward, is_horizontal)
 
         draw_lane_set(road.number_of_forward_lanes, "f", is_forward=True)
@@ -336,7 +351,9 @@ class RoadItem(SelectableGraphicsItem):
             text: str,
             x: float,
             y: float,
-            scale: float
+            scale: float,
+            align_left: bool = False,
+            align_right: bool = False
     ) -> None:
         """Helper to draw text that resists viewport scaling."""
         painter.save()
@@ -346,8 +363,14 @@ class RoadItem(SelectableGraphicsItem):
         fm = painter.fontMetrics()
         rect = fm.boundingRect(text)
 
-        # Center horizontally, offset vertically slightly
-        painter.drawText(-rect.width() / 2, rect.height() / 4, text)
+        # Align left, right, or center horizontally; offset vertically slightly
+        if align_left:
+            h_offset = 0
+        elif align_right:
+            h_offset = -rect.width()
+        else:
+            h_offset = -rect.width() / 2
+        painter.drawText(h_offset, rect.height() / 4, text)
         painter.restore()
 
     def _draw_arrow(
