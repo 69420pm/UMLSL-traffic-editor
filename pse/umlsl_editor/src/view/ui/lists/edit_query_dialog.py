@@ -6,6 +6,7 @@ Provides a dialog window for creating and editing query entities.
 
 from typing import TYPE_CHECKING
 
+from PySide6.QtGui import QResizeEvent
 from PySide6.QtWidgets import QDialog, QLabel
 
 from pse.umlsl_editor.src.query.evaluator import UMLSLEvaluator
@@ -92,15 +93,22 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         self.t_umlsl.document().contentsChanged.connect(self.textChanged)
 
     def textChanged(self) -> None:
-        latex_label = self.findChild(QLabel, "latexLabel")
+        self.render_latex()
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        self.render_latex()
+
+    def render_latex(self) :
+        latex_label = self.findChild(QLabel, "l_preview")
+        if latex_label is None:
+            return
 
         input = self.t_umlsl.toPlainText()
-        print("input: ", input)
         latex_code = UMLSLEvaluator(self._application_controller.get_traffic_snapshot_reader()).compute_latex(input)
-        print("render: ", latex_code)
+        max_width = latex_label.width() * 0.95
         try:
             my_latex = latex_code
-            pixmap = latex_to_pixmap(my_latex, font_size=20, color="#FFFFFF")
+            pixmap = latex_to_pixmap(my_latex, font_size=20, color="#FFFFFF", max_width=max_width)
             latex_label.setPixmap(pixmap)
             latex_label.setScaledContents(False)
         except Exception as e:

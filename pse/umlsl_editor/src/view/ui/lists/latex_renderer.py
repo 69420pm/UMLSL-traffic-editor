@@ -1,10 +1,9 @@
 import io
 
 import matplotlib.pyplot as plt
-from PySide6.QtGui import QPixmap, QImage
+from PySide6.QtGui import QPixmap, QImage, Qt
 
-
-def latex_to_pixmap(latex_str, font_size=12, color="black"):
+def latex_to_pixmap(latex_str, font_size=12, color="black", max_width=270):
     """
     Converts a LaTeX string into a QPixmap using Matplotlib.
     """
@@ -34,6 +33,10 @@ def latex_to_pixmap(latex_str, font_size=12, color="black"):
         buf.seek(0)
         qimg = QImage.fromData(buf.getvalue())
         pixmap = QPixmap.fromImage(qimg)
+
+        # scale the image down if too big
+        if max_width and pixmap.width() > max_width:
+            pixmap = pixmap.scaledToWidth(max_width, Qt.SmoothTransformation)
 
         return pixmap
 

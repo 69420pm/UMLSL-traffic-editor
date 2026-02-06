@@ -21,14 +21,13 @@ class Ui_Edit_Query_Dialog(object):
         if not Edit_Query_Dialog.objectName():
             Edit_Query_Dialog.setObjectName(u"Edit_Query_Dialog")
         Edit_Query_Dialog.setEnabled(True)
-        Edit_Query_Dialog.resize(320, 570)
+        Edit_Query_Dialog.resize(320, 770)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Edit_Query_Dialog.sizePolicy().hasHeightForWidth())
         Edit_Query_Dialog.setSizePolicy(sizePolicy)
         Edit_Query_Dialog.setMinimumSize(QSize(320, 570))
-        Edit_Query_Dialog.setMaximumSize(QSize(320, 16777215))
         Edit_Query_Dialog.setStyleSheet(u"QDialog {\n"
 "    background-color: #011C26; \n"
 "}\n"
@@ -204,12 +203,6 @@ class Ui_Edit_Query_Dialog(object):
 "}")
         self.verticalLayout = QVBoxLayout(Edit_Query_Dialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.latexLabel = QLabel(Edit_Query_Dialog)
-        self.latexLabel.setObjectName(u"latexLabel")
-        self.latexLabel.setAlignment(Qt.AlignCenter)
-
-        self.verticalLayout.addWidget(self.latexLabel)
-
         self.widget = QWidget(Edit_Query_Dialog)
         self.widget.setObjectName(u"widget")
         self.General = QVBoxLayout(self.widget)
@@ -233,8 +226,7 @@ class Ui_Edit_Query_Dialog(object):
 
         self.widget1 = QWidget(self.widget)
         self.widget1.setObjectName(u"widget1")
-        self.widget1.setMinimumSize(QSize(0, 32))
-        self.widget1.setMaximumSize(QSize(16777215, 32))
+        self.widget1.setMinimumSize(QSize(0, 80))
         self.gridLayout = QGridLayout(self.widget1)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setHorizontalSpacing(4)
@@ -306,8 +298,8 @@ class Ui_Edit_Query_Dialog(object):
 
         self.t_umlsl = QTextEdit(self.widget_6)
         self.t_umlsl.setObjectName(u"t_umlsl")
-        self.t_umlsl.setMinimumSize(QSize(0, 32))
-        self.t_umlsl.setMaximumSize(QSize(16777215, 100))
+        self.t_umlsl.setMinimumSize(QSize(16777215, 100))
+        self.t_umlsl.setMaximumSize(QSize(16777215, 1000))
 
         self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.t_umlsl)
 
@@ -612,7 +604,6 @@ class Ui_Edit_Query_Dialog(object):
 
     def retranslateUi(self, Edit_Query_Dialog):
         Edit_Query_Dialog.setWindowTitle(QCoreApplication.translate("Edit_Query_Dialog", u"Edit Query", None))
-        self.latexLabel.setText("")
         self.label_2.setText(QCoreApplication.translate("Edit_Query_Dialog", u"Preview", None))
         self.label_2.setProperty(u"class", QCoreApplication.translate("Edit_Query_Dialog", u"label", None))
         self.widget1.setProperty(u"class", QCoreApplication.translate("Edit_Query_Dialog", u"container", None))
