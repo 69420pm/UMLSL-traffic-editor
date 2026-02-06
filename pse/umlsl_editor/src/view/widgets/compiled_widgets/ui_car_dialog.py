@@ -26,7 +26,7 @@ class Ui_Edit_Car_Dialog(object):
         if not Edit_Car_Dialog.objectName():
             Edit_Car_Dialog.setObjectName(u"Edit_Car_Dialog")
         Edit_Car_Dialog.setEnabled(True)
-        Edit_Car_Dialog.resize(320, 529)
+        Edit_Car_Dialog.resize(324, 529)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -580,8 +580,6 @@ class Ui_Edit_Car_Dialog(object):
 
 
         self.retranslateUi(Edit_Car_Dialog)
-        self.b_delete.clicked.connect(Edit_Car_Dialog.reject)
-        self.b_save.clicked.connect(Edit_Car_Dialog.accept)
 
         self.d_direction.setCurrentIndex(0)
         self.b_save.setDefault(True)

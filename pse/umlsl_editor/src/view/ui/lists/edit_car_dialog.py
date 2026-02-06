@@ -6,7 +6,7 @@ such as name, color, speed, lane assignment, and turn direction.
 """
 from typing import TYPE_CHECKING, Any
 
-from PySide6.QtCore import QTimer, QSignalBlocker
+from PySide6.QtCore import QSignalBlocker, QTimer
 from PySide6.QtWidgets import QDialog, QWidget
 
 from pse.umlsl_editor.src.model.entities.car import Car, CarParams
@@ -20,6 +20,9 @@ from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import (
     TurnIntent,
 )
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+from pse.umlsl_editor.src.view.ui.lists.confirm_deletion_dialog import (
+    ConfirmDeletionDialog,
+)
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_car_dialog import (
     Ui_Edit_Car_Dialog,
 )
@@ -124,6 +127,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
     def _connect_signals(self) -> None:
         """Connect UI signals to their handlers."""
         self.b_save.clicked.connect(self._on_save_clicked)
+        self.b_delete.clicked.connect(self._on_delete_clicked)
         self.d_road.currentIndexChanged.connect(self._on_road_changed)
         self.d_direction.currentIndexChanged.connect(self._on_direction_changed)
 
@@ -234,6 +238,24 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
 
         except (CarValidationError, CarTrafficSnapshotContextValidationError) as e:
             WarningDialog("Validation Error", str(e), self).exec()
+
+    def _on_delete_clicked(self) -> None:
+        """Handle delete action for existing cars."""
+        if not self.is_edit_mode:
+            return
+
+        # Confirm deletion with the user
+        confirm = ConfirmDeletionDialog(
+            f"Are you sure you want to delete the car '{self.car.name}'?",
+            self,
+        ).exec()
+
+        if confirm == 1:
+            # Defer deletion to next event loop iteration to allow QML signal
+            # handlers to complete before the underlying data is destroyed.
+            car_uid = self.car.uid
+            QTimer.singleShot(0, lambda: self._app_controller.command_controller.remove_car(car_uid))
+            self.accept()
 
     def _show_no_roads_warning(self) -> None:
         """Show warning for invalid environment."""

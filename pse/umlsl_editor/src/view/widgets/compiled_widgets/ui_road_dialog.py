@@ -25,7 +25,7 @@ class Ui_Edit_Road_Dialog(object):
     def setupUi(self, Edit_Road_Dialog):
         if not Edit_Road_Dialog.objectName():
             Edit_Road_Dialog.setObjectName(u"Edit_Road_Dialog")
-        Edit_Road_Dialog.resize(320, 291)
+        Edit_Road_Dialog.resize(324, 291)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -434,8 +434,6 @@ class Ui_Edit_Road_Dialog(object):
 
 
         self.retranslateUi(Edit_Road_Dialog)
-        self.b_save.clicked.connect(Edit_Road_Dialog.accept)
-        self.b_delete.clicked.connect(Edit_Road_Dialog.reject)
 
         self.b_save.setDefault(True)
 

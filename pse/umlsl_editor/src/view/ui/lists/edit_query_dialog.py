@@ -13,6 +13,9 @@ from pse.umlsl_editor.src.model.errors.umlsl_query_errors import (
     UMLSLQueryValidationError,
 )
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+from pse.umlsl_editor.src.view.ui.lists.confirm_deletion_dialog import (
+    ConfirmDeletionDialog,
+)
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
@@ -70,6 +73,12 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         self._cars_list = list(self._cars_dict.values())
 
         self._populate_fields()
+        self._connect_signals()
+
+    def _connect_signals(self) -> None:
+        """Connect UI signals to their handlers."""
+        self.b_save.clicked.connect(self.accept)
+        self.b_delete.clicked.connect(self._on_delete_clicked)
 
     def exec(self) -> int:
         """
@@ -119,6 +128,24 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         else:
             self.t_umlsl.setText("")
 
+    def _on_delete_clicked(self) -> None:
+        """Handle delete action for existing queries."""
+        if not self._is_edit or self._query is None:
+            return
+
+        # Confirm deletion with the user
+        confirm = ConfirmDeletionDialog(
+            f"Are you sure you want to delete this query?",
+            self,
+        ).exec()
+
+        if confirm == 1:
+            # Defer deletion to next event loop iteration to allow QML signal
+            # handlers to complete before the underlying data is destroyed.
+            query_uid = self._query.uid
+            QTimer.singleShot(0, lambda: self._application_controller.command_controller.remove_umlsl_query(query_uid))
+            self.accept()
+
     def accept(self) -> None:
         """
         Handle dialog acceptance by saving query changes.
@@ -132,7 +159,7 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
             return
 
         selected_car = self._cars_list[selected_car_index]
-        latex = self.t_umlsl.toPlainText()
+        latex = self.t_umlsl.text()
 
         try:
             if self._is_edit and self._query is not None:

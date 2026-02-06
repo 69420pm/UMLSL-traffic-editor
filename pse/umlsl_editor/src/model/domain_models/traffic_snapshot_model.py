@@ -2,17 +2,31 @@ from typing import Any
 
 import networkx as nx
 
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_validator import TrafficSnapshotValidator
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import (
+    TrafficSnapshotReader,
+)
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_validator import (
+    TrafficSnapshotValidator,
+)
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import (
+    TrafficSnapshotWriter,
+)
 from pse.umlsl_editor.src.model.entities.car import Car, CarParams
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation, RoadParams
 from pse.umlsl_editor.src.model.helper.directional_graph import Direction
 from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
-from pse.umlsl_editor.src.model.helper.observables import ObservableDict, Observable, ReadOnlyDictView
+from pse.umlsl_editor.src.model.helper.observables import (
+    Observable,
+    ObservableDict,
+    ReadOnlyDictView,
+)
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import (
+    CrossingSegment,
+)
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import (
+    LaneSegment,
+)
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnDirection
 from pse.umlsl_editor.src.view.view_constants import DIMENSION
@@ -150,8 +164,10 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self._recalculate_static_segments()
 
     def _on_road_removed(self, road: Road):
-        self.notify(TrafficSnapshotEventType.ROAD_REMOVED, road)
+        # Recalculate segments BEFORE notifying observers to ensure consistency.
+        # This prevents observers from accessing stale segments that reference the removed road.
         self._recalculate_static_segments()
+        self.notify(TrafficSnapshotEventType.ROAD_REMOVED, road)
 
     def _on_road_updated(self, road: Road):
         self.notify(TrafficSnapshotEventType.ROAD_UPDATED, road)

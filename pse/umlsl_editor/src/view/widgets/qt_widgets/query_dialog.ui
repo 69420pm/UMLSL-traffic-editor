@@ -1107,38 +1107,5 @@ QPushButton#b_delete:pressed {
  <resources>
   <include location="resources.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>b_delete</sender>
-   <signal>clicked()</signal>
-   <receiver>Edit_Query_Dialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>276</x>
-     <y>540</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>400</x>
-     <y>545</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>b_save</sender>
-   <signal>clicked()</signal>
-   <receiver>Edit_Query_Dialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>64</x>
-     <y>550</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>129</x>
-     <y>593</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

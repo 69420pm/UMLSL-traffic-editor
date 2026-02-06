@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>320</width>
+    <width>324</width>
     <height>291</height>
    </rect>
   </property>
@@ -723,38 +723,5 @@ QPushButton#b_delete:pressed {
  <resources>
   <include location="resources.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>b_save</sender>
-   <signal>clicked()</signal>
-   <receiver>Edit_Road_Dialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>106</x>
-     <y>420</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>112</x>
-     <y>469</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>b_delete</sender>
-   <signal>clicked()</signal>
-   <receiver>Edit_Road_Dialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>257</x>
-     <y>423</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>257</x>
-     <y>511</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

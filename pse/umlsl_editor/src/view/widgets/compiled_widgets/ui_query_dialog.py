@@ -561,8 +561,6 @@ class Ui_Edit_Query_Dialog(object):
 
 
         self.retranslateUi(Edit_Query_Dialog)
-        self.b_delete.clicked.connect(Edit_Query_Dialog.reject)
-        self.b_save.clicked.connect(Edit_Query_Dialog.accept)
 
         self.b_save.setDefault(True)
 
