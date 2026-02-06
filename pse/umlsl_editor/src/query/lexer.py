@@ -8,6 +8,7 @@ class TokenType(Enum):
     R_PAREN = ")"
     L_CURLY = "{"
     R_CURLY = "}"
+    COLON = ":"
     LESS_THAN = "<"
     GREATER_THAN = ">"
     H_CHOP = "\\hchop"

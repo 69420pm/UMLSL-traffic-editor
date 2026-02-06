@@ -1,6 +1,6 @@
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.query.ast.ast import ASTNode
-from pse.umlsl_editor.src.query.ast.car_resolve import ConstantCarResolve, VariableCarResolve
+from pse.umlsl_editor.src.query.ast.car_resolve import ConstantCarResolve, VariableCarResolve, CarResolve
 from pse.umlsl_editor.src.query.ast.chop_node import HorizontalChopNode, VerticalChopNode
 from pse.umlsl_editor.src.query.ast.claim_node import ClaimNode
 from pse.umlsl_editor.src.query.ast.crossing_node import CrossingSegmentNode
@@ -12,7 +12,6 @@ from pse.umlsl_editor.src.query.ast.reserve_node import ReserveNode
 from pse.umlsl_editor.src.query.lexer import Token, TokenType
 
 
-# todo: curly braces check
 class ASTParser:
     def __init__(self, tokens: list[Token], cars: list[Car]):
         self._tokens = tokens
@@ -21,7 +20,6 @@ class ASTParser:
     def parse_ast(self):
         if not self._tokens:
             raise SyntaxError("Empty token list")
-        print("tokens: ", list(map(lambda token: token.value(), self._tokens)))
         return self.parse_ast_rec(0, len(self._tokens) - 1, [])
 
     def parse_ast_rec(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
@@ -36,10 +34,14 @@ class ASTParser:
 
         height = 0
         split_index = -1
-        min_precedence = 100 #int('inf')  # smallest int
+        # we need a value that is bigger than all others, in python there is no "max_int"
+        min_precedence = float('inf')
 
         for i in range(start, end + 1):
             token = tokens[i]
+
+            if height == 0 and token.type in {TokenType.EXITS, TokenType.FORALL}:
+                break
 
             if token.type in {TokenType.L_PAREN, TokenType.L_CURLY}:
                 height += 1
@@ -66,6 +68,7 @@ class ASTParser:
         return self.parse_prefix(start, end, declared_variables)
 
     def parse_infix(self, start: int, end: int, split_index: int, declared_variables: list[str]) -> ASTNode:
+        print("parse infix from ", start, " to ", end, " with split index ", split_index)
         if not (0 <= start < split_index < end <= len(self._tokens) - 1):
             raise SyntaxError("Invalid infix expression: expected operator between tokens")
 
@@ -123,13 +126,11 @@ class ASTParser:
         if token_type in {TokenType.NEGATION, TokenType.NEGATION_SHORT}:
             return NegationNode(self.parse_ast_rec(start + 1, end, declared_variables))
         else:
-            if start + 1 != end:
-                raise SyntaxError(f"{token_type} requires exactly one argument")
             match token_type:
                 case TokenType.CLAIM:
-                    return ClaimNode(self.parse_car(start + 1, declared_variables))
+                    return ClaimNode(self.parse_car_argument(start + 1, end, declared_variables))
                 case TokenType.RESERVE:
-                    return ReserveNode(self.parse_car(start + 1, declared_variables))
+                    return ReserveNode(self.parse_car_argument(start + 1, end, declared_variables))
                 case _:
                     raise NotImplementedError(f"Invalid unary operator {token_type}")
 
@@ -142,26 +143,28 @@ class ASTParser:
             literal = self._tokens[start + 1]
             if literal.type != TokenType.LITERAL:
                 raise SyntaxError("Exits operator requires exactly one literal argument (i.e. \\exists c:)")
-            value = literal.value()
-            if not value.endswith(":"):
-                raise SyntaxError("Exists operator requires ':' after car-variable (i.e. \\exists c:)")
-            variable = value[:-1]
+            variable = literal.value()
             if variable in map(lambda car: car.name, self._cars):
                 raise SyntaxError(f"Variable {variable} is a car name and cannot be used in an exists expression")
             if variable in declared_variables:
                 raise SyntaxError(f"Variable {variable} declared twice in scope")
+            colon = self._tokens[start + 2]
+            if colon.type != TokenType.COLON:
+                raise SyntaxError("Exists operator requires ':' after car-variable (i.e. \\exists c:)")
             new_declared_variables = declared_variables.copy()
             new_declared_variables.append(variable)
-            return ExistsNode(variable, self.parse_ast_rec(start + 2, end, new_declared_variables))
+            print("append new variable ", variable, " to scope: ", new_declared_variables,)
+            return ExistsNode(variable, self.parse_ast_rec(start + 3, end, new_declared_variables))
         else:
+            # first operand
             arg1_start = start + 1
             arg1_end = self.find_closing_argument_index(arg1_start, end)
-            # todo: strip the curly braces
-            operand1 = self.parse_argument(arg1_start, arg1_end, declared_variables)
+            operand1 = self.parse_expression_argument(arg1_start, arg1_end, declared_variables)
+            # second operand
             arg2_start = arg1_end + 1
             arg2_end = self.find_closing_argument_index(arg2_start, end)
-            # todo: strip the curly braces
-            operand2 = self.parse_argument(arg2_start, arg2_end, declared_variables)
+            operand2 = self.parse_expression_argument(arg2_start, arg2_end, declared_variables)
+
             match token_type:
                 case TokenType.H_CHOP:
                     return HorizontalChopNode(operand1, operand2)
@@ -182,6 +185,35 @@ class ASTParser:
                     return i
         raise SyntaxError("Unbalanced curly braces")
 
+    def parse_expression_argument(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
+        if self._tokens[start].type != TokenType.L_CURLY:
+            raise SyntaxError(f"Open curly braces required around expression, at {start}")
+
+        if self._tokens[end].type != TokenType.R_CURLY:
+            raise SyntaxError(f"Close curly braces required around expression, at {end}")
+
+        # argument was wrapped in multiple curly braces, so we strip them
+        if self._tokens[start + 1].type == TokenType.L_CURLY and self._tokens[end - 1].type == TokenType.R_CURLY:
+            return self.parse_ast_rec(start + 2, end - 2, declared_variables)
+
+        return self.parse_ast_rec(start + 1, end - 1, declared_variables)
+
+    def parse_car_argument(self, start: int, end: int, declared_variables: list[str]) -> CarResolve:
+        if self._tokens[start].type != TokenType.L_CURLY:
+            raise SyntaxError(f"Open curly braces required around expression, at {start}")
+
+        if self._tokens[end].type != TokenType.R_CURLY:
+            raise SyntaxError(f"Close curly braces required around expression, at {end}")
+
+            # argument was wrapped in multiple curly braces, so we strip them
+        if self._tokens[start + 1].type == TokenType.L_CURLY and self._tokens[end - 1].type == TokenType.R_CURLY:
+            return self.parse_car_argument(start + 2, end - 2, declared_variables)
+
+        if start + 1 != end - 1:
+            raise SyntaxError("Car argument requires exactly one literal token")
+
+        return self.parse_car(start + 1, declared_variables)
+
     def parse_car(self, index: int, declared_variables: list[str]):
         token = self._tokens[index]
         value = token.value()
@@ -197,13 +229,6 @@ class ASTParser:
         if value in declared_variables:
             return VariableCarResolve(value)
 
-        raise SyntaxError(f"Car '{value}' neither refers to a defined car nor a declared variable")
-
-    def parse_argument(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
-        if self._tokens[start].type != TokenType.L_CURLY:
-            raise SyntaxError(f"Open curly braces required around expression, at {start}")
-
-        if self._tokens[end].type != TokenType.R_CURLY:
-            raise SyntaxError(f"Close curly braces required around expression, at {end}")
-        return self.parse_ast_rec(start + 1, end - 1, declared_variables)
-
+        available_cars = list(map(lambda car: car.name, self._cars))
+        available_variables = declared_variables
+        raise SyntaxError(f"Car '{value}' neither refers to a defined car nor a declared variable: candidates are {available_cars} and {available_variables}.")
