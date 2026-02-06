@@ -8,31 +8,26 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFormLayout,
-    QGridLayout, QHBoxLayout, QLabel, QLayout,
-    QLineEdit, QPushButton, QSizePolicy, QVBoxLayout,
-    QWidget)
-from . import resources_rc
+from PySide6.QtCore import (QCoreApplication, QMetaObject, QSize, Qt)
+from PySide6.QtGui import (QIcon)
+from PySide6.QtWidgets import (QComboBox, QFormLayout,
+                               QGridLayout, QHBoxLayout, QLabel, QLayout,
+                               QPushButton, QSizePolicy, QTextEdit, QVBoxLayout,
+                               QWidget)
+
 
 class Ui_Edit_Query_Dialog(object):
     def setupUi(self, Edit_Query_Dialog):
         if not Edit_Query_Dialog.objectName():
             Edit_Query_Dialog.setObjectName(u"Edit_Query_Dialog")
         Edit_Query_Dialog.setEnabled(True)
-        Edit_Query_Dialog.resize(324, 620)
+        Edit_Query_Dialog.resize(320, 770)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Edit_Query_Dialog.sizePolicy().hasHeightForWidth())
         Edit_Query_Dialog.setSizePolicy(sizePolicy)
-        Edit_Query_Dialog.setMinimumSize(QSize(0, 0))
+        Edit_Query_Dialog.setMinimumSize(QSize(320, 570))
         Edit_Query_Dialog.setMaximumSize(QSize(16777215, 16777215))
         Edit_Query_Dialog.setStyleSheet(u"QDialog {\n"
 "    background-color: #011C26; \n"
@@ -209,7 +204,47 @@ class Ui_Edit_Query_Dialog(object):
 "}")
         self.verticalLayout = QVBoxLayout(Edit_Query_Dialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
+        self.widget = QWidget(Edit_Query_Dialog)
+        self.widget.setObjectName(u"widget")
+        self.General = QVBoxLayout(self.widget)
+        self.General.setSpacing(0)
+        self.General.setObjectName(u"General")
+        self.General.setSizeConstraint(QLayout.SizeConstraint.SetDefaultConstraint)
+        self.General.setContentsMargins(0, 8, 0, 0)
+        self.widget_3 = QWidget(self.widget)
+        self.widget_3.setObjectName(u"widget_3")
+        self.horizontalLayout = QHBoxLayout(self.widget_3)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(8, 0, 0, 4)
+        self.label_2 = QLabel(self.widget_3)
+        self.label_2.setObjectName(u"label_2")
+        self.label_2.setMargin(0)
+
+        self.horizontalLayout.addWidget(self.label_2)
+
+
+        self.General.addWidget(self.widget_3, 0, Qt.AlignmentFlag.AlignLeft)
+
+        self.widget1 = QWidget(self.widget)
+        self.widget1.setObjectName(u"widget1")
+        self.widget1.setMinimumSize(QSize(0, 80))
+        self.gridLayout = QGridLayout(self.widget1)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setHorizontalSpacing(4)
+        self.gridLayout.setVerticalSpacing(8)
+        self.gridLayout.setContentsMargins(8, 4, 4, 4)
+        self.l_preview = QLabel(self.widget1)
+        self.l_preview.setObjectName(u"l_preview")
+        self.l_preview.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.gridLayout.addWidget(self.l_preview, 0, 0, 1, 1)
+
+
+        self.General.addWidget(self.widget1)
+
+
+        self.verticalLayout.addWidget(self.widget)
+
         self.widget_4 = QWidget(Edit_Query_Dialog)
         self.widget_4.setObjectName(u"widget_4")
         self.General_2 = QVBoxLayout(self.widget_4)
@@ -233,8 +268,6 @@ class Ui_Edit_Query_Dialog(object):
 
         self.widget_6 = QWidget(self.widget_4)
         self.widget_6.setObjectName(u"widget_6")
-        self.widget_6.setMinimumSize(QSize(300, 0))
-        self.widget_6.setMaximumSize(QSize(300, 16777215))
         self.formLayout = QFormLayout(self.widget_6)
         self.formLayout.setObjectName(u"formLayout")
         self.formLayout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
@@ -259,15 +292,15 @@ class Ui_Edit_Query_Dialog(object):
 
         self.label_32 = QLabel(self.widget_6)
         self.label_32.setObjectName(u"label_32")
-        self.label_32.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+        self.label_32.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignTop)
         self.label_32.setMargin(0)
 
         self.formLayout.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_32)
 
-        self.t_umlsl = QLineEdit(self.widget_6)
+        self.t_umlsl = QTextEdit(self.widget_6)
         self.t_umlsl.setObjectName(u"t_umlsl")
-        self.t_umlsl.setMinimumSize(QSize(0, 24))
-        self.t_umlsl.setMaximumSize(QSize(16777215, 24))
+        self.t_umlsl.setMinimumSize(QSize(16777215, 100))
+        self.t_umlsl.setMaximumSize(QSize(16777215, 1000))
 
         self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.t_umlsl)
 
@@ -277,22 +310,22 @@ class Ui_Edit_Query_Dialog(object):
 
         self.verticalLayout.addWidget(self.widget_4)
 
-        self.widget = QWidget(Edit_Query_Dialog)
-        self.widget.setObjectName(u"widget")
-        self.Lanes = QVBoxLayout(self.widget)
+        self.widget2 = QWidget(Edit_Query_Dialog)
+        self.widget2.setObjectName(u"widget2")
+        self.Lanes = QVBoxLayout(self.widget2)
         self.Lanes.setSpacing(0)
         self.Lanes.setObjectName(u"Lanes")
         self.Lanes.setSizeConstraint(QLayout.SizeConstraint.SetDefaultConstraint)
         self.Lanes.setContentsMargins(0, 0, 0, 0)
-        self.widget1 = QWidget(self.widget)
-        self.widget1.setObjectName(u"widget1")
-        sizePolicy.setHeightForWidth(self.widget1.sizePolicy().hasHeightForWidth())
-        self.widget1.setSizePolicy(sizePolicy)
-        self.horizontalLayout_2 = QHBoxLayout(self.widget1)
+        self.widget3 = QWidget(self.widget2)
+        self.widget3.setObjectName(u"widget3")
+        sizePolicy.setHeightForWidth(self.widget3.sizePolicy().hasHeightForWidth())
+        self.widget3.setSizePolicy(sizePolicy)
+        self.horizontalLayout_2 = QHBoxLayout(self.widget3)
         self.horizontalLayout_2.setSpacing(8)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(8, 0, 4, 4)
-        self.label_3 = QLabel(self.widget1)
+        self.label_3 = QLabel(self.widget3)
         self.label_3.setObjectName(u"label_3")
         sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
         sizePolicy1.setHorizontalStretch(0)
@@ -303,9 +336,9 @@ class Ui_Edit_Query_Dialog(object):
         self.horizontalLayout_2.addWidget(self.label_3)
 
 
-        self.Lanes.addWidget(self.widget1)
+        self.Lanes.addWidget(self.widget3)
 
-        self.widget_2 = QWidget(self.widget)
+        self.widget_2 = QWidget(self.widget2)
         self.widget_2.setObjectName(u"widget_2")
         self.gridLayout_2 = QGridLayout(self.widget_2)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
@@ -531,7 +564,7 @@ class Ui_Edit_Query_Dialog(object):
         self.Lanes.addWidget(self.widget_2)
 
 
-        self.verticalLayout.addWidget(self.widget)
+        self.verticalLayout.addWidget(self.widget2)
 
         self.Bottom = QHBoxLayout()
         self.Bottom.setObjectName(u"Bottom")
@@ -561,6 +594,8 @@ class Ui_Edit_Query_Dialog(object):
 
 
         self.retranslateUi(Edit_Query_Dialog)
+        self.b_delete.clicked.connect(Edit_Query_Dialog.reject)
+        self.b_save.clicked.connect(Edit_Query_Dialog.accept)
 
         self.b_save.setDefault(True)
 
@@ -570,6 +605,10 @@ class Ui_Edit_Query_Dialog(object):
 
     def retranslateUi(self, Edit_Query_Dialog):
         Edit_Query_Dialog.setWindowTitle(QCoreApplication.translate("Edit_Query_Dialog", u"Edit Query", None))
+        self.label_2.setText(QCoreApplication.translate("Edit_Query_Dialog", u"Preview", None))
+        self.label_2.setProperty(u"class", QCoreApplication.translate("Edit_Query_Dialog", u"label", None))
+        self.widget1.setProperty(u"class", QCoreApplication.translate("Edit_Query_Dialog", u"container", None))
+        self.l_preview.setText(QCoreApplication.translate("Edit_Query_Dialog", u"Preview Label", None))
         self.label_4.setText(QCoreApplication.translate("Edit_Query_Dialog", u"Query", None))
         self.label_4.setProperty(u"class", QCoreApplication.translate("Edit_Query_Dialog", u"label", None))
         self.widget_6.setProperty(u"class", QCoreApplication.translate("Edit_Query_Dialog", u"container", None))
