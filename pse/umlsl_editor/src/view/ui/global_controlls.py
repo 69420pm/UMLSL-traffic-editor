@@ -55,10 +55,13 @@ class GlobalControls(QObject):
 
     def _on_save(self) -> None:
         """Check if the current snapshot can be saved."""
-        try:
-            self.application_controller.command_controller.save_traffic_snapshot()
-        except CommandValidationError as exc:
-            WarningDialog("Save Error", str(exc), self._window).exec()
+        if self.application_controller.command_controller.get_current_snapshot_path() is None:
+            self._on_save_as()
+        else:
+            try:
+                self.application_controller.command_controller.save_traffic_snapshot()
+            except CommandValidationError as exc:
+                WarningDialog("Save Error", str(exc), self._window).exec()
 
     def _on_save_as(self) -> None:
         file_name, _ = QFileDialog.getSaveFileName(
