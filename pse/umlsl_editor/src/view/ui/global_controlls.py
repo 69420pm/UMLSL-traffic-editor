@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QFileDialog
 
 from pse.umlsl_editor.src.commands.command import CommandValidationError
 from pse.umlsl_editor.src.controllers import ApplicationController
+from pse.umlsl_editor.src.model.errors.errors import BaseError
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.settings.settings_dialog import SettingsDialog
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_main import Ui_MainWindow
@@ -61,7 +62,7 @@ class GlobalControls(QObject):
             try:
                 self.application_controller.command_controller.save_traffic_snapshot()
             except CommandValidationError as exc:
-                WarningDialog("Save Error", str(exc), self._window).exec()
+                WarningDialog("Can not save file", str(exc), self._window).exec()
 
     def _on_save_as(self) -> None:
         file_name, _ = QFileDialog.getSaveFileName(
@@ -75,7 +76,7 @@ class GlobalControls(QObject):
         try:
             self.application_controller.command_controller.save_as_traffic_snapshot(file_name)
         except CommandValidationError as exc:
-            WarningDialog("Save Error", str(exc), self._window).exec()
+            WarningDialog("Can not save file", str(exc), self._window).exec()
 
         self._window.update_main_window_title()
 
@@ -90,8 +91,8 @@ class GlobalControls(QObject):
             return
         try:
             self.application_controller.command_controller.load_traffic_snapshot(file_name)
-        except CommandValidationError as exc:
-            WarningDialog("Open Error", str(exc), self._window).exec()
+        except (BaseError, CommandValidationError) as exc:
+            WarningDialog("Can not open file", str(exc), self._window).exec()
 
         self._window.update_main_window_title()
 
