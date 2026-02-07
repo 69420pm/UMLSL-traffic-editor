@@ -40,7 +40,6 @@ class CarEnvironment:
     claimed_lanes: list[SegmentInterval]
     claimed_crossings: list[CrossingSegment]
 
-
     def __init__(
             self,
             path: VirtualLane,
@@ -92,7 +91,7 @@ class CarEnvironment:
         #  print("turn intent is ", turn_intent)
 
         if turn_intent is None:
-            return CarEnvironment( VirtualLane([]), [], Interval(0.0, 0.0), [])
+            return CarEnvironment(VirtualLane([]), [], Interval(0.0, 0.0), [])
         if not isinstance(start_segment, LaneSegment):
             raise ValueError("Car must start on a lange segment")
 
@@ -109,11 +108,11 @@ class CarEnvironment:
         path: VirtualLane | None = _compute_path_through_crossing(ts, start_segment, turn_segment, turn_direction)
 
         if path is None:
-            return CarEnvironment( VirtualLane([]), [], Interval(0.0, 0.0), []) # todo: <- remove
+            return CarEnvironment(VirtualLane([]), [], Interval(0.0, 0.0), [])  # todo: <- remove
             raise ValueError("Car specified a turn intent with invalid path.")
 
         path_segment_intervals: list[SegmentInterval] = _compute_segment_intervals(ts, path, pos_on_segment, car_size)
-        horizontal_horizon: float = compute_horizontal_horizon(
+        horizontal_horizon: Interval = compute_horizontal_horizon(
             path_segment_intervals,
             settings_model.braking_distance()
         )
@@ -147,7 +146,12 @@ class CarEnvironment:
 
             parallel_virtual_lanes.append(parallel_virtual_lane)
 
-        return CarEnvironment(opposing_parallel_virtual_lanes, path, path_segment_intervals)
+        return CarEnvironment(
+            path,
+            path_segment_intervals,
+            horizontal_horizon,
+            parallel_virtual_lanes
+        )
 
 
 def _compute_opposing_parallel_segments(ts: TrafficSnapshotReader, segment: LaneSegment) -> list[LaneSegment]:
@@ -199,7 +203,7 @@ def _compute_path_straight(ts: TrafficSnapshotReader, car_direction: Direction, 
     return VirtualLane(path)
 
 
-def compute_horizontal_horizon(path_segment_intervals: list[SegmentInterval], braking_dist: float) -> float:
+def compute_horizontal_horizon(path_segment_intervals: list[SegmentInterval], braking_dist: float) -> Interval:
     """
     Computes the horizontal horizon of the car's path.
     It usually equals the (maximum) braking distance, so that every car can come ot a complete stand-still within
@@ -208,6 +212,7 @@ def compute_horizontal_horizon(path_segment_intervals: list[SegmentInterval], br
 
     virtual_pos: float = 0
     stopped_crossing_i: int = -1
+    start = path_segment_intervals[0].interval.start
 
     for i, seg_interval in enumerate(path_segment_intervals):
         segment = seg_interval.segment
@@ -218,7 +223,7 @@ def compute_horizontal_horizon(path_segment_intervals: list[SegmentInterval], br
         if next_virtual_pos > braking_dist:
             if segment.is_lane_segment:
                 # the car can come to a complete stand-still within the horizon
-                return braking_dist
+                return Interval(start, braking_dist)
             else:
                 # car stops at crossing (segment with index i)
                 stopped_crossing_i = i
@@ -234,7 +239,7 @@ def compute_horizontal_horizon(path_segment_intervals: list[SegmentInterval], br
         if seg_interval.segment.is_lane_segment:
             # the path_segment_intervals already guarantees the safety envelope after a crossing
             # (the algorithm uses the size of the car exactly if the car otherwise stops in a crossing)
-            return virtual_pos
+            return Interval(start, virtual_pos)
 
     # not terminating here would mean the there segments_interval algorithm stops in a crossing
     # this is not the case
