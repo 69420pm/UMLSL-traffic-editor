@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.entities.car import Car, CarParams
 from pse.umlsl_editor.src.model.entities.road import Road, RoadParams
 
@@ -51,7 +52,7 @@ class TrafficSnapshotWriter(ABC):
         pass
 
     @abstractmethod
-    def update_car_with_params(self, car_uid: str, car_params: CarParams) -> None:
+    def update_car_with_params(self, car_uid: str, car_params: CarParams, settings_model: SettingsModel) -> None:
         """
         Updates an existing car in the snapshot and validates all attributes in the context of the snapshot.
 

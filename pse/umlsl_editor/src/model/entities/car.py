@@ -2,6 +2,7 @@ import re
 from dataclasses import dataclass
 from typing import Optional
 
+from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.entity import Entity
 from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError
@@ -38,7 +39,6 @@ class CarParams:
     length: float
     next_turn: TurnIntent | None
     acceleration: float
-    braking_distance: float
 
 
 @dataclass()
@@ -111,7 +111,7 @@ class Car(Entity):
     _should_validate: bool = False
 
     @classmethod
-    def from_params(cls, params: CarParams, traffic_snapshot: TrafficSnapshotReader) -> "Car":
+    def from_params(cls, params: CarParams, traffic_snapshot: TrafficSnapshotReader, settings_model: SettingsModel) -> "Car":
         """
         Creates a Car instance from a CarParams dataclass.
 
@@ -143,7 +143,7 @@ class Car(Entity):
             params.length,
             params.speed,
             params.next_turn,
-            params.braking_distance
+            settings_model
         )
         return cls(
             uid=generate_uid(),
@@ -206,7 +206,7 @@ class Car(Entity):
         if self.next_turn is not None and not isinstance(self.next_turn, TurnIntent):
             raise CarValidationError(content="Next turn must be None or a TurnIntent instance.")
 
-    def update_from_params(self, params: CarParams, traffic_snapshot: TrafficSnapshotReader) -> None:
+    def update_from_params(self, params: CarParams, traffic_snapshot: TrafficSnapshotReader, settings_model: SettingsModel) -> None:
         """
         Updates the Car instance's attributes based on a CarParams dataclass.
 
@@ -240,7 +240,7 @@ class Car(Entity):
             params.length,
             params.speed,
             params.next_turn,
-            params.braking_distance
+            settings_model
         )
 
         self.environment = car_env

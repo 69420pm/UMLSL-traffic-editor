@@ -119,11 +119,10 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
             transition=DEFAULT_CAR_CONFIG["transition"],
             next_turn=None,
             lane=default_lane,
-            braking_distance=self._app_controller.get_braking_distance()
         )
 
         snapshot_reader = self._app_controller.get_traffic_snapshot_reader()
-        return Car.from_params(params, snapshot_reader)
+        return Car.from_params(params, snapshot_reader, self._app_controller.get_settings_model())
 
     def _connect_signals(self) -> None:
         """Connect UI signals to their handlers."""
@@ -327,6 +326,5 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
             transition=data["transition"],
             assigned_road=data["road"],
             lane_index=data["lane_index"],
-            next_turn=data["next_turn"],
-            braking_distance=self._app_controller.get_braking_distance()
+            next_turn=data["next_turn"]
         )

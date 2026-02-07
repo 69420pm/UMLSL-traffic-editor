@@ -46,6 +46,7 @@ class LoadTrafficSnapshot(Command[None]):
                 payload,
                 new_snapshot,
                 new_snapshot,
+                self._application_controller.get_settings_model(),
                 new_queries,
             )
         except ValueError as exc:

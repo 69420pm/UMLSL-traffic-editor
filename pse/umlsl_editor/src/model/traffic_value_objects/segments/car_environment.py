@@ -1,5 +1,6 @@
 from enum import Enum
 
+from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.model.helper.directional_graph import Direction
@@ -39,12 +40,6 @@ class CarEnvironment:
 
     space_interval: Interval
     """"
-    max_v = self._traffic_snapshot.get_max_velocity()
-    horizon = max_v * max_v / (2.0 * braking_accel)
-    horizontal_extension = Interval(
-        car.absolute_position() - horizon,
-        car.absolute_position() + horizon
-    )
     """
 
     def path_segments_in_view(self, view: View) -> list[SegmentInterval]:
@@ -71,7 +66,8 @@ class CarEnvironment:
             pos_on_lane_center: float,
             car_size: float,
             speed: float,
-            turn_intent: TurnIntent
+            turn_intent: TurnIntent,
+            settings_model: SettingsModel
     ) -> 'CarEnvironment':
         road_id = car_lane.road_uid
         road = ts.get_road_by_uid(road_id)
@@ -84,6 +80,8 @@ class CarEnvironment:
         else:
             car_direction = Direction.UP if speed > 0 else Direction.DOWN
 
+        #print(settings_model.braking_distance())
+
       #  print("car_direction", car_direction)
 
       #  print("turn intent is ", turn_intent)
@@ -95,6 +93,7 @@ class CarEnvironment:
 
         pos_on_segment = pos_on_lane - segment.get_position(ts)[road.orientation.value]
 
+      #  print("braking dist is", braking_distance)
 
 
        # print("car lane ", car_lane, " pos on seg: ", pos_on_segment, " segment ", segment, " car dir ", car_direction)
@@ -131,6 +130,16 @@ def _compute_path_straight(ts: TrafficSnapshotReader, car_direction: Direction, 
 
     return VirtualLane(path)
 
+def compute_horizontal_horizon(ts: TrafficSnapshotReader, car_direction: Direction, paths: VirtualLane) -> float:
+
+    max_v = ts
+    horizontal_extension = Interval(
+        car.absolute_position() - horizon,
+        car.absolute_position() + horizon
+    )
+
+    return 0
+
 def _find_turn_intent_segment(
         ts: TrafficSnapshotReader,
         start: LaneSegment,
@@ -158,6 +167,11 @@ def _find_turn_intent_segment(
                 segments_of_target_lane.append(segment)
 
     turn_direction = turn_intent.direction
+
+    # if there is no crossing on the road (-> 1 lane segment), we can terminate directly
+    if len(segments_of_target_lane) == 1:
+        assert turn_direction == TurnDirection.STRAIGHT
+        return segments_of_target_lane[0]
 
     # the segment_position_index is used to consider only the relevant coordinate of the segments_of_target_lane list
     # this is the segment_position_index corresponding to a car driving horizontally

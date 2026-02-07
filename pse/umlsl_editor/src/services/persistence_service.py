@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
@@ -48,6 +49,7 @@ class PersistenceService:
         data: dict[str, Any],
         traffic_snapshot_writer: TrafficSnapshotWriter,
         traffic_snapshot_reader: TrafficSnapshotReader,
+        settings_model: SettingsModel,
         umlsl_queries_model: UMLSLQueriesModel,
     ) -> None:
         """
@@ -81,6 +83,7 @@ class PersistenceService:
             {"roads": roads, "cars": cars},
             traffic_snapshot_writer,
             traffic_snapshot_reader,
+            settings_model
         )
 
         existing_car_uids = set(traffic_snapshot_reader.get_cars().keys())
