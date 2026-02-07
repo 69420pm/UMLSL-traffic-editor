@@ -69,6 +69,8 @@ class CarEnvironment:
             turn_intent: TurnIntent,
             settings_model: SettingsModel
     ) -> 'CarEnvironment':
+        return CarEnvironment()
+
         road_id = car_lane.road_uid
         road = ts.get_road_by_uid(road_id)
         pos_on_lane = pos_on_lane_center - car_size / 2  # we need the rear
@@ -109,6 +111,7 @@ class CarEnvironment:
             path_segment_intervals,
             settings_model.braking_distance()
         )
+
 
 
 
