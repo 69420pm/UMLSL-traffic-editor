@@ -433,8 +433,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                 for s_t, s_b in zip(segs_top, segs_bottom):
                     # Only connect LaneSegments laterally, not CrossingSegments
                     if isinstance(s_t, LaneSegment) and isinstance(s_b, LaneSegment):
-                        self._graph.add_edge(s_t.uid, s_b.uid, direction=Direction.DOWN)
-                        self._graph.add_edge(s_b.uid, s_t.uid, direction=Direction.UP)
+                        self._graph.add_edge(s_t.uid, s_b.uid, direction=Direction.UP)
+                        self._graph.add_edge(s_b.uid, s_t.uid, direction=Direction.DOWN)
 
         # 3. Process Vertical Roads
         for v_road in vertical_roads:
@@ -728,6 +728,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
         Args:
             json_string: A JSON-formatted string containing traffic snapshot data.
+            settings_model: A SettingsModel instance for validation during deserialization.
 
         """
         data = json.loads(json_string)
