@@ -359,6 +359,22 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         if not self.is_edit_mode:
             return
 
+        queries = self._app_controller.command_controller.umlsl_queries_model.get_queries().values()
+        queries_related_to_car = []
+        for query in queries:
+            if query.assigned_car_uid == self.car.uid:
+                queries_related_to_car.append(query.latex)
+                break
+
+        if queries_related_to_car:
+            dialog = WarningDialog(
+                "Deletion Error",
+                f"Cannot delete car '{self.car.name}' because the following queries reference it as ego cars:\n{queries_related_to_car}",
+                self,
+            )
+            dialog.exec()
+            return
+
         confirm = ConfirmDeletionDialog(
             f"Are you sure you want to delete the car '{self.car.name}'?",
             self,
