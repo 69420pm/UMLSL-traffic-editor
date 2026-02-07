@@ -3,6 +3,7 @@ from typing import Any
 
 import networkx as nx
 
+from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import (
     TrafficSnapshotReader,
 )
@@ -288,9 +289,9 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     def remove_car(self, car_uid: str) -> None:
         self._cars.pop(car_uid)
 
-    def update_car_with_params(self, car_uid: str, car_params: CarParams) -> None:
+    def update_car_with_params(self, car_uid: str, car_params: CarParams, settings_model: SettingsModel) -> None:
         car = self._cars.get(car_uid)
-        car.update_from_params(car_params, self)
+        car.update_from_params(car_params, self, settings_model)
         self._cars[car_uid] = car
         self.get_valid_turn_intent_lanes(car.position_on_lane, car.speed, car.lane, car.length, TurnDirection.LEFT)
 
@@ -603,6 +604,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             data: dict[str, Any],
             writer: TrafficSnapshotWriter,
             reader: TrafficSnapshotReader,
+            settings_model: SettingsModel
     ) -> "TrafficSnapshotModel":
         """
         Creates a TrafficSnapshot instance from a dictionary.
@@ -707,7 +709,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             )
             reader.validate_car_params(car_params, True)
 
-            car = Car.from_params(car_params, reader)
+            car = Car.from_params(car_params, reader, settings_model)
             car_uid = car_data.get("uid")
             if not car_uid:
                 raise ValueError("Car uid is required.")
@@ -717,7 +719,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         return writer if isinstance(writer, TrafficSnapshotModel) else None
 
     @classmethod
-    def from_json(cls, json_string: str) -> "TrafficSnapshotModel":
+    def from_json(cls, json_string: str, settings_model: SettingsModel) -> "TrafficSnapshotModel":
         """
         Creates a TrafficSnapshot instance from a JSON string.
 
@@ -727,7 +729,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         """
         data = json.loads(json_string)
         snapshot = cls()
-        cls.from_dict(data, snapshot, snapshot)
+        cls.from_dict(data, snapshot, snapshot, settings_model)
         return snapshot
 
     def print_segments_by_lane(self):

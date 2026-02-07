@@ -1,4 +1,5 @@
 from pse.umlsl_editor.src.commands.command import Command
+from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import (
     TrafficSnapshotReader,
 )
@@ -15,6 +16,7 @@ class AddCarCommand(Command[None]):
             self,
             traffic_snapshot_reader: TrafficSnapshotReader,
             traffic_snapshot_writer: TrafficSnapshotWriter,
+            settings_model: SettingsModel,
             car_params: CarParams
     ):
         """
@@ -27,6 +29,7 @@ class AddCarCommand(Command[None]):
         """
         self._traffic_snapshot_writer = traffic_snapshot_writer
         self._traffic_snapshot_reader = traffic_snapshot_reader
+        self._settings_model = settings_model
         self.car_params = car_params
 
     def execute(self) -> None:
@@ -39,5 +42,5 @@ class AddCarCommand(Command[None]):
             CarTrafficSnapshotContextValidationError: If car is invalid in traffic snapshot context.
         """
         self._traffic_snapshot_reader.validate_car_params(self.car_params, True)
-        car = Car.from_params(self.car_params, self._traffic_snapshot_reader)
+        car = Car.from_params(self.car_params, self._traffic_snapshot_reader, self._settings_model)
         self._traffic_snapshot_writer.add_car(car)

@@ -120,7 +120,7 @@ class CommandController:
             speed: float,
             length: float,
             acceleration: float,
-            next_turn: Optional[TurnIntent]
+            next_turn: Optional[TurnIntent],
     ) -> None:
         """
         Adds a car to the traffic snapshot based on the given parameters.
@@ -141,7 +141,12 @@ class CommandController:
         lane = Lane(road_uid=assigned_road.uid, lane_index=lane_index)
         car_params = CarParams(name, lane, color, position_on_lane, transition, speed, length, next_turn,
                                acceleration)
-        add_car_command = add_car.AddCarCommand(self.traffic_snapshot_reader, self.traffic_snapshot_writer, car_params)
+        add_car_command = add_car.AddCarCommand(
+            self.traffic_snapshot_reader,
+            self.traffic_snapshot_writer,
+            self.settings_model,
+            car_params
+        )
         self._execute_command(add_car_command)
 
     def remove_car(self, car_uid: str) -> None:
@@ -199,6 +204,7 @@ class CommandController:
         edit_car_command = EditCarCommand(
             self.traffic_snapshot_reader,
             self.traffic_snapshot_writer,
+            self.settings_model,
             car_params,
             car.uid,
         )

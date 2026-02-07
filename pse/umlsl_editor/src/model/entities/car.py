@@ -2,13 +2,14 @@ import re
 from dataclasses import dataclass
 from typing import Optional
 
+from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.entity import Entity
 from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.car_environment import CarEnvironment
-from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent, TurnDirection
+from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
 
 
 @dataclass
@@ -110,7 +111,7 @@ class Car(Entity):
     _should_validate: bool = False
 
     @classmethod
-    def from_params(cls, params: CarParams, ts_reader: TrafficSnapshotReader) -> "Car":
+    def from_params(cls, params: CarParams, traffic_snapshot: TrafficSnapshotReader, settings_model: SettingsModel) -> "Car":
         """
         Creates a Car instance from a CarParams dataclass.
 
@@ -136,12 +137,13 @@ class Car(Entity):
         """
 
         car_env = CarEnvironment.create_environment(
-            ts_reader,
+            traffic_snapshot,
             params.lane,
             params.position_on_lane,
             params.length,
             params.speed,
-            turn_direction=TurnDirection.STRAIGHT
+            params.next_turn,
+            settings_model
         )
         return cls(
             uid=generate_uid(),
@@ -204,7 +206,7 @@ class Car(Entity):
         if self.next_turn is not None and not isinstance(self.next_turn, TurnIntent):
             raise CarValidationError(content="Next turn must be None or a TurnIntent instance.")
 
-    def update_from_params(self, params: CarParams, ts_reader: TrafficSnapshotReader) -> None:
+    def update_from_params(self, params: CarParams, traffic_snapshot: TrafficSnapshotReader, settings_model: SettingsModel) -> None:
         """
         Updates the Car instance's attributes based on a CarParams dataclass.
 
@@ -232,12 +234,13 @@ class Car(Entity):
         """
 
         car_env = CarEnvironment.create_environment(
-            ts_reader,
+            traffic_snapshot,
             params.lane,
             params.position_on_lane,
             params.length,
             params.speed,
-            turn_direction=TurnDirection.STRAIGHT
+            params.next_turn,
+            settings_model
         )
 
         self.environment = car_env
