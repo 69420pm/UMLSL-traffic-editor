@@ -44,11 +44,12 @@ class ParserError(Exception):
             ast_parser_error: ASTParserError,
             input: str,
             tokens: list[Token],
-            scope_start: int,
-            scope_end: int,
+            scope_1: int,
+            scope_2: int,
     ):
         super().__init__(ast_parser_error)
-        assert scope_start <= scope_end
+        scope_start = min(scope_1, scope_2)
+        scope_end = max(scope_1, scope_2)
 
         self.input = input
         self.reason = ast_parser_error.reason
