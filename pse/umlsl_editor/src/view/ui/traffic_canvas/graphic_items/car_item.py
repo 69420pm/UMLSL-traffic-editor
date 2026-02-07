@@ -163,7 +163,7 @@ class CarItem(SelectableGraphicsItem):
         road = self._road
         lane_idx = car.lane.lane_index
         is_vertical = road.orientation == RoadOrientation.VERTICAL
-        is_backward = lane_idx < 0
+        is_backward = lane_idx < 0 != car.speed < 0
 
         # 1. Define Local Shape (Anchor = Back @ 0,0)
         # We build the car facing Positive X

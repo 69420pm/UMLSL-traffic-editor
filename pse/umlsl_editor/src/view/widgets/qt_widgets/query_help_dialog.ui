@@ -753,7 +753,7 @@ QPushButton#b_close:pressed {
             </size>
            </property>
            <property name="text">
-            <string>Clainmed Space</string>
+            <string>Claimed Space</string>
            </property>
            <property name="textFormat">
             <enum>Qt::TextFormat::MarkdownText</enum>

@@ -27,7 +27,7 @@ class LatexImageProvider(QQuickImageProvider):
     """
 
     # A reasonable limit for UI elements in a list view.
-    # 500 items prevents memory bloat while keeping scrolling smooth.
+    # 100 items prevents memory bloat while keeping scrolling smooth.
     CACHE_LIMIT = 100
 
     def __init__(self) -> None:

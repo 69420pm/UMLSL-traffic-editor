@@ -485,7 +485,7 @@ class Ui_QueryHelpDialog(object):
         self.label_15.setText(QCoreApplication.translate("QueryHelpDialog", u"re(c)", None))
         self.label_6.setText(QCoreApplication.translate("QueryHelpDialog", u"Crossing Segment", None))
         self.label_27.setText(QCoreApplication.translate("QueryHelpDialog", u"\U0001d7191", None))
-        self.label_17.setText(QCoreApplication.translate("QueryHelpDialog", u"Clainmed Space", None))
+        self.label_17.setText(QCoreApplication.translate("QueryHelpDialog", u"Claimed Space", None))
         self.label_24.setText(QCoreApplication.translate("QueryHelpDialog", u"\U000000ac \U0001d719", None))
         self.label_20.setText(QCoreApplication.translate("QueryHelpDialog", u"\u2200 / For All Cars c", None))
         self.label_9.setText(QCoreApplication.translate("QueryHelpDialog", u"Reserved Space", None))
