@@ -520,23 +520,24 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         print("===============================")
 
     def get_segment_info(self, segment_uid: str) -> str:
+        # todo: use polymorphism to remove instance checks
         segment = self._segments.get(segment_uid)
         if segment is None:
-            return f"UNKNOWN_SEGMENT({segment_uid})"
+            return f"unknown segment with uid {segment_uid}"
 
         if isinstance(segment, CrossingSegment):
             h_road = self.get_road_by_uid(segment.horizontal_lane.road_uid)
             v_road = self.get_road_by_uid(segment.vertical_lane.road_uid)
-            return (f"CrossingSegment({segment_uid}) "
-                    f"at {h_road.name}(L{segment.horizontal_lane.lane_index}) x "
-                    f"{v_road.name}(L{segment.vertical_lane.lane_index})")
+            return (f"crossing "
+                    f"at R{h_road.name}(L{segment.horizontal_lane.lane_index}) x "
+                    f"R{v_road.name}(L{segment.vertical_lane.lane_index})")
 
         elif isinstance(segment, LaneSegment):
             road = self.get_road_by_uid(segment.lane.road_uid)
-            return (f"LaneSegment({segment_uid}) "
-                    f"on road: {road.name}(L{segment.lane.lane_index})")
+            return (f"lane "
+                    f"at R{road.name}(L{segment.lane.lane_index})")
 
-        return f"Segment({segment_uid})"
+        raise NotImplementedError(f"Unknown segment type: {type(segment)}")
 
     def to_dict(self) -> dict[str, Any]:
         """
