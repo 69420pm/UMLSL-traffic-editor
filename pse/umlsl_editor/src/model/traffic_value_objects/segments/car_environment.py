@@ -71,7 +71,7 @@ class CarEnvironment:
     ) -> 'CarEnvironment':
         road_id = car_lane.road_uid
         road = ts.get_road_by_uid(road_id)
-        pos_on_lane = pos_on_lane_center - car_size / 2 # we need the rear
+        pos_on_lane = pos_on_lane_center - car_size / 2  # we need the rear
         segment = ts.get_segment_from_lane_position(car_lane, pos_on_lane)
 
         # todo: extract into separate method
@@ -80,44 +80,36 @@ class CarEnvironment:
         else:
             car_direction = Direction.UP if speed > 0 else Direction.DOWN
 
-        #print(settings_model.braking_distance())
+        #  print("car_direction", car_direction)
 
-      #  print("car_direction", car_direction)
-
-      #  print("turn intent is ", turn_intent)
+        #  print("turn intent is ", turn_intent)
 
         if turn_intent is None:
             return CarEnvironment()
-        if segment is None and segment is not LaneSegment:
-            raise ValueError("Segment is None or not a LaneSegment")
+        if segment is None:
+            raise ValueError("Segment is None")
 
+        # converts the absolute position to the position on the segment
         pos_on_segment = pos_on_lane - segment.get_position(ts)[road.orientation.value]
 
-      #  print("braking dist is", braking_distance)
-
-
-       # print("car lane ", car_lane, " pos on seg: ", pos_on_segment, " segment ", segment, " car dir ", car_direction)
-        lane_pos = car_lane.get_one_dimensional_position(ts)
-       # print("lane pos is ", lane_pos, " pos on seg: ", pos_on_segment, " direction is ", car_direction)
+        #  print("braking dist is", braking_distance)
+        # print("car lane ", car_lane, " pos on seg: ", pos_on_segment, " segment ", segment, " car dir ", car_direction)
+        # print("lane pos is ", lane_pos, " pos on seg: ", pos_on_segment, " direction is ", car_direction)
 
         turn_direction = turn_intent.direction
 
-        if turn_direction == TurnDirection.STRAIGHT:
-            path = _compute_path_straight(ts, car_direction, segment)
-            path_segs = list(map(lambda x: ts.get_segment_info(x.uid), path.segments))
-            path_segment_intervals = _compute_segment_intervals(ts, path, pos_on_segment, car_size)
-          #  print("path is ", path)
-          #  print("path segments are ", path_segs)
-            segment_intervals_text = list(map(lambda x: f"{ts.get_segment_info(x.segment.uid)}{x.interval}", path_segment_intervals))
-         #   print("segment intervals are ", segment_intervals_text)
+        turn_segment: LaneSegment = _find_turn_intent_segment(ts, segment, turn_intent, car_direction)
+        path: VirtualLane | None = _compute_path_through_crossing(ts, segment, turn_segment, turn_direction)
 
-            target_segment =_find_turn_intent_segment(ts, segment, turn_intent, car_direction)
-           # print("target segment is ", ts.get_segment_info(target_segment.uid) if target_segment is not None else "None")
-            return CarEnvironment()
-        else:
-            # todo
-            return CarEnvironment()
-        #  visible_segments = _compute_visible_segments(traffic_snapshot, path, pos, car_size)
+        if path is None:
+            raise ValueError("Car specified a turn intent with invalid path.")
+
+        path_segment_intervals: list[SegmentInterval] = _compute_segment_intervals(ts, path, pos_on_segment, car_size)
+        horizontal_horizon: float = compute_horizontal_horizon(
+            path_segment_intervals,
+            settings_model.braking_distance()
+        )
+
 
 
 def _compute_path_straight(ts: TrafficSnapshotReader, car_direction: Direction, segment: Segment) -> VirtualLane:
@@ -130,19 +122,52 @@ def _compute_path_straight(ts: TrafficSnapshotReader, car_direction: Direction, 
 
     return VirtualLane(path)
 
-def compute_horizontal_horizon(ts: TrafficSnapshotReader, car_direction: Direction, paths: VirtualLane) -> float:
 
-    max_v = ts
-    horizontal_extension = Interval(
-        car.absolute_position() - horizon,
-        car.absolute_position() + horizon
-    )
+def compute_horizontal_horizon(path_segment_intervals: list[SegmentInterval], braking_dist: float) -> float:
+    """
+    Computes the horizontal horizon of the car's path.
+    It usually equals the (maximum) braking distance, so that every car can come ot a complete stand-still within
+    the horizon. However, on crossings, the horizon is expanded until after the crossing.
+    """
 
-    return 0
+    virtual_pos: float = 0
+    stopped_crossing_i: int = -1
+
+    for i, seg_interval in enumerate(path_segment_intervals):
+        segment = seg_interval.segment
+        interval = seg_interval.interval
+
+        next_virtual_pos = virtual_pos + interval.length()
+
+        if next_virtual_pos > braking_dist:
+            if segment.is_lane_segment:
+                # the car can come to a complete stand-still within the horizon
+                return braking_dist
+            else:
+                # car stops at crossing (segment with index i)
+                stopped_crossing_i = i
+                break
+
+        virtual_pos = next_virtual_pos
+
+    # we have to advance until after the crossing starting at index stopped_crossing_i
+    for i in range(stopped_crossing_i + 1, len(path_segment_intervals)):
+        seg_interval = path_segment_intervals[i]
+        virtual_pos += seg_interval.interval.length()
+
+        if seg_interval.segment.is_lane_segment:
+            # the path_segment_intervals already guarantees the safety envelope after a crossing
+            # (the algorithm uses the size of the car exactly if the car otherwise stops in a crossing)
+            return virtual_pos
+
+    # not terminating here would mean the there segments_interval algorithm stops in a crossing
+    # this is not the case
+    raise ValueError("The algorithm stopped in a crossing")
+
 
 def _find_turn_intent_segment(
         ts: TrafficSnapshotReader,
-        start: LaneSegment,
+        start: Segment,
         turn_intent: TurnIntent,
         car_direction: Direction
 ) -> LaneSegment | None:
@@ -205,11 +230,10 @@ def _find_turn_intent_segment(
 
 def _compute_path_through_crossing(
         ts: TrafficSnapshotReader,
-        start: LaneSegment,
+        start: Segment,
         end: LaneSegment,
         turn_direction: TurnDirection
 ) -> list[Segment] | None:
-
     pass
 
 
