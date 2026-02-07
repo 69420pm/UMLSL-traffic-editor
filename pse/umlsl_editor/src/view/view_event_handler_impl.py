@@ -1,5 +1,4 @@
-from PySide6.QtCore import Signal
-from PySide6.QtCore import SignalInstance
+from PySide6.QtCore import Signal, SignalInstance
 
 from pse.umlsl_editor.src.controllers.view_event_contract import ViewEventHandler
 from pse.umlsl_editor.src.model.entities.car import Car
@@ -10,12 +9,16 @@ from pse.umlsl_editor.src.view.view_models import ViewModels
 
 class ViewEventHandlerImplementation(ViewEventHandler):
     selection_changed = Signal(str)
+    snapshot_changed = Signal(bool)
     toggle_coordinate_system_signal = Signal(bool)
     toggle_grid_signal = Signal(bool)
     toggle_safety_distance_signal = Signal(bool)
 
     def get_on_selection_changed_signal(self) -> "SignalInstance":
         return self.selection_changed
+
+    def get_on_snapshot_changed_signal(self) -> "SignalInstance":
+        return self.snapshot_changed
 
     def get_on_toggle_coordinate_system_signal(self) -> "SignalInstance":
         return self.toggle_coordinate_system_signal

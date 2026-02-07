@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>652</width>
-    <height>727</height>
+    <width>232</width>
+    <height>491</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -250,7 +250,7 @@ QPushButton#b_close:pressed {
             </size>
            </property>
            <property name="text">
-            <string>free</string>
+            <string>\free</string>
            </property>
            <property name="textFormat">
             <enum>Qt::TextFormat::MarkdownText</enum>
@@ -294,7 +294,7 @@ QPushButton#b_close:pressed {
             </size>
            </property>
            <property name="text">
-            <string>cl(c)</string>
+            <string>\cl{c}</string>
            </property>
            <property name="textFormat">
             <enum>Qt::TextFormat::MarkdownText</enum>
@@ -316,7 +316,7 @@ QPushButton#b_close:pressed {
             </size>
            </property>
            <property name="text">
-            <string>c</string>
+            <string>\c</string>
            </property>
            <property name="textFormat">
             <enum>Qt::TextFormat::MarkdownText</enum>
@@ -357,7 +357,7 @@ QPushButton#b_close:pressed {
             </size>
            </property>
            <property name="text">
-            <string>\exists c 𝜙</string>
+            <string>\exists c: 𝜙</string>
            </property>
            <property name="textFormat">
             <enum>Qt::TextFormat::MarkdownText</enum>
@@ -379,7 +379,7 @@ QPushButton#b_close:pressed {
             </size>
            </property>
            <property name="text">
-            <string>\neg 𝜙</string>
+            <string>\neg 𝜙, !𝜙</string>
            </property>
            <property name="textFormat">
             <enum>Qt::TextFormat::MarkdownText</enum>
@@ -511,7 +511,7 @@ QPushButton#b_close:pressed {
             </size>
            </property>
            <property name="text">
-            <string>cs</string>
+            <string>\cs</string>
            </property>
            <property name="textFormat">
             <enum>Qt::TextFormat::MarkdownText</enum>
@@ -643,7 +643,7 @@ QPushButton#b_close:pressed {
             </size>
            </property>
            <property name="text">
-            <string>\forall c 𝜙</string>
+            <string>\forall c: 𝜙</string>
            </property>
            <property name="textFormat">
             <enum>Qt::TextFormat::MarkdownText</enum>
@@ -687,7 +687,7 @@ QPushButton#b_close:pressed {
             </size>
            </property>
            <property name="text">
-            <string>re(c)</string>
+            <string>\re{c}</string>
            </property>
            <property name="textFormat">
             <enum>Qt::TextFormat::MarkdownText</enum>
