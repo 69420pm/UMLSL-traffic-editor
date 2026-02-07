@@ -525,17 +525,22 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         if segment is None:
             return f"unknown segment with uid {segment_uid}"
 
+        def format_lane(lane: Lane) -> str:
+            actual_index = lane.lane_index + 1 if lane.lane_index >= 0 else -lane.lane_index
+            prefix = "f" if lane.lane_index >= 0 else "b"
+            return f"{prefix}{actual_index} ({lane.road_uid})"
+
         if isinstance(segment, CrossingSegment):
             h_road = self.get_road_by_uid(segment.horizontal_lane.road_uid)
             v_road = self.get_road_by_uid(segment.vertical_lane.road_uid)
             return (f"crossing "
-                    f"at R{h_road.name}(L{segment.horizontal_lane.lane_index}) x "
-                    f"R{v_road.name}(L{segment.vertical_lane.lane_index})")
+                    f"at R{h_road.name}({format_lane(segment.horizontal_lane)}) x "
+                    f"R{v_road.name}({format_lane(segment.vertical_lane)})")
 
         elif isinstance(segment, LaneSegment):
             road = self.get_road_by_uid(segment.lane.road_uid)
             return (f"lane "
-                    f"at R{road.name}(L{segment.lane.lane_index})")
+                    f"at R{road.name}({format_lane(segment.lane)})")
 
         raise NotImplementedError(f"Unknown segment type: {type(segment)}")
 
