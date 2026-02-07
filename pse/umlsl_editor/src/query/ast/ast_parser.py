@@ -59,7 +59,7 @@ class ASTParser:
                 "unbalanced parentheses",
                 start,
                 end,
-                "Consider adding/removing '(', ')', '{' or '}'"
+                "Consider adding/removing '(', ')', '<' or '{', '}', '>'"
             )
 
         if split_index != -1:
@@ -95,13 +95,6 @@ class ASTParser:
                 )
 
         if token_type == TokenType.CAR_EQUALS:
-            if start != split_index - 1 or end != split_index + 1:
-                raise ASTParserError(
-                    "expected car names as arguments",
-                    start,
-                    end,
-                    "Consider writing the equality as 'a = b', where a and b are car names or variables"
-                )
             car1 = self.parse_car(start, declared_variables)
             car2 = self.parse_car(end, declared_variables)
             return EqualityCarNode(car1, car2)

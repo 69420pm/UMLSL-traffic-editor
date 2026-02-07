@@ -44,3 +44,6 @@ class Interval:
 
         merged.append(Interval(current_start, current_end))
         return merged
+
+    def __str__(self):
+        return f"[{self.start}, {self.end}]"

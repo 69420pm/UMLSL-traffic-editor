@@ -108,3 +108,17 @@ class LaneSegment(Segment):
                 height = scene_size * 2  # No crossings, lane extends to the edge of the scene
 
         return width, height
+
+    """"
+    Returns the size in the direction of the lane.
+    For example, for a horizontal lane, it returns the width, for a vertical lane it returns the height.
+    """
+
+    def get_size_in_direction(self, traffic_snapshot: TrafficSnapshotReader) -> float:
+        road = self.lane.road_uid
+        size = self.get_size(traffic_snapshot)
+        match traffic_snapshot.get_road_by_uid(road).orientation:
+            case RoadOrientation.HORIZONTAL:
+                return size[0]
+            case RoadOrientation.VERTICAL:
+                return size[1]

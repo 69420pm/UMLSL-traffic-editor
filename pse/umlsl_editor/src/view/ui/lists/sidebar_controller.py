@@ -11,9 +11,9 @@ from PySide6.QtCore import QObject, Qt, QUrl
 
 from pse.umlsl_editor.src.controllers import ApplicationController
 from pse.umlsl_editor.src.model.entities.entity import Entity
-from pse.umlsl_editor.src.view.ui.lists.edit_car_dialog import EditCarDialog
-from pse.umlsl_editor.src.view.ui.lists.edit_query_dialog import EditQueryDialog
-from pse.umlsl_editor.src.view.ui.lists.edit_road_dialog import EditRoadDialog
+from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.edit_car_dialog import EditCarDialog
+from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.edit_query_dialog import EditQueryDialog
+from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.edit_road_dialog import EditRoadDialog
 from pse.umlsl_editor.src.view.ui.lists.models.latex_image_provider import LatexImageProvider
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_main import Ui_MainWindow
 

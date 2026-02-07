@@ -29,7 +29,7 @@ class ApplicationController:
         """
         self._model_view = ViewModels(self)
         self._model_traffic_snapshot = TrafficSnapshotModel()
-        self._model_settings = SettingsModel(
+        self._settings_model = SettingsModel(
             breaking_deceleration=8.0, max_acceleration=100)
         self._model_umlsl_queries = UMLSLQueriesModel()
 
@@ -38,11 +38,11 @@ class ApplicationController:
         self._model_view.connect_signals(self.view_event_handler)
 
         self.event_controller = EventController(traffic_snapshot=self._model_traffic_snapshot,
-                                                view=self.view_event_handler, settings=self._model_settings,
+                                                view=self.view_event_handler, settings=self._settings_model,
                                                 umlsl_queries=self._model_umlsl_queries)
         self.command_controller = CommandController(traffic_snapshot_reader=self._model_traffic_snapshot,
                                                     traffic_snapshot_writer=self._model_traffic_snapshot,
-                                                    settings_model=self._model_settings,
+                                                    settings_model=self._settings_model,
                                                     umlsl_queries_model=self._model_umlsl_queries,
                                                     application_controller=self)
         self.data_controller = DataController(traffic_snapshot_reader=self._model_traffic_snapshot)
@@ -52,6 +52,9 @@ class ApplicationController:
 
     def get_traffic_snapshot_writer(self) -> TrafficSnapshotWriter:
         return self._model_traffic_snapshot
+
+    def get_settings_model(self) -> SettingsModel:
+        return self._settings_model
 
     def replace_snapshot(
             self,

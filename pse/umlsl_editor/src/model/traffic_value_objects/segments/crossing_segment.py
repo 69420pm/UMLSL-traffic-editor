@@ -37,3 +37,7 @@ class CrossingSegment(Segment):
         It gets calculated from the lane width."""
         lane_width = traffic_snapshot_reader.get_lane_width()
         return lane_width, lane_width
+
+    def get_size_in_direction(self, traffic_snapshot_reader: TrafficSnapshotReader) -> float:
+        # crossings segments are always square
+        return traffic_snapshot_reader.get_lane_width()

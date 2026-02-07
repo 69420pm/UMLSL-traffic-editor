@@ -9,3 +9,6 @@ class SegmentInterval:
     """ Represents an interval on a segment. The interval completely captures crossing segments. """
     segment: Segment
     interval: Interval
+
+    def __str__(self):
+        return f"{self.segment} {self.interval}"

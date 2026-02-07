@@ -21,6 +21,11 @@ class Segment(ABC):
         """Return size (width, height) of the path."""
         pass
 
+    @abstractmethod
+    def get_size_in_direction(self, traffic_snapshot_reader: TrafficSnapshotReader) -> float:
+        """Return size in the direction of the road."""
+        pass
+
 
 @dataclass
 class VirtualLane:
