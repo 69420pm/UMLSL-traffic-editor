@@ -386,6 +386,7 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         """Display a generic error message."""
         self.l_preview.setText(f"Error: {error}")
         print(f"LaTeX parsing error: {error}")
+        raise error
 
     def _on_delete_clicked(self) -> None:
         """Handle delete action for existing queries."""

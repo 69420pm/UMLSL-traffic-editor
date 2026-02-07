@@ -38,15 +38,13 @@ class ASTParser:
         # we need a value that is bigger than all others, in python there is no "max_int"
         min_precedence = float('inf')
 
-        for i in range(start, end + 1):
+        i: int = start
+        while i <= end:
             token = tokens[i]
 
-            if height == 0 and token.type in {TokenType.EXITS, TokenType.FORALL}:
-                break
-
-            if token.type in {TokenType.L_PAREN, TokenType.L_CURLY}:
+            if token.type in {TokenType.L_PAREN, TokenType.L_CURLY, TokenType.LESS_THAN}:
                 height += 1
-            elif token.type in {TokenType.R_PAREN, TokenType.R_CURLY}:
+            elif token.type in {TokenType.R_PAREN, TokenType.R_CURLY, TokenType.GREATER_THAN}:
                 height -= 1
             elif height == 0 and token.type.is_infix_binary_op:
                 precedence = token.type.get_infix_binary_op_precedence()
@@ -54,6 +52,7 @@ class ASTParser:
                 if precedence <= min_precedence:
                     min_precedence = precedence
                     split_index = i
+            i += 1
 
         if height != 0:
             raise ASTParserError(
@@ -69,10 +68,8 @@ class ASTParser:
         if tokens[start].type == TokenType.L_PAREN and tokens[end].type == TokenType.R_PAREN:
             return self.parse_ast_rec(start + 1, end - 1, declared_variables)
 
-        # parsing of somewhere node
-        if tokens[start].type == TokenType.LESS_THAN:
-            scope_end = self.find_closing_index(start, end, TokenType.LESS_THAN, TokenType.GREATER_THAN)
-            return SomewhereNode(self.parse_ast_rec(start + 1, scope_end - 1, declared_variables))
+        if tokens[start].type == TokenType.LESS_THAN and tokens[end].type == TokenType.GREATER_THAN:
+            return SomewhereNode(self.parse_ast_rec(start + 1, end - 1, declared_variables))
 
         return self.parse_prefix(start, end, declared_variables)
 
@@ -190,19 +187,7 @@ class ASTParser:
                     help_message
                 )
             variable = literal.value()
-            if variable in map(lambda car: car.name, self._cars):
-                raise ASTParserError(
-                    f"'{variable}' is a car name",
-                    start + 1,
-                    start + 1,
-                    "Consider using a different variable name"
-                )
-            if variable in declared_variables: raise ASTParserError(
-                f"'{variable}' is declared twice in scope",
-                start + 1,
-                start + 1,
-                "Consider using a different variable name"
-            )
+            self.validate_variable_name(variable, start, declared_variables)
             colon = None if start >= end - 1 else self._tokens[start + 2]
             if colon is None or colon.type != TokenType.COLON:
                 raise ASTParserError(
@@ -237,6 +222,25 @@ class ASTParser:
                     return VerticalChopNode(operand2, operand1)
                 case _:
                     raise NotImplementedError(f"Unknown binary operator {token_type}")
+
+    def validate_variable_name(self, variable: str, start: int, declared_variables: list[str]):
+        reason: None | str = None
+
+        if variable in map(lambda car: car.name, self._cars):
+            reason = f"'{variable}' is a car name"
+        elif variable in declared_variables:
+            reason = f"'{variable}' is already defined in scope"
+        elif variable.__contains__("\\"):
+            # we prevent \ because that is used in LaTeX, otherwise the user could define LaTeX symbols that way
+            reason = f"variable cannot contain '\\'"
+
+        if reason is not None:
+            raise ASTParserError(
+                reason,
+                start + 1,
+                start + 1,
+                "Consider using a different variable name"
+            )
 
     def find_closing_argument_index(self, start_index: int, end_index: int) -> int:
         if start_index >= end_index:
