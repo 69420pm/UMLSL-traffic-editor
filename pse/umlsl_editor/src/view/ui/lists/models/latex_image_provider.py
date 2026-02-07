@@ -5,6 +5,7 @@ Provides a QQuickImageProvider that renders LaTeX strings to images
 for display in QML list views.
 """
 
+from collections import OrderedDict
 from urllib.parse import unquote
 
 from PySide6.QtCore import QSize, Qt
@@ -25,10 +26,15 @@ class LatexImageProvider(QQuickImageProvider):
     special characters.
     """
 
+    # A reasonable limit for UI elements in a list view.
+    # 500 items prevents memory bloat while keeping scrolling smooth.
+    CACHE_LIMIT = 100
+
     def __init__(self) -> None:
         """Initialize the LaTeX image provider."""
         super().__init__(QQuickImageProvider.ImageType.Pixmap)
-        self._cache: dict[str, QPixmap] = {}
+        # OrderedDict allows us to implement an LRU (Least Recently Used) cache
+        self._cache: OrderedDict[str, QPixmap] = OrderedDict()
 
     def requestPixmap(
             self, id: str, size: QSize, requestedSize: QSize
@@ -54,23 +60,33 @@ class LatexImageProvider(QQuickImageProvider):
         # Create a cache key based on the LaTeX and max dimensions
         cache_key = f"{latex_string}_{max_width}_{max_height}"
 
-        if cache_key not in self._cache:
-            # Render the LaTeX to bytes, then convert to pixmap
-            try:
-                image_bytes = latex_to_bytes(
-                    latex_string,
-                    font_size=10,
-                    color="#FFFFFF",
-                )
-                pixmap = self._bytes_to_pixmap(image_bytes, max_width, max_height)
-            except Exception:
-                pixmap = QPixmap()
-            self._cache[cache_key] = pixmap
+        # 1. Check if it exists in cache
+        if cache_key in self._cache:
+            # Move to end to mark as recently used
+            self._cache.move_to_end(cache_key)
+            return self._cache[cache_key]
 
-        pixmap = self._cache[cache_key]
+        # 2. Render if not in cache
+        try:
+            image_bytes = latex_to_bytes(
+                latex_string,
+                font_size=10,
+                color="#FFFFFF",
+            )
+            pixmap = self._bytes_to_pixmap(image_bytes, max_width, max_height)
+        except Exception:
+            pixmap = QPixmap()
 
         if pixmap.isNull():
             return QPixmap()
+
+        # 3. Add to cache
+        self._cache[cache_key] = pixmap
+
+        # 4. Enforce Cache Limit (LRU Eviction)
+        if len(self._cache) > self.CACHE_LIMIT:
+            # last=False pops from the beginning (the oldest/least recently used item)
+            self._cache.popitem(last=False)
 
         return pixmap
 
@@ -162,6 +178,10 @@ class LatexImageProvider(QQuickImageProvider):
         Args:
             latex: The LaTeX string whose cached images should be cleared.
         """
-        keys_to_remove = [key for key in self._cache if key.startswith(f"{latex}_")]
+        # Create a list of keys first to avoid RuntimeErrors when modifying
+        # the dictionary during iteration.
+        keys_to_remove = [
+            key for key in self._cache if key.startswith(f"{latex}_")
+        ]
         for key in keys_to_remove:
             del self._cache[key]
