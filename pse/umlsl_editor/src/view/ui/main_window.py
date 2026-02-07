@@ -41,12 +41,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 state and coordinating between model, view, and commands.
         """
         super().__init__()
+        self._application_controller = application_controller
         self.setupUi(self)
 
-        self._setup_traffic_canvas(application_controller)
-        self._setup_controllers(application_controller)
+        self._setup_traffic_canvas()
+        self._setup_controllers()
+        self.update_main_window_title()
 
-    def _setup_traffic_canvas(self, application_controller: ApplicationController) -> None:
+    def _setup_traffic_canvas(self) -> None:
         """
         Initialize and configure the traffic canvas components.
 
@@ -56,14 +58,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         Args:
             application_controller: The application controller for scene initialization.
         """
-        self.traffic_scene = TrafficScene(application_controller)
-        self.trafficView = TrafficView(scene=self.traffic_scene, application_controller=application_controller)
+        self.traffic_scene = TrafficScene(self._application_controller)
+        self.trafficView = TrafficView(scene=self.traffic_scene, application_controller=self._application_controller)
 
         layout = self.graphicsView.parentWidget().layout()
         layout.replaceWidget(self.graphicsView, self.trafficView)
         self.graphicsView.deleteLater()
 
-    def _setup_controllers(self, application_controller: ApplicationController) -> None:
+    def _setup_controllers(self) -> None:
         """
         Initialize UI controllers for various window components.
 
@@ -71,5 +73,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             application_controller: The application controller passed to child controllers.
         """
         self.canvas_buttons = CanvasButtons(self)
-        self.sidebar_controller = SidebarController(self, application_controller)
-        self.global_controls = GlobalControls(self, application_controller)
+        self.sidebar_controller = SidebarController(self, self._application_controller)
+        self.global_controls = GlobalControls(self, self._application_controller)
+
+    def update_main_window_title(self) -> None:
+        """Update the main window title based on the current snapshot path."""
+        snapshot_path = self._application_controller.command_controller.get_current_snapshot_path()
+        if snapshot_path:
+            self.setWindowTitle(f"UMLSL Traffic Editor - {snapshot_path}")
+        else:
+            self.setWindowTitle("UMLSL Traffic Editor - Untitled")

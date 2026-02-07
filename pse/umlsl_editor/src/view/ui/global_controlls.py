@@ -77,6 +77,8 @@ class GlobalControls(QObject):
         except CommandValidationError as exc:
             WarningDialog("Save Error", str(exc), self._window).exec()
 
+        self._window.update_main_window_title()
+
     def _on_open(self) -> None:
         file_name, _ = QFileDialog.getOpenFileName(
             None,
@@ -90,6 +92,8 @@ class GlobalControls(QObject):
             self.application_controller.command_controller.load_traffic_snapshot(file_name)
         except CommandValidationError as exc:
             WarningDialog("Open Error", str(exc), self._window).exec()
+
+        self._window.update_main_window_title()
 
     def _on_open_settings(self) -> None:
         """Open the application settings dialog."""
