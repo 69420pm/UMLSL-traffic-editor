@@ -33,4 +33,5 @@ env/
 .env/
 ENV/
 
-.idea
+.idea/
+idea/

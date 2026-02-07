@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QFileDialog
 
 from pse.umlsl_editor.src.commands.command import CommandValidationError
 from pse.umlsl_editor.src.controllers import ApplicationController
+from pse.umlsl_editor.src.model.errors.errors import BaseError
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.settings.settings_dialog import SettingsDialog
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_main import Ui_MainWindow
@@ -55,10 +56,15 @@ class GlobalControls(QObject):
 
     def _on_save(self) -> None:
         """Check if the current snapshot can be saved."""
-        try:
-            self.application_controller.command_controller.save_traffic_snapshot()
-        except CommandValidationError as exc:
-            WarningDialog("Save Error", str(exc), self._window).exec()
+        if self.application_controller.command_controller.get_current_snapshot_path() is None:
+            self._on_save_as()
+        else:
+            try:
+                self.application_controller.command_controller.save_traffic_snapshot()
+            except CommandValidationError as exc:
+                WarningDialog("Can not save file", str(exc), self._window).exec()
+            else:
+                self._window.snackbar.show_message("File saved successfully.")
 
     def _on_save_as(self) -> None:
         file_name, _ = QFileDialog.getSaveFileName(
@@ -72,7 +78,10 @@ class GlobalControls(QObject):
         try:
             self.application_controller.command_controller.save_as_traffic_snapshot(file_name)
         except CommandValidationError as exc:
-            WarningDialog("Save Error", str(exc), self._window).exec()
+            WarningDialog("Can not save file", str(exc), self._window).exec()
+        else:
+            self._window.snackbar.show_message("File saved successfully.")
+            self._window.update_main_window_title()
 
     def _on_open(self) -> None:
         file_name, _ = QFileDialog.getOpenFileName(
@@ -85,8 +94,11 @@ class GlobalControls(QObject):
             return
         try:
             self.application_controller.command_controller.load_traffic_snapshot(file_name)
-        except CommandValidationError as exc:
-            WarningDialog("Open Error", str(exc), self._window).exec()
+        except (BaseError, CommandValidationError) as exc:
+            WarningDialog("Can not open file", str(exc), self._window).exec()
+        else:
+            self._window.snackbar.show_message("File opened successfully.")
+            self._window.update_main_window_title()
 
     def _on_open_settings(self) -> None:
         """Open the application settings dialog."""
