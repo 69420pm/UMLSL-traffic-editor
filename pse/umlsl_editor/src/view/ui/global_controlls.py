@@ -63,6 +63,8 @@ class GlobalControls(QObject):
                 self.application_controller.command_controller.save_traffic_snapshot()
             except CommandValidationError as exc:
                 WarningDialog("Can not save file", str(exc), self._window).exec()
+            else:
+                self._window.snackbar.show_message("File saved successfully.")
 
     def _on_save_as(self) -> None:
         file_name, _ = QFileDialog.getSaveFileName(
@@ -77,8 +79,9 @@ class GlobalControls(QObject):
             self.application_controller.command_controller.save_as_traffic_snapshot(file_name)
         except CommandValidationError as exc:
             WarningDialog("Can not save file", str(exc), self._window).exec()
-
-        self._window.update_main_window_title()
+        else:
+            self._window.snackbar.show_message("File saved successfully.")
+            self._window.update_main_window_title()
 
     def _on_open(self) -> None:
         file_name, _ = QFileDialog.getOpenFileName(
@@ -93,8 +96,9 @@ class GlobalControls(QObject):
             self.application_controller.command_controller.load_traffic_snapshot(file_name)
         except (BaseError, CommandValidationError) as exc:
             WarningDialog("Can not open file", str(exc), self._window).exec()
-
-        self._window.update_main_window_title()
+        else:
+            self._window.snackbar.show_message("File opened successfully.")
+            self._window.update_main_window_title()
 
     def _on_open_settings(self) -> None:
         """Open the application settings dialog."""

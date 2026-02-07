@@ -17,10 +17,10 @@ from pse.umlsl_editor.src.model.errors.umlsl_query_errors import (
 )
 from pse.umlsl_editor.src.query.evaluator import ParserError, UMLSLEvaluator
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
-from pse.umlsl_editor.src.view.ui.lists.confirm_deletion_dialog import (
+from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.confirm_deletion_dialog import (
     ConfirmDeletionDialog,
 )
-from pse.umlsl_editor.src.view.ui.lists.latex_renderer import latex_to_bytes
+from pse.umlsl_editor.src.view.ui.lists.models.latex_renderer import latex_to_bytes
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_query_dialog import (
     Ui_Edit_Query_Dialog,
 )
@@ -446,6 +446,7 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
                     query_uid
                 ),
             )
+            self.parent().snackbar.show_message(f"Query deleted successfully.")
             self.accept()
 
     def accept(self) -> None:
@@ -485,9 +486,10 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
                 self,
             )
             dialog.exec()
-            return
-
-        super().accept()
+        else:
+            self.parent().snackbar.show_message(
+                "Query updated successfully." if self._is_edit else "Query created successfully.")
+            super().accept()
 
     def reject(self) -> None:
         """Handle dialog rejection by cleaning up resources."""

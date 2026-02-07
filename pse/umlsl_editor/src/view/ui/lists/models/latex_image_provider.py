@@ -12,7 +12,7 @@ from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtQuick import QQuickImageProvider
 
-from pse.umlsl_editor.src.view.ui.lists.latex_renderer import latex_to_bytes
+from pse.umlsl_editor.src.view.ui.lists.models.latex_renderer import latex_to_bytes
 
 
 class LatexImageProvider(QQuickImageProvider):

@@ -20,7 +20,7 @@ from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import (
     TurnIntent,
 )
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
-from pse.umlsl_editor.src.view.ui.lists.confirm_deletion_dialog import (
+from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.confirm_deletion_dialog import (
     ConfirmDeletionDialog,
 )
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_car_dialog import (
@@ -349,10 +349,14 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
             else:
                 self._execute_create_command(form_data)
 
-            self.accept()
 
         except (CarValidationError, CarTrafficSnapshotContextValidationError) as e:
             WarningDialog("Validation Error", str(e), self).exec()
+        else:
+            self.parent().snackbar.show_message(
+                f"Car '{form_data['name']}' " +
+                ("updated successfully." if self.is_edit_mode else "created successfully."))
+            self.accept()
 
     def _on_delete_clicked(self) -> None:
         """Handle delete action for existing cars."""
@@ -383,6 +387,8 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         if confirm == 1:
             car_uid = self.car.uid
             QTimer.singleShot(0, lambda: self._app_controller.command_controller.remove_car(car_uid))
+
+            self.parent().snackbar.show_message(f"Car '{self.car.name}' deleted successfully.")
             self.accept()
 
     def _show_no_roads_warning(self) -> None:

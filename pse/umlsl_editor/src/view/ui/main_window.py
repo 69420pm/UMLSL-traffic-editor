@@ -10,6 +10,7 @@ from PySide6.QtWidgets import QMainWindow
 from pse.umlsl_editor.src.controllers import ApplicationController
 from pse.umlsl_editor.src.view.ui.global_controlls import GlobalControls
 from pse.umlsl_editor.src.view.ui.lists.sidebar_controller import SidebarController
+from pse.umlsl_editor.src.view.ui.lists.snackbar import GreenSnackbar
 from pse.umlsl_editor.src.view.ui.traffic_canvas.canvas_buttons import CanvasButtons
 from pse.umlsl_editor.src.view.ui.traffic_canvas.traffic_scene import TrafficScene
 from pse.umlsl_editor.src.view.ui.traffic_canvas.traffic_view import TrafficView
@@ -46,6 +47,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self._setup_traffic_canvas()
         self._setup_controllers()
+
+        self.snackbar = GreenSnackbar(self.sidebar)
+
         self.update_main_window_title()
 
     def _setup_traffic_canvas(self) -> None:

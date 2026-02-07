@@ -15,7 +15,7 @@ from pse.umlsl_editor.src.model.errors.road_errors import (
     RoadValidationError,
 )
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
-from pse.umlsl_editor.src.view.ui.lists.confirm_deletion_dialog import (
+from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.confirm_deletion_dialog import (
     ConfirmDeletionDialog,
 )
 
@@ -109,6 +109,7 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
             # handlers to complete before the underlying data is destroyed.
             road_uid = self._road.uid
             QTimer.singleShot(0, lambda: self._application_controller.command_controller.remove_road(road_uid))
+            self.parent().snackbar.show_message(f"Road '{self._road.name}' deleted successfully.")
             self.accept()
 
     def _create_default_road(self) -> Road:
@@ -183,5 +184,8 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
             )
             dialog.exec()
             return
+        else:
+            self.parent().snackbar.show_message(
+                f"Road '{name}' updated successfully." if self._is_edit else f"Road '{name}' created successfully.")
 
-        super().accept()
+            super().accept()
