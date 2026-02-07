@@ -24,7 +24,7 @@ class Ui_Delete_Dialog(object):
     def setupUi(self, Delete_Dialog):
         if not Delete_Dialog.objectName():
             Delete_Dialog.setObjectName(u"Delete_Dialog")
-        Delete_Dialog.resize(320, 118)
+        Delete_Dialog.resize(324, 118)
         Delete_Dialog.setMinimumSize(QSize(0, 0))
         Delete_Dialog.setMaximumSize(QSize(16777215, 16777215))
         Delete_Dialog.setStyleSheet(u"QDialog {\n"
@@ -204,10 +204,10 @@ class Ui_Delete_Dialog(object):
         self.verticalLayout = QVBoxLayout(Delete_Dialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
-        self.label = QLabel(Delete_Dialog)
-        self.label.setObjectName(u"label")
+        self.l_title = QLabel(Delete_Dialog)
+        self.l_title.setObjectName(u"l_title")
 
-        self.verticalLayout.addWidget(self.label)
+        self.verticalLayout.addWidget(self.l_title)
 
         self.l_content = QLabel(Delete_Dialog)
         self.l_content.setObjectName(u"l_content")
@@ -257,8 +257,8 @@ class Ui_Delete_Dialog(object):
 
     def retranslateUi(self, Delete_Dialog):
         Delete_Dialog.setWindowTitle(QCoreApplication.translate("Delete_Dialog", u"Confirm Action", None))
-        self.label.setText(QCoreApplication.translate("Delete_Dialog", u"Are you shure?", None))
-        self.label.setProperty(u"class", QCoreApplication.translate("Delete_Dialog", u"title", None))
+        self.l_title.setText(QCoreApplication.translate("Delete_Dialog", u"Are you sure?", None))
+        self.l_title.setProperty(u"class", QCoreApplication.translate("Delete_Dialog", u"title", None))
         self.l_content.setText(QCoreApplication.translate("Delete_Dialog", u"This Action can not be undone.", None))
         self.b_delete.setText(QCoreApplication.translate("Delete_Dialog", u"Delete", None))
         self.b_cancel.setText(QCoreApplication.translate("Delete_Dialog", u"Cancel", None))

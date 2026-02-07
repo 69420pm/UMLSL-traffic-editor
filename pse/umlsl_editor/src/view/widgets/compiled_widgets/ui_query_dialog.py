@@ -26,7 +26,7 @@ class Ui_Edit_Query_Dialog(object):
         if not Edit_Query_Dialog.objectName():
             Edit_Query_Dialog.setObjectName(u"Edit_Query_Dialog")
         Edit_Query_Dialog.setEnabled(True)
-        Edit_Query_Dialog.resize(360, 477)
+        Edit_Query_Dialog.resize(360, 496)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -262,7 +262,7 @@ class Ui_Edit_Query_Dialog(object):
         self.gridLayout.setContentsMargins(8, 4, 4, 4)
         self.l_preview = QLabel(self.widget1)
         self.l_preview.setObjectName(u"l_preview")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.l_preview.sizePolicy().hasHeightForWidth())

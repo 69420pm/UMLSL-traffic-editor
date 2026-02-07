@@ -2,7 +2,7 @@
 from abc import abstractmethod
 from typing import Any
 
-from PySide6.QtCore import SignalInstance, QObject
+from PySide6.QtCore import QObject, SignalInstance
 
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import Road
@@ -159,6 +159,16 @@ class ViewEventHandler(QObject):
         The signal should carry the UID of the selected entity as a string.
         """
         pass
+
+    @abstractmethod
+    def get_on_snapshot_changed_signal(self) -> "SignalInstance":
+        """
+        Returns a signal that is emitted when the snapshot dirty state changes.
+        The signal should carry a boolean indicating whether the snapshot has unsaved changes.
+        """
+        pass
+
+
 
     @abstractmethod
     def get_on_toggle_coordinate_system_signal(self) -> "SignalInstance":

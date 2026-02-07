@@ -260,13 +260,13 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
 
     def _start_render_thread(self, latex_code: str) -> None:
         """Start a background thread to render the LaTeX pixmap."""
-        # Clean up any existing render thread
         self._cleanup_render_thread()
 
-        # Store dimensions for use when converting bytes to pixmap on main thread
-        self._max_width = int(self.l_preview.width() - 16)
-        self._max_height = int(self.l_preview.height() - 32)
         self._device_pixel_ratio = self.devicePixelRatioF()
+
+        # FIX: Multiply logical dimensions by DPR to get physical pixel limits
+        self._max_width = int((self.l_preview.width() - 16) * self._device_pixel_ratio)
+        self._max_height = int((self.l_preview.height() - 32) * self._device_pixel_ratio)
 
         # Create worker and thread
         self._render_thread = QThread()
