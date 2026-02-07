@@ -48,7 +48,6 @@ class CarEnvironment:
     )
     """
 
-
     def path_segments_in_view(self, view: View) -> list[SegmentInterval]:
         # collect visible segments in the view
         visible_segments: list[Segment] = []
@@ -70,14 +69,16 @@ class CarEnvironment:
     def create_environment(
             ts: TrafficSnapshotReader,
             car_lane: Lane,
-            pos_on_lane: float,
+            pos_on_lane_center: float,
             car_size: float,
             speed: float,
             turn_direction: TurnDirection
     ) -> 'CarEnvironment':
         road_id = car_lane.road_uid
         road = ts.get_road_by_uid(road_id)
+        pos_on_lane = pos_on_lane_center - car_size / 2 # we need the rear
         segment = ts.get_segment_from_lane_position(car_lane, pos_on_lane)
+        pos_on_segment = pos_on_lane - segment.get_position(ts)[road.orientation.value]
 
         # todo: extract into separate method
         if road.orientation == RoadOrientation.HORIZONTAL:
@@ -85,16 +86,19 @@ class CarEnvironment:
         else:
             car_direction = Direction.DOWN if speed < 0 else Direction.UP
 
-        print("car lane ", car_lane, " pos on lane: ", pos_on_lane, " segment ", segment, " car dir ", car_direction)
+       # print("car lane ", car_lane, " pos on seg: ", pos_on_segment, " segment ", segment, " car dir ", car_direction)
         lane_pos = car_lane.get_one_dimensional_position(ts)
-        print("lane pos is ", lane_pos, " pos on lane: ", pos_on_lane, " direction is ", car_direction)
+       # print("lane pos is ", lane_pos, " pos on seg: ", pos_on_segment, " direction is ", car_direction)
 
         if turn_direction == TurnDirection.STRAIGHT:
-             path = _compute_path_straight(ts, car_direction, segment)
-        #     print("path is ", path)
-             path_segs = list(map(lambda x: ts.get_segment_info(x.uid), path.segments))
-         #    print("path segments are ", path_segs)
-             return CarEnvironment()
+            path = _compute_path_straight(ts, car_direction, segment)
+            path_segs = list(map(lambda x: ts.get_segment_info(x.uid), path.segments))
+            segment_intervals = _compute_segment_intervals(ts, path, pos_on_segment, car_size)
+          #  print("path is ", path)
+          #  print("path segments are ", path_segs)
+            segment_intervals_text = list(map(lambda x: f"{ts.get_segment_info(x.segment.uid)}{x.interval}", segment_intervals))
+           # print("segment intervals are ", segment_intervals_text)
+            return CarEnvironment()
         else:
             # todo
             return CarEnvironment()
@@ -115,42 +119,44 @@ def _compute_path() -> VirtualLane:
     pass
 
 
-def _compute_visible_segments(ts: TrafficSnapshotReader, path: VirtualLane, pos: Position, car_lane: LaneSegment,
-                              car_size: float) -> list[SegmentInterval]:
-    start_pos = car_lane.lane.get_one_dimensional_position(ts)
+def _compute_segment_intervals(
+        ts: TrafficSnapshotReader,
+        path: VirtualLane,
+        pos_on_segment: float,
+        car_size: float
+) -> list[SegmentInterval]:
+    interval_start_offset = pos_on_segment
 
-    return []
+    # debug: print("start at", interval_start_offset, " car size is ", car_size)
 
-
-def _compute_visible_segments_iteratively(ts: TrafficSnapshotReader, path: VirtualLane, seg_orientations: list[Orientation],
-                                          interval_start_offset: float, pos: Position, car_size: float) -> list[
-    SegmentInterval]:
-    # todo: take pos component into account
     result = []
-
     next_size = car_size
 
     i = 0
-    while True:
+    while next_size > 0:
         current_size = next_size
         seg_i = path.segments[i]
-        orientation = seg_orientations[i]
 
         b_i: float
         if seg_i.is_lane_segment:
-            b_i = min(interval_start_offset + current_size, seg_i.get_size(ts)[orientation.value])
+            # debug: print((interval_start_offset + current_size, seg_i.get_size_in_direction(ts)))
+            b_i = min(interval_start_offset + current_size, seg_i.get_size_in_direction(ts))
         else:
-            b_i = seg_i.get_size(ts)[orientation.value]
+            b_i = seg_i.get_size_in_direction(ts)
+            # During crossing segments, the car_size is not used.
+            # However, if the car exists the crossing segments, it should see as least its own size.
+            next_size = max(next_size, car_size)
 
         interval = Interval(interval_start_offset, b_i)
-        next_size = current_size - interval.length()
+        # debug: print("interval:",interval)
+        # without this check, the algorithm would stop in a crossing
+        if seg_i.is_lane_segment:
+            next_size = current_size - interval.length()
 
         if next_size > 0:
             interval_start_offset = 0
-        else:
-            result.append(SegmentInterval(seg_i, interval, 0))  # todo: virtual pos
 
-        if next_size <= 0:
-            return result
-        else:
-            i += 1
+        result.append(SegmentInterval(seg_i, interval))
+        i += 1
+
+    return result
