@@ -67,19 +67,30 @@ class CarEnvironment:
         ))
 
     @staticmethod
+    def validate_environment(
+            ts: TrafficSnapshotReader,
+            car_params: "CarParams",
+            settings_model: SettingsModel
+    ) -> bool:
+        # todo: validate car does not require reserving/claiming occupied segments
+        return True
+
+    @staticmethod
     def create_environment(
             ts: TrafficSnapshotReader,
-            car_lane: Lane,
-            pos_on_lane_center: float,
-            car_size: float,
-            speed: float,
-            turn_intent: TurnIntent,
+            car_params: "CarParams",
             settings_model: SettingsModel
     ) -> 'CarEnvironment':
+        car_lane: Lane = car_params.lane
+        pos_on_lane_center: float = car_params.position_on_lane
+        speed: float = car_params.speed
+        turn_intent: TurnIntent = car_params.next_turn
+        length: float = car_params.length
+
         ts.debug_get_segments().clear()
         road_id = car_lane.road_uid
         road = ts.get_road_by_uid(road_id)
-        pos_on_lane = pos_on_lane_center - car_size / 2  # we need the rear
+        pos_on_lane = pos_on_lane_center - car_params.length / 2  # we need the rear
         start_segment = ts.get_segment_from_lane_position(car_lane, pos_on_lane)
 
         if not isinstance(start_segment, LaneSegment):
@@ -107,7 +118,7 @@ class CarEnvironment:
         if path is None:
             raise ValueError("Car specified a turn intent with invalid path.")
 
-        path_segment_intervals: list[SegmentInterval] = _compute_segment_intervals(ts, path, pos_on_segment, car_size)
+        path_segment_intervals: list[SegmentInterval] = _compute_segment_intervals(ts, path, pos_on_segment, length)
         horizontal_horizon: Interval = compute_horizontal_horizon(
             path_segment_intervals,
             settings_model.braking_distance()

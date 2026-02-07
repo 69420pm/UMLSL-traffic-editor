@@ -87,31 +87,14 @@ class Car(Entity):
 
     next_turn: Optional[TurnIntent]
 
-    # class: Path
-    # Descriptions: all segments that lay in view of car, only single lane
-    # segments: list[Segment]
-
-    # class LaneInterval:
-    # segment: LaneSegment
-    # start: float
-    # end: float
-
-    # class LaneSegment:
-    # on_lane: Lane
-    # start_road: str
-    # end_road: str
-
-    # class CrossingSegment:
-    # laneA: Lane
-    # laneB: Lane
-
     environment: CarEnvironment
     acceleration: float
 
     _should_validate: bool = False
 
     @classmethod
-    def from_params(cls, params: CarParams, traffic_snapshot: TrafficSnapshotReader, settings_model: SettingsModel) -> "Car":
+    def from_params(cls, params: CarParams, traffic_snapshot: TrafficSnapshotReader,
+                    settings_model: SettingsModel) -> "Car":
         """
         Creates a Car instance from a CarParams dataclass.
 
@@ -136,15 +119,7 @@ class Car(Entity):
             )
         """
 
-        car_env = CarEnvironment.create_environment(
-            traffic_snapshot,
-            params.lane,
-            params.position_on_lane,
-            params.length,
-            params.speed,
-            params.next_turn,
-            settings_model
-        )
+        car_env = CarEnvironment.create_environment(traffic_snapshot, params, settings_model)
         return cls(
             uid=generate_uid(),
             name=params.name,
@@ -206,7 +181,8 @@ class Car(Entity):
         if self.next_turn is not None and not isinstance(self.next_turn, TurnIntent):
             raise CarValidationError(content="Next turn must be None or a TurnIntent instance.")
 
-    def update_from_params(self, params: CarParams, traffic_snapshot: TrafficSnapshotReader, settings_model: SettingsModel) -> None:
+    def update_from_params(self, params: CarParams, traffic_snapshot: TrafficSnapshotReader,
+                           settings_model: SettingsModel) -> None:
         """
         Updates the Car instance's attributes based on a CarParams dataclass.
 
@@ -233,18 +209,8 @@ class Car(Entity):
 
         """
 
-        car_env = CarEnvironment.create_environment(
-            traffic_snapshot,
-            params.lane,
-            params.position_on_lane,
-            params.length,
-            params.speed,
-            params.next_turn,
-            settings_model
-        )
 
-        self.environment = car_env
-
+        self.environment = CarEnvironment.create_environment(traffic_snapshot, params, settings_model)
         self._should_validate = False
         self.name = params.name
         self.lane = params.lane
