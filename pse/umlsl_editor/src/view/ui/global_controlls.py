@@ -4,6 +4,7 @@ Global controls for the UMLSL Traffic Editor.
 Handles global UI actions such as save, open, and settings from the main menu bar.
 """
 from PySide6.QtCore import QObject
+from PySide6.QtGui import QKeySequence
 from PySide6.QtWidgets import QDialog, QFileDialog
 
 from pse.umlsl_editor.src.commands.command import CommandValidationError
@@ -48,6 +49,7 @@ class GlobalControls(QObject):
         self._open_action = self._window.actionOpen
         self._settings_action = self._window.actionSettings
 
+        self._setup_shortcuts()
         self._connect_signals()
 
     def _connect_signals(self) -> None:
@@ -56,6 +58,13 @@ class GlobalControls(QObject):
         self._save_as_action.triggered.connect(self._on_save_as)
         self._open_action.triggered.connect(self._on_open)
         self._settings_action.triggered.connect(self._on_open_settings)
+
+    def _setup_shortcuts(self) -> None:
+        """Assign standard keyboard shortcuts to file actions."""
+        self._open_action.setShortcuts(QKeySequence.Open)
+        self._save_action.setShortcuts(QKeySequence.Save)
+        self._save_as_action.setShortcuts(QKeySequence.SaveAs)
+        self._settings_action.setShortcuts(QKeySequence.Preferences)
 
     def _on_save(self) -> None:
         """Check if the current snapshot can be saved."""
