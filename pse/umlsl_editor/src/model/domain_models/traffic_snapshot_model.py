@@ -704,6 +704,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                 length=car_data["length"],
                 next_turn=next_turn,
                 acceleration=car_data.get("acceleration", 0.0),
+                braking_distance=0.0 # todo: flotsche
             )
             reader.validate_car_params(car_params, True)
 

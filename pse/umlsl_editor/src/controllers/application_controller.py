@@ -53,6 +53,9 @@ class ApplicationController:
     def get_traffic_snapshot_writer(self) -> TrafficSnapshotWriter:
         return self._model_traffic_snapshot
 
+    def get_braking_distance(self) -> float:
+        return self._model_settings.braking_distance()
+
     def replace_snapshot(
             self,
             traffic_snapshot: TrafficSnapshotModel,

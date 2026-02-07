@@ -119,6 +119,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
             transition=DEFAULT_CAR_CONFIG["transition"],
             next_turn=None,
             lane=default_lane,
+            braking_distance=self._app_controller.get_braking_distance()
         )
 
         snapshot_reader = self._app_controller.get_traffic_snapshot_reader()
@@ -327,4 +328,5 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
             assigned_road=data["road"],
             lane_index=data["lane_index"],
             next_turn=data["next_turn"],
+            braking_distance=self._app_controller.get_braking_distance()
         )

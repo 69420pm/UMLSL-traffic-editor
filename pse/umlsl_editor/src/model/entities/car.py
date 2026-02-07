@@ -8,7 +8,7 @@ from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.car_environment import CarEnvironment
-from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent, TurnDirection
+from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
 
 
 @dataclass
@@ -38,6 +38,7 @@ class CarParams:
     length: float
     next_turn: TurnIntent | None
     acceleration: float
+    braking_distance: float
 
 
 @dataclass()
@@ -110,7 +111,7 @@ class Car(Entity):
     _should_validate: bool = False
 
     @classmethod
-    def from_params(cls, params: CarParams, ts_reader: TrafficSnapshotReader) -> "Car":
+    def from_params(cls, params: CarParams, traffic_snapshot: TrafficSnapshotReader) -> "Car":
         """
         Creates a Car instance from a CarParams dataclass.
 
@@ -136,12 +137,13 @@ class Car(Entity):
         """
 
         car_env = CarEnvironment.create_environment(
-            ts_reader,
+            traffic_snapshot,
             params.lane,
             params.position_on_lane,
             params.length,
             params.speed,
-            params.next_turn
+            params.next_turn,
+            params.braking_distance
         )
         return cls(
             uid=generate_uid(),
@@ -204,7 +206,7 @@ class Car(Entity):
         if self.next_turn is not None and not isinstance(self.next_turn, TurnIntent):
             raise CarValidationError(content="Next turn must be None or a TurnIntent instance.")
 
-    def update_from_params(self, params: CarParams, ts_reader: TrafficSnapshotReader) -> None:
+    def update_from_params(self, params: CarParams, traffic_snapshot: TrafficSnapshotReader) -> None:
         """
         Updates the Car instance's attributes based on a CarParams dataclass.
 
@@ -232,12 +234,13 @@ class Car(Entity):
         """
 
         car_env = CarEnvironment.create_environment(
-            ts_reader,
+            traffic_snapshot,
             params.lane,
             params.position_on_lane,
             params.length,
             params.speed,
-            params.next_turn
+            params.next_turn,
+            params.braking_distance
         )
 
         self.environment = car_env
