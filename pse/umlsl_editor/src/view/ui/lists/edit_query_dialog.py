@@ -168,6 +168,10 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
 
     def _populate_fields(self) -> None:
         """Populate dialog fields with the current query's values."""
+        if not self._is_edit:
+            self.setWindowTitle("Create New Query")
+            self.b_delete.hide()
+
         self._populate_car_dropdown()
         self._populate_umlsl_field()
 

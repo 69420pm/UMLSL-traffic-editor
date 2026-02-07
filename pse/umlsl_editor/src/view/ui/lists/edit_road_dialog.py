@@ -129,6 +129,10 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
 
     def _populate_fields(self) -> None:
         """Populate dialog fields with the current road's values."""
+        if not self._is_edit:
+            self.setWindowTitle("Create New Road")
+            self.b_delete.hide()
+
         self.t_name.setText(self._road.name)
 
         self.d_orientation.clear()

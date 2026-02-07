@@ -137,6 +137,10 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
 
     def _populate_basic_fields(self) -> None:
         """Populate non-relational fields (Strings, Numbers)."""
+        if not self.is_edit_mode:
+            self.setWindowTitle("Create New Car")
+            self.b_delete.hide()
+
         self.t_name.setText(self.car.name)
         self.t_color.setText(self.car.color)
         self.s_length.setValue(self.car.length)
