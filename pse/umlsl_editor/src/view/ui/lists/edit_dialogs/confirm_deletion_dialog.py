@@ -24,7 +24,7 @@ class ConfirmDeletionDialog(QDialog, Ui_Delete_Dialog):
         super().__init__(parent)
         self.setupUi(self)
         if title:
-            self.setWindowTitle(title)
+            self.l_title.setText(title)
         if confirm_text:
             self.b_delete.setText(confirm_text)
         if cancel_text:

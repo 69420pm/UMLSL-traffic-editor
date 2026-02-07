@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>320</width>
+    <width>324</width>
     <height>118</height>
    </rect>
   </property>
@@ -202,9 +202,9 @@ QPushButton#b_delete:pressed {
     <enum>QLayout::SizeConstraint::SetFixedSize</enum>
    </property>
    <item>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="l_title">
      <property name="text">
-      <string>Are you shure?</string>
+      <string>Are you sure?</string>
      </property>
      <property name="class" stdset="0">
       <string>title</string>
