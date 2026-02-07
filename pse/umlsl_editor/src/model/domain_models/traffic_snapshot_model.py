@@ -603,6 +603,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
         Args:
             data: A dictionary containing 'roads' and 'cars' keys.
+            writer: A TrafficSnapshotWriter instance.
+            reader: A TrafficSnapshotReader instance.
         """
         if not isinstance(data, dict):
             raise ValueError("Traffic snapshot data must be a dictionary.")
@@ -681,7 +683,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                     direction = TurnDirection(direction_raw)
 
                 target_lane_data = next_turn_data.get("target_lane", {})
-                if isinstance(target_lane_data, dict) and "road_uid" in target_lane_data and "lane_index" in target_lane_data:
+                if isinstance(target_lane_data,
+                              dict) and "road_uid" in target_lane_data and "lane_index" in target_lane_data:
                     target_lane = Lane(
                         road_uid=target_lane_data["road_uid"],
                         lane_index=target_lane_data["lane_index"],
