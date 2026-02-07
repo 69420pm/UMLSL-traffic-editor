@@ -5,10 +5,13 @@ This module contains the MainWindow class, which serves as the primary
 application window and coordinates all UI components.
 """
 
-from PySide6.QtWidgets import QMainWindow
+from PySide6.QtWidgets import QDialog, QMainWindow
 
 from pse.umlsl_editor.src.controllers import ApplicationController
 from pse.umlsl_editor.src.view.ui.global_controlls import GlobalControls
+from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.confirm_deletion_dialog import (
+    ConfirmDeletionDialog,
+)
 from pse.umlsl_editor.src.view.ui.lists.sidebar_controller import SidebarController
 from pse.umlsl_editor.src.view.ui.lists.snackbar import GreenSnackbar
 from pse.umlsl_editor.src.view.ui.traffic_canvas.canvas_buttons import CanvasButtons
@@ -50,6 +53,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.snackbar = GreenSnackbar(self.sidebar)
 
+        self._application_controller.view_event_handler.get_on_snapshot_changed_signal().connect(
+            self._on_snapshot_changed
+        )
+
         self.update_main_window_title()
 
     def _setup_traffic_canvas(self) -> None:
@@ -80,10 +87,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.sidebar_controller = SidebarController(self, self._application_controller)
         self.global_controls = GlobalControls(self, self._application_controller)
 
+    def _on_snapshot_changed(self, _changed: bool) -> None:
+        self.update_main_window_title()
+
+    def closeEvent(self, event) -> None:
+        if self._application_controller.command_controller.get_data_changed_since_last_save():
+            confirm = ConfirmDeletionDialog(
+                "You have unsaved changes.\nDo you want to discard them and close?",
+                self,
+                title="Unsaved Changes",
+                confirm_text="Discard Changes",
+                cancel_text="Keep Editing",
+            ).exec()
+            if confirm != QDialog.Accepted:
+                event.ignore()
+                return
+
+        event.accept()
+
     def update_main_window_title(self) -> None:
         """Update the main window title based on the current snapshot path."""
         snapshot_path = self._application_controller.command_controller.get_current_snapshot_path()
         if snapshot_path:
-            self.setWindowTitle(f"UMLSL Traffic Editor - {snapshot_path}")
+            self.setWindowTitle(f"UMLSL Traffic Editor - {snapshot_path}" + (
+                "*" if self._application_controller.command_controller.get_data_changed_since_last_save() else ""))
         else:
-            self.setWindowTitle("UMLSL Traffic Editor - Untitled")
+            self.setWindowTitle("UMLSL Traffic Editor - Untitled" + (
+                "*" if self._application_controller.command_controller.get_data_changed_since_last_save() else ""))

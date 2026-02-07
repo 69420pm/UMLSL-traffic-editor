@@ -4,12 +4,15 @@ Global controls for the UMLSL Traffic Editor.
 Handles global UI actions such as save, open, and settings from the main menu bar.
 """
 from PySide6.QtCore import QObject
-from PySide6.QtWidgets import QFileDialog
+from PySide6.QtWidgets import QDialog, QFileDialog
 
 from pse.umlsl_editor.src.commands.command import CommandValidationError
 from pse.umlsl_editor.src.controllers import ApplicationController
 from pse.umlsl_editor.src.model.errors.errors import BaseError
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.confirm_deletion_dialog import (
+    ConfirmDeletionDialog,
+)
 from pse.umlsl_editor.src.view.ui.settings.settings_dialog import SettingsDialog
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_main import Ui_MainWindow
 
@@ -81,9 +84,19 @@ class GlobalControls(QObject):
             WarningDialog("Can not save file", str(exc), self._window).exec()
         else:
             self._window.snackbar.show_message("File saved successfully.")
-            self._window.update_main_window_title()
 
     def _on_open(self) -> None:
+        if self.application_controller.command_controller.get_data_changed_since_last_save():
+            confirm = ConfirmDeletionDialog(
+                "You have unsaved changes.\nDo you want to discard them and open another file?",
+                self._window,
+                title="Unsaved Changes",
+                confirm_text="Discard Changes",
+                cancel_text="Keep Editing",
+            ).exec()
+            if confirm != QDialog.Accepted:
+                return
+
         file_name, _ = QFileDialog.getOpenFileName(
             None,
             "Open new snapshot",
@@ -98,7 +111,6 @@ class GlobalControls(QObject):
             WarningDialog("Can not open file", str(exc), self._window).exec()
         else:
             self._window.snackbar.show_message("File opened successfully.")
-            self._window.update_main_window_title()
 
     def _on_open_settings(self) -> None:
         """Open the application settings dialog."""

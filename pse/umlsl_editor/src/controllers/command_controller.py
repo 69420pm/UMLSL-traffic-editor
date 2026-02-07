@@ -5,22 +5,36 @@ from pse.umlsl_editor.src.commands.cars import add_car
 from pse.umlsl_editor.src.commands.cars.delete_car import DeleteCar
 from pse.umlsl_editor.src.commands.cars.edit_car import EditCarCommand
 from pse.umlsl_editor.src.commands.command import Command, CommandValidationError
-from pse.umlsl_editor.src.commands.persistence.load_traffic_snapshot import LoadTrafficSnapshot
-from pse.umlsl_editor.src.commands.persistence.save_as_traffic_snapshot import SaveAsTrafficSnapshot
-from pse.umlsl_editor.src.commands.persistence.save_traffic_snapshot import SaveTrafficSnapshot
-from pse.umlsl_editor.src.commands.roads import add_road
-from pse.umlsl_editor.src.commands.roads import delete_road
-from pse.umlsl_editor.src.commands.roads import edit_road
-from pse.umlsl_editor.src.commands.settings.change_breaking_acceleration import ChangeBreakingAccelerationCommand
-from pse.umlsl_editor.src.commands.umlsl import add_umlsl_query
-from pse.umlsl_editor.src.commands.umlsl import delete_umlsl_query
-from pse.umlsl_editor.src.commands.umlsl import edit_umlsl_query
+from pse.umlsl_editor.src.commands.persistence.load_traffic_snapshot import (
+    LoadTrafficSnapshot,
+)
+from pse.umlsl_editor.src.commands.persistence.save_as_traffic_snapshot import (
+    SaveAsTrafficSnapshot,
+)
+from pse.umlsl_editor.src.commands.persistence.save_traffic_snapshot import (
+    SaveTrafficSnapshot,
+)
+from pse.umlsl_editor.src.commands.roads import add_road, delete_road, edit_road
+from pse.umlsl_editor.src.commands.settings.change_breaking_acceleration import (
+    ChangeBreakingAccelerationCommand,
+)
+from pse.umlsl_editor.src.commands.umlsl import (
+    add_umlsl_query,
+    delete_umlsl_query,
+    edit_umlsl_query,
+)
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
-from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
-from pse.umlsl_editor.src.model.entities.car import CarParams, Car
-from pse.umlsl_editor.src.model.entities.road import Road, RoadParams, RoadOrientation
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import (
+    TrafficSnapshotReader,
+)
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import (
+    TrafficSnapshotWriter,
+)
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import (
+    UMLSLQueriesModel,
+)
+from pse.umlsl_editor.src.model.entities.car import Car, CarParams
+from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation, RoadParams
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery, UMLSLQueryParams
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
@@ -47,6 +61,7 @@ class CommandController:
         self.settings_model = settings_model
         self._application_controller = application_controller
         self._current_snapshot_path: Optional[str] = None
+        self._traffic_snapshot_changed_since_last_save = False
         # self._command_history = []  # TODO: Implement undo/redo stack
         # self._history_position = -1  # Current position in history
 
@@ -65,6 +80,14 @@ class CommandController:
         """
         command.execute()
 
+        if not (isinstance(command, SaveTrafficSnapshot) or isinstance(command, SaveAsTrafficSnapshot) or isinstance(
+                command, LoadTrafficSnapshot)):
+            # Mark snapshot as changed for all commands except loading/saving
+            self._set_snapshot_changed_since_last_save(True)
+        else:
+            # Reset changed flag when saving/loading
+            self._set_snapshot_changed_since_last_save(False)
+
     def _execute_without_history(self, command: Command) -> None:
         """
         Executes a command without adding it to the undo/redo history.
@@ -80,6 +103,24 @@ class CommandController:
             CommandValidationError: If the command fails validation.
         """
         command.execute()
+
+    def get_data_changed_since_last_save(self) -> bool:
+        """
+        Returns True if the traffic snapshot has been modified since the last save operation.
+        """
+        return self._traffic_snapshot_changed_since_last_save
+
+    def _set_snapshot_changed_since_last_save(self, has_changes: bool) -> None:
+        if self._traffic_snapshot_changed_since_last_save == has_changes:
+            return
+
+        self._traffic_snapshot_changed_since_last_save = has_changes
+
+        if self._application_controller is None:
+            return
+
+        signal = self._application_controller.view_event_handler.get_on_snapshot_changed_signal()
+        signal.emit(has_changes)
 
     # def undo(self) -> bool:
     #     """
@@ -328,6 +369,12 @@ class CommandController:
     def set_current_snapshot_path(self, file_path: Optional[str]) -> None:
         self._current_snapshot_path = file_path
 
+        if self._application_controller is None:
+            return
+
+        signal = self._application_controller.view_event_handler.get_on_snapshot_changed_signal()
+        signal.emit(self._traffic_snapshot_changed_since_last_save)
+
     def load_traffic_snapshot(self, file_path: str) -> None:
         """
         Loads a traffic snapshot from the specified file path.
@@ -338,7 +385,7 @@ class CommandController:
             raise CommandValidationError("Application controller is required to load a snapshot.")
         load_command = LoadTrafficSnapshot(file_path, self._application_controller)
         self._execute_command(load_command)
-        self._current_snapshot_path = file_path
+        self.set_current_snapshot_path(file_path)
 
     def save_traffic_snapshot(self) -> None:
         """
@@ -365,7 +412,7 @@ class CommandController:
             self.umlsl_queries_model,
         )
         self._execute_command(save_command)
-        self._current_snapshot_path = file_path
+        self.set_current_snapshot_path(file_path)
 
     def change_breaking_acceleration(self, value: float) -> None:
         """
