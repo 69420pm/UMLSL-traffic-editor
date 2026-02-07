@@ -20,6 +20,9 @@ from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import (
     TurnIntent,
 )
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+from pse.umlsl_editor.src.view.ui.lists.deletion_checks import (
+    get_car_deletion_block_reason,
+)
 from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.confirm_deletion_dialog import (
     ConfirmDeletionDialog,
 )
@@ -363,20 +366,9 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         if not self.is_edit_mode:
             return
 
-        queries = self._app_controller.command_controller.umlsl_queries_model.get_queries().values()
-        queries_related_to_car = []
-        for query in queries:
-            if query.assigned_car_uid == self.car.uid:
-                queries_related_to_car.append(query.latex)
-                break
-
-        if queries_related_to_car:
-            dialog = WarningDialog(
-                "Deletion Error",
-                f"Cannot delete car '{self.car.name}' because the following queries reference it as ego cars:\n{queries_related_to_car}",
-                self,
-            )
-            dialog.exec()
+        block_reason = get_car_deletion_block_reason(self._app_controller, self.car)
+        if block_reason:
+            WarningDialog("Deletion Error", block_reason, self).exec()
             return
 
         confirm = ConfirmDeletionDialog(

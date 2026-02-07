@@ -5,7 +5,18 @@ This module contains the MainWindow class, which serves as the primary
 application window and coordinates all UI components.
 """
 
-from PySide6.QtWidgets import QDialog, QMainWindow
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QKeySequence, QShortcut
+from PySide6.QtWidgets import (
+    QComboBox,
+    QDialog,
+    QDoubleSpinBox,
+    QLineEdit,
+    QMainWindow,
+    QPlainTextEdit,
+    QSpinBox,
+    QTextEdit,
+)
 
 from pse.umlsl_editor.src.controllers import ApplicationController
 from pse.umlsl_editor.src.view.ui.global_controlls import GlobalControls
@@ -50,6 +61,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self._setup_traffic_canvas()
         self._setup_controllers()
+        self._setup_shortcuts()
 
         self.snackbar = GreenSnackbar(self.sidebar)
 
@@ -86,6 +98,50 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.canvas_buttons = CanvasButtons(self)
         self.sidebar_controller = SidebarController(self, self._application_controller)
         self.global_controls = GlobalControls(self, self._application_controller)
+
+    def _setup_shortcuts(self) -> None:
+        self._shortcuts = [
+            self._create_shortcut("C", self.sidebar_controller.open_add_car_dialog),
+            self._create_shortcut("R", self.sidebar_controller.open_add_road_dialog),
+            self._create_shortcut("Q", self.sidebar_controller.open_add_query_dialog),
+            self._create_shortcut("E", self._handle_edit_shortcut),
+            self._create_shortcut("Backspace", self._handle_delete_shortcut),
+        ]
+
+    def _create_shortcut(self, key: str, handler) -> QShortcut:
+        shortcut = QShortcut(QKeySequence(key), self)
+        shortcut.setContext(Qt.WindowShortcut)
+        shortcut.activated.connect(lambda: self._run_shortcut_if_allowed(handler))
+        return shortcut
+
+    def _run_shortcut_if_allowed(self, handler) -> None:
+        focus = self.focusWidget()
+        if isinstance(
+                focus,
+                (
+                        QLineEdit,
+                        QTextEdit,
+                        QPlainTextEdit,
+                        QSpinBox,
+                        QDoubleSpinBox,
+                        QComboBox,
+                ),
+        ):
+            return
+        handler()
+
+    def _handle_edit_shortcut(self) -> None:
+        if not self._has_selected_entity():
+            return
+        self.sidebar_controller.open_edit_selected_entity()
+
+    def _handle_delete_shortcut(self) -> None:
+        if not self._has_selected_entity():
+            return
+        self.sidebar_controller.delete_selected_entity()
+
+    def _has_selected_entity(self) -> bool:
+        return bool(self._application_controller.view_event_handler.get_current_selected_uid())
 
     def _on_snapshot_changed(self, _changed: bool) -> None:
         self.update_main_window_title()

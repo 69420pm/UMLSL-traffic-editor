@@ -7,10 +7,18 @@ their associated QML views and add buttons.
 
 import os
 
-from PySide6.QtCore import QObject, Qt, QUrl
+from PySide6.QtCore import QObject, Qt, QTimer, QUrl
 
 from pse.umlsl_editor.src.controllers import ApplicationController
 from pse.umlsl_editor.src.model.entities.entity import Entity
+from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+from pse.umlsl_editor.src.view.ui.lists.deletion_checks import (
+    get_car_deletion_block_reason,
+    get_road_deletion_block_reason,
+)
+from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.confirm_deletion_dialog import (
+    ConfirmDeletionDialog,
+)
 from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.edit_car_dialog import (
     EditCarDialog,
 )
@@ -77,15 +85,9 @@ class SidebarController(QObject):
 
     def _connect_add_buttons(self) -> None:
         """Connect add buttons to their respective dialog handlers."""
-        self._add_road_button.clicked.connect(
-            lambda: self._open_edit_dialog(EditRoadDialog, None)
-        )
-        self._add_car_button.clicked.connect(
-            lambda: self._open_edit_dialog(EditCarDialog, None)
-        )
-        self._add_query_button.clicked.connect(
-            lambda: self._open_edit_dialog(EditQueryDialog, None)
-        )
+        self._add_road_button.clicked.connect(self.open_add_road_dialog)
+        self._add_car_button.clicked.connect(self.open_add_car_dialog)
+        self._add_query_button.clicked.connect(self.open_add_query_dialog)
 
     def _connect_edit_signals(self) -> None:
         """Connect model edit_requested signals to dialog handlers."""
@@ -165,6 +167,88 @@ class SidebarController(QObject):
 
         quick_widget.rootContext().setContextProperty("data_model", model)
         quick_widget.setSource(QUrl.fromLocalFile(qml_file_path))
+
+    def open_add_car_dialog(self) -> None:
+        self._open_edit_dialog(EditCarDialog, None)
+
+    def open_add_road_dialog(self) -> None:
+        self._open_edit_dialog(EditRoadDialog, None)
+
+    def open_add_query_dialog(self) -> None:
+        self._open_edit_dialog(EditQueryDialog, None)
+
+    def open_edit_selected_entity(self) -> None:
+        selected = self._get_selected_entity()
+        if selected is None:
+            return
+
+        entity, entity_type = selected
+        if entity_type == "car":
+            self._open_edit_dialog(EditCarDialog, entity)
+        elif entity_type == "road":
+            self._open_edit_dialog(EditRoadDialog, entity)
+        elif entity_type == "query":
+            self._open_edit_dialog(EditQueryDialog, entity)
+
+    def delete_selected_entity(self) -> None:
+        selected = self._get_selected_entity()
+        if selected is None:
+            return
+
+        entity, entity_type = selected
+        if entity_type == "car":
+            block_reason = get_car_deletion_block_reason(self._application_controller, entity)
+            if block_reason:
+                WarningDialog("Deletion Error", block_reason, self._window).exec()
+                return
+            label = f"car '{entity.name}'"
+            delete_action = lambda: self._application_controller.command_controller.remove_car(entity.uid)
+        elif entity_type == "road":
+            block_reason = get_road_deletion_block_reason(self._application_controller, entity)
+            if block_reason:
+                WarningDialog("Deletion Error", block_reason, self._window).exec()
+                return
+            label = f"road '{entity.name}'"
+            delete_action = lambda: self._application_controller.command_controller.remove_road(entity.uid)
+        else:
+            label = "this query"
+            delete_action = lambda: self._application_controller.command_controller.remove_umlsl_query(entity.uid)
+
+        confirm = ConfirmDeletionDialog(
+            f"Are you sure you want to delete {label}?",
+            self._window,
+            title="Confirm Deletion",
+            confirm_text="Delete",
+            cancel_text="Cancel",
+        ).exec()
+
+        if confirm == 1:
+            QTimer.singleShot(0, delete_action)
+            if entity_type == "car":
+                self._window.snackbar.show_message(f"Car '{entity.name}' deleted successfully.")
+            elif entity_type == "road":
+                self._window.snackbar.show_message(f"Road '{entity.name}' deleted successfully.")
+            else:
+                self._window.snackbar.show_message("Query deleted successfully.")
+
+    def _get_selected_entity(self) -> tuple[Entity, str] | None:
+        selected_uid = self._application_controller.view_event_handler.get_current_selected_uid()
+        if not selected_uid:
+            return None
+
+        cars = self._application_controller.data_controller.get_all_cars()
+        if selected_uid in cars:
+            return cars[selected_uid], "car"
+
+        roads = self._application_controller.data_controller.get_all_roads()
+        if selected_uid in roads:
+            return roads[selected_uid], "road"
+
+        queries = self._application_controller.command_controller.umlsl_queries_model.get_queries()
+        if selected_uid in queries:
+            return queries[selected_uid], "query"
+
+        return None
 
     def _open_edit_dialog(self, dialog_class, entity: Entity | None) -> None:
         """

@@ -15,6 +15,9 @@ from pse.umlsl_editor.src.model.errors.road_errors import (
     RoadValidationError,
 )
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+from pse.umlsl_editor.src.view.ui.lists.deletion_checks import (
+    get_road_deletion_block_reason,
+)
 from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.confirm_deletion_dialog import (
     ConfirmDeletionDialog,
 )
@@ -83,20 +86,9 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
         if not self._is_edit:
             return
 
-        cars = self._application_controller.data_controller.get_all_cars().values()
-        cars_on_road = []
-        for car in cars:
-            if car.lane.road_uid == self._road.uid:
-                cars_on_road.append(car.name)
-                break
-
-        if cars_on_road:
-            dialog = WarningDialog(
-                "Deletion Error",
-                f"Cannot delete road '{self._road.name}' because the following cars are on it:\n{cars_on_road}",
-                self,
-            )
-            dialog.exec()
+        block_reason = get_road_deletion_block_reason(self._application_controller, self._road)
+        if block_reason:
+            WarningDialog("Deletion Error", block_reason, self).exec()
             return
         # Confirm deletion with the user
         confirm = ConfirmDeletionDialog(
