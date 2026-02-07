@@ -203,5 +203,5 @@ class TrafficSnapshotReader(ABC):
     def all_segments(self) -> list[Segment]:
         pass
 
-    def get_segment_info(self, segment_uid: str) -> str:
+    def get_segment_info(self, segment_uid: str, include_uid: bool = False) -> str:
         pass

@@ -506,7 +506,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         """
         print("=== Traffic Graph Structure ===")
         for segment_uid in self._graph.nodes:
-            segment_info = self.get_segment_info(segment_uid)
+            segment_info = self.get_segment_info(segment_uid, True)
             print(f"\n[Segment] {segment_info}")
 
             # Print outgoing connections
@@ -521,7 +521,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                     print(f"  -> [{direction_name}] to {target_info}")
         print("===============================")
 
-    def get_segment_info(self, segment_uid: str) -> str:
+    def get_segment_info(self, segment_uid: str, include_uid: bool = False) -> str:
         # todo: use polymorphism to remove instance checks
         segment = self._segments.get(segment_uid)
         if segment is None:
@@ -530,18 +530,20 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         def format_lane(lane: Lane) -> str:
             actual_index = lane.lane_index + 1 if lane.lane_index >= 0 else -lane.lane_index
             prefix = "f" if lane.lane_index >= 0 else "b"
-            return f"{prefix}{actual_index} ({lane.road_uid})"
+            road_uid = f"({lane.road_uid})" if include_uid else ""
+            return f"{prefix}{actual_index}{road_uid}"
 
+        uid_suffix = f"({segment.uid})" if include_uid else ""
         if isinstance(segment, CrossingSegment):
             h_road = self.get_road_by_uid(segment.horizontal_lane.road_uid)
             v_road = self.get_road_by_uid(segment.vertical_lane.road_uid)
-            return (f"crossing({segment.uid}) "
+            return (f"crossing{uid_suffix} "
                     f"at R{h_road.name}({format_lane(segment.horizontal_lane)}) x "
                     f"R{v_road.name}({format_lane(segment.vertical_lane)})")
 
         elif isinstance(segment, LaneSegment):
             road = self.get_road_by_uid(segment.lane.road_uid)
-            return (f"lane({segment.uid}) "
+            return (f"lane{uid_suffix} "
                     f"at R{road.name}({format_lane(segment.lane)})")
 
         raise NotImplementedError(f"Unknown segment type: {type(segment)}")

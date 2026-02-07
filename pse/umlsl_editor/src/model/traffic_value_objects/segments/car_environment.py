@@ -82,37 +82,27 @@ class CarEnvironment:
         pos_on_lane = pos_on_lane_center - car_size / 2  # we need the rear
         start_segment = ts.get_segment_from_lane_position(car_lane, pos_on_lane)
 
-        # todo: extract into separate method
+        if not isinstance(start_segment, LaneSegment):
+            raise ValueError("Car must start on a lange segment")
+
+        car_direction: Direction
         if road.orientation == RoadOrientation.HORIZONTAL:
             car_direction = Direction.LEFT if speed < 0 else Direction.RIGHT
         else:
             car_direction = Direction.UP if speed > 0 else Direction.DOWN
 
-        #  print("car_direction", car_direction)
-
-        #  print("turn intent is ", turn_intent)
-
         if turn_intent is None:
-            print("turn intent is none")
-            return CarEnvironment(VirtualLane([]), [], Interval(0.0, 0.0), [])
-        if not isinstance(start_segment, LaneSegment):
-            raise ValueError("Car must start on a lange segment")
+            # if the turn_intent is not specified, it means the car drives straight
+            turn_intent = TurnIntent(TurnDirection.STRAIGHT, car_lane)
 
         # converts the absolute position to the position on the start_segment
         pos_on_segment = pos_on_lane - start_segment.get_position(ts)[road.orientation.value]
 
-        #  print("braking dist is", braking_distance)
-        # print("car lane ", car_lane, " pos on seg: ", pos_on_segment, " start_segment ", start_segment, " car dir ", car_direction)
-        # print("lane pos is ", lane_pos, " pos on seg: ", pos_on_segment, " direction is ", car_direction)
-
-        turn_direction = turn_intent.direction
-
-        print("finding turn segment for", turn_intent, " at ", ts.get_segment_info(start_segment.uid), " direction is ",
-              car_direction)
         turn_segment: LaneSegment = _find_turn_intent_segment(ts, start_segment, turn_intent, car_direction)
-        print("turn segment is ", ts.get_segment_info(turn_segment.uid), " at pos ", turn_segment.get_position(ts))
-        path: VirtualLane | None = _compute_path_through_crossing(ts, start_segment, turn_segment, turn_direction)
-        ts.debug_get_segments()[turn_segment.uid] = turn_segment
+        path: VirtualLane | None = _compute_path_through_crossing(ts, start_segment, turn_segment)
+        # add path to debug segments
+        for seg in path.segments:
+            ts.debug_get_segments()[seg.uid] = seg
 
         if path is None:
             raise ValueError("Car specified a turn intent with invalid path.")
@@ -126,24 +116,19 @@ class CarEnvironment:
         start_opp_parallel_segments: list[LaneSegment] = _compute_opposing_parallel_segments(ts, start_segment)
         turn_opp_parallel_segments: list[LaneSegment] = _compute_opposing_parallel_segments(ts, turn_segment)
 
-        print("path is ", list(map(lambda seg: ts.get_segment_info(seg.uid), path.segments)))
-        print("start opp parallel segments are ", list(map(lambda seg: str(seg), start_opp_parallel_segments)))
-        print("turn opp parallel segments are ", list(map(lambda seg: str(seg), turn_opp_parallel_segments)))
-
         opposing_parallel_virtual_lanes: list[list[VirtualLane]] = []
         for start_opp_parallel_segment in start_opp_parallel_segments:
             opposing_virtual_lanes: list[VirtualLane] = []
 
             for turn_opp_parallel_segment in turn_opp_parallel_segments:
-                segments_through_crossing: list[Segment] | None = _compute_path_through_crossing(
+                segments_through_crossing: VirtualLane | None = _compute_path_through_crossing(
                     ts,
                     start_opp_parallel_segment,
-                    turn_opp_parallel_segment,
-                    turn_direction
+                    turn_opp_parallel_segment
                 )
                 if segments_through_crossing is None:
                     raise ValueError("Cannot compute path of opposing parallel segments.")
-                opposing_virtual_lanes.append(VirtualLane(segments_through_crossing))
+                opposing_virtual_lanes.append(segments_through_crossing)
 
             opposing_parallel_virtual_lanes.append(opposing_virtual_lanes)
 
@@ -156,10 +141,11 @@ class CarEnvironment:
 
             parallel_virtual_lanes.append(parallel_virtual_lane)
 
+        print("--------")
         for parallel_virtual_lane in parallel_virtual_lanes:
-            print("parallel virtual lane is ", parallel_virtual_lane, "")
+            print("parallel virtual lane:")
             for virtual_lane in parallel_virtual_lane:
-                print("virtual lane is ", list(map(lambda seg: str(seg), virtual_lane.segments)), "")
+                print(" > virtual lane is ", list(map(lambda seg: ts.get_segment_info(seg.uid), virtual_lane.segments)))
 
         return CarEnvironment(
             path,
@@ -171,10 +157,12 @@ class CarEnvironment:
 
 def _compute_opposing_parallel_segments(ts: TrafficSnapshotReader, segment: LaneSegment) -> list[LaneSegment]:
     opposing_direction = -segment.lane.get_direction()
+    parallel_lane_segments: list[LaneSegment] = _compute_parallel_lane_segments(ts, segment)
+
     return list(
         filter(
             lambda seg: seg.lane.get_direction() == opposing_direction,
-            _compute_parallel_lane_segments(ts, segment)
+            parallel_lane_segments
         )
     )
 
@@ -196,7 +184,7 @@ def _compute_parallel_lane_segments(ts: TrafficSnapshotReader, segment: LaneSegm
     segments: list[LaneSegment] = []
     for direction in directions:
         next_segment = ts.get_adjacent_segment(segment.uid, direction)
-        while next_segment is not None and not next_segment.is_lane_segment:
+        while next_segment is not None:
             # if we start on a lane segment and move orthogonal to its driving direction, we cannot reach a crossing
             # segment
             assert isinstance(next_segment, LaneSegment)
@@ -205,17 +193,6 @@ def _compute_parallel_lane_segments(ts: TrafficSnapshotReader, segment: LaneSegm
 
     segments.sort(key=lambda seg: seg.lane.lane_index)
     return segments
-
-
-def _compute_path_straight(ts: TrafficSnapshotReader, car_direction: Direction, segment: Segment) -> VirtualLane:
-    # todo: path is currently infinite. it must not exceed the horizontal horizon except for safety envelope after a crossing
-    path = [segment]
-    next_segment = ts.get_adjacent_segment(segment.uid, car_direction)
-    while next_segment is not None:
-        path.append(next_segment)
-        next_segment = ts.get_adjacent_segment(next_segment.uid, car_direction)
-
-    return VirtualLane(path)
 
 
 def compute_horizontal_horizon(path_segment_intervals: list[SegmentInterval], braking_dist: float) -> Interval:
@@ -238,7 +215,7 @@ def compute_horizontal_horizon(path_segment_intervals: list[SegmentInterval], br
         if virtual_pos > braking_dist:
             if segment.is_lane_segment:
                 # the car can come to a complete stand-still within the horizon
-                return Interval(start, braking_dist)
+                return Interval(start, start + braking_dist)
             else:
                 # car stops at crossing (segment with index i)
                 stopped_crossing_i = i
@@ -291,6 +268,14 @@ def _find_turn_intent_segment(
         assert turn_direction == TurnDirection.STRAIGHT
         return segments_of_target_lane[0]
 
+    # for straight driving, we can iterate straight through the crossing and take the first lane segment
+    if turn_direction == TurnDirection.STRAIGHT:
+        next_segment = ts.get_adjacent_segment(start.uid, car_direction)
+        while next_segment is not None:
+            next_segment = ts.get_adjacent_segment(next_segment.uid, car_direction)
+            if isinstance(next_segment, LaneSegment):
+                return next_segment
+
     # the segment_position_index is used to consider only the relevant coordinate of the segments_of_target_lane list
     segment_position_index: int = 1 if start_road_direction == RoadOrientation.HORIZONTAL else 0
 
@@ -323,35 +308,56 @@ def _find_turn_intent_segment(
 
 def _compute_path_through_crossing(
         ts: TrafficSnapshotReader,
-        start: Segment,
-        end: LaneSegment,
-        turn_direction: TurnDirection
+        start: LaneSegment,
+        end: LaneSegment
 ) -> VirtualLane | None:
     """"
     Computes the path from start to end through a crossing segment.
-    This is a basic BFS algorithm.
-    The performance can be drastically improved because of our topology and given turn_direction.
+    Our path can have at most 1 direction change, therefore, we bruteforce where that change occurs.
+
+    One can drastically improve the performance of this algorithm by carefully implementing BFS and computing the
+    allowed directions (a list of most 2 directions) depending on the start and end segment.
+    However, one has to be very careful implementing that, because we also care about the opposite paths.
     """
     if start == end:
         return VirtualLane([start])
 
-    queue = deque([(start, [start])])
-    visited = {start}
+    for direction_1 in Direction:
+        path_1: list[Segment] = [start]
+        current_seg_1: Segment = start
 
-    while queue:
-        current_segment, path = queue.popleft()
+        # Follow Direction 1 as far as possible
+        while True:
+            if current_seg_1 == end:
+                return VirtualLane(path_1)
 
-        # Explore all possible physical directions
-        for direction in Direction:
-            neighbor = ts.get_adjacent_segment(current_segment.uid, direction)
+            # Guess a direction change
+            for direction_2 in Direction:
+                if direction_2 == direction_1:
+                    continue
 
-            if neighbor is not None and neighbor not in visited:
-                # If we found the target lane segment, return the full path
-                if neighbor == end:
-                    return VirtualLane(path + [neighbor])
+                # we clone the paths and compute where we end up when using this direction
+                path_2 = list(path_1)
+                current_seg_2 = ts.get_adjacent_segment(current_seg_1.uid, direction_2)
 
-                visited.add(neighbor)
-                queue.append((neighbor, path + [neighbor]))
+                # Follow direction_2 as far as possible
+                while current_seg_2 is not None:
+                    path_2.append(current_seg_2)
+                    if current_seg_2 == end:
+                        return VirtualLane(path_2)
+
+                    if current_seg_2 in path_1:
+                        # this would be a loop
+                        break
+                    else:
+                        current_seg_2 = ts.get_adjacent_segment(current_seg_2.uid, direction_2)
+
+            # didn't work, go to the next segment in direction_1
+            next_seg = ts.get_adjacent_segment(current_seg_1.uid, direction_1)
+            if next_seg is None or next_seg in path_1:
+                break
+            current_seg_1 = next_seg
+            path_1.append(current_seg_1)
 
     return None
 
