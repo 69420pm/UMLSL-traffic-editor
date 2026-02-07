@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 
-
+class LaneDirection:
+    FORWARD = 1
+    BACKWARD = -1
 
 @dataclass(frozen=True, kw_only=True)
 class Lane:
@@ -36,3 +38,6 @@ class Lane:
 
     def get_name(self) -> str:
         return f"f{self.lane_index + 1}" if self.lane_index >= 0 else f"b{-self.lane_index}"
+
+    def get_direction(self) -> int:
+        return LaneDirection.FORWARD if self.lane_index >= 0 else LaneDirection.BACKWARD
