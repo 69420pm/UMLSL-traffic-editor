@@ -71,9 +71,10 @@ class CarEnvironment:
             ts: TrafficSnapshotReader,
             car_params: "CarParams",
             settings_model: SettingsModel
-    ) -> bool:
+    ) -> str | None:
         # todo: validate car does not require reserving/claiming occupied segments
-        return True
+        # todo: validate car is not defined on a crossing
+        return None
 
     @staticmethod
     def create_environment(
