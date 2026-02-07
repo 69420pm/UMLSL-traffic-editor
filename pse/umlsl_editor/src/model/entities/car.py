@@ -141,7 +141,7 @@ class Car(Entity):
             params.position_on_lane,
             params.length,
             params.speed,
-            turn_direction=TurnDirection.STRAIGHT
+            params.next_turn
         )
         return cls(
             uid=generate_uid(),
@@ -237,7 +237,7 @@ class Car(Entity):
             params.position_on_lane,
             params.length,
             params.speed,
-            turn_direction=TurnDirection.STRAIGHT
+            params.next_turn
         )
 
         self.environment = car_env
