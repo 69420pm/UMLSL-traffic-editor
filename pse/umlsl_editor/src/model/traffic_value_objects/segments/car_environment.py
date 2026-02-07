@@ -4,13 +4,12 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import Tra
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.model.helper.directional_graph import Direction
 from pse.umlsl_editor.src.model.interval import Interval
-from pse.umlsl_editor.src.model.position import Position
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import VirtualLane, Segment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
-from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnDirection
+from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnDirection, TurnIntent
 from pse.umlsl_editor.src.query.view import View
 
 
@@ -72,32 +71,49 @@ class CarEnvironment:
             pos_on_lane_center: float,
             car_size: float,
             speed: float,
-            turn_direction: TurnDirection
+            turn_intent: TurnIntent
     ) -> 'CarEnvironment':
         road_id = car_lane.road_uid
         road = ts.get_road_by_uid(road_id)
         pos_on_lane = pos_on_lane_center - car_size / 2 # we need the rear
         segment = ts.get_segment_from_lane_position(car_lane, pos_on_lane)
-        pos_on_segment = pos_on_lane - segment.get_position(ts)[road.orientation.value]
 
         # todo: extract into separate method
         if road.orientation == RoadOrientation.HORIZONTAL:
             car_direction = Direction.LEFT if speed < 0 else Direction.RIGHT
         else:
-            car_direction = Direction.DOWN if speed < 0 else Direction.UP
+            car_direction = Direction.UP if speed > 0 else Direction.DOWN
+
+      #  print("car_direction", car_direction)
+
+      #  print("turn intent is ", turn_intent)
+
+        if turn_intent is None:
+            return CarEnvironment()
+        if segment is None and segment is not LaneSegment:
+            raise ValueError("Segment is None or not a LaneSegment")
+
+        pos_on_segment = pos_on_lane - segment.get_position(ts)[road.orientation.value]
+
+
 
        # print("car lane ", car_lane, " pos on seg: ", pos_on_segment, " segment ", segment, " car dir ", car_direction)
         lane_pos = car_lane.get_one_dimensional_position(ts)
        # print("lane pos is ", lane_pos, " pos on seg: ", pos_on_segment, " direction is ", car_direction)
 
+        turn_direction = turn_intent.direction
+
         if turn_direction == TurnDirection.STRAIGHT:
             path = _compute_path_straight(ts, car_direction, segment)
             path_segs = list(map(lambda x: ts.get_segment_info(x.uid), path.segments))
-            segment_intervals = _compute_segment_intervals(ts, path, pos_on_segment, car_size)
+            path_segment_intervals = _compute_segment_intervals(ts, path, pos_on_segment, car_size)
           #  print("path is ", path)
           #  print("path segments are ", path_segs)
-            segment_intervals_text = list(map(lambda x: f"{ts.get_segment_info(x.segment.uid)}{x.interval}", segment_intervals))
-           # print("segment intervals are ", segment_intervals_text)
+            segment_intervals_text = list(map(lambda x: f"{ts.get_segment_info(x.segment.uid)}{x.interval}", path_segment_intervals))
+         #   print("segment intervals are ", segment_intervals_text)
+
+            target_segment =_find_turn_intent_segment(ts, segment, turn_intent, car_direction)
+           # print("target segment is ", ts.get_segment_info(target_segment.uid) if target_segment is not None else "None")
             return CarEnvironment()
         else:
             # todo
@@ -106,6 +122,7 @@ class CarEnvironment:
 
 
 def _compute_path_straight(ts: TrafficSnapshotReader, car_direction: Direction, segment: Segment) -> VirtualLane:
+    # todo: path is currently infinite. it must not exceed the horizontal horizon except for safety envelope after a crossing
     path = [segment]
     next_segment = ts.get_adjacent_segment(segment.uid, car_direction)
     while next_segment is not None:
@@ -114,8 +131,71 @@ def _compute_path_straight(ts: TrafficSnapshotReader, car_direction: Direction, 
 
     return VirtualLane(path)
 
+def _find_turn_intent_segment(
+        ts: TrafficSnapshotReader,
+        start: LaneSegment,
+        turn_intent: TurnIntent,
+        car_direction: Direction
+) -> LaneSegment | None:
+    """"
+    We need to find the target lane segment based on the turn intent and the car's current position.
+    Since we know the target lane, we can collect all lane(!) segments of the target lane first.
+    Each segment has a two-dimensional position, but to find the target segment, it is enough to compare only 1 coordinate:
+    For example, if the car is driving straight, we only need to compare the x coordinate to find the segment and find
+    the first segment with a larger x coordinate than the starting segment.
+    """
+    start_pos = start.get_position(ts)
+    start_pos_x = start_pos[0]
+    start_pos_y = start_pos[1]
+    # we need to find the target lane segment based on the turn intent
 
-def _compute_path() -> VirtualLane:
+    # collect all segments of the target lane
+    segments_of_target_lane: list[Segment] = []
+    for segment in ts.all_segments():
+        if segment is LaneSegment:
+            lane_segment: LaneSegment = segment
+            if lane_segment.lane == turn_intent.target_lane:
+                segments_of_target_lane.append(segment)
+
+    turn_direction = turn_intent.direction
+
+    # the segment_position_index is used to consider only the relevant coordinate of the segments_of_target_lane list
+    # this is the segment_position_index corresponding to a car driving horizontally
+    segment_position_index: int = 0 if turn_direction == TurnDirection.STRAIGHT else 1
+    # we have to flip the index if the car is driving vertically
+    if car_direction in {Direction.DOWN, Direction.UP}:
+        segment_position_index = 1 - segment_position_index
+
+    segments_of_target_lane.sort(key=lambda x: x.get_position(ts)[segment_position_index])
+    if car_direction in {Direction.LEFT, Direction.DOWN}:
+        segments_of_target_lane.reverse()
+
+    for segment in segments_of_target_lane:
+        pos = segment.get_position(ts)[segment_position_index]
+
+        match car_direction:
+            case Direction.RIGHT:
+                if pos > start_pos_x:
+                    return segment
+            case Direction.LEFT:
+                if pos < start_pos_x:
+                    return segment
+            case Direction.DOWN:
+                if pos < start_pos_y:
+                    return segment
+            case Direction.UP:
+                if pos > start_pos_y:
+                    return segment
+    return None
+
+
+def _compute_path_through_crossing(
+        ts: TrafficSnapshotReader,
+        start: LaneSegment,
+        end: LaneSegment,
+        turn_direction: TurnDirection
+) -> list[Segment] | None:
+
     pass
 
 
