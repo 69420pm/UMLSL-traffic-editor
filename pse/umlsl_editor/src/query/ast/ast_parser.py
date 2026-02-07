@@ -59,7 +59,7 @@ class ASTParser:
                 "unbalanced parentheses",
                 start,
                 end,
-                "Consider adding/removing '(', ')', '{' or '}'"
+                "Consider adding/removing '(', ')', '<' or '{', '}', '>'"
             )
 
         if split_index != -1:
