@@ -24,6 +24,7 @@ from pse.umlsl_editor.src.view.ui.lists.latex_renderer import latex_to_bytes
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_query_dialog import (
     Ui_Edit_Query_Dialog,
 )
+from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_query_help_dialog import Ui_QueryHelpDialog
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
@@ -119,6 +120,10 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         self._application_controller = application_controller
         self._cars_dict = application_controller.data_controller.get_all_cars()
 
+        self._help_dialog = QDialog(self)
+        self._help_ui = Ui_QueryHelpDialog()
+        self._help_ui.setupUi(self._help_dialog)
+
         # Threading state
         self._render_thread: QThread | None = None
         self._render_worker: LatexRenderWorker | None = None
@@ -143,6 +148,37 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         self.b_save.clicked.connect(self.accept)
         self.b_delete.clicked.connect(self._on_delete_clicked)
         self.t_umlsl.document().contentsChanged.connect(self._render_latex)
+        self.b_help.clicked.connect(self._on_help_clicked)
+
+    def _on_help_clicked(self) -> None:
+        # 1. Setup UI
+        if self._help_dialog.isVisible():
+            self._help_dialog.raise_()
+            self._help_dialog.activateWindow()
+            return
+
+        # 2. Ensure dialog knows its true size before we calculate position
+        self._help_dialog.adjustSize()
+
+        # 3. Get Geometries
+        main_geo = self.frameGeometry()
+        dialog_geo = self._help_dialog.frameGeometry()
+        screen_geo = self.screen().availableGeometry()  # Available area (excludes taskbars)
+
+        # 4. Calculate "Left" Position
+        gap = 8
+        target_x = main_geo.x() - dialog_geo.width() - gap
+        target_y = main_geo.y() - 32
+
+        # 5. Boundary Check: Is the left side off-screen?
+        # If target_x is less than the screen's left edge (usually 0)
+        if target_x < screen_geo.left():
+            # FLIP TO RIGHT SIDE
+            target_x = main_geo.x() + main_geo.width() + gap
+
+        # 6. Apply
+        self._help_dialog.move(target_x, target_y)
+        self._help_dialog.show()
 
     def exec(self) -> int:
         """
@@ -228,8 +264,8 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         self._cleanup_render_thread()
 
         # Store dimensions for use when converting bytes to pixmap on main thread
-        self._max_width = int(self.l_preview.width() * 0.9)
-        self._max_height = int(self.l_preview.height() * 0.8)
+        self._max_width = int(self.l_preview.width() - 16)
+        self._max_height = int(self.l_preview.height() - 32)
         self._device_pixel_ratio = self.devicePixelRatioF()
 
         # Create worker and thread
