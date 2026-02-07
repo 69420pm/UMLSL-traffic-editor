@@ -1,3 +1,4 @@
+from collections import deque
 from enum import Enum
 
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
@@ -315,9 +316,33 @@ def _compute_path_through_crossing(
         end: LaneSegment,
         turn_direction: TurnDirection
 ) -> list[Segment] | None:
+    """"
+    Computes the path from start to end through a crossing segment.
+    This is a basic BFS algorithm.
+    The performance can be drastically improved because of our topology and given turn_direction.
+    """
     if start == end:
         return [start]
-    pass
+
+    queue = deque([(start, [start])])
+    visited = {start}
+
+    while queue:
+        current_segment, path = queue.popleft()
+
+        # Explore all possible physical directions
+        for direction in Direction:
+            neighbor = ts.get_adjacent_segment(current_segment.uid, direction)
+
+            if neighbor is not None and neighbor not in visited:
+                # If we found the target lane segment, return the full path
+                if neighbor == end:
+                    return path + [neighbor]
+
+                visited.add(neighbor)
+                queue.append((neighbor, path + [neighbor]))
+
+    return None
 
 
 def _compute_segment_intervals(
