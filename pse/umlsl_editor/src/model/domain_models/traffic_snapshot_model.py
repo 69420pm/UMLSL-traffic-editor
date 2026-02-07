@@ -184,6 +184,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             on_update=self._on_road_updated
         )
         self._segments: dict[str, Segment] = {}
+        self._debug_segments: dict[str, Segment] = {}
         """Dictionary of segments, keyed by their uid."""
         # self._connections: dict[str, dict[Direction, str]] = {}
         # """Dictionary of segment connections, keyed by segment uid. And in the direction dict all connected segments uids."""
@@ -534,13 +535,13 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         if isinstance(segment, CrossingSegment):
             h_road = self.get_road_by_uid(segment.horizontal_lane.road_uid)
             v_road = self.get_road_by_uid(segment.vertical_lane.road_uid)
-            return (f"crossing "
+            return (f"crossing({segment.uid}) "
                     f"at R{h_road.name}({format_lane(segment.horizontal_lane)}) x "
                     f"R{v_road.name}({format_lane(segment.vertical_lane)})")
 
         elif isinstance(segment, LaneSegment):
             road = self.get_road_by_uid(segment.lane.road_uid)
-            return (f"lane "
+            return (f"lane({segment.uid}) "
                     f"at R{road.name}({format_lane(segment.lane)})")
 
         raise NotImplementedError(f"Unknown segment type: {type(segment)}")
@@ -597,7 +598,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         return json.dumps(self.to_dict(), indent=2)
 
     def debug_get_segments(self) -> dict[str, Segment]:
-        return self._segments
+        return self._debug_segments
 
     @staticmethod
     def from_dict(
