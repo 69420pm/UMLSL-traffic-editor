@@ -26,7 +26,7 @@
       "name": "A",
       "road_uid": "68838c06-72e3-4987-8808-870cd96dbca2",
       "lane_index": 0,
-      "position_on_lane": -12.075000000000001,
+      "position_on_lane": -12.100000000000003,
       "transition": -0.1,
       "speed": 10.0,
       "length": 1,
@@ -37,6 +37,25 @@
         "target_lane": {
           "road_uid": "fa03b53d-65d6-4274-ab73-76399386c2eb",
           "lane_index": -1
+        }
+      }
+    },
+    {
+      "uid": "97a0e67e-1f11-465d-8257-7db017cac2f1",
+      "name": "b",
+      "road_uid": "fa03b53d-65d6-4274-ab73-76399386c2eb",
+      "lane_index": 0,
+      "position_on_lane": -9.42291782697025,
+      "transition": 0.0,
+      "speed": 10.0,
+      "length": 1,
+      "color": "lightblue",
+      "acceleration": 1.0,
+      "next_turn": {
+        "direction": "LEFT",
+        "target_lane": {
+          "road_uid": "68838c06-72e3-4987-8808-870cd96dbca2",
+          "lane_index": 0
         }
       }
     }

@@ -100,7 +100,7 @@ class CarEnvironment:
         speed: float = car_params.speed
         turn_intent: TurnIntent = car_params.next_turn
 
-        ts.debug_get_segments().clear()
+        # ts.debug_get_segments().clear()
         road = ts.get_road_by_uid(car_lane.road_uid)
 
         length = car_params.get_braking_dist(settings_model.braking_acceleration)
@@ -183,8 +183,8 @@ class CarEnvironment:
               list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", claimed_segment_intervals)))
 
         # add path to debug segments
-        for seg in path.segments:
-            ts.debug_get_segments()[seg.uid] = seg
+        # for seg in path.segments:
+        #    ts.debug_get_segments()[seg.uid] = seg
 
         parallel_virtual_lanes: list[list[VirtualLane]] = _compute_parallel_virtual_lanes(
             ts,
