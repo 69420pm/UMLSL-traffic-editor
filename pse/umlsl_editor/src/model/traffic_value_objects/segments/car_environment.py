@@ -97,8 +97,7 @@ class CarEnvironment:
         ts.debug_get_segments().clear()
         road = ts.get_road_by_uid(car_lane.road_uid)
 
-        length = car_params.length
-        length += (car_params.speed * car_params.speed) / (2.0 * car_params.acceleration)
+        length = car_params.get_braking_dist()
 
         # compute car direction
         car_direction: Direction
