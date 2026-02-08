@@ -27,7 +27,7 @@ class ClaimNode(AtomNode):
             return False
         target_segment = lane.segments[0]
 
-        for segment_interval in car_eval.environment.path_segments_in_view(view):
+        for segment_interval in car_eval.environment.visible_segments_in_view(view):
             interval: Interval = segment_interval.interval
             segment: Segment = segment_interval.segment
 

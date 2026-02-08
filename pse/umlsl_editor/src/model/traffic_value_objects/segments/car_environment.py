@@ -46,13 +46,21 @@ class CarEnvironment:
             path_segment_intervals: list[SegmentInterval],
             horizontal_horizon: Interval,
             parallel_virtual_lanes: list[list[VirtualLane]],
+            reserved_segment_intervals: list[SegmentInterval],
+            claimed_segment_intervals: list[SegmentInterval],
     ):
         self.path = path
         self.path_segment_intervals = path_segment_intervals
         self.horizontal_horizon = horizontal_horizon
         self.parallel_virtual_lanes = parallel_virtual_lanes
 
-    def path_segments_in_view(self, view: View) -> list[SegmentInterval]:
+        self.reserved_lanes = list(map(lambda seg: seg.segment.is_lane_segment, reserved_segment_intervals))
+        self.reserved_crossings = list(map(lambda seg: not seg.segment.is_lane_segment, reserved_segment_intervals))
+
+        self.claimed_lanes = list(map(lambda seg: seg.segment.is_lane_segment, claimed_segment_intervals))
+        self.claimed_crossings = list(map(lambda seg: not seg.segment.is_lane_segment, claimed_segment_intervals))
+
+    def visible_segments_in_view(self, view: View) -> list[SegmentInterval]:
         # collect visible segments in the view
         visible_segments: list[Segment] = []
         for lane in view.virtual_lanes:
@@ -106,15 +114,44 @@ class CarEnvironment:
         if not isinstance(start_segment, LaneSegment):
             raise ValueError("Car must start on a lange segment")
 
+        # converts the absolute position to the position on the start_segment
+        road = ts.get_road_by_uid(car_params.lane.road_uid)
+        pos_on_segment = pos_on_lane - start_segment.get_position(ts)[road.orientation.value]
+
         path, path_segment_intervals, turn_segment, horizontal_horizon = _compute_path(
             ts,
             car_params,
             start_segment,
-            pos_on_lane,
+            pos_on_segment,
             turn_intent,
             car_direction,
             settings_model.braking_distance()
         )
+
+        reserved_segment_intervals: list[SegmentInterval] = _compute_segments_safety_envelope(
+            ts,
+            path,
+            pos_on_segment,
+            car_params.length,
+            car_params.length
+        )
+        reserved_segments = list(map(lambda seg_interval: seg_interval.segment, reserved_segment_intervals))
+        claimed_segment_intervals: list[SegmentInterval] = _compute_segments_safety_envelope(
+            ts,
+            path,
+            pos_on_segment,
+            settings_model.braking_distance(),
+            car_params.length
+        )
+        claimed_segment_intervals = list(filter(lambda seg_interval: seg_interval.segment not in reserved_segments, claimed_segment_intervals))
+
+        # todo: include transitions
+
+        print("--------")
+        print("path is ", list(map(lambda seg: ts.get_segment_info(seg.uid), path.segments)))
+        print("real segment intervals are ", list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", path_segment_intervals)))
+        print("reserved segment intervals are ", list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", reserved_segment_intervals)))
+        print("claimed segment intervals are ", list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", claimed_segment_intervals)))
 
         # add path to debug segments
         for seg in path.segments:
@@ -126,13 +163,21 @@ class CarEnvironment:
             turn_segment,
             path
         )
-        return CarEnvironment(path, path_segment_intervals, horizontal_horizon, parallel_virtual_lanes)
+        return CarEnvironment(
+            path,
+            path_segment_intervals,
+            horizontal_horizon,
+            parallel_virtual_lanes,
+            reserved_segment_intervals,
+            claimed_segment_intervals
+        )
+
 
 def _compute_path(
         ts: TrafficSnapshotReader,
         car_params: "CarParams",
         start_segment: LaneSegment,
-        pos_on_lane: float,
+        pos_on_segment: float,
         turn_intent: TurnIntent,
         car_direction: Direction,
         braking_dist: float
@@ -148,10 +193,6 @@ def _compute_path(
     We then iterate through our unbounded path and take only those segments that are within the horizontal horizon.
     Once we have the path, we also compute the segment intervals.
     """
-
-    # converts the absolute position to the position on the start_segment
-    road = ts.get_road_by_uid(car_params.lane.road_uid)
-    pos_on_segment = pos_on_lane - start_segment.get_position(ts)[road.orientation.value]
 
     turn_segment: LaneSegment = _find_turn_intent_segment(ts, start_segment, turn_intent, car_direction)
     unbounded_path: VirtualLane | None = _compute_path_through_crossing(ts, start_segment, turn_segment)
@@ -178,10 +219,9 @@ def _compute_path(
         path_segments.append(segment)
         virtual_pos += size
 
-    print("--------")
-    print("path is ", list(map(lambda seg: ts.get_segment_info(seg.uid), path_segments)))
     path = VirtualLane(path_segments)
-    path_segment_intervals: list[SegmentInterval] = _compute_segment_intervals(ts, path, pos_on_segment, car_params.length)
+    path_segment_intervals: list[SegmentInterval] = _compute_segment_intervals(ts, path, pos_on_segment,
+                                                                               car_params.length)
 
     # If the turn intent exceeds what the car can see, we set the turn intent to the last lane segment.
     # For example, if the car turns left 1k units away but can only see 10 forward, the turn_segment gets useless.
@@ -235,7 +275,6 @@ def _compute_parallel_virtual_lanes(
             print(" > virtual lane is ", list(map(lambda seg: ts.get_segment_info(seg.uid), virtual_lane.segments)))
 
     return parallel_virtual_lanes
-
 
 
 def _compute_opposing_parallel_segments(ts: TrafficSnapshotReader, segment: LaneSegment) -> list[LaneSegment]:
@@ -462,12 +501,59 @@ def _compute_segment_intervals(
         pos_on_segment: float,
         car_size: float
 ) -> list[SegmentInterval]:
+    """"
+    This algorithm computes the real space a car occupies on a path.
+    It is similar to the "Algorithm 2" (seg_V) method in the paper, however, the algorithm in the paper collects
+    only those segments that are inside a given View.
+    For performance and implementation reasons, we collect all these segment intervals when a car is created and later
+    - during query evaluation - only take the relevant ones from this list that are inside the current View.
+    """
     interval_start_offset = pos_on_segment
-
-    # debug: print("start at", interval_start_offset, " car size is ", car_size)
 
     result = []
     next_size = car_size
+
+    i = 0
+    while next_size > 0:
+        current_size = next_size
+        seg_i = path.segments[i]
+
+        b_i: float
+        if seg_i.is_lane_segment:
+            b_i = min(interval_start_offset + current_size, seg_i.get_size_in_direction(ts))
+        else:
+            b_i = seg_i.get_size_in_direction(ts)
+
+        interval = Interval(interval_start_offset, b_i)
+        next_size = current_size - interval.length()
+
+        if next_size > 0:
+            interval_start_offset = 0
+
+        result.append(SegmentInterval(seg_i, interval))
+        i += 1
+
+    return result
+
+
+def _compute_segments_safety_envelope(
+        ts: TrafficSnapshotReader,
+        path: VirtualLane,
+        pos_on_segment: float,
+        horizon_size: float,
+        car_size: float
+) -> list[SegmentInterval]:
+    """"
+    Computes the segment intervals of the car's path but expands over crossings and includes a safety envelope.
+    The algorithm stops when the car reaches the horizon_size.
+
+    If the car ends in a crossing, we make sure the segment_intervals are expanded until after the crossing.
+    In this case, the last interval equals [0, car_size] to guarantee the safety envelope.
+    """
+    interval_start_offset = pos_on_segment
+
+    result = []
+    next_size = horizon_size
 
     i = 0
     while next_size > 0:

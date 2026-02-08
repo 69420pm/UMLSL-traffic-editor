@@ -20,7 +20,7 @@ class ReserveNode(AtomNode):
         eval_car = self._car_resolve.resolve(variable_car_map)
         reserved_lane_intervals: list[SegmentInterval] = eval_car.environment.reserved_lanes
 
-        visible_segment_intervals: list[SegmentInterval] = eval_car.environment.path_segments_in_view(view)
+        visible_segment_intervals: list[SegmentInterval] = eval_car.environment.visible_segments_in_view(view)
         visible_segments = list(map(lambda seg_interval: seg_interval.segment, visible_segment_intervals))
 
         # we need to ensure every segment in the view is contained in the visible_segments list
