@@ -75,11 +75,15 @@ class SegmentIntervalItem(QGraphicsItem):
             width = self.segment_interval.interval.end - self.segment_interval.interval.start
             y = y_seg
             height = height_seg
+
+            y -= height
         else:
             x = x_seg
             width = width_seg
             y = y_seg + self.segment_interval.interval.start
             height = self.segment_interval.interval.end - self.segment_interval.interval.start
+
+            x -= width
 
         self._rect = QRectF(x, y, width, height)
         self.update()
