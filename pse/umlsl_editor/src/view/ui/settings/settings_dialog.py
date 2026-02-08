@@ -45,18 +45,18 @@ class SettingsDialog(QDialog, Ui_Settings_Dialog):
         self.c_savty_space.clicked.connect(self._on_toggle_safety_distance)
         self.c_savty_space.setChecked(self._application_controller.view_event_handler.should_render_safety_distance)
 
-        self.s_braking.setValue(self._application_controller.command_controller.settings_model.breaking_deceleration)
+        self.s_braking.setValue(self._application_controller.command_controller.settings_model.braking_acceleration)
         self.s_braking.valueChanged.connect(self._on_braking_changed)
-        self.s_accerleration.setValue(self._application_controller.command_controller.settings_model.max_acceleration)
+        self.s_accerleration.setValue(self._application_controller.command_controller.settings_model.max_speed)
         self.s_accerleration.valueChanged.connect(self._on_acceleration_changed)
 
     def _on_braking_changed(self):
-        self._application_controller.command_controller.settings_model.set_breaking_deceleration(
+        self._application_controller.command_controller.settings_model.set_braking_acceleration(
             self.s_braking.value()
         )
 
     def _on_acceleration_changed(self):
-        self._application_controller.command_controller.settings_model.set_max_acceleration(
+        self._application_controller.command_controller.settings_model.set_max_speed(
             self.s_accerleration.value()
         )
 

@@ -3,7 +3,7 @@ from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsMode
 from pse.umlsl_editor.src.model.errors.settings_errors import SettingsValidationError
 
 
-class ChangeBreakingAccelerationCommand(Command[None]):
+class ChangeBrakingAccelerationCommand(Command[None]):
     """
     Changes the breaking acceleration of the cars based on the provided parameters.
     """
@@ -30,5 +30,5 @@ class ChangeBreakingAccelerationCommand(Command[None]):
             CommandValidationError: If command validation fails.
         """
         if self.value <= 0:
-            raise SettingsValidationError("Breaking acceleration must be a positive value.")
-        self._settings.set_breaking_deceleration(self.value)
+            raise SettingsValidationError("Braking acceleration must be a positive value.")
+        self._settings.set_braking_acceleration(self.value)
