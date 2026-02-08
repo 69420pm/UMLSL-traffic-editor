@@ -199,14 +199,14 @@ class SidebarController(QObject):
         if entity_type == "car":
             block_reason = get_car_deletion_block_reason(self._application_controller, entity)
             if block_reason:
-                WarningDialog("Deletion Error", block_reason, self._window).exec()
+                WarningDialog("Cannot delete car", block_reason, self._window).exec()
                 return
             label = f"car '{entity.name}'"
             delete_action = lambda: self._application_controller.command_controller.remove_car(entity.uid)
         elif entity_type == "road":
             block_reason = get_road_deletion_block_reason(self._application_controller, entity)
             if block_reason:
-                WarningDialog("Deletion Error", block_reason, self._window).exec()
+                WarningDialog("Cannot delete road", block_reason, self._window).exec()
                 return
             label = f"road '{entity.name}'"
             delete_action = lambda: self._application_controller.command_controller.remove_road(entity.uid)
@@ -215,9 +215,9 @@ class SidebarController(QObject):
             delete_action = lambda: self._application_controller.command_controller.remove_umlsl_query(entity.uid)
 
         confirm = ConfirmDeletionDialog(
-            f"Are you sure you want to delete {label}?",
+            f"Delete {label}?",
             self._window,
-            title="Confirm Deletion",
+            title="Confirm deletion",
             confirm_text="Delete",
             cancel_text="Cancel",
         ).exec()

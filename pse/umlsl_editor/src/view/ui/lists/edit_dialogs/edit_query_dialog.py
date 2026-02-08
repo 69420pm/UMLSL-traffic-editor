@@ -196,9 +196,9 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
     def _show_no_cars_warning(self) -> None:
         """Show a warning message that no cars are available."""
         dialog = WarningDialog(
-            "Car Required",
-            "Queries require a car to evaluate against.\n"
-            "Please add a car to your scene first.",
+            "Car required",
+            "Add a car to your scene first.\n"
+            "Queries require a car to evaluate against.",
             self.parent(),
         )
         dialog.exec()
@@ -435,8 +435,11 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
             return
 
         confirm = ConfirmDeletionDialog(
-            "Are you sure you want to delete this query?",
+            "Delete this query?",
             self,
+            title="Confirm deletion",
+            confirm_text="Delete",
+            cancel_text="Cancel",
         ).exec()
 
         if confirm == 1:
@@ -482,7 +485,7 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
                 )
         except UMLSLQueryValidationError as e:
             dialog = WarningDialog(
-                "Validation Error",
+                "Invalid query",
                 str(e),
                 self,
             )

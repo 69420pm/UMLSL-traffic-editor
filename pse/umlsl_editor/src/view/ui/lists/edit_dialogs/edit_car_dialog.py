@@ -348,7 +348,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
                 self._execute_create_command(form_data)
 
         except (CarValidationError, CarTrafficSnapshotContextValidationError) as e:
-            WarningDialog("Validation Error", str(e), self).exec()
+            WarningDialog("Invalid car", str(e), self).exec()
         else:
             self.parent().snackbar.show_message(
                 f"Car '{form_data['name']}' " +
@@ -362,12 +362,15 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
 
         block_reason = get_car_deletion_block_reason(self._application_controller, self._car)
         if block_reason:
-            WarningDialog("Deletion Error", block_reason, self).exec()
+            WarningDialog("Cannot delete car", block_reason, self).exec()
             return
 
         confirm = ConfirmDeletionDialog(
-            f"Are you sure you want to delete the car '{self._car.name}'?",
+            f"Delete car '{self._car.name}'?",
             self,
+            title="Confirm deletion",
+            confirm_text="Delete",
+            cancel_text="Cancel",
         ).exec()
 
         if confirm == 1:
@@ -380,8 +383,8 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
     def _show_no_roads_warning(self) -> None:
         """Show warning for invalid environment."""
         WarningDialog(
-            "Road Required",
-            "Cars must be placed on a road.\nPlease add a road to your scene first.",
+            "Road required",
+            "Add a road to your scene first.\nCars must be placed on a road.",
             self.parent(),
         ).exec()
 
@@ -412,8 +415,8 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
                 turn_intent = TurnIntent(direction=turn_dir, target_lane=selected_lane_data)
             else:
                 WarningDialog(
-                    "No Valid Turn Lane",
-                    "The car has no valid lanes to turn into based on its current position, speed and turning direction.\n",
+                    "No valid turn lane",
+                    "This car has no valid lanes to turn into based on its current position, speed, and turn direction.",
                     self.parent(),
                 ).exec()
                 return None
