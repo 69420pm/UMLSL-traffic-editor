@@ -1,11 +1,16 @@
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.model.helper.directional_graph import Direction
 from pse.umlsl_editor.src.model.interval import Interval
+from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
+
+if TYPE_CHECKING:
+    from pse.umlsl_editor.src.model.entities.car import Car
 
 
 @dataclass
@@ -16,7 +21,8 @@ class SegmentInterval:
     segment: Segment
     interval: Interval
 
-    def get_global_interval(self, ts: TrafficSnapshotReader, speed: float):
+    def get_global_interval(self, ts: TrafficSnapshotReader, car: "Car",
+                            should_ignore_lane_direction: bool = False) -> Interval:
         """
         The interval stored as a property in this class is purely relative to the segment and the car's driving direction.
         This function converts the interval to a global interval. That means adding the target coordinate of the
@@ -32,10 +38,15 @@ class SegmentInterval:
 
             car_direction: Direction
             if road.orientation == RoadOrientation.HORIZONTAL:
-                car_direction = Direction.LEFT if (speed < 0) else Direction.RIGHT
+                car_direction = Direction.LEFT if (car.speed < 0) else Direction.RIGHT
             else:
-                car_direction = Direction.DOWN if (speed < 0) else Direction.UP
-            if not self.segment.lane.is_forward():
+                car_direction = Direction.DOWN if (car.speed < 0) else Direction.UP
+
+            lane: Lane = self.segment.lane
+            if should_ignore_lane_direction:
+                lane = car.lane
+                
+            if not lane.is_forward():
                 car_direction = car_direction.opposite
 
             if road.orientation == RoadOrientation.HORIZONTAL and car_direction in [Direction.UP,

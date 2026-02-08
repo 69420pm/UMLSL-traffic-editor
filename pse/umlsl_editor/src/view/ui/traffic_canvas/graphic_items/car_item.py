@@ -81,10 +81,12 @@ class CarItem(SelectableGraphicsItem):
         self._add_segments(
             self._car.environment.reserved_lanes + self._car.environment.reserved_crossings,
             self._car,
+            False
         )
         self._add_segments(
             self._car.environment.claimed_lanes + self._car.environment.claimed_crossings,
             self._car,
+            True
         )
 
     def _clear_segments(self) -> None:
@@ -96,7 +98,7 @@ class CarItem(SelectableGraphicsItem):
             scene.removeItem(seg)
         self._segments.clear()
 
-    def _add_segments(self, segments, car: Car) -> None:
+    def _add_segments(self, segments, car: Car, should_ignore_lane_direction: bool) -> None:
         scene = self._get_scene()
         if scene is None:
             return
@@ -106,6 +108,7 @@ class CarItem(SelectableGraphicsItem):
                 application_controller=self.application_controller,
                 car=self._car,
                 is_last_interval=False,
+                should_ignore_lane_direction=should_ignore_lane_direction,
             )
             scene.addItem(seg_item)
             self._segments.append(seg_item)

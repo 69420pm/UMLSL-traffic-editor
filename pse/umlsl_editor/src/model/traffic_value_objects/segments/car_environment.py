@@ -157,7 +157,8 @@ class CarEnvironment:
             length,
             car_params.length
         )
-        claimed_segment_intervals: list[SegmentInterval] = []
+        claimed_segment_intervals: list[SegmentInterval] = _compute_claimed_envelope(reserved_segment_intervals,
+                                                                                     car_params.transition, ts)
         # reserved_segments = list(map(lambda seg_interval: seg_interval.segment, reserved_segment_intervals))
         # claimed_segment_intervals: list[SegmentInterval] = _compute_segments_safety_envelope(
         #             ts,
@@ -204,6 +205,20 @@ class CarEnvironment:
             reserved_segment_intervals,
             claimed_segment_intervals
         )
+
+
+def _compute_claimed_envelope(reserved_segment_intervals: list[SegmentInterval], transition: float,
+                              ts: TrafficSnapshotReader) -> list[SegmentInterval]:
+    if transition == 0 or len(reserved_segment_intervals) != 1:
+        return []
+
+    segment_interval = reserved_segment_intervals[0]
+    parallel_segments = _compute_parallel_lane_segments(ts, segment_interval.segment)
+    current_index = parallel_segments.index(segment_interval.segment)
+    claimed_segment_index = current_index + 1 if transition > 0 else current_index - 1
+    claimed_segment = parallel_segments[claimed_segment_index]
+
+    return [SegmentInterval(claimed_segment, segment_interval.interval)]
 
 
 def _compute_path(

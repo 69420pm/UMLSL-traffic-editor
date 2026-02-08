@@ -1,7 +1,7 @@
 from typing import Optional
 
 from PySide6.QtCore import QRectF
-from PySide6.QtGui import QPainter, Qt
+from PySide6.QtGui import QPainter, Qt, QColor, QPen, QBrush
 from PySide6.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
 from pse.umlsl_editor.src.controllers import ApplicationController
@@ -11,7 +11,7 @@ from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment impo
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import (
     SegmentInterval,
 )
-from pse.umlsl_editor.src.view.view_constants import Z_LAYERS
+from pse.umlsl_editor.src.view.view_constants import Z_LAYERS, COLORS
 
 
 class SegmentIntervalItem(QGraphicsItem):
@@ -25,6 +25,7 @@ class SegmentIntervalItem(QGraphicsItem):
             is_last_interval: bool,
             car: Car,
             application_controller: "ApplicationController",
+            should_ignore_lane_direction: bool,
     ) -> None:
         """
         Initialize the segment interval graphics item.
@@ -39,8 +40,25 @@ class SegmentIntervalItem(QGraphicsItem):
 
         self.segment_interval = segment_interval
         self.is_last_interval = is_last_interval
-        self.color = car.color
-        self.speed = car.speed
+
+        self.color = QColor(car.color)
+        self.color.setAlphaF(0.5)
+
+        self.brush = QBrush(self.color)
+        self.pen = Qt.NoPen
+        self.should_ignore_lane_direction = should_ignore_lane_direction
+
+        if self.should_ignore_lane_direction:
+            self.pen = QPen(COLORS.TEXT, .04)
+            self.pen.setStyle(Qt.DashLine)
+            self.pen.setDashPattern([2, 2])
+            self.pen.setCosmetic(False)
+            self.color = QColor(COLORS.TEXT)
+            self.color.setAlphaF(0.4)
+            self.brush.setColor(self.color)
+            print("SegmentIntervalItem: Ignoring lane direction, using dashed outline.")
+
+        self.car = car
         self.application_controller = application_controller
 
         self._rect = QRectF()
@@ -72,8 +90,8 @@ class SegmentIntervalItem(QGraphicsItem):
         self._update_z_value()
 
         # Background
-        painter.setBrush(self.color)
-        painter.setPen(Qt.NoPen)
+        painter.setBrush(self.brush)
+        painter.setPen(self.pen)
 
         painter.drawRect(self._rect)
 
@@ -89,7 +107,7 @@ class SegmentIntervalItem(QGraphicsItem):
             self.application_controller.get_traffic_snapshot_reader())
 
         global_interval = self.segment_interval.get_global_interval(
-            self.application_controller.get_traffic_snapshot_reader(), self.speed)
+            self.application_controller.get_traffic_snapshot_reader(), self.car, self.should_ignore_lane_direction)
 
         is_horizontal = True
 

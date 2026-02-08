@@ -88,6 +88,7 @@ class TrafficScene(QGraphicsScene):
         self.clear()
         self._item_registry.clear()
         self._debug_registry.clear()
+        self._refresh_segments()
 
     # -------------------------------------------------------------------------
     # Car Model Handlers
@@ -110,6 +111,7 @@ class TrafficScene(QGraphicsScene):
             graphics_item.update_segments()
 
             self._item_registry[car.uid] = graphics_item
+        self._refresh_segments()
 
     def _on_car_data_changed(
             self,
@@ -131,6 +133,7 @@ class TrafficScene(QGraphicsScene):
 
             car_item.update_data(updated_car, new_road_item)
             car_item.update_segments()
+        self._refresh_segments()
 
     def _on_cars_removed(self, parent: QModelIndex, first: int, last: int) -> None:
         """Removes CarItem and cleans up listeners."""
@@ -141,6 +144,7 @@ class TrafficScene(QGraphicsScene):
             if isinstance(car_item, CarItem):
                 car_item.cleanup()
                 self.removeItem(car_item)
+        self._refresh_segments()
 
     # -------------------------------------------------------------------------
     # Road Model Handlers
@@ -158,7 +162,7 @@ class TrafficScene(QGraphicsScene):
             self._check_and_create_crossings(graphics_item)
             self._reassign_orphaned_cars(road, graphics_item)
 
-            self._refresh_segments()
+        self._refresh_segments()
 
     def _reassign_orphaned_cars(self, road: Road, road_item: RoadItem) -> None:
         """
