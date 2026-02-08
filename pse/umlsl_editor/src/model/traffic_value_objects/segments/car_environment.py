@@ -328,7 +328,7 @@ def _compute_parallel_virtual_lanes_crossing(
     # must be sorted (left to right); that means for us in ascending order
     parallel_lane_segments.sort(key=lambda seg: seg.lane.lane_index)
 
-    candidates_per_lane: list[list[VirtualLane]] = []
+    parallel_virtual_lanes: list[list[VirtualLane]] = []
     for lane in parallel_lane_segments:
         lane_candidates: list[VirtualLane] = []
 
@@ -354,13 +354,9 @@ def _compute_parallel_virtual_lanes_crossing(
         if len(lane_candidates) == 0:
             lane_candidates.append(VirtualLane([lane]))
 
-        candidates_per_lane.append(lane_candidates)
+        parallel_virtual_lanes.append(lane_candidates)
 
-    multi_view_tuples = list(itertools.product(*candidates_per_lane))
-    # in Python we can turn the tuple into the list via list(tuple)
-    multi_view: list[list[VirtualLane]] = [list(view) for view in multi_view_tuples]
-
-    return multi_view
+    return parallel_virtual_lanes
 
 
 
