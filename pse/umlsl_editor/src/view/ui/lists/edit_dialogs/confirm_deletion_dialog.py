@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog
+from PySide6.QtWidgets import QDialog, QWidget
 
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_delete_dialog import (
     Ui_Delete_Dialog,
@@ -7,19 +7,28 @@ from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_delete_dialog import 
 
 class ConfirmDeletionDialog(QDialog, Ui_Delete_Dialog):
     """
+    Modal dialog for confirming destructive actions.
 
+    Displays a title, a message, and optional custom labels for confirm/cancel buttons.
     """
 
     def __init__(
             self,
             message: str,
-            parent=None,
+            parent: QWidget | None = None,
             title: str | None = None,
             confirm_text: str | None = None,
             cancel_text: str | None = None,
-    ):
+    ) -> None:
         """
+        Initialize the confirmation dialog.
 
+        Args:
+            message: Main confirmation message shown in the dialog.
+            parent: Optional parent widget for modal ownership.
+            title: Optional dialog title override.
+            confirm_text: Optional label override for the confirm button.
+            cancel_text: Optional label override for the cancel button.
         """
         super().__init__(parent)
         self.setupUi(self)

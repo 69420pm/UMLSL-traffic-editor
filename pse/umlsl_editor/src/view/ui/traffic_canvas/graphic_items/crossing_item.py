@@ -56,11 +56,11 @@ class CrossingItem(QGraphicsItem):
         self._grid_pen.setStyle(Qt.DashLine)
         self._grid_pen.setDashPattern(CrossingItemStyle.DASH_PATTERN)
 
-        # 1. Register Listeners (Same logic as CarItem)
+        # Register listeners for road position updates.
         self.road_1.add_position_listener(self)
         self.road_2.add_position_listener(self)
 
-        # 2. Initial geometry calc
+        # Initial geometry calculation.
         self.refresh_geometry()
 
     def cleanup(self) -> None:

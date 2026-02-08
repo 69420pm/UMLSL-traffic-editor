@@ -3,14 +3,19 @@ from typing import TYPE_CHECKING, Optional
 
 from PySide6.QtCore import QPointF, QRectF
 from PySide6.QtGui import QBrush, QColor, QPainter, QPen, QPolygonF
-from PySide6.QtWidgets import QStyleOptionGraphicsItem, QWidget, QGraphicsScene
+from PySide6.QtWidgets import QGraphicsScene, QStyleOptionGraphicsItem, QWidget
 
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation
-from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError, CarTrafficSnapshotContextValidationError
+from pse.umlsl_editor.src.model.errors.car_errors import (
+    CarTrafficSnapshotContextValidationError,
+    CarValidationError,
+)
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import RoadItem
-from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.segment_interval_item import SegmentIntervalItem
+from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.segment_interval_item import (
+    SegmentIntervalItem,
+)
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.selectable_graphics_item import (
     SelectableGraphicsItem,
 )
@@ -79,7 +84,6 @@ class CarItem(SelectableGraphicsItem):
 
         # Add all segments back
         for seg_data in self._car.environment.reserved_lanes + self._car.environment.reserved_crossings:
-            print(seg_data)
             seg_item = SegmentIntervalItem(segment_interval=seg_data,
                                            application_controller=self.application_controller, color=COLORS.RED,
                                            is_last_interval=False)
@@ -192,8 +196,8 @@ class CarItem(SelectableGraphicsItem):
         is_vertical = road.orientation == RoadOrientation.VERTICAL
         is_backward = (lane_idx < 0) != (car.speed < 0)
 
-        # 1. Define Local Shape (Anchor = Back @ 0,0)
-        # We build the car facing Positive X
+        # Define the local car shape with the rear anchored at (0, 0).
+        # The polygon is defined facing positive X; direction is adjusted later.
         l, w, t = car.length, DIMENSION.CAR_WIDTH / 2.0, DIMENSION.CAR_TRIANGLE_LENGTH
 
         points = [
@@ -204,7 +208,7 @@ class CarItem(SelectableGraphicsItem):
             QPointF(0, w)  # Back-Left
         ]
 
-        # 2. Calculate World Offsets
+        # Calculate world-space offsets for lane center and transition.
         lane_w = DIMENSION.LANE_WIDTH
 
         # Determine lateral direction/offset logic
@@ -219,7 +223,7 @@ class CarItem(SelectableGraphicsItem):
         lat_pos = road_base + center_offset
         long_pos = car.position_on_lane
 
-        # 3. Transform Points to World
+        # Transform local points into world coordinates.
         poly_points = []
         for p in points:
             # If backward lane, flip longitudinal direction (face negative)

@@ -196,9 +196,8 @@ class TrafficScene(QGraphicsScene):
             if not isinstance(road_item, RoadItem):
                 continue
 
-            # Remove connected crossings
-            # We iterate a copy because removal modifies the list
-            # FIX: Access _position_listeners (protected member)
+            # Remove connected crossings.
+            # Iterate a copy because removal modifies the list.
             for listener in list(road_item.position_listeners):
                 if isinstance(listener, CrossingItem):
                     self._remove_crossing(listener)
@@ -238,8 +237,9 @@ class TrafficScene(QGraphicsScene):
     # -------------------------------------------------------------------------
 
     def _refresh_segments(self) -> None:
+        """Refresh debug segments and per-car interval overlays."""
         if SHOW_DEBUG_SEGMENTS:
-            """Recreates debug visualizations from snapshot data."""
+            # Recreate debug visualizations from snapshot data.
             for item in self._debug_registry.values():
                 self.removeItem(item)
             self._debug_registry.clear()
@@ -254,7 +254,7 @@ class TrafficScene(QGraphicsScene):
                 self._debug_registry[segment.uid] = item
                 self.addItem(item)
 
-        """Updates all car segments. Useful when roads change."""
+        # Update all car segments (e.g., when roads change).
         for item in self._item_registry.values():
             if isinstance(item, CarItem):
                 item.update_segments(self)
