@@ -107,6 +107,12 @@ class TrafficSnapshotValidator:
         else:
             if road_uid is None:
                 raise ValueError('road_uid must be provided for road editing.')
+            if any(
+                road.name == road_params.name and road.uid != road_uid
+                for road in self._model.get_roads().values()
+            ):
+                raise RoadTrafficSnapshotContextValidationError(
+                    content=f"Road name '{road_params.name}' is not unique in the traffic snapshot.")
 
         if not self._check_no_tokens_contained(road_params.name):
             raise RoadTrafficSnapshotContextValidationError(
