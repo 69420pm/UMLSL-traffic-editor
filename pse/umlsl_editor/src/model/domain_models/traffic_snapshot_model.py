@@ -207,7 +207,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
         self.validator = TrafficSnapshotValidator(self)
         self._queries_model: UMLSLQueriesModel = queries_model
-        self._settings_model: SettingsModel = settings_model
+        self.settings_model: SettingsModel = settings_model
 
     @property
     def cars(self):
@@ -315,7 +315,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def update_car_with_params(self, car_uid: str, car_params: CarParams) -> None:
         car = self._cars.get(car_uid)
-        car.update_from_params(car_params, self, self._settings_model)
+        car.update_from_params(car_params, self, self.settings_model)
         self._cars[car_uid] = car
 
     def get_segment_from_lane_position(self, lane: Lane, position_on_lane: float) -> Segment | None:
