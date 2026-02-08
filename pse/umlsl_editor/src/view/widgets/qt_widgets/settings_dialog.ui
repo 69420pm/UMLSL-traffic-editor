@@ -36,20 +36,20 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QDialog {
-    background-color: #011C26; 
+    background-color: #011C26;
 }
 
-QWidget {	
+QWidget {
 	font: 13pt &quot;Helvetica&quot;;
     color: #F9F9F9;
 }
 
-QLabel[class=label] {	
+QLabel[class=label] {
 	font: 10pt;
     color: #F9F9F9;
 }
 
-QWidget[class=container] {	
+QWidget[class=container] {
     background: #042F40;
 	border-radius: 10px
 }
@@ -66,7 +66,7 @@ QLineEdit{
 	background-color: #011C26;
 	border: none;
 	border-radius: 6px;
-	
+
 }
 
 /* --- Main Box --- */
@@ -77,7 +77,7 @@ QComboBox {
     padding: 5px 10px;
     color: #F9F9F9;
     /* This helps selection color in some styles */
-    selection-background-color: #011C26; 
+    selection-background-color: #011C26;
 }
 
 /* --- The Dropdown Frame --- */
@@ -114,7 +114,7 @@ QSpinBox, QDoubleSpinBox {
     border-radius: 6px;
     color: #F9F9F9;
     padding: 5px 10px;
-    padding-right: 15px; 
+    padding-right: 15px;
 }
 
 /* --- The Button Container Areas --- */
@@ -122,11 +122,11 @@ QSpinBox::up-button, QDoubleSpinBox::up-button {
     subcontrol-origin: border;
     subcontrol-position: top right;
     width: 25px;
-    
+
     border-left: 1px solid #042F40;
     border-top-right-radius: 6px;
     border-bottom: 1px solid #042F40;
-    
+
     background-color: #011C26;
 }
 
@@ -134,10 +134,10 @@ QSpinBox::down-button, QDoubleSpinBox::down-button {
     subcontrol-origin: border;
     subcontrol-position: bottom right;
     width: 25px;
-    
+
     border-left: 1px solid #042F40;
     border-bottom-right-radius: 6px;
-    
+
     background-color: #011C26;
 }
 
@@ -148,7 +148,7 @@ QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover, QComboBox::drop-
 }
 
 /* --- The Arrow Icons --- */
-/* (Assuming you are using the CSS Arrow hack from before. 
+/* (Assuming you are using the CSS Arrow hack from before.
    If using images, replace these with your image: url(...) code) */
 
 QSpinBox::up-arrow, QDoubleSpinBox::up-arrow {
@@ -164,14 +164,14 @@ QSpinBox::down-arrow, QDoubleSpinBox::down-arrow {
 }
 
 QToolButton {
-    background-color: #032F40; 
-    border-radius: 16px;       
+    background-color: #032F40;
+    border-radius: 16px;
     border: none;
     text-align: center;
 }
 
 QToolButton:hover {
-    background-color: #314250; 
+    background-color: #314250;
 }
 
 QToolButton:pressed {
@@ -207,22 +207,22 @@ QCheckBox::indicator {
 
 /* 3. The Unchecked State (Empty with outline) */
 QCheckBox::indicator:unchecked {
-    background-color: transparent; 
+    background-color: transparent;
 }
 
 /* Optional: Slight hover effect for unchecked */
 QCheckBox::indicator:unchecked:hover {
-    background-color: rgba(154, 181, 163, 0.2); 
+    background-color: rgba(154, 181, 163, 0.2);
 }
 
 /* 4. The Checked State (Filled Green) */
 QCheckBox::indicator:checked {
     background-color: #9ab5a3;
     border: 2px solid #9ab5a3;
-    
-    /* CRITICAL: You must replace this path with your own icon! 
+
+    /* CRITICAL: You must replace this path with your own icon!
        Since we painted over the native box, we have to put the checkmark back manually. */
-    image: url(:/icons/icons/Checkmark.svg); 
+    image: url(:/icons/icons/Checkmark.svg);
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">

@@ -21,8 +21,8 @@ class TrafficSnapshotEventType(Enum):
 
 class SettingsEventType(Enum):
     """Event types emitted by Settings."""
-    CHANGE_BREAKING_DECELERATION = auto()
-    CHANGE_MAX_ACCELERATION = auto()
+    CHANGE_BRAKING_DECELERATION = auto()
+    CHANGE_MAX_SPEED = auto()
 
 
 class UMLSLQueriesEventType(Enum):

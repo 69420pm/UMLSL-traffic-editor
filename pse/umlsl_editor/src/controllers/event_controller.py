@@ -111,10 +111,10 @@ class EventController:
             data: The data associated with the event
         """
         # Route events to appropriate view methods
-        if event_type == SettingsEventType.CHANGE_BREAKING_DECELERATION:
+        if event_type == SettingsEventType.CHANGE_BRAKING_DECELERATION:
             # TODO: Reevaluate queries, update frontend
             pass
-        elif event_type == SettingsEventType.CHANGE_MAX_ACCELERATION:
+        elif event_type == SettingsEventType.CHANGE_MAX_SPEED:
             # TODO: Reevaluate queries, update frontend
             pass
 

@@ -23,7 +23,7 @@ class TrafficSnapshotReader(ABC):
     @abstractmethod
     def get_cars(self) -> dict[str, Car]:
         """
-        Returns a list of all cars in the snapshot.
+        Returns all cars in the snapshot keyed by UID.
         """
         pass
 
@@ -44,21 +44,7 @@ class TrafficSnapshotReader(ABC):
     @abstractmethod
     def get_roads(self) -> dict[str, Road]:
         """
-        Returns the list of cars.
-        """
-        pass
-
-    @abstractmethod
-    def get_car_by_name(self, name: str) -> Car | None:
-        """
-        Returns the car with the specified name.
-        """
-        pass
-
-    @abstractmethod
-    def get_roads(self) -> dict[str, Road]:
-        """
-        Returns a list of all roads in the snapshot.
+        Returns all roads in the snapshot keyed by UID.
         """
         pass
 
@@ -100,17 +86,11 @@ class TrafficSnapshotReader(ABC):
     @abstractmethod
     def get_road_by_uid(self, uid: str) -> Road:
         """
-        Returns the road with the specified UID, or None if not found.
-        """
-        pass
+        Returns the road with the specified UID.
 
-    @abstractmethod
-    def get_next_road_in_front_of_car(self, car: Car) -> Road | None:
+        Raises:
+            ValueError: If the road does not exist in the snapshot.
         """
-        Returns the next road in front of the specified car
-
-        Args:
-            car: The car for which to find the next road in front."""
         pass
 
     @abstractmethod
@@ -199,11 +179,23 @@ class TrafficSnapshotReader(ABC):
         """
         pass
 
+    @abstractmethod
     def get_segment_from_lane_position(self, lane: 'Lane', position_on_lane: float) -> Segment | None:
+        """
+        Returns the segment that contains the given lane position, or None if no segment matches.
+        """
         pass
 
+    @abstractmethod
     def all_segments(self) -> list[Segment]:
+        """
+        Returns all segments in the snapshot.
+        """
         pass
 
+    @abstractmethod
     def get_segment_info(self, segment_uid: str, include_uid: bool = False) -> str:
+        """
+        Returns a human-readable description of a segment for diagnostics.
+        """
         pass

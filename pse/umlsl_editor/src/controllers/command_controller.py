@@ -15,7 +15,7 @@ from pse.umlsl_editor.src.commands.persistence.save_traffic_snapshot import (
     SaveTrafficSnapshot,
 )
 from pse.umlsl_editor.src.commands.roads import add_road, delete_road, edit_road
-from pse.umlsl_editor.src.commands.settings.change_breaking_acceleration import (
+from pse.umlsl_editor.src.commands.settings.change_braking_acceleration import (
     ChangeBrakingAccelerationCommand,
 )
 from pse.umlsl_editor.src.commands.umlsl import (
@@ -413,9 +413,9 @@ class CommandController:
         self._execute_command(save_command)
         self.set_current_snapshot_path(file_path)
 
-    def change_breaking_acceleration(self, value: float) -> None:
+    def change_braking_acceleration(self, value: float) -> None:
         """
-        Changes the breaking acceleration of the cars.
+        Changes the braking acceleration of the cars.
         """
-        change_breaking_acceleration_command = ChangeBrakingAccelerationCommand(self.settings_model, value)
-        self._execute_command(change_breaking_acceleration_command)
+        change_braking_acceleration_command = ChangeBrakingAccelerationCommand(self.settings_model, value)
+        self._execute_command(change_braking_acceleration_command)

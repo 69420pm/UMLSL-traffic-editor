@@ -7,7 +7,7 @@ class CarValidationError(BaseError):
     within acceptable ranges. No validation within the traffic_snapshot is performed here (See CarTrafficSnapshotContextValidationError).
     """
     def __init__(self, *, content: str) -> None:
-        super().__init__(content=content, title="Road Validation Error")
+        super().__init__(content=content, title="Car Validation Error")
     pass
 
 class CarTrafficSnapshotContextValidationError(BaseError):
@@ -16,7 +16,7 @@ class CarTrafficSnapshotContextValidationError(BaseError):
     """
 
     def __init__(self, *, content: str) -> None:
-        super().__init__(content=content, title="Road Validation Error in Traffic Snapshot Context")
+        super().__init__(content=content, title="Car Validation Error in Traffic Snapshot Context")
 
     pass
 
