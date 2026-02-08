@@ -16,6 +16,7 @@ class UMLSLQueryParams:
     """
     latex: str
     assigned_car_uid: str
+    validation: bool = False
 
 
 @dataclass()
@@ -59,7 +60,7 @@ class UMLSLQuery(Entity):
         """
         self.latex = params.latex
         self.assigned_car_uid = params.assigned_car_uid
-        self.validation = False
+        self.validation = params.validation
         self.__post_init__()
 
     def __post_init__(self) -> None:

@@ -16,6 +16,7 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import (
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 from pse.umlsl_editor.src.model.entities.car import Car, CarParams
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation, RoadParams
+from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQueryParams
 from pse.umlsl_editor.src.model.helper.directional_graph import Direction
 from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
 from pse.umlsl_editor.src.model.helper.observables import (
@@ -783,6 +784,13 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             self.remove_car(car.uid)
 
     def _revalidate_queries(self):
+        from pse.umlsl_editor.src.query.evaluator import UMLSLEvaluator
         self.validator.validate_queries(self._queries_model)
-
-        pass
+        umlsl_evaluator = UMLSLEvaluator(self)
+        for query in self._queries_model.queries.values():
+            car = self._cars.get(query.assigned_car_uid)
+            holding = umlsl_evaluator.evaluate_query(query.latex, car).holds
+            new_query_params = UMLSLQueryParams(latex=query.latex,
+                                                validation=holding,
+                                                assigned_car_uid=car.uid)
+            self._queries_model.update_umlsl_query(query, new_query_params)

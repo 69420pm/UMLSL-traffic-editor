@@ -1,9 +1,12 @@
 from abc import abstractmethod, ABC
 from enum import IntEnum
+from typing import TYPE_CHECKING
 
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.query.view import View
+
+if TYPE_CHECKING:
+    from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 
 
 # Assigns a value to each AST Node
