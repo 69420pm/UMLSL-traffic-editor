@@ -79,7 +79,7 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
         self.accept()
 
     def _on_delete_clicked(self) -> None:
-        """Handle delete action for existing cars."""
+        """Handle delete action for existing roads."""
         if not self._is_edit:
             return
 

@@ -60,13 +60,13 @@ class LatexImageProvider(QQuickImageProvider):
         # Create a cache key based on the LaTeX and max dimensions
         cache_key = f"{latex_string}_{max_width}_{max_height}"
 
-        # 1. Check if it exists in cache
+        # Use cached pixmap if available.
         if cache_key in self._cache:
-            # Move to end to mark as recently used
+            # Move to end to mark as recently used.
             self._cache.move_to_end(cache_key)
             return self._cache[cache_key]
 
-        # 2. Render if not in cache
+        # Render if not cached.
         try:
             image_bytes = latex_to_bytes(
                 latex_string,
@@ -80,12 +80,12 @@ class LatexImageProvider(QQuickImageProvider):
         if pixmap.isNull():
             return QPixmap()
 
-        # 3. Add to cache
+        # Cache rendered pixmap.
         self._cache[cache_key] = pixmap
 
-        # 4. Enforce Cache Limit (LRU Eviction)
+        # Enforce cache limit with LRU eviction.
         if len(self._cache) > self.CACHE_LIMIT:
-            # last=False pops from the beginning (the oldest/least recently used item)
+            # last=False pops from the beginning (the least recently used item).
             self._cache.popitem(last=False)
 
         return pixmap

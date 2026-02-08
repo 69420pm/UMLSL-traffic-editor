@@ -252,12 +252,11 @@ class SidebarController(QObject):
 
     def _open_edit_dialog(self, dialog_class, entity: Entity | None) -> None:
         """
-        Open an edit dialog for an existing entity.
+        Open an edit dialog for an entity.
 
         Args:
             dialog_class: The dialog class to instantiate (e.g., EditRoadDialog).
-            model: The entity list model containing the entity.
-            row: The row index of the entity to edit.
+            entity: The entity to edit, or None for create mode.
         """
 
         dialog = dialog_class(

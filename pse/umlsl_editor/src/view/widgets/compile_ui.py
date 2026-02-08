@@ -3,11 +3,11 @@ import subprocess
 import sys
 from pathlib import Path
 
-# --- CONFIGURATION ---
-# 1. Where your .ui and .qrc files live (and the 'icons' folder)
+# Configuration
+# Where your .ui and .qrc files live (and the 'icons' folder)
 SEARCH_DIR = Path(".") / "qt_widgets"
 
-# 2. Where you want the compiled .py files to go
+# Where compiled .py files are written
 OUTPUT_DIR = Path(".") / "compiled_widgets"
 
 UIC_CMD = "pyside6-uic"
@@ -30,9 +30,8 @@ def compile_project():
     # Create __init__.py so 'compiled_widgets' is treated as a python package
     (OUTPUT_DIR / "__init__.py").touch()
 
-    # 1. Compile Resources (.qrc -> _rc.py)
-    # We use .resolve() to get absolute paths, ensuring commands work
-    # regardless of which folder we switch into.
+    # Compile resources (.qrc -> _rc.py)
+    # Use .resolve() to get absolute paths so commands work from any folder.
     for qrc_file in SEARCH_DIR.rglob("*.qrc"):
         output_file = OUTPUT_DIR / f"{qrc_file.stem}_rc.py"
 
@@ -50,7 +49,7 @@ def compile_project():
         else:
             print(f"Skipped: {qrc_file.name} (up to date)")
 
-    # 2. Compile UI Files (.ui -> ui_*.py)
+    # Compile UI files (.ui -> ui_*.py)
     for ui_file in SEARCH_DIR.rglob("*.ui"):
         output_file = OUTPUT_DIR / f"ui_{ui_file.stem}.py"
 
@@ -60,7 +59,7 @@ def compile_project():
             try:
                 subprocess.run(cmd, check=True)
 
-                # 3. Patch Imports
+                # Patch imports
                 # Changes 'import resources_rc' to 'from . import resources_rc'
                 fix_imports(output_file)
                 print(" -> Success (imports patched)")

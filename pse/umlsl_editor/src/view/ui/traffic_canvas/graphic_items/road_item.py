@@ -212,12 +212,12 @@ class RoadItem(SelectableGraphicsItem):
             option: QStyleOptionGraphicsItem,
             widget: Optional[QWidget] = None,
     ) -> None:
-        # 1. Background
+        # Background
         painter.setPen(Qt.NoPen)
         painter.setBrush(self._asphalt_brush)
         painter.drawRect(self._bounding_rect)
 
-        # 2. Lines
+        # Lane and center lines
         painter.setBrush(Qt.NoBrush)
         painter.setPen(self._center_pen)
         painter.drawPath(self._center_line)
@@ -225,7 +225,7 @@ class RoadItem(SelectableGraphicsItem):
         painter.setPen(self._dashed_pen)
         painter.drawPath(self._dashed_lines)
 
-        # 3. Sticky Labels
+        # Sticky labels
         self._paint_sticky_elements(painter, option)
 
     # -------------------------------------------------------------------------
@@ -329,9 +329,7 @@ class RoadItem(SelectableGraphicsItem):
                     text_pt = QPointF(pos_perp, view_bounds.y())
                     arrow_pt = QPointF(pos_perp, view_bounds.y() - arrow_dist)
 
-                # Draw
-                # FIXED: Force Left Alignment for horizontal roads so text starts
-                # at the same X-line as the road name.
+                # Draw labels aligned with the road name for horizontal roads.
                 self._draw_text(
                     painter,
                     f"{prefix}{i + 1}",

@@ -77,9 +77,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         Replaces the placeholder graphics view from the UI file with the
         custom TrafficView and TrafficScene.
-
-        Args:
-            application_controller: The application controller for scene initialization.
         """
         self.traffic_scene = TrafficScene(self._application_controller)
         self.trafficView = TrafficView(scene=self.traffic_scene, application_controller=self._application_controller)
@@ -91,9 +88,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def _setup_controllers(self) -> None:
         """
         Initialize UI controllers for various window components.
-
-        Args:
-            application_controller: The application controller passed to child controllers.
         """
         self.canvas_buttons = CanvasButtons(self)
         self.sidebar_controller = SidebarController(self, self._application_controller)

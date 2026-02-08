@@ -46,6 +46,8 @@ class EntityModel(QAbstractListModel):
         self._data: list[Entity] = []
         self._selected_uid: str = ""
         self._view_event_handler: ViewEventHandler | None = None
+        # Track deferred removals so rapid remove/add cycles don't drop entities.
+        self._pending_removals: set[str] = set()
 
     def connect_signal(self, view_event_handler: ViewEventHandler) -> None:
         """
@@ -69,7 +71,14 @@ class EntityModel(QAbstractListModel):
         Args:
             entity: The entity to add.
         """
-        if entity in self._data:
+        # Cancel any pending removal for the same UID.
+        self._pending_removals.discard(entity.uid)
+
+        existing_row = self._get_row_by_uid(entity.uid)
+        if existing_row is not None:
+            self._data[existing_row] = entity
+            index = self.index(existing_row)
+            self.dataChanged.emit(index, index, list(self.roleNames().keys()))
             return
 
         row = len(self._data)
@@ -87,27 +96,35 @@ class EntityModel(QAbstractListModel):
         Args:
             entity: The entity to remove.
         """
-        if entity not in self._data:
+        if self._get_row_by_uid(entity.uid) is None:
             return
+
+        self._pending_removals.add(entity.uid)
 
         # Defer removal to next event loop iteration to avoid destroying
         # objects while QML signal handlers are still in progress.
-        QTimer.singleShot(0, lambda: self._do_remove_entity(entity))
+        QTimer.singleShot(0, lambda uid=entity.uid: self._do_remove_entity(uid))
 
-    def _do_remove_entity(self, entity: Entity) -> None:
+    def _do_remove_entity(self, uid: str) -> None:
         """
         Perform the actual entity removal.
 
         Args:
-            entity: The entity to remove.
+            uid: The UID of the entity to remove.
         """
-        if entity not in self._data:
+        if uid not in self._pending_removals:
             return
 
-        row = self._data.index(entity)
+        row = self._get_row_by_uid(uid)
+        if row is None:
+            self._pending_removals.discard(uid)
+            return
+
+        entity_to_remove = self._data[row]
         self.beginRemoveRows(QModelIndex(), row, row)
-        self._data.remove(entity)
+        self._data.remove(entity_to_remove)
         self.endRemoveRows()
+        self._pending_removals.discard(uid)
 
     def clear_all(self) -> None:
         """
@@ -119,7 +136,23 @@ class EntityModel(QAbstractListModel):
         self.beginResetModel()
         self._data.clear()
         self._selected_uid = ""
+        self._pending_removals.clear()
         self.endResetModel()
+
+    def _get_row_by_uid(self, uid: str) -> int | None:
+        """
+        Get the row index for an entity by UID.
+
+        Args:
+            uid: The UID of the entity.
+
+        Returns:
+            The row index if found, otherwise None.
+        """
+        for i, existing in enumerate(self._data):
+            if existing.uid == uid:
+                return i
+        return None
 
     def update_entity(self, entity: Entity) -> None:
         """
@@ -128,10 +161,11 @@ class EntityModel(QAbstractListModel):
         Args:
             entity: The entity that was updated.
         """
-        if entity not in self._data:
+        row = self._get_row_by_uid(entity.uid)
+        if row is None:
             return
 
-        row = self._data.index(entity)
+        # Update by UID even if the instance changed after a remove/add cycle.
         index = self.index(row)
         self.dataChanged.emit(index, index, list(self.roleNames().keys()))
 
