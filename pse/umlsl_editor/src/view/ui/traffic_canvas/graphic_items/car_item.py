@@ -78,7 +78,7 @@ class CarItem(SelectableGraphicsItem):
         self._segments.clear()
 
         # Add all segments back
-        for seg_data in self._car.environment.reserved_lanes:
+        for seg_data in self._car.environment.reserved_lanes + self._car.environment.reserved_crossings:
             print(seg_data)
             seg_item = SegmentIntervalItem(segment_interval=seg_data,
                                            application_controller=self.application_controller, color=COLORS.RED,
@@ -86,7 +86,7 @@ class CarItem(SelectableGraphicsItem):
             traffic_scene.addItem(seg_item)
             self._segments.append(seg_item)
 
-        for seg_data in self._car.environment.claimed_lanes:
+        for seg_data in self._car.environment.claimed_lanes + self._car.environment.claimed_crossings:
             seg_item = SegmentIntervalItem(segment_interval=seg_data,
                                            application_controller=self.application_controller, color=COLORS.TEXT,
                                            is_last_interval=False)
