@@ -81,7 +81,7 @@ class CarEnvironment:
         pos_on_lane = car.position_on_lane  # rear of the car
         start_segment = ts.get_segment_from_lane_position(car.lane, pos_on_lane)
         if not isinstance(start_segment, LaneSegment):
-            return "Car must start on a lange segment"
+            return "Car must start on a lane segment"
         return None
 
     @staticmethod
