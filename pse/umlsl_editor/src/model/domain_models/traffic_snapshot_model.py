@@ -219,23 +219,21 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def _on_car_added(self, car: Car):
         self.notify(TrafficSnapshotEventType.CAR_ADDED, car)
-        if self._queries_model is not None:
-            self.validator.validate_queries(self._queries_model)
+        self._revalidate_queries()
 
     def _on_car_removed(self, car: Car):
         self.notify(TrafficSnapshotEventType.CAR_REMOVED, car)
-        if self._queries_model is not None:
-            self.validator.validate_queries(self._queries_model)
+        self._revalidate_queries()
 
     def _on_car_updated(self, car: Car):
         self.notify(TrafficSnapshotEventType.CAR_UPDATED, car)
-        if self._queries_model is not None:
-            self.validator.validate_queries(self._queries_model)
+        self._revalidate_queries()
 
     def _on_road_added(self, road: Road):
         self.notify(TrafficSnapshotEventType.ROAD_ADDED, road)
         self._recalculate_static_segments()
         self._revalidate_cars()
+        self._revalidate_queries()
 
     def _on_road_removed(self, road: Road):
         # Recalculate segments BEFORE notifying observers to ensure consistency.
@@ -243,11 +241,13 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self._recalculate_static_segments()
         self.notify(TrafficSnapshotEventType.ROAD_REMOVED, road)
         self._revalidate_cars()
+        self._revalidate_queries()
 
     def _on_road_updated(self, road: Road):
         self.notify(TrafficSnapshotEventType.ROAD_UPDATED, road)
         self._recalculate_static_segments()
         self._revalidate_cars()
+        self._revalidate_queries()
 
     def get_cars_on_road(self, road: Road) -> list[Car]:
         return [car for car in self._cars.values() if car.lane.road_uid == road.uid]
@@ -784,3 +784,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
         for car in cars_to_remove:
             self.remove_car(car.uid)
+
+    def _revalidate_queries(self):
+        self.validator.validate_queries(self._queries_model)
+
+        pass
