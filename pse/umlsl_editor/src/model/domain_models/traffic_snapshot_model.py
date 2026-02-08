@@ -190,7 +190,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         )
         self._segments: dict[str, Segment] = {}
         self._debug_segments: dict[str, Segment] = {}
-        """Dictionary of segments, keyed by their uid."""
+        """Dictionary  of segments, keyed by their uid."""
         # self._connections: dict[str, dict[Direction, str]] = {}
         # """Dictionary of segment connections, keyed by segment uid. And in the direction dict all connected segments uids."""
         self._segments_by_lane: dict[Lane, list[str]] = {}
