@@ -78,6 +78,8 @@ class TrafficSnapshotValidator:
         Args:
             car: The Car instance to validate.
         """
+        if car.environment.validate_environment(self._model, car=car, settings_model=self._model.settings_model):
+            return False
         if not self._check_lane_valid(car.lane):
             return False
         if not self._check_transition_valid(car.transition, car.lane, car.speed < 0):

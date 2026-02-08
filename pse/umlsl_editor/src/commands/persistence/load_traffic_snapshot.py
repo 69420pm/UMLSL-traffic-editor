@@ -40,7 +40,7 @@ class LoadTrafficSnapshot(Command[None]):
             raise CommandValidationError(f"Invalid JSON format: {exc}") from exc
 
         new_queries = UMLSLQueriesModel()
-        new_snapshot = TrafficSnapshotModel(new_queries)
+        new_snapshot = TrafficSnapshotModel(new_queries, self._application_controller.get_settings_model())
 
         try:
             PersistenceService.deserialize(
