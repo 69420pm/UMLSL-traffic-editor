@@ -1,4 +1,3 @@
-from collections import deque
 from enum import Enum
 
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
@@ -179,9 +178,18 @@ def _compute_path(
         path_segments.append(segment)
         virtual_pos += size
 
+    print("--------")
     print("path is ", list(map(lambda seg: ts.get_segment_info(seg.uid), path_segments)))
     path = VirtualLane(path_segments)
     path_segment_intervals: list[SegmentInterval] = _compute_segment_intervals(ts, path, pos_on_segment, car_params.length)
+
+    # If the turn intent exceeds what the car can see, we set the turn intent to the last lane segment.
+    # For example, if the car turns left 1k units away but can only see 10 forward, the turn_segment gets useless.
+    if turn_segment not in path_segments:
+        end_lane: Segment = path_segments[-1]
+        if not isinstance(end_lane, LaneSegment):
+            raise ValueError("Path must end on a lane segment.")
+        turn_segment = end_lane
 
     return path, path_segment_intervals, turn_segment, horizontal_horizon
 
@@ -221,7 +229,6 @@ def _compute_parallel_virtual_lanes(
 
         parallel_virtual_lanes.append(parallel_virtual_lane)
 
-    print("--------")
     for parallel_virtual_lane in parallel_virtual_lanes:
         print("parallel virtual lane:")
         for virtual_lane in parallel_virtual_lane:
