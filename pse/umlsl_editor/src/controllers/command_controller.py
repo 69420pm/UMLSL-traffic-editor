@@ -245,7 +245,6 @@ class CommandController:
         edit_car_command = EditCarCommand(
             self.traffic_snapshot_reader,
             self.traffic_snapshot_writer,
-            self.settings_model,
             car_params,
             car.uid,
         )

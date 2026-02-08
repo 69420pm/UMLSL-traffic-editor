@@ -191,6 +191,8 @@ class Car(Entity):
 
         Args:
             params: CarParams instance containing updated car attributes.
+            traffic_snapshot: TrafficSnapshot instance containing updated traffic snapshot data.
+            settings_model: SettingsModel instance containing updated settings.
 
         Raises:
             CarValidationError: If any validation check fails.
@@ -211,7 +213,6 @@ class Car(Entity):
             )
 
         """
-
 
         self.environment = CarEnvironment.create_environment(traffic_snapshot, params, settings_model)
         self._should_validate = False

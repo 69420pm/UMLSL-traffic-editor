@@ -128,13 +128,15 @@ class TrafficSnapshotReader(ABC):
         pass
 
     @abstractmethod
-    def validate_road_params(self, road_params: RoadParams, new_instantiation: bool) -> None:
+    def validate_road_params(self, road_params: RoadParams, new_instantiation: bool,
+                             road_uid: str | None = None) -> None:
         """
         Validates the given road parameters.
 
         Args:
             road_params: The parameters of the road to validate.
             new_instantiation: Whether the road is being newly instantiated.
+            road_uid: The UID of the road being updated, None if it's a new instantiation.
 
         Raises:
             ValidationError: If any validation check fails.

@@ -11,6 +11,7 @@ from pse.umlsl_editor.src.view.view_constants import DIMENSION
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.model.entities.car import Car, CarParams
     from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
+    from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 
 
 class TrafficSnapshotValidator:
@@ -21,6 +22,22 @@ class TrafficSnapshotValidator:
 
     def __init__(self, model: "TrafficSnapshotModel"):
         self._model = model
+
+    def validate_queries(self, queries_model: "UMLSLQueriesModel") -> None:
+        """
+        Validates all UMLSL queries in the context of the traffic snapshot.
+
+        Args:
+            queries_model: The UMLSLQueriesModel containing the queries to validate.
+        """
+        queries = queries_model.get_queries()
+        invalid_query_ids: list[str] = []
+        for query in queries.values():
+            if not self._model.is_car_existing(query.assigned_car_uid):
+                invalid_query_ids.append(query.uid)
+
+        for query_id in invalid_query_ids:
+            queries_model.remove_umlsl_query(query_id)
 
     def validate_car_params(self, car: "CarParams", new_instantiation: bool) -> None:
         """
@@ -46,6 +63,9 @@ class TrafficSnapshotValidator:
         if not self._check_no_tokens_contained(car.name):
             raise CarTrafficSnapshotContextValidationError(
                 content=f"Car '{car.name}' can not contain any of the umlsl language tokens.")
+        if car.get_braking_dist() > self._model.settings_model.braking_distance():
+            raise CarTrafficSnapshotContextValidationError(
+                content=f"Car '{car.name}' has a braking distance that exceeds the maximum allowed by the settings.")
 
     def validate_car_and_autocorrect(self, car: "Car") -> bool:
         """
@@ -58,6 +78,8 @@ class TrafficSnapshotValidator:
         Args:
             car: The Car instance to validate.
         """
+        if car.environment.validate_environment(self._model, car=car, settings_model=self._model.settings_model):
+            return False
         if not self._check_lane_valid(car.lane):
             return False
         if not self._check_transition_valid(car.transition, car.lane, car.speed < 0):
@@ -66,19 +88,29 @@ class TrafficSnapshotValidator:
             car.next_turn = None
         return True
 
-    def validate_road_params(self, road_params: RoadParams, new_instantiation: bool) -> None:
+    def validate_road_params(self, road_params: RoadParams, new_instantiation: bool, road_uid: str | None) -> None:
         """
         Validates a Road instance within the context of the TrafficSnapshot.
 
         Args:
             road_params: The Road instance to validate.
             new_instantiation: Whether the road is being newly instantiated (True) or updated (False).
+            road_uid: The UID of the road being updated, None if it's a new instantiation.
 
         Raises:
             RoadTrafficSnapshotContextValidationError: If any validation check fails.
         """
         if new_instantiation:
             if not self._check_road_name_unique(road_params.name):
+                raise RoadTrafficSnapshotContextValidationError(
+                    content=f"Road name '{road_params.name}' is not unique in the traffic snapshot.")
+        else:
+            if road_uid is None:
+                raise ValueError('road_uid must be provided for road editing.')
+            if any(
+                road.name == road_params.name and road.uid != road_uid
+                for road in self._model.get_roads().values()
+            ):
                 raise RoadTrafficSnapshotContextValidationError(
                     content=f"Road name '{road_params.name}' is not unique in the traffic snapshot.")
 
@@ -94,22 +126,13 @@ class TrafficSnapshotValidator:
             bounds: tuple[
                 float, float] = road_params.position - road_params.number_of_backward_lanes * DIMENSION.LANE_WIDTH, road_params.position + road_params.number_of_forward_lanes * DIMENSION.LANE_WIDTH
         for road in roads:
-            if road.name == road_params.name:
+            if road_uid is not None and road_uid == road.uid:
                 continue
             if road.orientation == road_params.orientation:
                 road_bounds = road.get_bounds()
                 if max(bounds[0], road_bounds[0]) < min(bounds[1], road_bounds[1]):
                     raise RoadTrafficSnapshotContextValidationError(
                         content=f"Roads can't overlap each other. Please change position or number of forward or backward lanes.")
-
-    def validate_road_and_autocorrect(self, road_uid: str) -> bool:
-        """
-        Validates a Road instance within the context of the TrafficSnapshot and autocorrects cars if necessary.
-
-        Args:
-            road_uid: The UID of the Road instance to validate.
-        """
-        raise NotImplementedError("Road validation and autocorrection is not implemented yet.")
 
     def _check_no_tokens_contained(self, text: str) -> bool:
         return not any(token.value in text for token in TokenType)
