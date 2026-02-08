@@ -102,7 +102,9 @@ class CarEnvironment:
         if road.orientation == RoadOrientation.HORIZONTAL:
             car_direction = Direction.LEFT if speed < 0 else Direction.RIGHT
         else:
-            car_direction = Direction.UP if speed > 0 else Direction.DOWN
+            car_direction = Direction.UP if speed >= 0 else Direction.DOWN
+        if not car_lane.is_forward():
+            car_direction = car_direction.opposite
 
         if turn_intent is None:
             # if the turn_intent is not specified, it means the car drives straight
@@ -116,7 +118,18 @@ class CarEnvironment:
 
         # converts the absolute position to the position on the start_segment
         road = ts.get_road_by_uid(car_params.lane.road_uid)
-        pos_on_segment = pos_on_lane - start_segment.get_position(ts)[road.orientation.value]
+        segment_start_pos = start_segment.get_position(ts)[road.orientation.value]
+
+        pos_on_segment: float
+        match car_direction:
+            case Direction.RIGHT:
+                pos_on_segment = pos_on_lane - segment_start_pos
+            case Direction.LEFT:
+                pos_on_segment = start_segment.get_size_in_direction(ts) - (pos_on_lane - segment_start_pos)
+            case Direction.UP:
+                pos_on_segment = start_segment.get_size_in_direction(ts) - (segment_start_pos - pos_on_lane)
+            case Direction.DOWN:
+                pos_on_segment = segment_start_pos - pos_on_lane
 
         path, path_segment_intervals, turn_segment, horizontal_horizon = _compute_path(
             ts,
@@ -374,7 +387,7 @@ def _find_turn_intent_segment(
         start: LaneSegment,
         turn_intent: TurnIntent,
         car_direction: Direction
-) -> LaneSegment | None:
+) -> LaneSegment:
     """"
     We need to find the target lane segment based on the turn intent and the car's current position.
     Since we know the target lane, we can collect all lane(!) segments of the target lane first.
@@ -404,10 +417,12 @@ def _find_turn_intent_segment(
     # for straight driving, we can iterate straight through the crossing and take the first lane segment
     if turn_direction == TurnDirection.STRAIGHT:
         next_segment = ts.get_adjacent_segment(start.uid, car_direction)
+        if next_segment is None and start.is_lane_segment:
+            return start
         while next_segment is not None:
-            next_segment = ts.get_adjacent_segment(next_segment.uid, car_direction)
             if isinstance(next_segment, LaneSegment):
                 return next_segment
+            next_segment = ts.get_adjacent_segment(next_segment.uid, car_direction)
 
     # the segment_position_index is used to consider only the relevant coordinate of the segments_of_target_lane list
     segment_position_index: int = 1 if start_road_direction == RoadOrientation.HORIZONTAL else 0
@@ -436,7 +451,7 @@ def _find_turn_intent_segment(
                 else:
                     if pos < start_pos:
                         return segment
-    return None
+    raise ValueError("Turn intent not found.")
 
 
 def _compute_path_through_crossing(
@@ -558,6 +573,12 @@ def _compute_segments_safety_envelope(
     i = 0
     while next_size > 0:
         current_size = next_size
+
+        # since the input size can be arbitrarily large, we need to check if we reached the end of the path
+        # unlike in the segment_intervals method, it is not guaranteed that the car reaches the end of the path
+        if i >= len(path.segments):
+            return result
+
         seg_i = path.segments[i]
 
         b_i: float

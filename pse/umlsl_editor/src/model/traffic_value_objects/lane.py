@@ -41,3 +41,6 @@ class Lane:
 
     def get_direction(self) -> int:
         return LaneDirection.FORWARD if self.lane_index >= 0 else LaneDirection.BACKWARD
+
+    def is_forward(self) -> bool:
+        return self.lane_index >= 0
