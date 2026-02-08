@@ -37,32 +37,44 @@ class ViewEventHandlerImplementation(ViewEventHandler):
         self.should_render_grid: bool = True
         self.should_render_safety_distance: bool = True
 
+    def _select_entity(self, uid: str) -> None:
+        if uid == self.current_selected_uid:
+            return
+        self.current_selected_uid = uid
+        self.selection_changed.emit(self.current_selected_uid)
+
     def add_car_view(self, car: Car) -> None:
         self.view_models.car_list_model.add_entity(car)
+        self._select_entity(car.uid)
 
     def remove_car_view(self, car: Car) -> None:
         self.view_models.car_list_model.remove_entity(car)
 
     def update_car_view(self, car: Car) -> None:
         self.view_models.car_list_model.update_entity(car)
+        self._select_entity(car.uid)
 
     def add_road_view(self, road: Road) -> None:
         self.view_models.road_list_model.add_entity(road)
+        self._select_entity(road.uid)
 
     def remove_road_view(self, road: Road) -> None:
         self.view_models.road_list_model.remove_entity(road)
 
     def update_road_view(self, road: Road) -> None:
         self.view_models.road_list_model.update_entity(road)
+        self._select_entity(road.uid)
 
     def add_query_view(self, query: UMLSLQuery) -> None:
         self.view_models.query_list_model.add_entity(query)
+        self._select_entity(query.uid)
 
     def remove_query_view(self, query: UMLSLQuery) -> None:
         self.view_models.query_list_model.remove_entity(query)
 
     def update_query_view(self, query: UMLSLQuery) -> None:
         self.view_models.query_list_model.update_entity(query)
+        self._select_entity(query.uid)
 
     def on_snapshot_reloaded(self, snapshot, queries=None) -> None:
         if queries is None and isinstance(snapshot, dict):
