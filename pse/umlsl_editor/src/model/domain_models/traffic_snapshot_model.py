@@ -119,8 +119,11 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     def is_car_existing(self, uid: str) -> bool:
         return uid in self._cars
 
-    def validate_road_params(self, road_params: RoadParams, new_instantiation: bool) -> None:
-        self.validator.validate_road_params(road_params, new_instantiation)
+    def validate_road_params(self, road_params: RoadParams, new_instantiation: bool,
+                             road_uid: str | None = None) -> None:
+        if not new_instantiation and road_uid is None or new_instantiation and road_uid is not None:
+            raise ValueError('road_uid must be None for new road instantiation.')
+        self.validator.validate_road_params(road_params, new_instantiation, road_uid)
 
     def validate_car_params(self, car_params: CarParams, new_instantiation: bool) -> None:
         self.validator.validate_car_params(car_params, new_instantiation)
@@ -285,7 +288,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def add_car(self, car: Car) -> None:
         self._cars[car.uid] = car
-        self.get_valid_turn_intent_lanes(car.position_on_lane, car.speed, car.lane, car.length, TurnDirection.LEFT)
 
     def remove_car(self, car_uid: str) -> None:
         self._cars.pop(car_uid)
@@ -294,7 +296,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         car = self._cars.get(car_uid)
         car.update_from_params(car_params, self, settings_model)
         self._cars[car_uid] = car
-        self.get_valid_turn_intent_lanes(car.position_on_lane, car.speed, car.lane, car.length, TurnDirection.LEFT)
 
     def get_segment_from_lane_position(self, lane: Lane, position_on_lane: float) -> Segment | None:
         segment_uids = self._segments_by_lane.get(lane)

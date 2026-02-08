@@ -66,13 +66,14 @@ class TrafficSnapshotValidator:
             car.next_turn = None
         return True
 
-    def validate_road_params(self, road_params: RoadParams, new_instantiation: bool) -> None:
+    def validate_road_params(self, road_params: RoadParams, new_instantiation: bool, road_uid: str | None) -> None:
         """
         Validates a Road instance within the context of the TrafficSnapshot.
 
         Args:
             road_params: The Road instance to validate.
             new_instantiation: Whether the road is being newly instantiated (True) or updated (False).
+            road_uid: The UID of the road being updated, None if it's a new instantiation.
 
         Raises:
             RoadTrafficSnapshotContextValidationError: If any validation check fails.
@@ -81,6 +82,9 @@ class TrafficSnapshotValidator:
             if not self._check_road_name_unique(road_params.name):
                 raise RoadTrafficSnapshotContextValidationError(
                     content=f"Road name '{road_params.name}' is not unique in the traffic snapshot.")
+        else:
+            if road_uid is None:
+                raise ValueError('road_uid must be provided for road editing.')
 
         if not self._check_no_tokens_contained(road_params.name):
             raise RoadTrafficSnapshotContextValidationError(
@@ -94,7 +98,7 @@ class TrafficSnapshotValidator:
             bounds: tuple[
                 float, float] = road_params.position - road_params.number_of_backward_lanes * DIMENSION.LANE_WIDTH, road_params.position + road_params.number_of_forward_lanes * DIMENSION.LANE_WIDTH
         for road in roads:
-            if road.name == road_params.name:
+            if road_uid is not None and road_uid == road.uid:
                 continue
             if road.orientation == road_params.orientation:
                 road_bounds = road.get_bounds()

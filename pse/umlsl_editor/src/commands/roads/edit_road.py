@@ -43,5 +43,5 @@ class EditRoadCommand(Command[None]):
         """
         if not self._traffic_snapshot_reader.is_road_existing(self.road_uid):
             raise RoadValidationError(content=f"Road with UID {self.road_uid} does not exist and cannot be edited.")
-        self._traffic_snapshot_reader.validate_road_params(self.road_params, False)
+        self._traffic_snapshot_reader.validate_road_params(self.road_params, False, self.road_uid)
         self._traffic_snapshot_writer.update_road(self.road_uid, self.road_params)

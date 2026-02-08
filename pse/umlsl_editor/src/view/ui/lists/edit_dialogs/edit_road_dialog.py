@@ -25,7 +25,7 @@ from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.confirm_deletion_dialog imp
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
 
-from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation, RoadParams
+from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_road_dialog import (
     Ui_Edit_Road_Dialog,
 )
@@ -67,9 +67,6 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
         self._is_edit = road is not None
         self._application_controller = application_controller
 
-        if not self._is_edit:
-            self._road = self._create_default_road()
-
         self._populate_fields()
         self._connect_signals()
 
@@ -104,38 +101,53 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
             self.parent().snackbar.show_message(f"Road '{self._road.name}' deleted successfully.")
             self.accept()
 
-    def _create_default_road(self) -> Road:
-        """
-        Create a new road with default parameter values.
+    def _get_default_road_values(self) -> dict:
+        """Return default road field values for create mode."""
+        return {
+            "name": "default",
+            "orientation": RoadOrientation.HORIZONTAL,
+            "position": 0,
+            "number_of_forward_lanes": 1,
+            "number_of_backward_lanes": 1,
+        }
 
-        Returns:
-            A new Road instance with default configuration.
-        """
-        default_params = RoadParams(
-            name="default",
-            orientation=RoadOrientation.HORIZONTAL,
-            position=0,
-            number_of_forward_lanes=1,
-            number_of_backward_lanes=1,
-        )
-        return Road.from_params(default_params)
+    def _apply_road_values(
+            self,
+            *,
+            name: str,
+            orientation: RoadOrientation,
+            position: int,
+            number_of_forward_lanes: int,
+            number_of_backward_lanes: int,
+    ) -> None:
+        """Apply road values to the dialog widgets."""
+        self.t_name.setText(name)
+
+        self.d_orientation.clear()
+        orientations = [orientation.name.lower() for orientation in RoadOrientation]
+        self.d_orientation.addItems(orientations)
+        self.d_orientation.setCurrentIndex(orientation.value)
+
+        self.s_position.setValue(position)
+        self.s_forward.setValue(number_of_forward_lanes)
+        self.s_backward.setValue(number_of_backward_lanes)
 
     def _populate_fields(self) -> None:
         """Populate dialog fields with the current road's values."""
         if not self._is_edit:
             self.setWindowTitle("Create New Road")
             self.b_delete.hide()
+            defaults = self._get_default_road_values()
+            self._apply_road_values(**defaults)
+            return
 
-        self.t_name.setText(self._road.name)
-
-        self.d_orientation.clear()
-        orientations = [orientation.name.lower() for orientation in RoadOrientation]
-        self.d_orientation.addItems(orientations)
-        self.d_orientation.setCurrentIndex(self._road.orientation.value)
-
-        self.s_position.setValue(self._road.position)
-        self.s_forward.setValue(self._road.number_of_forward_lanes)
-        self.s_backward.setValue(self._road.number_of_backward_lanes)
+        self._apply_road_values(
+            name=self._road.name,
+            orientation=self._road.orientation,
+            position=self._road.position,
+            number_of_forward_lanes=self._road.number_of_forward_lanes,
+            number_of_backward_lanes=self._road.number_of_backward_lanes,
+        )
 
     def accept(self) -> None:
         """
