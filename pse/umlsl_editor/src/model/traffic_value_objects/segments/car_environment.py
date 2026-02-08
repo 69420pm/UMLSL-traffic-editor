@@ -6,7 +6,6 @@ from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.model.helper.directional_graph import Direction
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import VirtualLane, Segment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
@@ -79,8 +78,10 @@ class CarEnvironment:
             car_params: "CarParams",
             settings_model: SettingsModel
     ) -> str | None:
-        # todo: validate car does not require reserving/claiming occupied segments
-        # todo: validate car is not defined on a crossing
+        pos_on_lane = car_params.position_on_lane  # rear of the car
+        start_segment = ts.get_segment_from_lane_position(car_params.lane, pos_on_lane)
+        if not isinstance(start_segment, LaneSegment):
+            return "Car must start on a lange segment"
         return None
 
     @staticmethod
@@ -157,15 +158,19 @@ class CarEnvironment:
             settings_model.braking_distance(),
             car_params.length
         )
-        claimed_segment_intervals = list(filter(lambda seg_interval: seg_interval.segment not in reserved_segments, claimed_segment_intervals))
+        claimed_segment_intervals = list(
+            filter(lambda seg_interval: seg_interval.segment not in reserved_segments, claimed_segment_intervals))
 
         # todo: include transitions
 
         print("--------")
         print("path is ", list(map(lambda seg: ts.get_segment_info(seg.uid), path.segments)))
-        print("real segment intervals are ", list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", path_segment_intervals)))
-        print("reserved segment intervals are ", list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", reserved_segment_intervals)))
-        print("claimed segment intervals are ", list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", claimed_segment_intervals)))
+        print("real segment intervals are ",
+              list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", path_segment_intervals)))
+        print("reserved segment intervals are ", list(
+            map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", reserved_segment_intervals)))
+        print("claimed segment intervals are ",
+              list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", claimed_segment_intervals)))
 
         # add path to debug segments
         for seg in path.segments:
