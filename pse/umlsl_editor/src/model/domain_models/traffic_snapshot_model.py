@@ -13,6 +13,7 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_validator import 
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import (
     TrafficSnapshotWriter,
 )
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 from pse.umlsl_editor.src.model.entities.car import Car, CarParams
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation, RoadParams
 from pse.umlsl_editor.src.model.helper.directional_graph import Direction
@@ -69,8 +70,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         else:
             direction = Direction.UP if car_lane.lane_index >= 0 else Direction.DOWN
 
-        segment = self.get_segment_from_lane_position(car_lane, car_position + car_length * 0.5 * (
-            1 if direction in [Direction.RIGHT, Direction.DOWN] else -1))
+        segment = self.get_segment_from_lane_position(car_lane, car_position)
 
         if segment is None:
             return []
@@ -165,15 +165,16 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def __init__(
             self,
-            roads: ObservableDict[str, Road] | None = None,
+            queries_model: UMLSLQueriesModel,
+            settings_model: SettingsModel,
             cars: ObservableDict[str, Car] | None = None,
     ):
 
         super().__init__()
         self._cars = cars if cars is not None else ObservableDict[str, Car](
-            on_add=lambda car: self.notify(TrafficSnapshotEventType.CAR_ADDED, car),
-            on_remove=lambda car: self.notify(TrafficSnapshotEventType.CAR_REMOVED, car),
-            on_update=lambda car: self.notify(TrafficSnapshotEventType.CAR_UPDATED, car)
+            on_add=self._on_car_added,
+            on_remove=self._on_car_removed,
+            on_update=self._on_car_updated
         )
 
         self._horizontal_roads: ObservableDict[str, Road] = ObservableDict(
@@ -205,6 +206,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self.screen_size = (DIMENSION.SCENE_SIZE + 100) / 2
 
         self.validator = TrafficSnapshotValidator(self)
+        self._queries_model: UMLSLQueriesModel = queries_model
+        self._settings_model: SettingsModel = settings_model
 
     @property
     def cars(self):
@@ -214,19 +217,37 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     def roads(self):
         return self._read_only_roads
 
+    def _on_car_added(self, car: Car):
+        self.notify(TrafficSnapshotEventType.CAR_ADDED, car)
+        if self._queries_model is not None:
+            self.validator.validate_queries(self._queries_model)
+
+    def _on_car_removed(self, car: Car):
+        self.notify(TrafficSnapshotEventType.CAR_REMOVED, car)
+        if self._queries_model is not None:
+            self.validator.validate_queries(self._queries_model)
+
+    def _on_car_updated(self, car: Car):
+        self.notify(TrafficSnapshotEventType.CAR_UPDATED, car)
+        if self._queries_model is not None:
+            self.validator.validate_queries(self._queries_model)
+
     def _on_road_added(self, road: Road):
         self.notify(TrafficSnapshotEventType.ROAD_ADDED, road)
         self._recalculate_static_segments()
+        self._revalidate_cars()
 
     def _on_road_removed(self, road: Road):
         # Recalculate segments BEFORE notifying observers to ensure consistency.
         # This prevents observers from accessing stale segments that reference the removed road.
         self._recalculate_static_segments()
         self.notify(TrafficSnapshotEventType.ROAD_REMOVED, road)
+        self._revalidate_cars()
 
     def _on_road_updated(self, road: Road):
         self.notify(TrafficSnapshotEventType.ROAD_UPDATED, road)
         self._recalculate_static_segments()
+        self._revalidate_cars()
 
     def get_cars_on_road(self, road: Road) -> list[Car]:
         return [car for car in self._cars.values() if car.lane.road_uid == road.uid]
@@ -292,9 +313,9 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     def remove_car(self, car_uid: str) -> None:
         self._cars.pop(car_uid)
 
-    def update_car_with_params(self, car_uid: str, car_params: CarParams, settings_model: SettingsModel) -> None:
+    def update_car_with_params(self, car_uid: str, car_params: CarParams) -> None:
         car = self._cars.get(car_uid)
-        car.update_from_params(car_params, self, settings_model)
+        car.update_from_params(car_params, self, self._settings_model)
         self._cars[car_uid] = car
 
     def get_segment_from_lane_position(self, lane: Lane, position_on_lane: float) -> Segment | None:
@@ -754,3 +775,12 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                 size = segment.get_size(self)
                 print(f"  - {segment.uid}: {type(segment).__name__}, position={position}, size={size}")
         pass
+
+    def _revalidate_cars(self):
+        cars_to_remove = []
+        for car in self._cars.values():
+            if not self.validator.validate_car_and_autocorrect(car):
+                cars_to_remove.append(car)
+
+        for car in cars_to_remove:
+            self.remove_car(car.uid)

@@ -28,11 +28,10 @@ class ApplicationController:
         Initialize the application controller with its sub-controllers.
         """
         self._model_view = ViewModels(self)
-        self._model_traffic_snapshot = TrafficSnapshotModel()
         self._settings_model = SettingsModel(
             braking_acceleration=8.0, max_speed=15)
         self._model_umlsl_queries = UMLSLQueriesModel()
-
+        self._model_traffic_snapshot = TrafficSnapshotModel(self._model_umlsl_queries)
         self.view_event_handler = ViewEventHandlerImplementation(view_model=self._model_view)
 
         self._model_view.connect_signals(self.view_event_handler)

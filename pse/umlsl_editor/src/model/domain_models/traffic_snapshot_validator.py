@@ -11,6 +11,7 @@ from pse.umlsl_editor.src.view.view_constants import DIMENSION
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.model.entities.car import Car, CarParams
     from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
+    from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 
 
 class TrafficSnapshotValidator:
@@ -21,6 +22,22 @@ class TrafficSnapshotValidator:
 
     def __init__(self, model: "TrafficSnapshotModel"):
         self._model = model
+
+    def validate_queries(self, queries_model: "UMLSLQueriesModel") -> None:
+        """
+        Validates all UMLSL queries in the context of the traffic snapshot.
+
+        Args:
+            queries_model: The UMLSLQueriesModel containing the queries to validate.
+        """
+        queries = queries_model.get_queries()
+        invalid_query_ids: list[str] = []
+        for query in queries.values():
+            if not self._model.is_car_existing(query.assigned_car_uid):
+                invalid_query_ids.append(query.uid)
+
+        for query_id in invalid_query_ids:
+            queries_model.remove_umlsl_query(query_id)
 
     def validate_car_params(self, car: "CarParams", new_instantiation: bool) -> None:
         """
@@ -105,15 +122,6 @@ class TrafficSnapshotValidator:
                 if max(bounds[0], road_bounds[0]) < min(bounds[1], road_bounds[1]):
                     raise RoadTrafficSnapshotContextValidationError(
                         content=f"Roads can't overlap each other. Please change position or number of forward or backward lanes.")
-
-    def validate_road_and_autocorrect(self, road_uid: str) -> bool:
-        """
-        Validates a Road instance within the context of the TrafficSnapshot and autocorrects cars if necessary.
-
-        Args:
-            road_uid: The UID of the Road instance to validate.
-        """
-        raise NotImplementedError("Road validation and autocorrection is not implemented yet.")
 
     def _check_no_tokens_contained(self, text: str) -> bool:
         return not any(token.value in text for token in TokenType)

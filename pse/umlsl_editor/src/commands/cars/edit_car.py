@@ -1,5 +1,4 @@
 from pse.umlsl_editor.src.commands.command import Command
-from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
 from pse.umlsl_editor.src.model.entities.car import CarParams
@@ -13,7 +12,6 @@ class EditCarCommand(Command[None]):
             self,
             traffic_snapshot_reader: TrafficSnapshotReader,
             traffic_snapshot_writer: TrafficSnapshotWriter,
-            settings_model: SettingsModel,
             car_params: CarParams,
             uid: str
     ):
@@ -27,7 +25,6 @@ class EditCarCommand(Command[None]):
         """
         self._traffic_snapshot_writer = traffic_snapshot_writer
         self._traffic_snapshot_reader = traffic_snapshot_reader
-        self._settings_model = settings_model
         self.car_params = car_params
         self.car_uid = uid
 
@@ -42,4 +39,4 @@ class EditCarCommand(Command[None]):
         if not self._traffic_snapshot_reader.is_car_existing(self.car_uid):
             raise CarValidationError(content=f"Car with UID {self.car_uid} does not exist and cannot be edited.")
         self._traffic_snapshot_reader.validate_car_params(self.car_params, False)
-        self._traffic_snapshot_writer.update_car_with_params(self.car_uid, self.car_params, self._settings_model)
+        self._traffic_snapshot_writer.update_car_with_params(self.car_uid, self.car_params)
