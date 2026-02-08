@@ -1,10 +1,11 @@
 """
 Main entry point for the UMLSL Traffic Editor application.
 """
-
+import os
 import sys
 import warnings
 
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
 from pse.umlsl_editor.src.controllers import ApplicationController
@@ -23,6 +24,14 @@ class Main:
     def open_window(self) -> None:
         """Launch the main window with a sample scene for testing."""
         app = QApplication(sys.argv)
+
+        app.setApplicationName("UMLSL Traffic Editor")
+        app.setApplicationDisplayName("UMLSL Traffic Editor")
+
+        # 3. Set the Icon
+        # Ideally, use an absolute path or ensure the file is next to the script
+        icon_path = os.path.join(os.path.dirname(__file__), "src", "view", "widgets", "qt_widgets", "icons", "icon.png")
+        app.setWindowIcon(QIcon(icon_path))
 
         window = MainWindow(self.application_controller)
 
