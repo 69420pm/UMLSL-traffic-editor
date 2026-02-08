@@ -99,7 +99,7 @@ class CarEnvironment:
         ts.debug_get_segments().clear()
         road = ts.get_road_by_uid(car_lane.road_uid)
 
-        length = car_params.get_braking_dist()
+        length = car_params.get_braking_dist(settings_model.braking_acceleration)
 
         # compute car direction
         car_direction: Direction
@@ -153,16 +153,17 @@ class CarEnvironment:
             length,
             length
         )
-        reserved_segments = list(map(lambda seg_interval: seg_interval.segment, reserved_segment_intervals))
-        claimed_segment_intervals: list[SegmentInterval] = _compute_segments_safety_envelope(
-            ts,
-            path,
-            pos_on_segment,
-            settings_model.braking_distance(),
-            length
-        )
-        claimed_segment_intervals = list(
-            filter(lambda seg_interval: seg_interval.segment not in reserved_segments, claimed_segment_intervals))
+        claimed_segment_intervals: list[SegmentInterval] = []
+        # reserved_segments = list(map(lambda seg_interval: seg_interval.segment, reserved_segment_intervals))
+        # claimed_segment_intervals: list[SegmentInterval] = _compute_segments_safety_envelope(
+        #             ts,
+        #             path,
+        #             pos_on_segment,
+        #             settings_model.braking_distance(),
+        #             length
+        #         )
+        #         claimed_segment_intervals = list(
+        #             filter(lambda seg_interval: seg_interval.segment not in reserved_segments, claimed_segment_intervals))
 
         # todo: include transitions
 

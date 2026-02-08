@@ -63,7 +63,7 @@ class TrafficSnapshotValidator:
         if not self._check_no_tokens_contained(car.name):
             raise CarTrafficSnapshotContextValidationError(
                 content=f"Car '{car.name}' can not contain any of the umlsl language tokens.")
-        if car.get_braking_dist() > self._model.settings_model.braking_distance():
+        if car.get_braking_dist(self._model.settings_model.braking_acceleration) > self._model.settings_model.braking_distance():
             raise CarTrafficSnapshotContextValidationError(
                 content=f"Car '{car.name}' has a braking distance that exceeds the maximum allowed by the settings.")
 
