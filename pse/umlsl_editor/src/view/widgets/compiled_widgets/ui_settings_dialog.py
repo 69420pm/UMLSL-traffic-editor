@@ -419,4 +419,3 @@ class Ui_Settings_Dialog(object):
         self.label_8.setText(QCoreApplication.translate("Settings_Dialog", u"u/s^2", None))
         self.label_8.setProperty(u"class", QCoreApplication.translate("Settings_Dialog", u"hint", None))
     # retranslateUi
-

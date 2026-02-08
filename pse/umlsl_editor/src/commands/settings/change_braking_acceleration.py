@@ -5,7 +5,7 @@ from pse.umlsl_editor.src.model.errors.settings_errors import SettingsValidation
 
 class ChangeBrakingAccelerationCommand(Command[None]):
     """
-    Changes the breaking acceleration of the cars based on the provided parameters.
+    Changes the braking acceleration of the cars based on the provided parameters.
     """
 
     def __init__(
@@ -14,18 +14,18 @@ class ChangeBrakingAccelerationCommand(Command[None]):
             value: float
     ):
         """
-        Initialize the AddCarCommand with car parameters.
+        Initialize the ChangeBrakingAccelerationCommand with settings parameters.
 
         Args:
             settings: Settings object.
-            value: Breaking acceleration value .
+            value: Braking acceleration value.
         """
         self.value = value
         self._settings = settings
 
     def execute(self) -> ReturnValue:
         """
-        Changes the breaking acceleration.
+        Changes the braking acceleration.
         Raises:
             CommandValidationError: If command validation fails.
         """

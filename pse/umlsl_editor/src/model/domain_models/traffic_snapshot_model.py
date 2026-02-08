@@ -129,12 +129,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     def validate_car_params(self, car_params: CarParams, new_instantiation: bool) -> None:
         self.validator.validate_car_params(car_params, new_instantiation)
 
-    def get_next_road_in_front_of_car(self, car: Car) -> Road | None:
-        pass
-
-    def get_entity_by_uid(self, uid: str):
-        pass
-
     def get_adjacent_segment(self, segment_uid: str, direction: Direction) -> Segment | None:
         adjacent_uid = self._get_neighbor_in_direction(segment_uid, direction)
         if adjacent_uid is not None:
@@ -149,14 +143,17 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         """
         return self.lane_width
 
-    def get_road_by_uid(self, uid: str) -> Road | None:
+    def get_road_by_uid(self, uid: str) -> Road:
         """Retrieve a road by its unique identifier (uid).
 
         Args:
             uid: The unique identifier of the road.
 
         Returns:
-            The Road object if found, otherwise None.
+            The Road object if found.
+
+        Raises:
+            ValueError: If the road does not exist in the snapshot.
         """
         if uid in self._horizontal_roads:
             return self._horizontal_roads[uid]
@@ -265,14 +262,31 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     def get_roads(self) -> dict[str, Road]:
         return {**self._horizontal_roads, **self._vertical_roads}
 
-    def get_cars_in_rectangle(self, x_min: float, y_min: float, x_max: float, y_max: float) -> list[Car]:
-        pass
-
-    def get_roads_in_rectangle(self, x_min: float, y_min: float, x_max: float, y_max: float) -> list[Road]:
-        pass
-
     def validate_lane(self, road: Road, lane_index: int, lane_direction: str) -> bool:
-        pass
+        """
+        Validates if the specified lane index and direction exist on the given road.
+
+        Args:
+            road: The road to validate against.
+            lane_index: The index of the lane to validate (0-based within the direction).
+            lane_direction: The direction of the lane to validate ('fn' for forward, 'bn' for backward).
+
+        Returns:
+            True if the lane index and direction are valid for the road, False otherwise.
+        """
+        if not isinstance(road, Road):
+            return False
+        if not isinstance(lane_index, int):
+            return False
+        if not isinstance(lane_direction, str):
+            return False
+
+        normalized = lane_direction.strip().lower()
+        if normalized in {"fn", "forward"}:
+            return 0 <= lane_index < road.number_of_forward_lanes
+        if normalized in {"bn", "backward"}:
+            return 0 <= lane_index < road.number_of_backward_lanes
+        return False
 
     def add_road(self, road: Road) -> None:
         if road.orientation == RoadOrientation.HORIZONTAL:
@@ -639,8 +653,15 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
         Args:
             data: A dictionary containing 'roads' and 'cars' keys.
-            writer: A TrafficSnapshotWriter instance.
-            reader: A TrafficSnapshotReader instance.
+            writer: A TrafficSnapshotWriter instance that will receive new entities.
+            reader: A TrafficSnapshotReader instance used for validation and lookups.
+            settings_model: Settings used when constructing cars and validating context.
+
+        Returns:
+            The populated TrafficSnapshotModel instance.
+
+        Raises:
+            ValueError: If the payload is malformed or the writer is not a TrafficSnapshotModel.
         """
         if not isinstance(data, dict):
             raise ValueError("Traffic snapshot data must be a dictionary.")
@@ -747,20 +768,26 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             car.uid = car_uid
             writer.add_car(car)
 
-        return writer if isinstance(writer, TrafficSnapshotModel) else None
+        if not isinstance(writer, TrafficSnapshotModel):
+            raise ValueError("TrafficSnapshotModel.from_dict expects a TrafficSnapshotModel writer.")
+        return writer
 
     @classmethod
-    def from_json(cls, json_string: str, settings_model: SettingsModel) -> "TrafficSnapshotModel":
+    def from_json(cls, json_string: str, settings_model: SettingsModel,
+                  queries_model: UMLSLQueriesModel) -> "TrafficSnapshotModel":
         """
         Creates a TrafficSnapshot instance from a JSON string.
 
         Args:
             json_string: A JSON-formatted string containing traffic snapshot data.
             settings_model: A SettingsModel instance for validation during deserialization.
+            queries_model: UMLSLQueriesModel instance required to construct the snapshot.
 
+        Returns:
+            A new TrafficSnapshotModel populated with the deserialized roads and cars.
         """
         data = json.loads(json_string)
-        snapshot = cls()
+        snapshot = cls(queries_model, settings_model)
         cls.from_dict(data, snapshot, snapshot, settings_model)
         return snapshot
 

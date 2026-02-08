@@ -145,6 +145,7 @@ class Car(Entity):
             CarValidationError: If any validation check fails.
         """
         self.validate()
+        self._initialized = True
         self._should_validate = True
 
     def __setattr__(self, name: str, value: object) -> None:
@@ -199,7 +200,7 @@ class Car(Entity):
         """
 
         """"
-        
+
         if params.next_turn is None:
             car_env = CarEnvironment.empty()
         else:
