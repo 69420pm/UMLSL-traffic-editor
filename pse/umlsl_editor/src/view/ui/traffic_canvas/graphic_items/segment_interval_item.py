@@ -1,19 +1,18 @@
 from typing import Optional
 
 from PySide6.QtCore import QRectF
-from PySide6.QtGui import QColor, QPen, QPainter, Qt
+from PySide6.QtGui import QColor, QPainter, Qt
 from PySide6.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
 from pse.umlsl_editor.src.controllers import ApplicationController
-from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
-from pse.umlsl_editor.src.view.view_constants import COLORS, Z_LAYERS
+from pse.umlsl_editor.src.view.view_constants import Z_LAYERS
 
 
-class SegmentIntervalItem(QGraphicsItem)
+class SegmentIntervalItem(QGraphicsItem):
 
-
-    def __init__(self, segment_interval:SegmentInterval, is_last_interval: bool, color: QColor, application_controller: "ApplicationController") -> None:
+    def __init__(self, segment_interval: SegmentInterval, is_last_interval: bool, color: QColor,
+                 application_controller: "ApplicationController") -> None:
         """
         """
         super().__init__()
@@ -57,7 +56,6 @@ class SegmentIntervalItem(QGraphicsItem)
 
         painter.drawRect(self._rect)
 
-
     def refresh_geometry(self):
         """
         Recalculate the crossing rectangle based on current road positions.
@@ -65,8 +63,10 @@ class SegmentIntervalItem(QGraphicsItem)
         """
         self.prepareGeometryChange()
 
-        x_seg, y_seg = self.segment_interval.segment.get_position(self.application_controller.get_traffic_snapshot_reader())
-        width_seg, height_seg = self.segment_interval.segment.get_size(self.application_controller.get_traffic_snapshot_reader())
+        x_seg, y_seg = self.segment_interval.segment.get_position(
+            self.application_controller.get_traffic_snapshot_reader())
+        width_seg, height_seg = self.segment_interval.segment.get_size(
+            self.application_controller.get_traffic_snapshot_reader())
 
         is_horizontal = True
 
@@ -81,5 +81,5 @@ class SegmentIntervalItem(QGraphicsItem)
             y = y_seg + self.segment_interval.interval.start
             height = self.segment_interval.interval.end - self.segment_interval.interval.start
 
-        self._rect = QRectF(x,y, width, height)
+        self._rect = QRectF(x, y, width, height)
         self.update()
