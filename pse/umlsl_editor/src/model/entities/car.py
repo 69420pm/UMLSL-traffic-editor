@@ -40,6 +40,9 @@ class CarParams:
     next_turn: TurnIntent | None
     acceleration: float
 
+    def get_braking_dist(self):
+        return (self.speed * self.speed) / (2.0 * self.acceleration) + self.length
+
 
 @dataclass()
 class Car(Entity):

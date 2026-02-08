@@ -38,7 +38,7 @@ DEFAULT_CAR_CONFIG = {
     "color": "lightblue",
     "length": 1,
     "speed": 0.0,
-    "acceleration": 0.0,
+    "acceleration": 1.0,
     "position": 0.0,
     "transition": 0.0,
 }

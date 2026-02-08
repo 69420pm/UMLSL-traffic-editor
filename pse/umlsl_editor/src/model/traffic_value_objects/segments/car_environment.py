@@ -93,10 +93,11 @@ class CarEnvironment:
         car_lane: Lane = car_params.lane
         speed: float = car_params.speed
         turn_intent: TurnIntent = car_params.next_turn
-        length: float = car_params.length
 
         ts.debug_get_segments().clear()
         road = ts.get_road_by_uid(car_lane.road_uid)
+
+        length = car_params.get_braking_dist()
 
         # compute car direction
         car_direction: Direction
@@ -135,7 +136,7 @@ class CarEnvironment:
 
         path, path_segment_intervals, turn_segment, horizontal_horizon = _compute_path(
             ts,
-            car_params,
+            length,
             start_segment,
             pos_on_segment,
             turn_intent,
@@ -147,8 +148,8 @@ class CarEnvironment:
             ts,
             path,
             pos_on_segment,
-            car_params.length,
-            car_params.length
+            length,
+            length
         )
         reserved_segments = list(map(lambda seg_interval: seg_interval.segment, reserved_segment_intervals))
         claimed_segment_intervals: list[SegmentInterval] = _compute_segments_safety_envelope(
@@ -156,7 +157,7 @@ class CarEnvironment:
             path,
             pos_on_segment,
             settings_model.braking_distance(),
-            car_params.length
+            length
         )
         claimed_segment_intervals = list(
             filter(lambda seg_interval: seg_interval.segment not in reserved_segments, claimed_segment_intervals))
@@ -194,7 +195,7 @@ class CarEnvironment:
 
 def _compute_path(
         ts: TrafficSnapshotReader,
-        car_params: "CarParams",
+        length: float,
         start_segment: LaneSegment,
         pos_on_segment: float,
         turn_intent: TurnIntent,
@@ -239,8 +240,7 @@ def _compute_path(
         virtual_pos += size
 
     path = VirtualLane(path_segments)
-    path_segment_intervals: list[SegmentInterval] = _compute_segment_intervals(ts, path, pos_on_segment,
-                                                                               car_params.length)
+    path_segment_intervals: list[SegmentInterval] = _compute_segment_intervals(ts, path, pos_on_segment, length)
 
     # If the turn intent exceeds what the car can see, we set the turn intent to the last lane segment.
     # For example, if the car turns left 1k units away but can only see 10 forward, the turn_segment gets useless.
