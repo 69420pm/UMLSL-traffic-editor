@@ -54,11 +54,11 @@ class CarEnvironment:
         self.horizontal_horizon = horizontal_horizon
         self.parallel_virtual_lanes = parallel_virtual_lanes
 
-        self.reserved_lanes = list(map(lambda seg: seg.segment.is_lane_segment, reserved_segment_intervals))
-        self.reserved_crossings = list(map(lambda seg: not seg.segment.is_lane_segment, reserved_segment_intervals))
+        self.reserved_lanes = list(filter(lambda seg: seg.segment.is_lane_segment, reserved_segment_intervals))
+        self.reserved_crossings = list(filter(lambda seg: not seg.segment.is_lane_segment, reserved_segment_intervals))
 
-        self.claimed_lanes = list(map(lambda seg: seg.segment.is_lane_segment, claimed_segment_intervals))
-        self.claimed_crossings = list(map(lambda seg: not seg.segment.is_lane_segment, claimed_segment_intervals))
+        self.claimed_lanes = list(filter(lambda seg: seg.segment.is_lane_segment, claimed_segment_intervals))
+        self.claimed_crossings = list(filter(lambda seg: not seg.segment.is_lane_segment, claimed_segment_intervals))
 
     def visible_segments_in_view(self, view: View) -> list[SegmentInterval]:
         # collect visible segments in the view
@@ -110,8 +110,7 @@ class CarEnvironment:
             # if the turn_intent is not specified, it means the car drives straight
             turn_intent = TurnIntent(TurnDirection.STRAIGHT, car_lane)
 
-        pos_on_lane_center: float = car_params.position_on_lane
-        pos_on_lane = pos_on_lane_center - car_params.length / 2  # we need the rear
+        pos_on_lane = car_params.position_on_lane  # rear of the car
         start_segment = ts.get_segment_from_lane_position(car_params.lane, pos_on_lane)
         if not isinstance(start_segment, LaneSegment):
             raise ValueError("Car must start on a lange segment")
@@ -130,6 +129,8 @@ class CarEnvironment:
                 pos_on_segment = start_segment.get_size_in_direction(ts) - (segment_start_pos - pos_on_lane)
             case Direction.DOWN:
                 pos_on_segment = segment_start_pos - pos_on_lane
+            case _:
+                raise ValueError(f"Car direction {car_direction} is not supported.")
 
         path, path_segment_intervals, turn_segment, horizontal_horizon = _compute_path(
             ts,
@@ -589,7 +590,7 @@ def _compute_segments_safety_envelope(
             b_i = seg_i.get_size_in_direction(ts)
             # During crossing segments, the car_size is not used.
             # However, if the car exists the crossing segments, it should see as least its own size.
-            next_size = max(next_size, car_size)
+            next_size = car_size
 
         interval = Interval(interval_start_offset, b_i)
         # debug: print("interval:",interval)
