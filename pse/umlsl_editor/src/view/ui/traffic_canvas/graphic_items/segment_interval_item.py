@@ -1,10 +1,13 @@
 from typing import Optional
 
 from PySide6.QtCore import QRectF
-from PySide6.QtGui import QColor, QPainter, Qt
+from PySide6.QtGui import QPainter, Qt
 from PySide6.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
 from pse.umlsl_editor.src.controllers import ApplicationController
+from pse.umlsl_editor.src.model.entities.car import Car
+from pse.umlsl_editor.src.model.entities.road import RoadOrientation
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import (
     SegmentInterval,
 )
@@ -20,7 +23,7 @@ class SegmentIntervalItem(QGraphicsItem):
             self,
             segment_interval: SegmentInterval,
             is_last_interval: bool,
-            color: QColor,
+            car: Car,
             application_controller: "ApplicationController",
     ) -> None:
         """
@@ -29,14 +32,15 @@ class SegmentIntervalItem(QGraphicsItem):
         Args:
             segment_interval: Domain interval to visualize.
             is_last_interval: Whether this interval is the final one in a chain.
-            color: Fill color for the interval.
+            car: Car associated with this interval, used for visual properties like color.
             application_controller: Access to the snapshot reader for geometry.
         """
         super().__init__()
 
         self.segment_interval = segment_interval
         self.is_last_interval = is_last_interval
-        self.color = color
+        self.color = car.color
+        self.speed = car.speed
         self.application_controller = application_controller
 
         self._rect = QRectF()
@@ -85,9 +89,14 @@ class SegmentIntervalItem(QGraphicsItem):
             self.application_controller.get_traffic_snapshot_reader())
 
         global_interval = self.segment_interval.get_global_interval(
-            self.application_controller.get_traffic_snapshot_reader())
+            self.application_controller.get_traffic_snapshot_reader(), self.speed)
 
         is_horizontal = True
+
+        if isinstance(self.segment_interval.segment, LaneSegment):
+            road = self.application_controller.get_traffic_snapshot_reader().get_road_by_uid(
+                self.segment_interval.segment.lane.road_uid)
+            is_horizontal = road.orientation == RoadOrientation.HORIZONTAL
 
         if is_horizontal:
             x = x_seg + global_interval.start
@@ -100,11 +109,8 @@ class SegmentIntervalItem(QGraphicsItem):
         else:
             x = x_seg
             width = width_seg
-            y = y_seg + global_interval.start
+            y = -y_seg + global_interval.start
             height = global_interval.length()
-
-            # Vertical lanes use a bottom-left origin in the frontend, so shift left by the interval width.
-            x -= width
 
         self._rect = QRectF(x, y, width, height)
         self.update()

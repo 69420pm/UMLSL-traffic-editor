@@ -1,4 +1,3 @@
-import itertools
 from collections import deque
 from enum import Enum
 
@@ -109,9 +108,9 @@ class CarEnvironment:
         # compute car direction
         car_direction: Direction
         if road.orientation == RoadOrientation.HORIZONTAL:
-            car_direction = Direction.LEFT if speed < 0 else Direction.RIGHT
+            car_direction = Direction.LEFT if (speed < 0) else Direction.RIGHT
         else:
-            car_direction = Direction.UP if speed >= 0 else Direction.DOWN
+            car_direction = Direction.DOWN if (speed < 0) else Direction.UP
         if not car_lane.is_forward():
             car_direction = car_direction.opposite
 
@@ -175,7 +174,8 @@ class CarEnvironment:
         print("--------")
         print("path is ", list(map(lambda seg: ts.get_segment_info(seg.uid), path.segments)))
         print("physical segment intervals are ",
-              list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", physical_segment_intervals)))
+              list(
+                  map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", physical_segment_intervals)))
         print("reserved segment intervals are ", list(
             map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", reserved_segment_intervals)))
         print("claimed segment intervals are ",
