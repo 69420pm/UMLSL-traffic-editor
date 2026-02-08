@@ -36,9 +36,9 @@ class CarEnvironment:
     horizontal_horizon: Interval
 
     reserved_lanes: list[SegmentInterval]
-    reserved_crossings: list[CrossingSegment]
+    reserved_crossings: list[SegmentInterval]
     claimed_lanes: list[SegmentInterval]
-    claimed_crossings: list[CrossingSegment]
+    claimed_crossings: list[SegmentInterval]
 
     def __init__(
             self,
@@ -588,8 +588,7 @@ def _compute_segments_safety_envelope(
             b_i = min(interval_start_offset + current_size, seg_i.get_size_in_direction(ts))
         else:
             b_i = seg_i.get_size_in_direction(ts)
-            # During crossing segments, the car_size is not used.
-            # However, if the car exists the crossing segments, it should see as least its own size.
+            # However, if the car exists the crossing segments, it must occupy its own size
             next_size = car_size
 
         interval = Interval(interval_start_offset, b_i)
