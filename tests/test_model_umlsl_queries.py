@@ -1,0 +1,102 @@
+import json
+import unittest
+
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
+from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery, UMLSLQueryParams
+from pse.umlsl_editor.src.model.errors.umlsl_query_errors import UMLSLQueryValidationError
+
+
+class TestUMLSLQueriesModel(unittest.TestCase):
+    def test_add_get_update_remove_query(self):
+        model = UMLSLQueriesModel()
+        params = UMLSLQueryParams(latex="\\phi", assigned_car_uid="car-1")
+        query = UMLSLQuery.from_params(params)
+
+        model.add_umlsl_query(query)
+        fetched = model.get_query_by_id(query.uid)
+        self.assertEqual(fetched.uid, query.uid)
+        self.assertEqual(fetched.latex, "\\phi")
+
+        updated_params = UMLSLQueryParams(latex="\\psi", assigned_car_uid="car-2", validation=True)
+        model.update_umlsl_query(fetched, updated_params)
+
+        updated = model.get_query_by_id(query.uid)
+        self.assertEqual(updated.latex, "\\psi")
+        self.assertEqual(updated.assigned_car_uid, "car-2")
+        self.assertTrue(updated.validation)
+
+        model.remove_umlsl_query(query.uid)
+        with self.assertRaises(UMLSLQueryValidationError):
+            model.get_query_by_id(query.uid)
+
+    def test_get_query_by_id_raises(self):
+        model = UMLSLQueriesModel()
+        with self.assertRaises(UMLSLQueryValidationError):
+            model.get_query_by_id("missing")
+
+    def test_to_dict_serializes(self):
+        model = UMLSLQueriesModel()
+        query = UMLSLQuery.from_params(UMLSLQueryParams(latex="q", assigned_car_uid="car-1"))
+        model.add_umlsl_query(query)
+
+        payload = model.to_dict()
+        self.assertEqual(len(payload), 1)
+        self.assertEqual(payload[0]["uid"], query.uid)
+        self.assertEqual(payload[0]["latex"], "q")
+        self.assertEqual(payload[0]["assigned_car_uid"], "car-1")
+
+    def test_clear_removes_all(self):
+        model = UMLSLQueriesModel()
+        q1 = UMLSLQuery.from_params(UMLSLQueryParams(latex="q1", assigned_car_uid="car-1"))
+        q2 = UMLSLQuery.from_params(UMLSLQueryParams(latex="q2", assigned_car_uid="car-2"))
+        model.add_umlsl_query(q1)
+        model.add_umlsl_query(q2)
+
+        model.clear()
+        self.assertEqual(model.get_queries(), {})
+
+    def test_from_dict_loads_queries_and_preserves_uid(self):
+        model = UMLSLQueriesModel()
+        payload = [
+            {"uid": "q-1", "latex": "x", "assigned_car_uid": "car-1"},
+            {"uid": "q-2", "latex": "y", "assigned_car_uid": "car-2"},
+        ]
+
+        model.from_dict(payload)
+        self.assertEqual(model.get_query_by_id("q-1").latex, "x")
+        self.assertEqual(model.get_query_by_id("q-2").assigned_car_uid, "car-2")
+
+    def test_from_dict_validates_payload(self):
+        model = UMLSLQueriesModel()
+
+        with self.assertRaises(ValueError):
+            model.from_dict("not-a-list")
+
+        with self.assertRaises(ValueError):
+            model.from_dict([1, 2])
+
+    def test_from_json_loads(self):
+        model = UMLSLQueriesModel()
+        data = [
+            {"uid": "q-1", "latex": "x", "assigned_car_uid": "car-1"},
+        ]
+        model.from_json(json.dumps(data))
+
+        self.assertEqual(model.get_query_by_id("q-1").latex, "x")
+
+    def test_to_json_round_trip(self):
+        model = UMLSLQueriesModel()
+        query = UMLSLQuery.from_params(UMLSLQueryParams(latex="q", assigned_car_uid="car-1"))
+        model.add_umlsl_query(query)
+
+        json_payload = model.to_json()
+        reloaded = UMLSLQueriesModel()
+        reloaded.from_json(json_payload)
+
+        fetched = reloaded.get_query_by_id(query.uid)
+        self.assertEqual(fetched.latex, "q")
+        self.assertEqual(fetched.assigned_car_uid, "car-1")
+
+
+if __name__ == "__main__":
+    unittest.main()
