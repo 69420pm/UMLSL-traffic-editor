@@ -66,8 +66,8 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         super().__init__(parent)
         self.setupUi(self)
 
-        self._app_controller = application_controller
-        self._road_dict = self._app_controller.data_controller.get_all_roads()
+        self._application_controller = application_controller
+        self._road_dict = self._application_controller.data_controller.get_all_roads()
         self._roads_list = list(self._road_dict.values())
 
         # Validate environment state immediately
@@ -75,11 +75,8 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         if not self._can_open:
             return
 
-        self.is_edit_mode = car is not None
-        self.car: Car | None = car if car else None
-
-        # Cache for valid turn lanes to prevent excessive lookups
-        self._current_valid_turn_lanes: list[Lane] = []
+        self._is_edit = car is not None
+        self._car: Car | None = car if car else None
 
         self._init_ui()
 
@@ -153,7 +150,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
 
     def _populate_basic_fields(self) -> None:
         """Populate non-relational fields (Strings, Numbers)."""
-        if not self.is_edit_mode:
+        if not self._is_edit:
             self.setWindowTitle("Create New Car")
             self.b_delete.hide()
             defaults = self._get_default_car_values()
@@ -166,13 +163,13 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
             self.s_transition.setValue(defaults["transition"])
             return
 
-        self.t_name.setText(self.car.name)
-        self.t_color.setText(self.car.color)
-        self.s_length.setValue(self.car.length)
-        self.s_speed.setValue(self.car.speed)
-        self.s_acceleration.setValue(self.car.acceleration)
-        self.s_position.setValue(self.car.position_on_lane)
-        self.s_transition.setValue(self.car.transition)
+        self.t_name.setText(self._car.name)
+        self.t_color.setText(self._car.color)
+        self.s_length.setValue(self._car.length)
+        self.s_speed.setValue(self._car.speed)
+        self.s_acceleration.setValue(self._car.acceleration)
+        self.s_position.setValue(self._car.position_on_lane)
+        self.s_transition.setValue(self._car.transition)
 
     def _populate_road_selector(self) -> None:
         """Initialize road dropdown and trigger lane population."""
@@ -180,12 +177,12 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         self.d_road.clear()
         self.d_road.addItems([road.name for road in self._roads_list])
 
-        if self.is_edit_mode and self.car is not None:
-            current_road = self._road_dict.get(self.car.lane.road_uid)
+        if self._is_edit and self._car is not None:
+            current_road = self._road_dict.get(self._car.lane.road_uid)
             if current_road:
                 index = self._roads_list.index(current_road)
                 self.d_road.setCurrentIndex(index)
-                self._update_lane_dropdown(current_road, self.car.lane.lane_index)
+                self._update_lane_dropdown(current_road, self._car.lane.lane_index)
         else:
             default_road = self._roads_list[0]
             default_lane = self._get_default_lane()
@@ -199,8 +196,8 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         directions = [d.name for d in TurnDirection]
 
         # Determine current direction state
-        has_turn = self.is_edit_mode and self.car is not None and self.car.next_turn is not None
-        current_dir = self.car.next_turn.direction if has_turn else TurnDirection.STRAIGHT
+        has_turn = self._is_edit and self._car is not None and self._car.next_turn is not None
+        current_dir = self._car.next_turn.direction if has_turn else TurnDirection.STRAIGHT
 
         self.d_direction.blockSignals(True)
         self.d_direction.clear()
@@ -213,7 +210,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
 
         # If we have an existing turn, try to select the target lane in the dropdown
         if has_turn and current_dir != TurnDirection.STRAIGHT:
-            self._select_turn_target_lane(self.car.next_turn.target_lane)
+            self._select_turn_target_lane(self._car.next_turn.target_lane)
 
         self._toggle_turn_fields_visibility(is_straight=(current_dir == TurnDirection.STRAIGHT))
 
@@ -280,41 +277,37 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
 
     def _update_turn_options(self) -> None:
         """
-        Dynamically update available turn target lanes based on current form values.
+        Update available turn target lanes based on current form values.
         """
-        # 1. Check if update is needed (not needed for Straight)
         turn_dir = TurnDirection(self.d_direction.currentIndex())
         if turn_dir == TurnDirection.STRAIGHT:
             self.d_lane_turn.clear()
             self.d_road_turn.clear()
             return
 
-        # 2. Reconstruct current Lane object from UI
-        road_idx = self.d_road.currentIndex()
-        if road_idx < 0: return
-        current_road = self._roads_list[road_idx]
+        road_index = self.d_road.currentIndex()
+        if road_index < 0:
+            return
+        current_road = self._roads_list[road_index]
 
-        ui_lane_idx = self.d_lane.currentIndex()
+        ui_lane_index = self.d_lane.currentIndex()
         # Map UI index back to internal signed/relative index
-        relative_lane_index = ui_lane_idx - current_road.number_of_backward_lanes
+        relative_lane_index = ui_lane_index - current_road.number_of_backward_lanes
 
-        current_lane_obj = Lane(
+        current_lane = Lane(
             lane_index=relative_lane_index,
-            road_uid=current_road.uid
+            road_uid=current_road.uid,
         )
 
-        # 3. Query Controller for valid lanes
-
-        valid_lanes = self._app_controller.data_controller.get_valid_turn_intent_lanes(
+        valid_lanes = self._application_controller.data_controller.get_valid_turn_intent_lanes(
             car_position=self.s_position.value(),
             car_speed=self.s_speed.value(),
-            car_lane=current_lane_obj,
+            car_lane=current_lane,
             car_length=self.s_length.value(),
-            turn_direction=turn_dir
+            turn_direction=turn_dir,
         )
 
-        # 4. Update Dropdown
-        # We block signals to prevent recursive triggers if we were to add logic there
+        # Update lane dropdown and store Lane objects in item data for retrieval
         with QSignalBlocker(self.d_lane_turn):
             self.d_lane_turn.clear()
 
@@ -323,31 +316,24 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
                 self.d_lane_turn.model().item(0).setEnabled(False)
 
             for lane in valid_lanes:
-                # Format a readable label: "RoadName: Lane X"
-                road_name = lane.road_uid
-                if lane.road_uid in self._road_dict:
-                    road_name = self._road_dict[lane.road_uid].name
-
+                road_name = self._road_dict[lane.road_uid].name if lane.road_uid in self._road_dict else lane.road_uid
                 label = f"{road_name}: Lane {lane.lane_index}"
-
-                # Store the actual Lane object in the item data for easy retrieval
                 self.d_lane_turn.addItem(label, userData=lane)
 
-            # Auto-select the first valid option if available
             if valid_lanes:
                 self.d_lane_turn.setCurrentIndex(0)
 
-        # Optional: If you want to populate d_road_turn as well (informational)
-        # We can just display the unique road names found in valid_lanes
-        unique_roads = {l.road_uid for l in valid_lanes}
+        # Show available target roads for the current turn direction
+        unique_roads = {lane.road_uid for lane in valid_lanes}
         self.d_road_turn.clear()
-        if len(unique_roads) == 0:
+        if not unique_roads:
             self.d_road_turn.addItem("No valid road found")
             self.d_road_turn.model().item(0).setEnabled(False)
-        self.d_road_turn.addItems([
-            self._road_dict[uid].name if uid in self._road_dict else uid
-            for uid in unique_roads
-        ])
+        else:
+            self.d_road_turn.addItems([
+                self._road_dict[uid].name if uid in self._road_dict else uid
+                for uid in unique_roads
+            ])
 
     def _on_save_clicked(self) -> None:
         """Validate input and execute save command."""
@@ -356,47 +342,49 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
             if not form_data:
                 return
 
-            if self.is_edit_mode:
+            if self._is_edit:
                 self._execute_edit_command(form_data)
             else:
                 self._execute_create_command(form_data)
 
-
         except (CarValidationError, CarTrafficSnapshotContextValidationError) as e:
-            WarningDialog("Validation Error", str(e), self).exec()
+            WarningDialog("Invalid car", str(e), self).exec()
         else:
             self.parent().snackbar.show_message(
                 f"Car '{form_data['name']}' " +
-                ("updated successfully." if self.is_edit_mode else "created successfully."))
+                ("updated successfully." if self._is_edit else "created successfully."))
             self.accept()
 
     def _on_delete_clicked(self) -> None:
         """Handle delete action for existing cars."""
-        if not self.is_edit_mode:
+        if not self._is_edit:
             return
 
-        block_reason = get_car_deletion_block_reason(self._app_controller, self.car)
+        block_reason = get_car_deletion_block_reason(self._application_controller, self._car)
         if block_reason:
-            WarningDialog("Deletion Error", block_reason, self).exec()
+            WarningDialog("Cannot delete car", block_reason, self).exec()
             return
 
         confirm = ConfirmDeletionDialog(
-            f"Are you sure you want to delete the car '{self.car.name}'?",
+            f"Delete car '{self._car.name}'?",
             self,
+            title="Confirm deletion",
+            confirm_text="Delete",
+            cancel_text="Cancel",
         ).exec()
 
         if confirm == 1:
-            car_uid = self.car.uid
-            QTimer.singleShot(0, lambda: self._app_controller.command_controller.remove_car(car_uid))
+            car_uid = self._car.uid
+            QTimer.singleShot(0, lambda: self._application_controller.command_controller.remove_car(car_uid))
 
-            self.parent().snackbar.show_message(f"Car '{self.car.name}' deleted successfully.")
+            self.parent().snackbar.show_message(f"Car '{self._car.name}' deleted successfully.")
             self.accept()
 
     def _show_no_roads_warning(self) -> None:
         """Show warning for invalid environment."""
         WarningDialog(
-            "Road Required",
-            "Cars must be placed on a road.\nPlease add a road to your scene first.",
+            "Road required",
+            "Add a road to your scene first.\nCars must be placed on a road.",
             self.parent(),
         ).exec()
 
@@ -417,11 +405,8 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
 
         turn_intent = None
         if turn_dir == TurnDirection.STRAIGHT:
-            # Usually Straight implies no specific target lane requirement in intent
-            # or a specific 'Straight' intent. Assuming None represents 'Follow Road'.
+            # Straight uses no explicit target lane in the current model.
             turn_intent = None
-            # If your model requires an explicit TurnIntent for straight:
-            # turn_intent = TurnIntent(direction=TurnDirection.STRAIGHT, target_lane=None)
         else:
             # Retrieve the selected Lane object from the dropdown's UserData
             selected_lane_data = self.d_lane_turn.currentData()
@@ -430,8 +415,8 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
                 turn_intent = TurnIntent(direction=turn_dir, target_lane=selected_lane_data)
             else:
                 WarningDialog(
-                    "No Valid Turn Lane",
-                    "The car has no valid lanes to turn into based on its current position, speed and turning direction.\n",
+                    "No valid turn lane",
+                    "This car has no valid lanes to turn into based on its current position, speed, and turn direction.",
                     self.parent(),
                 ).exec()
                 return None
@@ -450,8 +435,8 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         }
 
     def _execute_edit_command(self, data: dict) -> None:
-        self._app_controller.command_controller.edit_car(
-            car=self.car,
+        self._application_controller.command_controller.edit_car(
+            car=self._car,
             car_name=data["name"],
             color=data["color"],
             length=data["length"],
@@ -465,7 +450,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         )
 
     def _execute_create_command(self, data: dict) -> None:
-        self._app_controller.command_controller.add_car(
+        self._application_controller.command_controller.add_car(
             name=data["name"],
             color=data["color"],
             length=data["length"],

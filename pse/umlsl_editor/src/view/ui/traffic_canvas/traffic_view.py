@@ -7,7 +7,7 @@ and coordinate labels for navigating the traffic canvas.
 
 import math
 
-from PySide6.QtCore import QPointF, QRectF, Qt, Slot, QEvent
+from PySide6.QtCore import QEvent, QPointF, QRectF, Qt, Slot
 from PySide6.QtGui import QPainter, QPen, QWheelEvent
 from PySide6.QtWidgets import QGraphicsScene, QGraphicsView, QPinchGesture
 
@@ -122,14 +122,14 @@ class TrafficView(QGraphicsView):
             self.setTransformationAnchor(QGraphicsView.NoAnchor)
             self.setResizeAnchor(QGraphicsView.NoAnchor)
 
-            # 1. Get pinch center in scene coordinates
+            # Get pinch center in scene coordinates
             anchor_pos = gesture.centerPoint().toPoint()
             old_scene_pos = self.mapToScene(anchor_pos)
 
-            # 2. Apply scale
+            # Apply scale
             self.scale(scale_factor, scale_factor)
 
-            # 3. Calculate new position and translate back to maintain center
+            # Translate to keep the pinch center stable
             new_scene_pos = self.mapToScene(anchor_pos)
             delta_scene = new_scene_pos - old_scene_pos
             self.translate(delta_scene.x(), delta_scene.y())

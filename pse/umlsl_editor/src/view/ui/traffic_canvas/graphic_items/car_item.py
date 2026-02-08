@@ -3,14 +3,19 @@ from typing import TYPE_CHECKING, Optional
 
 from PySide6.QtCore import QPointF, QRectF
 from PySide6.QtGui import QBrush, QColor, QPainter, QPen, QPolygonF
-from PySide6.QtWidgets import QStyleOptionGraphicsItem, QWidget, QGraphicsScene
+from PySide6.QtWidgets import QGraphicsScene, QStyleOptionGraphicsItem, QWidget
 
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation
-from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError, CarTrafficSnapshotContextValidationError
+from pse.umlsl_editor.src.model.errors.car_errors import (
+    CarTrafficSnapshotContextValidationError,
+    CarValidationError,
+)
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import RoadItem
-from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.segment_interval_item import SegmentIntervalItem
+from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.segment_interval_item import (
+    SegmentIntervalItem,
+)
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.selectable_graphics_item import (
     SelectableGraphicsItem,
 )
@@ -50,11 +55,10 @@ class CarItem(SelectableGraphicsItem):
         self._road_item.add_position_listener(self)
         self.update_data(car)
 
-    def cleanup(self, traffic_scene: QGraphicsScene) -> None:
+    def cleanup(self) -> None:
         if self._road_item:
             self._road_item.remove_position_listener(self)
-        for seg in self._segments:
-            traffic_scene.removeItem(seg)
+        self._clear_segments()
 
     def update_data(self, car: Car, road_item: Optional[RoadItem] = None) -> None:
         self._car = car
@@ -71,27 +75,43 @@ class CarItem(SelectableGraphicsItem):
 
         self.refresh_geometry()
 
-    def update_segments(self, traffic_scene: QGraphicsScene) -> None:
-        # Remove old segments
+    def update_segments(self) -> None:
+        self._clear_segments()
+
+        self._add_segments(
+            self._car.environment.reserved_lanes + self._car.environment.reserved_crossings,
+            COLORS.RED,
+        )
+        self._add_segments(
+            self._car.environment.claimed_lanes + self._car.environment.claimed_crossings,
+            COLORS.TEXT,
+        )
+
+    def _clear_segments(self) -> None:
+        scene = self._get_scene()
+        if scene is None:
+            self._segments.clear()
+            return
         for seg in self._segments:
-            traffic_scene.removeItem(seg)
+            scene.removeItem(seg)
         self._segments.clear()
 
-        # Add all segments back
-        for seg_data in self._car.environment.reserved_lanes + self._car.environment.reserved_crossings:
-            print(seg_data)
-            seg_item = SegmentIntervalItem(segment_interval=seg_data,
-                                           application_controller=self.application_controller, color=COLORS.RED,
-                                           is_last_interval=False)
-            traffic_scene.addItem(seg_item)
+    def _add_segments(self, segments, color: QColor) -> None:
+        scene = self._get_scene()
+        if scene is None:
+            return
+        for seg_data in segments:
+            seg_item = SegmentIntervalItem(
+                segment_interval=seg_data,
+                application_controller=self.application_controller,
+                color=color,
+                is_last_interval=False,
+            )
+            scene.addItem(seg_item)
             self._segments.append(seg_item)
 
-        for seg_data in self._car.environment.claimed_lanes + self._car.environment.claimed_crossings:
-            seg_item = SegmentIntervalItem(segment_interval=seg_data,
-                                           application_controller=self.application_controller, color=COLORS.TEXT,
-                                           is_last_interval=False)
-            traffic_scene.addItem(seg_item)
-            self._segments.append(seg_item)
+    def _get_scene(self) -> QGraphicsScene | None:
+        return self.scene()
 
     def _get_constraint_for_orientation(self, orientation: RoadOrientation) -> int:
         if orientation == RoadOrientation.HORIZONTAL:
@@ -132,7 +152,7 @@ class CarItem(SelectableGraphicsItem):
             )
         except (CarValidationError, CarTrafficSnapshotContextValidationError) as e:
             view = self.scene().views()[0] if self.scene().views() else None
-            WarningDialog("Cannot Move Car", str(e), view).exec()
+            WarningDialog("Cannot move car", str(e), view).exec()
 
     def boundingRect(self) -> QRectF:
         return self._polygon.boundingRect()
@@ -192,8 +212,8 @@ class CarItem(SelectableGraphicsItem):
         is_vertical = road.orientation == RoadOrientation.VERTICAL
         is_backward = (lane_idx < 0) != (car.speed < 0)
 
-        # 1. Define Local Shape (Anchor = Back @ 0,0)
-        # We build the car facing Positive X
+        # Define the local car shape with the rear anchored at (0, 0).
+        # The polygon is defined facing positive X; direction is adjusted later.
         l, w, t = car.length, DIMENSION.CAR_WIDTH / 2.0, DIMENSION.CAR_TRIANGLE_LENGTH
 
         points = [
@@ -204,7 +224,7 @@ class CarItem(SelectableGraphicsItem):
             QPointF(0, w)  # Back-Left
         ]
 
-        # 2. Calculate World Offsets
+        # Calculate world-space offsets for lane center and transition.
         lane_w = DIMENSION.LANE_WIDTH
 
         # Determine lateral direction/offset logic
@@ -219,7 +239,7 @@ class CarItem(SelectableGraphicsItem):
         lat_pos = road_base + center_offset
         long_pos = car.position_on_lane
 
-        # 3. Transform Points to World
+        # Transform local points into world coordinates.
         poly_points = []
         for p in points:
             # If backward lane, flip longitudinal direction (face negative)

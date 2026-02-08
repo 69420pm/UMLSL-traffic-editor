@@ -77,9 +77,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         Replaces the placeholder graphics view from the UI file with the
         custom TrafficView and TrafficScene.
-
-        Args:
-            application_controller: The application controller for scene initialization.
         """
         self.traffic_scene = TrafficScene(self._application_controller)
         self.trafficView = TrafficView(scene=self.traffic_scene, application_controller=self._application_controller)
@@ -91,9 +88,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def _setup_controllers(self) -> None:
         """
         Initialize UI controllers for various window components.
-
-        Args:
-            application_controller: The application controller passed to child controllers.
         """
         self.canvas_buttons = CanvasButtons(self)
         self.sidebar_controller = SidebarController(self, self._application_controller)
@@ -149,11 +143,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def closeEvent(self, event) -> None:
         if self._application_controller.command_controller.get_data_changed_since_last_save():
             confirm = ConfirmDeletionDialog(
-                "You have unsaved changes.\nDo you want to discard them and close?",
+                "You have unsaved changes.\nDiscard them and close?",
                 self,
                 title="Unsaved Changes",
-                confirm_text="Discard Changes",
-                cancel_text="Keep Editing",
+                confirm_text="Discard changes",
+                cancel_text="Keep editing",
             ).exec()
             if confirm != QDialog.Accepted:
                 event.ignore()

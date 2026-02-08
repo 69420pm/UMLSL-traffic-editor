@@ -5,15 +5,32 @@ from PySide6.QtGui import QColor, QPainter, Qt
 from PySide6.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
 from pse.umlsl_editor.src.controllers import ApplicationController
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import (
+    SegmentInterval,
+)
 from pse.umlsl_editor.src.view.view_constants import Z_LAYERS
 
 
 class SegmentIntervalItem(QGraphicsItem):
+    """
+    Graphics item that visualizes a segment interval on the traffic canvas.
+    """
 
-    def __init__(self, segment_interval: SegmentInterval, is_last_interval: bool, color: QColor,
-                 application_controller: "ApplicationController") -> None:
+    def __init__(
+            self,
+            segment_interval: SegmentInterval,
+            is_last_interval: bool,
+            color: QColor,
+            application_controller: "ApplicationController",
+    ) -> None:
         """
+        Initialize the segment interval graphics item.
+
+        Args:
+            segment_interval: Domain interval to visualize.
+            is_last_interval: Whether this interval is the final one in a chain.
+            color: Fill color for the interval.
+            application_controller: Access to the snapshot reader for geometry.
         """
         super().__init__()
 
@@ -24,7 +41,7 @@ class SegmentIntervalItem(QGraphicsItem):
 
         self._rect = QRectF()
 
-        # 2. Initial geometry calc
+        # Initial geometry calculation.
         self.refresh_geometry()
 
     # -------------------------------------------------------------------------
@@ -58,8 +75,7 @@ class SegmentIntervalItem(QGraphicsItem):
 
     def refresh_geometry(self):
         """
-        Recalculate the crossing rectangle based on current road positions.
-        Called by RoadItem via the GeometryListener protocol.
+        Recalculate the interval rectangle based on the current snapshot geometry.
         """
         self.prepareGeometryChange()
 
@@ -79,7 +95,7 @@ class SegmentIntervalItem(QGraphicsItem):
             y = y_seg
             height = height_seg
 
-            # frontend uses bottom left corner as origin for horizontal lanes, so we need to shift the y coordinate down by the height of the segment interval
+            # Horizontal lanes use a bottom-left origin in the frontend, so shift down by the interval height.
             y -= height
         else:
             x = x_seg
@@ -87,7 +103,7 @@ class SegmentIntervalItem(QGraphicsItem):
             y = y_seg + global_interval.start
             height = global_interval.length()
 
-            # frontend uses bottom left corner as origin for vertical lanes, so we need to shift the y coordinate up by the height of the segment interval
+            # Vertical lanes use a bottom-left origin in the frontend, so shift left by the interval width.
             x -= width
 
         self._rect = QRectF(x, y, width, height)

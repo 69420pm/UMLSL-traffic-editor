@@ -24,7 +24,9 @@ from pse.umlsl_editor.src.view.ui.lists.models.latex_renderer import latex_to_by
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_query_dialog import (
     Ui_Edit_Query_Dialog,
 )
-from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_query_help_dialog import Ui_QueryHelpDialog
+from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_query_help_dialog import (
+    Ui_QueryHelpDialog,
+)
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
@@ -151,32 +153,31 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         self.b_help.clicked.connect(self._on_help_clicked)
 
     def _on_help_clicked(self) -> None:
-        # 1. Setup UI
+        # Reuse existing help dialog window if already open.
         if self._help_dialog.isVisible():
             self._help_dialog.raise_()
             self._help_dialog.activateWindow()
             return
 
-        # 2. Ensure dialog knows its true size before we calculate position
+        # Ensure dialog is laid out before measuring it.
         self._help_dialog.adjustSize()
 
-        # 3. Get Geometries
+        # Gather geometry for positioning next to the main dialog.
         main_geo = self.frameGeometry()
         dialog_geo = self._help_dialog.frameGeometry()
         screen_geo = self.screen().availableGeometry()  # Available area (excludes taskbars)
 
-        # 4. Calculate "Left" Position
+        # Prefer the left side of the main dialog.
         gap = 8
         target_x = main_geo.x() - dialog_geo.width() - gap
         target_y = main_geo.y() - 32
 
-        # 5. Boundary Check: Is the left side off-screen?
-        # If target_x is less than the screen's left edge (usually 0)
+        # If the left side is off-screen, place it to the right instead.
         if target_x < screen_geo.left():
-            # FLIP TO RIGHT SIDE
+            # Move to the right side instead.
             target_x = main_geo.x() + main_geo.width() + gap
 
-        # 6. Apply
+        # Apply position and show.
         self._help_dialog.move(target_x, target_y)
         self._help_dialog.show()
 
@@ -195,9 +196,9 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
     def _show_no_cars_warning(self) -> None:
         """Show a warning message that no cars are available."""
         dialog = WarningDialog(
-            "Car Required",
-            "Queries require a car to evaluate against.\n"
-            "Please add a car to your scene first.",
+            "Car required",
+            "Add a car to your scene first.\n"
+            "Queries require a car to evaluate against.",
             self.parent(),
         )
         dialog.exec()
@@ -264,7 +265,7 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
 
         self._device_pixel_ratio = self.devicePixelRatioF()
 
-        # FIX: Multiply logical dimensions by DPR to get physical pixel limits
+        # Multiply logical dimensions by DPR to get physical pixel limits
         self._max_width = int((self.l_preview.width() - 16) * self._device_pixel_ratio)
         self._max_height = int((self.l_preview.height() - 32) * self._device_pixel_ratio)
 
@@ -434,8 +435,11 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
             return
 
         confirm = ConfirmDeletionDialog(
-            "Are you sure you want to delete this query?",
+            "Delete this query?",
             self,
+            title="Confirm deletion",
+            confirm_text="Delete",
+            cancel_text="Cancel",
         ).exec()
 
         if confirm == 1:
@@ -481,7 +485,7 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
                 )
         except UMLSLQueryValidationError as e:
             dialog = WarningDialog(
-                "Validation Error",
+                "Invalid query",
                 str(e),
                 self,
             )

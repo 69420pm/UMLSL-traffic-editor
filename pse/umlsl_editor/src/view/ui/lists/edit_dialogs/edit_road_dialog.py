@@ -79,18 +79,21 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
         self.accept()
 
     def _on_delete_clicked(self) -> None:
-        """Handle delete action for existing cars."""
+        """Handle delete action for existing roads."""
         if not self._is_edit:
             return
 
         block_reason = get_road_deletion_block_reason(self._application_controller, self._road)
         if block_reason:
-            WarningDialog("Deletion Error", block_reason, self).exec()
+            WarningDialog("Cannot delete road", block_reason, self).exec()
             return
         # Confirm deletion with the user
         confirm = ConfirmDeletionDialog(
-            f"Are you sure you want to delete road '{self._road.name}'?",
+            f"Delete road '{self._road.name}'?",
             self,
+            title="Confirm deletion",
+            confirm_text="Delete",
+            cancel_text="Cancel",
         ).exec()
 
         if confirm == 1:
@@ -182,7 +185,7 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
                 )
         except (RoadValidationError, RoadTrafficSnapshotContextValidationError) as e:
             dialog = WarningDialog(
-                "Validation Error",
+                "Invalid road",
                 str(e),
                 self,
             )

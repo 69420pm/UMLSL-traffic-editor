@@ -74,7 +74,7 @@ class GlobalControls(QObject):
             try:
                 self.application_controller.command_controller.save_traffic_snapshot()
             except CommandValidationError as exc:
-                WarningDialog("Can not save file", str(exc), self._window).exec()
+                WarningDialog("Cannot save file", str(exc), self._window).exec()
             else:
                 self._window.snackbar.show_message("File saved successfully.")
 
@@ -90,18 +90,18 @@ class GlobalControls(QObject):
         try:
             self.application_controller.command_controller.save_as_traffic_snapshot(file_name)
         except CommandValidationError as exc:
-            WarningDialog("Can not save file", str(exc), self._window).exec()
+            WarningDialog("Cannot save file", str(exc), self._window).exec()
         else:
             self._window.snackbar.show_message("File saved successfully.")
 
     def _on_open(self) -> None:
         if self.application_controller.command_controller.get_data_changed_since_last_save():
             confirm = ConfirmDeletionDialog(
-                "You have unsaved changes.\nDo you want to discard them and open another file?",
+                "You have unsaved changes.\nDiscard them and open another file?",
                 self._window,
                 title="Unsaved Changes",
-                confirm_text="Discard Changes",
-                cancel_text="Keep Editing",
+                confirm_text="Discard changes",
+                cancel_text="Keep editing",
             ).exec()
             if confirm != QDialog.Accepted:
                 return
@@ -117,7 +117,7 @@ class GlobalControls(QObject):
         try:
             self.application_controller.command_controller.load_traffic_snapshot(file_name)
         except (BaseError, CommandValidationError) as exc:
-            WarningDialog("Can not open file", str(exc), self._window).exec()
+            WarningDialog("Cannot open file", str(exc), self._window).exec()
         else:
             self._window.snackbar.show_message("File opened successfully.")
 

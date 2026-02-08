@@ -1,6 +1,8 @@
 from PySide6.QtWidgets import QDialog
 
-from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_error_dialog import Ui_Error_Dialog
+from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_error_dialog import (
+    Ui_Error_Dialog,
+)
 
 
 class WarningDialog(QDialog, Ui_Error_Dialog):
@@ -20,6 +22,7 @@ class WarningDialog(QDialog, Ui_Error_Dialog):
         Initialize the warning dialog.
 
         Args:
+            title: The dialog title to display.
             message: The warning message to display in the dialog.
             parent: The parent widget for this dialog. Defaults to None.
         """

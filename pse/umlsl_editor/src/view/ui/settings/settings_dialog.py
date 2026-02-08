@@ -29,6 +29,7 @@ class SettingsDialog(QDialog, Ui_Settings_Dialog):
         Initialize the settings dialog.
 
         Args:
+            application_controller: The application controller for view and settings updates.
             parent: The parent widget for this dialog. Defaults to None.
         """
         super().__init__(parent)
@@ -50,6 +51,10 @@ class SettingsDialog(QDialog, Ui_Settings_Dialog):
         self.s_accerleration.setValue(self._application_controller.command_controller.settings_model.max_speed)
         self.s_accerleration.valueChanged.connect(self._on_acceleration_changed)
 
+        # TODO in Testingphase: Implement toggle
+        self.l_reserved.hide()
+        self.c_savty_space.hide()
+
     def _on_braking_changed(self):
         self._application_controller.command_controller.settings_model.set_braking_acceleration(
             self.s_braking.value()
@@ -61,16 +66,16 @@ class SettingsDialog(QDialog, Ui_Settings_Dialog):
         )
 
     def _on_toggle_coordinate_system(self):
-        """Handle the toggle of coordinate system rendering."""
+        """Toggle coordinate system overlay rendering."""
         is_checked = self.c_coordinate_system.isChecked()
         self._application_controller.view_event_handler.set_coordinate_system(is_checked)
 
     def _on_toggle_grid(self):
-        """Handle the toggle of coordinate system rendering."""
+        """Toggle grid overlay rendering."""
         is_checked = self.c_grid.isChecked()
         self._application_controller.view_event_handler.set_grid(is_checked)
 
     def _on_toggle_safety_distance(self):
-        """Handle the toggle of safety distance rendering."""
+        """Toggle safety distance overlay rendering."""
         is_checked = self.c_savty_space.isChecked()
         self._application_controller.view_event_handler.set_safety_distance(is_checked)
