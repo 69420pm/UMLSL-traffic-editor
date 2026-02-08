@@ -24,7 +24,7 @@ class UMLSLQueriesModel(Observable):
     """
 
     def __init__(self, queries: dict[str, UMLSLQuery] = None) -> None:
-        self._queries = ObservableDict(
+        self.queries = ObservableDict(
             on_add=lambda query: self.notify(UMLSLQueriesEventType.UMLSL_QUERY_ADDED, query),
             on_remove=lambda query: self.notify(UMLSLQueriesEventType.UMLSL_QUERY_REMOVED, query),
             on_update=lambda query: self.notify(UMLSLQueriesEventType.UMLSL_QUERY_UPDATED, query),
@@ -36,13 +36,13 @@ class UMLSLQueriesModel(Observable):
         Observable.__init__(self)
 
     def get_query_by_id(self, uid: str) -> UMLSLQuery:
-        if uid not in self._queries:
+        if uid not in self.queries:
             raise UMLSLQueryValidationError(f"UMLSL Query with UID {uid} does not exist.")
-        return self._queries[uid]
+        return self.queries[uid]
 
     def get_queries(self) -> dict[str, UMLSLQuery]:
         """Return all UMLSL queries as a plain dictionary."""
-        return dict(self._queries.__dict__())
+        return dict(self.queries.__dict__())
 
     def add_umlsl_query(self, umlsl_query: UMLSLQuery) -> None:
         """
@@ -50,13 +50,13 @@ class UMLSLQueriesModel(Observable):
         Raises:
             TrafficSnapshotValidationError: If the UMLSL query is invalid in the context of the snapshot.
         """
-        self._queries[umlsl_query.uid] = umlsl_query
+        self.queries[umlsl_query.uid] = umlsl_query
 
     def remove_umlsl_query(self, query_id: str) -> None:
         """
         Removes a UMLSL query from the snapshot.
         """
-        self._queries.pop(query_id)
+        self.queries.pop(query_id)
 
     def update_umlsl_query(self, umlsl_query_data: UMLSLQuery, query_params: UMLSLQueryParams) -> None:
         """
@@ -66,7 +66,7 @@ class UMLSLQueriesModel(Observable):
             UMLSLQueriesValidationError: If the updated UMLSL query is invalid in the context of the snapshot.
         """
         umlsl_query_data.update_from_params(query_params)
-        self._queries[umlsl_query_data.uid] = umlsl_query_data
+        self.queries[umlsl_query_data.uid] = umlsl_query_data
 
     def to_dict(self) -> list[dict[str, Any]]:
         """
@@ -78,7 +78,7 @@ class UMLSLQueriesModel(Observable):
                 "latex": query.latex,
                 "assigned_car_uid": query.assigned_car_uid,
             }
-            for query in self._queries.__dict__().values()
+            for query in self.queries.__dict__().values()
         ]
 
     def to_json(self) -> str:
@@ -90,8 +90,8 @@ class UMLSLQueriesModel(Observable):
 
     def clear(self) -> None:
         """Remove all queries."""
-        for query_id in list(self._queries.__dict__().keys()):
-            self._queries.pop(query_id)
+        for query_id in list(self.queries.__dict__().keys()):
+            self.queries.pop(query_id)
 
     def from_dict(self, data: list[dict[str, Any]]) -> None:
         """

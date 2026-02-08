@@ -16,6 +16,7 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import (
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 from pse.umlsl_editor.src.model.entities.car import Car, CarParams
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation, RoadParams
+from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQueryParams
 from pse.umlsl_editor.src.model.helper.directional_graph import Direction
 from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
 from pse.umlsl_editor.src.model.helper.observables import (
@@ -219,23 +220,21 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def _on_car_added(self, car: Car):
         self.notify(TrafficSnapshotEventType.CAR_ADDED, car)
-        if self._queries_model is not None:
-            self.validator.validate_queries(self._queries_model)
+        self._revalidate_queries()
 
     def _on_car_removed(self, car: Car):
         self.notify(TrafficSnapshotEventType.CAR_REMOVED, car)
-        if self._queries_model is not None:
-            self.validator.validate_queries(self._queries_model)
+        self._revalidate_queries()
 
     def _on_car_updated(self, car: Car):
         self.notify(TrafficSnapshotEventType.CAR_UPDATED, car)
-        if self._queries_model is not None:
-            self.validator.validate_queries(self._queries_model)
+        self._revalidate_queries()
 
     def _on_road_added(self, road: Road):
         self.notify(TrafficSnapshotEventType.ROAD_ADDED, road)
         self._recalculate_static_segments()
         self._revalidate_cars()
+        self._revalidate_queries()
 
     def _on_road_removed(self, road: Road):
         # Recalculate segments BEFORE notifying observers to ensure consistency.
@@ -243,11 +242,13 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self._recalculate_static_segments()
         self.notify(TrafficSnapshotEventType.ROAD_REMOVED, road)
         self._revalidate_cars()
+        self._revalidate_queries()
 
     def _on_road_updated(self, road: Road):
         self.notify(TrafficSnapshotEventType.ROAD_UPDATED, road)
         self._recalculate_static_segments()
         self._revalidate_cars()
+        self._revalidate_queries()
 
     def get_cars_on_road(self, road: Road) -> list[Car]:
         return [car for car in self._cars.values() if car.lane.road_uid == road.uid]
@@ -522,9 +523,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                         self._graph.add_edge(s_l.uid, s_r.uid, direction=Direction.RIGHT)
                         self._graph.add_edge(s_r.uid, s_l.uid, direction=Direction.LEFT)
 
-        self.print_segments_by_lane()
-        self.print_graph()
-
     def print_graph(self) -> None:
         """
         Prints the graph structure to stdout for debugging purposes.
@@ -784,3 +782,15 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
         for car in cars_to_remove:
             self.remove_car(car.uid)
+
+    def _revalidate_queries(self):
+        from pse.umlsl_editor.src.query.evaluator import UMLSLEvaluator
+        self.validator.validate_queries(self._queries_model)
+        umlsl_evaluator = UMLSLEvaluator(self)
+        for query in self._queries_model.queries.values():
+            car = self._cars.get(query.assigned_car_uid)
+            holding = umlsl_evaluator.evaluate_query(query.latex, car).holds
+            new_query_params = UMLSLQueryParams(latex=query.latex,
+                                                validation=holding,
+                                                assigned_car_uid=car.uid)
+            self._queries_model.update_umlsl_query(query, new_query_params)

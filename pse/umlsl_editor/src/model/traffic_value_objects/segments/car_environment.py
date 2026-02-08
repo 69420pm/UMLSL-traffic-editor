@@ -5,6 +5,7 @@ from enum import Enum
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation
+from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError
 from pse.umlsl_editor.src.model.helper.directional_graph import Direction
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
@@ -117,7 +118,7 @@ class CarEnvironment:
         pos_on_lane = car_params.position_on_lane  # rear of the car
         start_segment = ts.get_segment_from_lane_position(car_params.lane, pos_on_lane)
         if not isinstance(start_segment, LaneSegment):
-            raise ValueError("Car must start on a lange segment")
+            raise CarValidationError(content="Car must start on a lange segment")
 
         # converts the absolute position to the position on the start_segment
         road = ts.get_road_by_uid(car_params.lane.road_uid)
@@ -282,7 +283,9 @@ def _compute_parallel_virtual_lanes(
 
         return [virtual_lanes]
 
-def _compute_all_lanes_connected_to_crossing(ts: TrafficSnapshotReader, start_segment: LaneSegment, car_direction: Direction) -> list[LaneSegment]:
+
+def _compute_all_lanes_connected_to_crossing(ts: TrafficSnapshotReader, start_segment: LaneSegment,
+                                             car_direction: Direction) -> list[LaneSegment]:
     """"
     We want to find all lane segments that are connected to any crossing segment (or are connected to the crossing
     in the coarse path).
@@ -318,6 +321,7 @@ def _compute_all_lanes_connected_to_crossing(ts: TrafficSnapshotReader, start_se
                 queue.append(neighbor)
 
     return lanes_connected_to_crossing
+
 
 def _compute_parallel_virtual_lanes_crossing(
         ts: TrafficSnapshotReader,
@@ -358,7 +362,6 @@ def _compute_parallel_virtual_lanes_crossing(
         parallel_virtual_lanes.append(lane_candidates)
 
     return parallel_virtual_lanes
-
 
 
 def _compute_parallel_lane_segments(ts: TrafficSnapshotReader, segment: LaneSegment) -> list[LaneSegment]:

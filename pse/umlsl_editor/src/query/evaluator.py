@@ -25,17 +25,17 @@ class UMLSLEvaluator:
     def compute_latex(self, latex_string: str) -> str:
         return self._parse_ast(latex_string).to_latex()
 
-    def evaluate_query(self, query: str, car: Car) -> QueryResult:
-        ast = self._parse_ast(query)
+    def evaluate_query(self, query_text: str, car: Car) -> QueryResult:
+        ast = self._parse_ast(query_text)
         horizontal_horizon = car.environment.horizontal_horizon
         for virtual_lanes in car.environment.parallel_virtual_lanes:
             view = View(virtual_lanes, horizontal_horizon, car)
             result = ast.evaluate(self._traffic_snapshot, view, dict())
             # We demand that there exists a view that evaluates true
             if result:
-                return QueryResult(query, True)
+                return QueryResult(query_text, True)
 
-        return QueryResult(query, False)
+        return QueryResult(query_text, False)
 
 
 class ParserError(Exception):
