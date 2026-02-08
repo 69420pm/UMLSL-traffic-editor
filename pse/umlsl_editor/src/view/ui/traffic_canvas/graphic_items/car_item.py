@@ -88,7 +88,7 @@ class CarItem(SelectableGraphicsItem):
 
         for seg_data in self._car.environment.claimed_lanes:
             seg_item = SegmentIntervalItem(segment_interval=seg_data,
-                                           application_controller=self.application_controller, color=COLORS.YELLOW,
+                                           application_controller=self.application_controller, color=COLORS.TEXT,
                                            is_last_interval=False)
             traffic_scene.addItem(seg_item)
             self._segments.append(seg_item)
