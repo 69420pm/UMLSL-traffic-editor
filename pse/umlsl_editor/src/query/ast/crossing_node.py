@@ -17,8 +17,7 @@ class CrossingSegmentNode(AtomNode):
         # TS, V, v |= cs <=> #L = 1 and |X| > 1 and forall (pi, X') in seg_path(ego): X' intersect X != empty => pi is CS
         # where seg_path splits the entire path into segments
 
-        ego_env: CarEnvironment = view.car.environment
-        path_segment_intervals = ego_env.path_segment_intervals
+        path_segment_intervals = view.car.environment.path_segment_intervals
         for path_segment_interval in path_segment_intervals:
             segment = path_segment_interval.segment
             interval = path_segment_interval.interval
