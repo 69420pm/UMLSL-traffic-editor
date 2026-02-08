@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>320</width>
+    <width>324</width>
     <height>233</height>
    </rect>
   </property>
@@ -311,7 +311,7 @@ QCheckBox::indicator:checked {
             </size>
            </property>
            <property name="text">
-            <string>Show Coordinate System</string>
+            <string>Show coordinate system</string>
            </property>
           </widget>
          </item>
@@ -343,7 +343,7 @@ QCheckBox::indicator:checked {
             </size>
            </property>
            <property name="text">
-            <string>Show Background Grid</string>
+            <string>Show background grid</string>
            </property>
           </widget>
          </item>
@@ -367,7 +367,7 @@ QCheckBox::indicator:checked {
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="label_5">
+          <widget class="QLabel" name="l_reserved">
            <property name="minimumSize">
             <size>
              <width>75</width>
@@ -375,7 +375,7 @@ QCheckBox::indicator:checked {
             </size>
            </property>
            <property name="text">
-            <string>Show reserved Savety Space</string>
+            <string>Show reserved space</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
@@ -383,7 +383,7 @@ QCheckBox::indicator:checked {
           </widget>
          </item>
          <item row="2" column="1">
-          <spacer name="horizontalSpacer">
+          <spacer name="s_reserved">
            <property name="orientation">
             <enum>Qt::Orientation::Horizontal</enum>
            </property>
@@ -541,14 +541,14 @@ QCheckBox::indicator:checked {
          <item row="2" column="0">
           <widget class="QLabel" name="label_7">
            <property name="text">
-            <string>Max acceleration</string>
+            <string>Max velocity</string>
            </property>
           </widget>
          </item>
          <item row="2" column="1">
           <widget class="QLabel" name="label_8">
            <property name="text">
-            <string>u/s^2</string>
+            <string>u/s</string>
            </property>
            <property name="class" stdset="0">
             <string>hint</string>

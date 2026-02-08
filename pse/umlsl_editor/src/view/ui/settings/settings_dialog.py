@@ -51,6 +51,10 @@ class SettingsDialog(QDialog, Ui_Settings_Dialog):
         self.s_accerleration.setValue(self._application_controller.command_controller.settings_model.max_speed)
         self.s_accerleration.valueChanged.connect(self._on_acceleration_changed)
 
+        # TODO in Testingphase: Implement toggle
+        self.l_reserved.hide()
+        self.c_savty_space.hide()
+
     def _on_braking_changed(self):
         self._application_controller.command_controller.settings_model.set_braking_acceleration(
             self.s_braking.value()
