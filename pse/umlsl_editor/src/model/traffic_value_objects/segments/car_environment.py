@@ -1,4 +1,3 @@
-import itertools
 from collections import deque
 from enum import Enum
 
@@ -109,9 +108,9 @@ class CarEnvironment:
         # compute car direction
         car_direction: Direction
         if road.orientation == RoadOrientation.HORIZONTAL:
-            car_direction = Direction.LEFT if speed < 0 else Direction.RIGHT
+            car_direction = Direction.LEFT if (speed < 0) else Direction.RIGHT
         else:
-            car_direction = Direction.UP if speed >= 0 else Direction.DOWN
+            car_direction = Direction.DOWN if (speed < 0) else Direction.UP
         if not car_lane.is_forward():
             car_direction = car_direction.opposite
 
@@ -175,7 +174,8 @@ class CarEnvironment:
         print("--------")
         print("path is ", list(map(lambda seg: ts.get_segment_info(seg.uid), path.segments)))
         print("physical segment intervals are ",
-              list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", physical_segment_intervals)))
+              list(
+                  map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", physical_segment_intervals)))
         print("reserved segment intervals are ", list(
             map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", reserved_segment_intervals)))
         print("claimed segment intervals are ",
@@ -669,7 +669,7 @@ def _compute_segments_safety_envelope(
         else:
             b_i = seg_i.get_size_in_direction(ts)
             # However, if the car exists the crossing segments, it must occupy its own size
-            next_size = car_size
+            next_size = max(current_size, car_size)
 
         interval = Interval(interval_start_offset, b_i)
         # debug: print("interval:",interval)

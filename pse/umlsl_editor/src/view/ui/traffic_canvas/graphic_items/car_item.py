@@ -80,11 +80,11 @@ class CarItem(SelectableGraphicsItem):
 
         self._add_segments(
             self._car.environment.reserved_lanes + self._car.environment.reserved_crossings,
-            COLORS.RED,
+            self._car,
         )
         self._add_segments(
             self._car.environment.claimed_lanes + self._car.environment.claimed_crossings,
-            COLORS.TEXT,
+            self._car,
         )
 
     def _clear_segments(self) -> None:
@@ -96,7 +96,7 @@ class CarItem(SelectableGraphicsItem):
             scene.removeItem(seg)
         self._segments.clear()
 
-    def _add_segments(self, segments, color: QColor) -> None:
+    def _add_segments(self, segments, car: Car) -> None:
         scene = self._get_scene()
         if scene is None:
             return
@@ -104,7 +104,7 @@ class CarItem(SelectableGraphicsItem):
             seg_item = SegmentIntervalItem(
                 segment_interval=seg_data,
                 application_controller=self.application_controller,
-                color=color,
+                car=self._car,
                 is_last_interval=False,
             )
             scene.addItem(seg_item)
