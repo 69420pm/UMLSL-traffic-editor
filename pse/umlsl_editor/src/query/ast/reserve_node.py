@@ -18,29 +18,31 @@ class ReserveNode(AtomNode):
 
         # the car to evaluate the reserve node on
         eval_car = self._car_resolve.resolve(variable_car_map)
-        reserved_lane_intervals: list[SegmentInterval] = eval_car.environment.reserved_lanes
 
-        visible_segment_intervals: list[SegmentInterval] = eval_car.environment.visible_segments_in_view(view)
-        visible_segments = list(map(lambda seg_interval: seg_interval.segment, visible_segment_intervals))
+        # the list of reserved segments of the car
+        car_reserved_segments: list[Segment] = []
+        for reserved_lane in eval_car.environment.reserved_lanes:
+            car_reserved_segments.append(reserved_lane.segment)
+        for reserved_crossing in eval_car.environment.reserved_crossings:
+            car_reserved_segments.append(reserved_crossing.segment)
 
-        # we need to ensure every segment in the view is contained in the visible_segments list
-        for segment in view.virtual_lanes[0].segments:
-            if segment not in visible_segments:
-                return False
+        car_segment_intervals: list[SegmentInterval] = eval_car.environment.visible_segments_in_view(view)
+        # maps each segment to its segment_interval
+        car_segment_to_interval_map: dict[Segment, SegmentInterval] = dict()
+        for car_segment_interval in car_segment_intervals:
+            car_segment_to_interval_map[car_segment_interval.segment] = car_segment_interval
 
-        # check if all visible segments are reserved
-        # if one of the segments is not reserved, the reserve node fails
-        reserved_lanes: list[Segment] = list(map(lambda seg_interval: seg_interval.segment, reserved_lane_intervals))
-        reserved_crossings: list[Segment] = eval_car.environment.reserved_crossings
-        for visible_segment in visible_segment_intervals:
-            if visible_segment.segment not in reserved_lanes and visible_segment.segment not in reserved_crossings:
-                return False
-
-        # compute intervals
+        lane_segments = view.virtual_lanes[0].segments
         space_intervals: list[Interval] = []
         virtual_pos = 0
-        for visible_reserved_segment in visible_segment_intervals:
-            interval = visible_reserved_segment.interval
+        for segment in lane_segments:
+            car_segment_interval = car_segment_to_interval_map[segment]
+            interval = car_segment_interval.interval
+
+            # we need to ensure every segment of the lane is contained in a reserved segment interval of the car
+            if car_segment_interval is None or segment not in car_reserved_segments:
+                return False
+
             # we need to convert the relative position of the segment to its absolute position
             absolute_interval = Interval(
                 virtual_pos + interval.start,
