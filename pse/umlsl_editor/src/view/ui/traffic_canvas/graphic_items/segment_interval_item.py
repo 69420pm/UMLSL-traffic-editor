@@ -68,21 +68,26 @@ class SegmentIntervalItem(QGraphicsItem):
         width_seg, height_seg = self.segment_interval.segment.get_size(
             self.application_controller.get_traffic_snapshot_reader())
 
+        global_interval = self.segment_interval.get_global_interval(
+            self.application_controller.get_traffic_snapshot_reader())
+
         is_horizontal = True
 
         if is_horizontal:
-            x = x_seg + self.segment_interval.interval.start
-            width = self.segment_interval.interval.end - self.segment_interval.interval.start
+            x = x_seg + global_interval.start
+            width = global_interval.length()
             y = y_seg
             height = height_seg
 
+            # frontend uses bottom left corner as origin for horizontal lanes, so we need to shift the y coordinate down by the height of the segment interval
             y -= height
         else:
             x = x_seg
             width = width_seg
-            y = y_seg + self.segment_interval.interval.start
-            height = self.segment_interval.interval.end - self.segment_interval.interval.start
+            y = y_seg + global_interval.start
+            height = global_interval.length()
 
+            # frontend uses bottom left corner as origin for vertical lanes, so we need to shift the y coordinate up by the height of the segment interval
             x -= width
 
         self._rect = QRectF(x, y, width, height)
