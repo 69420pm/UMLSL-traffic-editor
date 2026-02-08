@@ -109,8 +109,10 @@ class SegmentIntervalItem(QGraphicsItem):
         else:
             x = x_seg
             width = width_seg
-            y = -y_seg + global_interval.start
+            y = y_seg - height_seg + global_interval.start
             height = global_interval.length()
+
+        print(f"SegmentIntervalItem geometry: x={x}, y={y}, width={width}, height={height}")
 
         self._rect = QRectF(x, y, width, height)
         self.update()

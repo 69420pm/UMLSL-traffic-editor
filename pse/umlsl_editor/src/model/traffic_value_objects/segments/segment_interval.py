@@ -38,19 +38,20 @@ class SegmentInterval:
             if not self.segment.lane.is_forward():
                 car_direction = car_direction.opposite
 
+            if road.orientation == RoadOrientation.HORIZONTAL and car_direction in [Direction.UP,
+                                                                                    Direction.DOWN] or road.orientation == RoadOrientation.VERTICAL and car_direction in [
+                Direction.LEFT, Direction.RIGHT]:
+                return self.interval
+
             interval: Interval
             if car_direction == Direction.LEFT:
                 right_end_segment = self.segment.get_size(ts)[0]
-                print(f"segment_position={self.segment.get_position(ts)}, segment_size={self.segment.get_size(ts)}")
                 interval = Interval(right_end_segment - self.interval.end, right_end_segment - self.interval.start)
             elif car_direction == Direction.DOWN:
                 upper_end_segment = self.segment.get_size(ts)[1]
                 interval = Interval(upper_end_segment - self.interval.end, upper_end_segment - self.interval.start)
             else:
                 interval = self.interval
-            print(
-                f"relative_interval={self.interval.start},{self.interval.end}, global_interval={interval.start},{interval.end}"
-            )
             return interval
 
     def __str__(self):

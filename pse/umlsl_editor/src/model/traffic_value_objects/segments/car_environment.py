@@ -669,7 +669,7 @@ def _compute_segments_safety_envelope(
         else:
             b_i = seg_i.get_size_in_direction(ts)
             # However, if the car exists the crossing segments, it must occupy its own size
-            next_size = car_size
+            next_size = max(current_size, car_size)
 
         interval = Interval(interval_start_offset, b_i)
         # debug: print("interval:",interval)
