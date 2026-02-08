@@ -105,9 +105,10 @@ class TrafficScene(QGraphicsScene):
                 continue
 
             graphics_item = CarItem(car, road_item, self._app_controller)
-            graphics_item.update_segments(self)
 
             self.addItem(graphics_item)
+            graphics_item.update_segments()
+
             self._item_registry[car.uid] = graphics_item
 
     def _on_car_data_changed(
@@ -129,7 +130,7 @@ class TrafficScene(QGraphicsScene):
             new_road_item = self._item_registry.get(target_road_uid)
 
             car_item.update_data(updated_car, new_road_item)
-            car_item.update_segments(self)
+            car_item.update_segments()
 
     def _on_cars_removed(self, parent: QModelIndex, first: int, last: int) -> None:
         """Removes CarItem and cleans up listeners."""
@@ -138,7 +139,7 @@ class TrafficScene(QGraphicsScene):
             car_item = self._item_registry.pop(car.uid, None)
 
             if isinstance(car_item, CarItem):
-                car_item.cleanup(self)
+                car_item.cleanup()
                 self.removeItem(car_item)
 
     # -------------------------------------------------------------------------
@@ -257,4 +258,4 @@ class TrafficScene(QGraphicsScene):
         # Update all car segments (e.g., when roads change).
         for item in self._item_registry.values():
             if isinstance(item, CarItem):
-                item.update_segments(self)
+                item.update_segments()

@@ -55,11 +55,10 @@ class CarItem(SelectableGraphicsItem):
         self._road_item.add_position_listener(self)
         self.update_data(car)
 
-    def cleanup(self, traffic_scene: QGraphicsScene) -> None:
+    def cleanup(self) -> None:
         if self._road_item:
             self._road_item.remove_position_listener(self)
-        for seg in self._segments:
-            traffic_scene.removeItem(seg)
+        self._clear_segments()
 
     def update_data(self, car: Car, road_item: Optional[RoadItem] = None) -> None:
         self._car = car
@@ -76,26 +75,43 @@ class CarItem(SelectableGraphicsItem):
 
         self.refresh_geometry()
 
-    def update_segments(self, traffic_scene: QGraphicsScene) -> None:
-        # Remove old segments
+    def update_segments(self) -> None:
+        self._clear_segments()
+
+        self._add_segments(
+            self._car.environment.reserved_lanes + self._car.environment.reserved_crossings,
+            COLORS.RED,
+        )
+        self._add_segments(
+            self._car.environment.claimed_lanes + self._car.environment.claimed_crossings,
+            COLORS.TEXT,
+        )
+
+    def _clear_segments(self) -> None:
+        scene = self._get_scene()
+        if scene is None:
+            self._segments.clear()
+            return
         for seg in self._segments:
-            traffic_scene.removeItem(seg)
+            scene.removeItem(seg)
         self._segments.clear()
 
-        # Add all segments back
-        for seg_data in self._car.environment.reserved_lanes + self._car.environment.reserved_crossings:
-            seg_item = SegmentIntervalItem(segment_interval=seg_data,
-                                           application_controller=self.application_controller, color=COLORS.RED,
-                                           is_last_interval=False)
-            traffic_scene.addItem(seg_item)
+    def _add_segments(self, segments, color: QColor) -> None:
+        scene = self._get_scene()
+        if scene is None:
+            return
+        for seg_data in segments:
+            seg_item = SegmentIntervalItem(
+                segment_interval=seg_data,
+                application_controller=self.application_controller,
+                color=color,
+                is_last_interval=False,
+            )
+            scene.addItem(seg_item)
             self._segments.append(seg_item)
 
-        for seg_data in self._car.environment.claimed_lanes + self._car.environment.claimed_crossings:
-            seg_item = SegmentIntervalItem(segment_interval=seg_data,
-                                           application_controller=self.application_controller, color=COLORS.TEXT,
-                                           is_last_interval=False)
-            traffic_scene.addItem(seg_item)
-            self._segments.append(seg_item)
+    def _get_scene(self) -> QGraphicsScene | None:
+        return self.scene()
 
     def _get_constraint_for_orientation(self, orientation: RoadOrientation) -> int:
         if orientation == RoadOrientation.HORIZONTAL:
