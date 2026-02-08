@@ -30,7 +30,7 @@ class UMLSLEvaluator:
         horizontal_horizon = car.environment.horizontal_horizon
         for virtual_lanes in car.environment.parallel_virtual_lanes:
             view = View(virtual_lanes, horizontal_horizon, car)
-            result = ast.evaluate(self._traffic_snapshot, view, [])
+            result = ast.evaluate(self._traffic_snapshot, view, dict())
             # We demand that there exists a view that evaluates true
             if result:
                 return QueryResult(query, True)
