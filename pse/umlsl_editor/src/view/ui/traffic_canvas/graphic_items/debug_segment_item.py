@@ -8,11 +8,11 @@ Segments are displayed as semi-transparent rectangles overlaid on the traffic sc
 from typing import TYPE_CHECKING, Optional
 
 from PySide6.QtCore import QRectF
-from PySide6.QtGui import QColor, QPainter, QPen
+from PySide6.QtGui import QPainter, QPen, Qt
 from PySide6.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
-from pse.umlsl_editor.src.view.view_constants import COLORS, DIMENSION
+from pse.umlsl_editor.src.view.view_constants import COLORS, DIMENSION, Z_LAYERS
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
@@ -32,9 +32,9 @@ class DebugSegmentItem(QGraphicsItem):
     """
 
     # Visual style constants
-    FILL_COLOR = QColor(0, 255, 0, 30)
-    BORDER_COLOR = QColor(0, 255, 0, 150)
-    Z_VALUE = 10000
+    FILL_COLOR = COLORS.GREEN.darker()
+    BORDER_COLOR = COLORS.RED.lighter()
+    Z_VALUE = Z_LAYERS.PATH
 
     def __init__(
             self,
@@ -88,7 +88,7 @@ class DebugSegmentItem(QGraphicsItem):
             widget: The widget being painted on (unused).
         """
         painter.setBrush(self.FILL_COLOR)
-        painter.setPen(QPen(self.BORDER_COLOR, DIMENSION.LINE_WIDTH_ROAD_DIVIDER))
+        painter.setPen(Qt.NoPen)
         painter.drawRect(self._rect)
 
     def refresh_geometry(self) -> None:
