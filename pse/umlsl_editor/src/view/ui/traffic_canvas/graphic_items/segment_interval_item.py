@@ -1,19 +1,18 @@
 from typing import Optional
 
 from PySide6.QtCore import QRectF
-from PySide6.QtGui import QColor, QPen, QPainter, Qt
+from PySide6.QtGui import QColor, QPainter, Qt
 from PySide6.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
 from pse.umlsl_editor.src.controllers import ApplicationController
-from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
-from pse.umlsl_editor.src.view.view_constants import COLORS, Z_LAYERS
+from pse.umlsl_editor.src.view.view_constants import Z_LAYERS
 
 
-class SegmentIntervalItem(QGraphicsItem)
+class SegmentIntervalItem(QGraphicsItem):
 
-
-    def __init__(self, segment_interval:SegmentInterval, is_last_interval: bool, color: QColor, application_controller: "ApplicationController") -> None:
+    def __init__(self, segment_interval: SegmentInterval, is_last_interval: bool, color: QColor,
+                 application_controller: "ApplicationController") -> None:
         """
         """
         super().__init__()
@@ -57,7 +56,6 @@ class SegmentIntervalItem(QGraphicsItem)
 
         painter.drawRect(self._rect)
 
-
     def refresh_geometry(self):
         """
         Recalculate the crossing rectangle based on current road positions.
@@ -65,21 +63,32 @@ class SegmentIntervalItem(QGraphicsItem)
         """
         self.prepareGeometryChange()
 
-        x_seg, y_seg = self.segment_interval.segment.get_position(self.application_controller.get_traffic_snapshot_reader())
-        width_seg, height_seg = self.segment_interval.segment.get_size(self.application_controller.get_traffic_snapshot_reader())
+        x_seg, y_seg = self.segment_interval.segment.get_position(
+            self.application_controller.get_traffic_snapshot_reader())
+        width_seg, height_seg = self.segment_interval.segment.get_size(
+            self.application_controller.get_traffic_snapshot_reader())
+
+        global_interval = self.segment_interval.get_global_interval(
+            self.application_controller.get_traffic_snapshot_reader())
 
         is_horizontal = True
 
         if is_horizontal:
-            x = x_seg + self.segment_interval.interval.start
-            width = self.segment_interval.interval.end - self.segment_interval.interval.start
+            x = x_seg + global_interval.start
+            width = global_interval.length()
             y = y_seg
             height = height_seg
+
+            # frontend uses bottom left corner as origin for horizontal lanes, so we need to shift the y coordinate down by the height of the segment interval
+            y -= height
         else:
             x = x_seg
             width = width_seg
-            y = y_seg + self.segment_interval.interval.start
-            height = self.segment_interval.interval.end - self.segment_interval.interval.start
+            y = y_seg + global_interval.start
+            height = global_interval.length()
 
-        self._rect = QRectF(x,y, width, height)
+            # frontend uses bottom left corner as origin for vertical lanes, so we need to shift the y coordinate up by the height of the segment interval
+            x -= width
+
+        self._rect = QRectF(x, y, width, height)
         self.update()

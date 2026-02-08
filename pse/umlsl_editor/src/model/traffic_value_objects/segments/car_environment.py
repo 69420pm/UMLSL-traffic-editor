@@ -6,7 +6,6 @@ from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.model.helper.directional_graph import Direction
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import VirtualLane, Segment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
@@ -36,9 +35,9 @@ class CarEnvironment:
     horizontal_horizon: Interval
 
     reserved_lanes: list[SegmentInterval]
-    reserved_crossings: list[CrossingSegment]
+    reserved_crossings: list[SegmentInterval]
     claimed_lanes: list[SegmentInterval]
-    claimed_crossings: list[CrossingSegment]
+    claimed_crossings: list[SegmentInterval]
 
     def __init__(
             self,
@@ -54,11 +53,11 @@ class CarEnvironment:
         self.horizontal_horizon = horizontal_horizon
         self.parallel_virtual_lanes = parallel_virtual_lanes
 
-        self.reserved_lanes = list(map(lambda seg: seg.segment.is_lane_segment, reserved_segment_intervals))
-        self.reserved_crossings = list(map(lambda seg: not seg.segment.is_lane_segment, reserved_segment_intervals))
+        self.reserved_lanes = list(filter(lambda seg: seg.segment.is_lane_segment, reserved_segment_intervals))
+        self.reserved_crossings = list(filter(lambda seg: not seg.segment.is_lane_segment, reserved_segment_intervals))
 
-        self.claimed_lanes = list(map(lambda seg: seg.segment.is_lane_segment, claimed_segment_intervals))
-        self.claimed_crossings = list(map(lambda seg: not seg.segment.is_lane_segment, claimed_segment_intervals))
+        self.claimed_lanes = list(filter(lambda seg: seg.segment.is_lane_segment, claimed_segment_intervals))
+        self.claimed_crossings = list(filter(lambda seg: not seg.segment.is_lane_segment, claimed_segment_intervals))
 
     def visible_segments_in_view(self, view: View) -> list[SegmentInterval]:
         # collect visible segments in the view
@@ -79,8 +78,10 @@ class CarEnvironment:
             car_params: "CarParams",
             settings_model: SettingsModel
     ) -> str | None:
-        # todo: validate car does not require reserving/claiming occupied segments
-        # todo: validate car is not defined on a crossing
+        pos_on_lane = car_params.position_on_lane  # rear of the car
+        start_segment = ts.get_segment_from_lane_position(car_params.lane, pos_on_lane)
+        if not isinstance(start_segment, LaneSegment):
+            return "Car must start on a lange segment"
         return None
 
     @staticmethod
@@ -110,8 +111,7 @@ class CarEnvironment:
             # if the turn_intent is not specified, it means the car drives straight
             turn_intent = TurnIntent(TurnDirection.STRAIGHT, car_lane)
 
-        pos_on_lane_center: float = car_params.position_on_lane
-        pos_on_lane = pos_on_lane_center - car_params.length / 2  # we need the rear
+        pos_on_lane = car_params.position_on_lane  # rear of the car
         start_segment = ts.get_segment_from_lane_position(car_params.lane, pos_on_lane)
         if not isinstance(start_segment, LaneSegment):
             raise ValueError("Car must start on a lange segment")
@@ -130,6 +130,8 @@ class CarEnvironment:
                 pos_on_segment = start_segment.get_size_in_direction(ts) - (segment_start_pos - pos_on_lane)
             case Direction.DOWN:
                 pos_on_segment = segment_start_pos - pos_on_lane
+            case _:
+                raise ValueError(f"Car direction {car_direction} is not supported.")
 
         path, path_segment_intervals, turn_segment, horizontal_horizon = _compute_path(
             ts,
@@ -156,15 +158,19 @@ class CarEnvironment:
             settings_model.braking_distance(),
             car_params.length
         )
-        claimed_segment_intervals = list(filter(lambda seg_interval: seg_interval.segment not in reserved_segments, claimed_segment_intervals))
+        claimed_segment_intervals = list(
+            filter(lambda seg_interval: seg_interval.segment not in reserved_segments, claimed_segment_intervals))
 
         # todo: include transitions
 
         print("--------")
         print("path is ", list(map(lambda seg: ts.get_segment_info(seg.uid), path.segments)))
-        print("real segment intervals are ", list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", path_segment_intervals)))
-        print("reserved segment intervals are ", list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", reserved_segment_intervals)))
-        print("claimed segment intervals are ", list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", claimed_segment_intervals)))
+        print("real segment intervals are ",
+              list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", path_segment_intervals)))
+        print("reserved segment intervals are ", list(
+            map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", reserved_segment_intervals)))
+        print("claimed segment intervals are ",
+              list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", claimed_segment_intervals)))
 
         # add path to debug segments
         for seg in path.segments:
@@ -587,9 +593,8 @@ def _compute_segments_safety_envelope(
             b_i = min(interval_start_offset + current_size, seg_i.get_size_in_direction(ts))
         else:
             b_i = seg_i.get_size_in_direction(ts)
-            # During crossing segments, the car_size is not used.
-            # However, if the car exists the crossing segments, it should see as least its own size.
-            next_size = max(next_size, car_size)
+            # However, if the car exists the crossing segments, it must occupy its own size
+            next_size = car_size
 
         interval = Interval(interval_start_offset, b_i)
         # debug: print("interval:",interval)

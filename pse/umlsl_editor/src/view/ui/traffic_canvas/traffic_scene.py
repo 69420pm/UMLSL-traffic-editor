@@ -105,6 +105,7 @@ class TrafficScene(QGraphicsScene):
                 continue
 
             graphics_item = CarItem(car, road_item, self._app_controller)
+            graphics_item.update_segments(self)
 
             self.addItem(graphics_item)
             self._item_registry[car.uid] = graphics_item
@@ -127,11 +128,8 @@ class TrafficScene(QGraphicsScene):
             target_road_uid = updated_car.lane.road_uid
             new_road_item = self._item_registry.get(target_road_uid)
 
-            if isinstance(new_road_item, RoadItem):
-                # CarItem handles listener switching if new_road_item differs from current
-                car_item.update_data(updated_car, new_road_item)
-            else:
-                logger.error(f"Cannot update car {updated_car.uid}: Road {target_road_uid} missing.")
+            car_item.update_data(updated_car, new_road_item)
+            car_item.update_segments(self)
 
     def _on_cars_removed(self, parent: QModelIndex, first: int, last: int) -> None:
         """Removes CarItem and cleans up listeners."""
@@ -140,7 +138,7 @@ class TrafficScene(QGraphicsScene):
             car_item = self._item_registry.pop(car.uid, None)
 
             if isinstance(car_item, CarItem):
-                car_item.cleanup()  # Important: Detaches from RoadItem
+                car_item.cleanup(self)
                 self.removeItem(car_item)
 
     # -------------------------------------------------------------------------
@@ -159,7 +157,7 @@ class TrafficScene(QGraphicsScene):
             self._check_and_create_crossings(graphics_item)
             self._reassign_orphaned_cars(road, graphics_item)
 
-            if SHOW_DEBUG_SEGMENTS: self._refresh_debug_segments()
+            self._refresh_segments()
 
     def _reassign_orphaned_cars(self, road: Road, road_item: RoadItem) -> None:
         """
@@ -187,7 +185,7 @@ class TrafficScene(QGraphicsScene):
             if isinstance(road_item, RoadItem):
                 road_item.update_data(road)
 
-        if SHOW_DEBUG_SEGMENTS: self._refresh_debug_segments()
+        self._refresh_segments()
 
     def _on_roads_removed(self, parent: QModelIndex, first: int, last: int) -> None:
         """Removes RoadItem and associated crossings."""
@@ -207,7 +205,7 @@ class TrafficScene(QGraphicsScene):
 
             self.removeItem(road_item)
 
-        if SHOW_DEBUG_SEGMENTS: self._refresh_debug_segments()
+        self._refresh_segments()
 
     # -------------------------------------------------------------------------
     # Crossing Management
@@ -239,18 +237,24 @@ class TrafficScene(QGraphicsScene):
     # Debug Segments
     # -------------------------------------------------------------------------
 
-    def _refresh_debug_segments(self) -> None:
-        """Recreates debug visualizations from snapshot data."""
-        for item in self._debug_registry.values():
-            self.removeItem(item)
-        self._debug_registry.clear()
+    def _refresh_segments(self) -> None:
+        if SHOW_DEBUG_SEGMENTS:
+            """Recreates debug visualizations from snapshot data."""
+            for item in self._debug_registry.values():
+                self.removeItem(item)
+            self._debug_registry.clear()
 
-        snapshot_reader = self._app_controller.get_traffic_snapshot_reader()
-        if not snapshot_reader:
-            return
+            snapshot_reader = self._app_controller.get_traffic_snapshot_reader()
+            if not snapshot_reader:
+                return
 
-        segments = snapshot_reader.debug_get_segments()
-        for segment in segments.values():
-            item = DebugSegmentItem(segment, self._app_controller)
-            self._debug_registry[segment.uid] = item
-            self.addItem(item)
+            segments = snapshot_reader.debug_get_segments()
+            for segment in segments.values():
+                item = DebugSegmentItem(segment, self._app_controller)
+                self._debug_registry[segment.uid] = item
+                self.addItem(item)
+
+        """Updates all car segments. Useful when roads change."""
+        for item in self._item_registry.values():
+            if isinstance(item, CarItem):
+                item.update_segments(self)
