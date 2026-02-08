@@ -33,6 +33,8 @@ class CarEnvironment:
     # The path of the car where each segment is equipped with an interval.
     # This is analogous to the seg_V method in the paper if we assume the view occupies the entire map.
     # To access only the visible segments in a view, use the path_segments_in_view function in this class.
+    physical_segment_intervals: list[SegmentInterval]
+    # Splits the entire path into segments intervals.
     path_segment_intervals: list[SegmentInterval]
 
     horizontal_horizon: Interval
@@ -45,6 +47,7 @@ class CarEnvironment:
     def __init__(
             self,
             path: VirtualLane,
+            physical_segment_intervals: list[SegmentInterval],
             path_segment_intervals: list[SegmentInterval],
             horizontal_horizon: Interval,
             parallel_virtual_lanes: list[list[VirtualLane]],
@@ -52,6 +55,7 @@ class CarEnvironment:
             claimed_segment_intervals: list[SegmentInterval],
     ):
         self.path = path
+        self.physical_segment_intervals = physical_segment_intervals
         self.path_segment_intervals = path_segment_intervals
         self.horizontal_horizon = horizontal_horizon
         self.parallel_virtual_lanes = parallel_virtual_lanes
@@ -72,7 +76,7 @@ class CarEnvironment:
         # for each path_segment_interval we have to check if it is visible
         return list(filter(
             lambda path_seg_interval: path_seg_interval.segment in visible_segments,
-            self.path_segment_intervals
+            self.physical_segment_intervals
         ))
 
     @staticmethod
@@ -137,7 +141,7 @@ class CarEnvironment:
             case _:
                 raise ValueError(f"Car direction {car_direction} is not supported.")
 
-        path, path_segment_intervals, turn_segment, horizontal_horizon = _compute_path(
+        path, physical_segment_intervals, path_segment_intervals, turn_segment, horizontal_horizon = _compute_path(
             ts,
             length,
             start_segment,
@@ -170,8 +174,8 @@ class CarEnvironment:
 
         print("--------")
         print("path is ", list(map(lambda seg: ts.get_segment_info(seg.uid), path.segments)))
-        print("real segment intervals are ",
-              list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", path_segment_intervals)))
+        print("physical segment intervals are ",
+              list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", physical_segment_intervals)))
         print("reserved segment intervals are ", list(
             map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", reserved_segment_intervals)))
         print("claimed segment intervals are ",
@@ -193,6 +197,7 @@ class CarEnvironment:
                 print(" > virtual lane is ", list(map(lambda seg: ts.get_segment_info(seg.uid), virtual_lane.segments)))
         return CarEnvironment(
             path,
+            physical_segment_intervals,
             path_segment_intervals,
             horizontal_horizon,
             parallel_virtual_lanes,
@@ -209,7 +214,7 @@ def _compute_path(
         turn_intent: TurnIntent,
         car_direction: Direction,
         braking_dist: float
-) -> tuple[VirtualLane, list[SegmentInterval], LaneSegment, Interval]:
+) -> tuple[VirtualLane, list[SegmentInterval], list[SegmentInterval], LaneSegment, Interval]:
     """
     Returns the (path, turn_segment, horizontal horizon)
 
@@ -248,7 +253,14 @@ def _compute_path(
         virtual_pos += size
 
     path = VirtualLane(path_segments)
-    path_segment_intervals: list[SegmentInterval] = _compute_segment_intervals(ts, path, pos_on_segment, length)
+    physical_segment_intervals: list[SegmentInterval] = _compute_segment_intervals(ts, path, pos_on_segment, length)
+    path_segment_intervals: list[SegmentInterval] = _compute_segments_safety_envelope(
+        ts,
+        path,
+        pos_on_segment,
+        horizontal_horizon.length(),
+        length
+    )
 
     # If the turn intent exceeds what the car can see, we set the turn intent to the last lane segment.
     # For example, if the car turns left 1k units away but can only see 10 forward, the turn_segment gets useless.
@@ -258,7 +270,7 @@ def _compute_path(
             raise ValueError("Path must end on a lane segment.")
         turn_segment = end_lane
 
-    return path, path_segment_intervals, turn_segment, horizontal_horizon
+    return path, physical_segment_intervals, path_segment_intervals, turn_segment, horizontal_horizon
 
 
 def _compute_parallel_virtual_lanes(
@@ -333,10 +345,8 @@ def _compute_parallel_virtual_lanes_crossing(
     # must be sorted (left to right); that means for us in ascending order
     parallel_lane_segments.sort(key=lambda seg: seg.lane.lane_index)
 
-    parallel_virtual_lanes: list[list[VirtualLane]] = []
+    lane_candidates: list[VirtualLane] = []
     for lane in parallel_lane_segments:
-        lane_candidates: list[VirtualLane] = []
-
         if lane.uid == start_segment.uid:
             lane_candidates.append(path)
         else:
@@ -344,22 +354,26 @@ def _compute_parallel_virtual_lanes_crossing(
                 if dest_lane in parallel_lane_segments:
                     continue
 
-                path: VirtualLane | None
+                opposing_lane: VirtualLane | None
                 is_forward = lane.lane.get_direction() == start_segment.lane.get_direction()
                 if is_forward:
-                    path = _compute_path_through_crossing(ts, lane, dest_lane)
+                    opposing_lane = _compute_path_through_crossing(ts, lane, dest_lane)
                 else:
                     # for opposing paths we have to go from the intersection to the start
-                    path = _compute_path_through_crossing(ts, dest_lane, lane)
+                    opposing_lane = _compute_path_through_crossing(ts, dest_lane, lane)
 
-                if path is not None:
-                    lane_candidates.append(path)
+                if opposing_lane is not None:
+                    lane_candidates.append(opposing_lane)
 
-        # create the fallback
+        # create the placeholder
         if len(lane_candidates) == 0:
             lane_candidates.append(VirtualLane([lane]))
 
-        parallel_virtual_lanes.append(lane_candidates)
+    parallel_virtual_lanes: list[list[VirtualLane]] = []
+    for lane_candidate in lane_candidates:
+        parallel_virtual_lane: list[VirtualLane] = [lane_candidate, path]
+        parallel_virtual_lane.sort(key=lambda vl: vl.segments[0].lane.lane_index)
+        parallel_virtual_lanes.append(parallel_virtual_lane)
 
     return parallel_virtual_lanes
 

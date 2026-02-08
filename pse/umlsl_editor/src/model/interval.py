@@ -17,6 +17,16 @@ class Interval:
                 return True
         return False
 
+    def intersection(self, other: 'Interval') -> Interval | None:
+        intersect_end = min(self.end, other.end)
+        intersect_start = max(self.start, other.start)
+
+        if intersect_start > intersect_end:
+            return None
+
+        return Interval(intersect_start, intersect_end)
+
+
     @staticmethod
     def union(interval: list['Interval']) -> list[Interval]:
         """"
