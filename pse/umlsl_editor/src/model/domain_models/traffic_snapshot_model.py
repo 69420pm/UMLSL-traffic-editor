@@ -233,7 +233,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     def _on_road_added(self, road: Road):
         self.notify(TrafficSnapshotEventType.ROAD_ADDED, road)
         self._recalculate_static_segments()
-        self._revalidate_cars()
         self._revalidate_queries()
 
     def _on_road_removed(self, road: Road):
@@ -241,13 +240,11 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         # This prevents observers from accessing stale segments that reference the removed road.
         self._recalculate_static_segments()
         self.notify(TrafficSnapshotEventType.ROAD_REMOVED, road)
-        self._revalidate_cars()
         self._revalidate_queries()
 
     def _on_road_updated(self, road: Road):
         self.notify(TrafficSnapshotEventType.ROAD_UPDATED, road)
         self._recalculate_static_segments()
-        self._revalidate_cars()
         self._revalidate_queries()
 
     def get_cars_on_road(self, road: Road) -> list[Car]:
@@ -282,12 +279,15 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             self._horizontal_roads[road.uid] = road
         else:
             self._vertical_roads[road.uid] = road
+        self._revalidate_cars()
 
     def remove_road(self, road_uid: str) -> None:
         if road_uid in self._horizontal_roads:
             self._horizontal_roads.pop(road_uid)
         elif road_uid in self._vertical_roads:
             self._vertical_roads.pop(road_uid)
+
+        self._revalidate_cars()
 
     def update_road(self, road_uid: str, road_params: RoadParams) -> None:
         road = self.get_road_by_uid(road_uid)
@@ -307,6 +307,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                 self._horizontal_roads[road_uid] = road
             else:
                 self._vertical_roads[road_uid] = road
+        self._revalidate_cars()
 
     def add_car(self, car: Car) -> None:
         self._cars[car.uid] = car
