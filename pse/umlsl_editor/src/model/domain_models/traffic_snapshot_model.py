@@ -821,4 +821,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             new_query_params = UMLSLQueryParams(latex=query.latex,
                                                 validation=holding,
                                                 assigned_car_uid=car.uid)
-            self._queries_model.update_umlsl_query(query, new_query_params)
+            # TODO: MAKE BETTER
+            if query.validation != new_query_params.validation or query.latex != new_query_params.latex or query.assigned_car_uid != new_query_params.assigned_car_uid:
+                self._queries_model.update_umlsl_query(query, new_query_params)
