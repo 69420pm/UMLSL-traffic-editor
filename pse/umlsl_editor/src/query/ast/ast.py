@@ -28,7 +28,7 @@ class ASTNode(ABC):
         self._precedence = precedence
 
     @abstractmethod
-    def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
+    def evaluate(self, traffic_snapshot: "TrafficSnapshotModel", view: View, variable_car_map: dict[str, Car]) -> bool:
         pass
 
     @abstractmethod
