@@ -301,23 +301,27 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         if segment_uids is None:
             return None
 
-        road = self.get_road_by_uid(lane.road_uid)
+        segments: list[Segment] = []
+        for seg_uid in segment_uids:
+            segments.append(self._segments[seg_uid])
 
-        # todo flotsche:
-        # insertion order matters: is self._segments[segment_uids[0]] always the first segment on the road
-        # (the one with lowest position)?
-        # if not, this breaks
-        first_segment_on_road = self._segments[segment_uids[0]]
+        road = self.get_road_by_uid(lane.road_uid)
+        coord_index = 0 if road.orientation == RoadOrientation.HORIZONTAL else 1
+        segments.sort(key=lambda s: s.get_position(self)[coord_index])
+        if road.orientation == RoadOrientation.VERTICAL:
+            segments.reverse()
+
+        first_segment_on_road = segments[0]
         previous_segment: Segment | None = first_segment_on_road
-        for segment_uid in segment_uids:
-            segment = self._segments[segment_uid]
+        for segment in segments:
+            seg_pos_on_lane = segment.get_position(self)[coord_index]
             if road.orientation == RoadOrientation.HORIZONTAL:
-                if segment.get_position(self)[0] < position_on_lane:
+                if seg_pos_on_lane < position_on_lane:
                     previous_segment = segment
                 else:
                     return previous_segment
             if road.orientation == RoadOrientation.VERTICAL:
-                if segment.get_position(self)[1] < position_on_lane:
+                if seg_pos_on_lane > position_on_lane:
                     previous_segment = segment
                 else:
                     return previous_segment
