@@ -1,3 +1,5 @@
+import itertools
+from collections import deque
 from enum import Enum
 
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
@@ -180,9 +182,13 @@ class CarEnvironment:
         parallel_virtual_lanes: list[list[VirtualLane]] = _compute_parallel_virtual_lanes(
             ts,
             start_segment,
-            turn_segment,
-            path
+            path,
+            car_direction
         )
+        for parallel_virtual_lane in parallel_virtual_lanes:
+            print("parallel virtual lane:")
+            for virtual_lane in parallel_virtual_lane:
+                print(" > virtual lane is ", list(map(lambda seg: ts.get_segment_info(seg.uid), virtual_lane.segments)))
         return CarEnvironment(
             path,
             path_segment_intervals,
@@ -256,56 +262,106 @@ def _compute_path(
 def _compute_parallel_virtual_lanes(
         ts: TrafficSnapshotReader,
         start_segment: LaneSegment,
-        turn_segment: LaneSegment,
+        path: VirtualLane,
+        car_direction: Direction
+) -> list[list[VirtualLane]]:
+    through_crossing = any(map(lambda seg: not seg.is_lane_segment, path.segments))
+    if through_crossing:
+        lanes_connected_to_crossing = _compute_all_lanes_connected_to_crossing(ts, start_segment, car_direction)
+        return _compute_parallel_virtual_lanes_crossing(ts, start_segment, lanes_connected_to_crossing, path)
+    else:
+        # no crossing found
+        parallel_lane_segments: list[LaneSegment] = _compute_parallel_lane_segments(ts, start_segment)
+        virtual_lanes: list[VirtualLane] = []
+
+        for parallel_lane_segment in parallel_lane_segments:
+            virtual_lanes.append(VirtualLane([parallel_lane_segment]))
+
+        virtual_lanes.sort(key=lambda lane: lane.segments[0].lane.lane_index)
+
+        return [virtual_lanes]
+
+def _compute_all_lanes_connected_to_crossing(ts: TrafficSnapshotReader, start_segment: LaneSegment, car_direction: Direction) -> list[LaneSegment]:
+    """"
+    We want to find all lane segments that are connected to any crossing segment (or are connected to the crossing
+    in the coarse path).
+    """
+
+    # find a crossing segment by "driving" in the car direction
+    current_segment = start_segment
+    while not current_segment.is_lane_segment:
+        current_segment = ts.get_adjacent_segment(current_segment.uid, car_direction)
+        if current_segment is None:
+            raise ValueError("Car specified a turn intent with invalid path.")
+
+    # we use BFS to find all lane segments that are connected to a crossing
+    lanes_connected_to_crossing: list[LaneSegment] = []
+    visited_segments = set()
+    queue = deque([current_segment])
+    visited_segments.add(current_segment.uid)
+
+    while queue:
+        segment = queue.popleft()
+
+        for direction in Direction:
+            neighbor: Segment | None = ts.get_adjacent_segment(segment.uid, direction)
+
+            if neighbor is None or neighbor.uid in visited_segments:
+                continue
+
+            if isinstance(neighbor, LaneSegment):
+                lanes_connected_to_crossing.append(neighbor)
+                visited_segments.add(neighbor.uid)
+            else:
+                visited_segments.add(neighbor.uid)
+                queue.append(neighbor)
+
+    return lanes_connected_to_crossing
+
+def _compute_parallel_virtual_lanes_crossing(
+        ts: TrafficSnapshotReader,
+        start_segment: LaneSegment,
+        lanes_connected_to_crossing: list[LaneSegment],
         path: VirtualLane
 ) -> list[list[VirtualLane]]:
-    # compute the parallel segments of the start and turn segments in opposing driving direction
-    start_opp_parallel_segments: list[LaneSegment] = _compute_opposing_parallel_segments(ts, start_segment)
-    turn_opp_parallel_segments: list[LaneSegment] = _compute_opposing_parallel_segments(ts, turn_segment)
+    parallel_lane_segments: list[LaneSegment] = _compute_parallel_lane_segments(ts, start_segment)
+    # must be sorted (left to right); that means for us in ascending order
+    parallel_lane_segments.sort(key=lambda seg: seg.lane.lane_index)
 
-    opposing_parallel_virtual_lanes: list[list[VirtualLane]] = []
-    for start_opp_parallel_segment in start_opp_parallel_segments:
-        opposing_virtual_lanes: list[VirtualLane] = []
+    candidates_per_lane: list[list[VirtualLane]] = []
+    for lane in parallel_lane_segments:
+        lane_candidates: list[VirtualLane] = []
 
-        for turn_opp_parallel_segment in turn_opp_parallel_segments:
-            segments_through_crossing: VirtualLane | None = _compute_path_through_crossing(
-                ts,
-                start_opp_parallel_segment,
-                turn_opp_parallel_segment
-            )
-            if segments_through_crossing is None:
-                raise ValueError("Cannot compute path of opposing parallel segments.")
-            opposing_virtual_lanes.append(segments_through_crossing)
+        if lane.uid == start_segment.uid:
+            lane_candidates.append(path)
+        else:
+            for dest_lane in lanes_connected_to_crossing:
+                if dest_lane in parallel_lane_segments:
+                    continue
 
-        opposing_parallel_virtual_lanes.append(opposing_virtual_lanes)
+                path: VirtualLane | None
+                is_forward = lane.lane.get_direction() == start_segment.lane.get_direction()
+                if is_forward:
+                    path = _compute_path_through_crossing(ts, lane, dest_lane)
+                else:
+                    # for opposing paths we have to go from the intersection to the start
+                    path = _compute_path_through_crossing(ts, dest_lane, lane)
 
-    parallel_virtual_lanes: list[list[VirtualLane]] = []
-    for opp_parallel_virtual_lanes in opposing_parallel_virtual_lanes:
-        parallel_virtual_lane: list[VirtualLane] = [path]
+                if path is not None:
+                    lane_candidates.append(path)
 
-        for opp_virtual_lane in opp_parallel_virtual_lanes:
-            parallel_virtual_lane.append(opp_virtual_lane)
+        # create the fallback
+        if len(lane_candidates) == 0:
+            lane_candidates.append(VirtualLane([lane]))
 
-        parallel_virtual_lanes.append(parallel_virtual_lane)
+        candidates_per_lane.append(lane_candidates)
 
-    for parallel_virtual_lane in parallel_virtual_lanes:
-        print("parallel virtual lane:")
-        for virtual_lane in parallel_virtual_lane:
-            print(" > virtual lane is ", list(map(lambda seg: ts.get_segment_info(seg.uid), virtual_lane.segments)))
+    multi_view_tuples = list(itertools.product(*candidates_per_lane))
+    # in Python we can turn the tuple into the list via list(tuple)
+    multi_view: list[list[VirtualLane]] = [list(view) for view in multi_view_tuples]
 
-    return parallel_virtual_lanes
+    return multi_view
 
-
-def _compute_opposing_parallel_segments(ts: TrafficSnapshotReader, segment: LaneSegment) -> list[LaneSegment]:
-    opposing_direction = -segment.lane.get_direction()
-    parallel_lane_segments: list[LaneSegment] = _compute_parallel_lane_segments(ts, segment)
-
-    return list(
-        filter(
-            lambda seg: seg.lane.get_direction() == opposing_direction,
-            parallel_lane_segments
-        )
-    )
 
 
 def _compute_parallel_lane_segments(ts: TrafficSnapshotReader, segment: LaneSegment) -> list[LaneSegment]:
@@ -322,7 +378,7 @@ def _compute_parallel_lane_segments(ts: TrafficSnapshotReader, segment: LaneSegm
     directions = [Direction.LEFT, Direction.RIGHT] if road.orientation == RoadOrientation.VERTICAL \
         else [Direction.UP, Direction.DOWN]
 
-    segments: list[LaneSegment] = []
+    segments: list[LaneSegment] = [segment]
     for direction in directions:
         next_segment = ts.get_adjacent_segment(segment.uid, direction)
         while next_segment is not None:
@@ -493,6 +549,7 @@ def _compute_path_through_crossing(
                 # we clone the paths and compute where we end up when using this direction
                 path_2 = list(path_1)
                 current_seg_2 = ts.get_adjacent_segment(current_seg_1.uid, direction_2)
+                # todo: prevent traversing through lanes
 
                 # Follow direction_2 as far as possible
                 while current_seg_2 is not None:
