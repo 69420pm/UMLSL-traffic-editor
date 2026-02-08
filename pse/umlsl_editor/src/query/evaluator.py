@@ -27,9 +27,9 @@ class UMLSLEvaluator:
 
     def evaluate_query(self, query: str, car: Car) -> QueryResult:
         ast = self._parse_ast(query)
-        space_interval = car.environment.space_interval
+        horizontal_horizon = car.environment.horizontal_horizon
         for virtual_lanes in car.environment.parallel_virtual_lanes:
-            view = View(virtual_lanes, space_interval, car)
+            view = View(virtual_lanes, horizontal_horizon, car)
             result = ast.evaluate(self._traffic_snapshot, view, [])
             # We demand that there exists a view that evaluates true
             if result:
