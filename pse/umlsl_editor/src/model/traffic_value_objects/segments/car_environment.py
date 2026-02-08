@@ -156,7 +156,7 @@ class CarEnvironment:
             path,
             pos_on_segment,
             length,
-            length
+            car_params.length
         )
         claimed_segment_intervals: list[SegmentInterval] = []
         # reserved_segments = list(map(lambda seg_interval: seg_interval.segment, reserved_segment_intervals))
