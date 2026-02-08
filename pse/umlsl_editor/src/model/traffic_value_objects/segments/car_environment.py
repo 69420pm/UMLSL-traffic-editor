@@ -591,6 +591,10 @@ def _compute_segment_intervals(
     i = 0
     while next_size > 0:
         current_size = next_size
+
+        if i >= len(path.segments):
+            return result
+
         seg_i = path.segments[i]
 
         b_i: float
