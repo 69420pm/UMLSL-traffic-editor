@@ -522,9 +522,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                         self._graph.add_edge(s_l.uid, s_r.uid, direction=Direction.RIGHT)
                         self._graph.add_edge(s_r.uid, s_l.uid, direction=Direction.LEFT)
 
-        self.print_segments_by_lane()
-        self.print_graph()
-
     def print_graph(self) -> None:
         """
         Prints the graph structure to stdout for debugging purposes.
