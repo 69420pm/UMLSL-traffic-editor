@@ -143,11 +143,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def closeEvent(self, event) -> None:
         if self._application_controller.command_controller.get_data_changed_since_last_save():
             confirm = ConfirmDeletionDialog(
-                "You have unsaved changes.\nDo you want to discard them and close?",
+                "You have unsaved changes.\nDiscard them and close?",
                 self,
                 title="Unsaved Changes",
-                confirm_text="Discard Changes",
-                cancel_text="Keep Editing",
+                confirm_text="Discard changes",
+                cancel_text="Keep editing",
             ).exec()
             if confirm != QDialog.Accepted:
                 event.ignore()

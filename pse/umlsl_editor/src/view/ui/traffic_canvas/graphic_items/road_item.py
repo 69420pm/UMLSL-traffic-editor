@@ -171,7 +171,7 @@ class RoadItem(SelectableGraphicsItem):
             view = self.scene().views()[0] if self.scene().views() else None
 
             dialog = WarningDialog(
-                "Cannot Move Road",
+                "Cannot move road",
                 str(e),
                 view,
             )

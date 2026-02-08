@@ -152,7 +152,7 @@ class CarItem(SelectableGraphicsItem):
             )
         except (CarValidationError, CarTrafficSnapshotContextValidationError) as e:
             view = self.scene().views()[0] if self.scene().views() else None
-            WarningDialog("Cannot Move Car", str(e), view).exec()
+            WarningDialog("Cannot move car", str(e), view).exec()
 
     def boundingRect(self) -> QRectF:
         return self._polygon.boundingRect()

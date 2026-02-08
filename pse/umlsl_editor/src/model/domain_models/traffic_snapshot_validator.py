@@ -1,17 +1,25 @@
 from typing import TYPE_CHECKING
 
-from pse.umlsl_editor.src.model.entities.road import RoadParams, RoadOrientation
-from pse.umlsl_editor.src.model.errors.car_errors import CarTrafficSnapshotContextValidationError
-from pse.umlsl_editor.src.model.errors.road_errors import RoadTrafficSnapshotContextValidationError
+from pse.umlsl_editor.src.model.entities.road import RoadOrientation, RoadParams
+from pse.umlsl_editor.src.model.errors.car_errors import (
+    CarTrafficSnapshotContextValidationError,
+)
+from pse.umlsl_editor.src.model.errors.road_errors import (
+    RoadTrafficSnapshotContextValidationError,
+)
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
 from pse.umlsl_editor.src.query.lexer import TokenType
 from pse.umlsl_editor.src.view.view_constants import DIMENSION
 
 if TYPE_CHECKING:
+    from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import (
+        TrafficSnapshotModel,
+    )
+    from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import (
+        UMLSLQueriesModel,
+    )
     from pse.umlsl_editor.src.model.entities.car import Car, CarParams
-    from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
-    from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
 
 
 class TrafficSnapshotValidator:
@@ -62,7 +70,7 @@ class TrafficSnapshotValidator:
                 content=f"Car '{car.name}' has an invalid transition: {car.transition} from lane {car.lane}.")
         if not self._check_no_tokens_contained(car.name):
             raise CarTrafficSnapshotContextValidationError(
-                content=f"Car '{car.name}' can not contain any of the umlsl language tokens.")
+                content=f"Car '{car.name}' cannot contain any of the umlsl language tokens.")
         if car.get_braking_dist(self._model.settings_model.braking_acceleration) > self._model.settings_model.braking_distance():
             raise CarTrafficSnapshotContextValidationError(
                 content=f"Car '{car.name}' has a braking distance that exceeds the maximum allowed by the settings.")
@@ -116,7 +124,7 @@ class TrafficSnapshotValidator:
 
         if not self._check_no_tokens_contained(road_params.name):
             raise RoadTrafficSnapshotContextValidationError(
-                content=f"Road '{road_params.name}' can not contain any of the umlsl language tokens.")
+                content=f"Road '{road_params.name}' cannot contain any of the umlsl language tokens.")
 
         roads = self._model.get_roads().values()
         if road_params.orientation == RoadOrientation.HORIZONTAL:
@@ -132,7 +140,7 @@ class TrafficSnapshotValidator:
                 road_bounds = road.get_bounds()
                 if max(bounds[0], road_bounds[0]) < min(bounds[1], road_bounds[1]):
                     raise RoadTrafficSnapshotContextValidationError(
-                        content=f"Roads can't overlap each other. Please change position or number of forward or backward lanes.")
+                        content=f"Roads cannot overlap each other. Please change position or number of forward or backward lanes.")
 
     def _check_no_tokens_contained(self, text: str) -> bool:
         return not any(token.value in text for token in TokenType)

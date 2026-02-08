@@ -24,7 +24,7 @@ class Ui_Settings_Dialog(object):
     def setupUi(self, Settings_Dialog):
         if not Settings_Dialog.objectName():
             Settings_Dialog.setObjectName(u"Settings_Dialog")
-        Settings_Dialog.resize(320, 233)
+        Settings_Dialog.resize(324, 233)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -289,16 +289,16 @@ class Ui_Settings_Dialog(object):
 
         self.gridLayout.addWidget(self.c_grid, 1, 1, 1, 2)
 
-        self.label_5 = QLabel(self.widget1)
-        self.label_5.setObjectName(u"label_5")
-        self.label_5.setMinimumSize(QSize(75, 0))
-        self.label_5.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+        self.l_reserved = QLabel(self.widget1)
+        self.l_reserved.setObjectName(u"l_reserved")
+        self.l_reserved.setMinimumSize(QSize(75, 0))
+        self.l_reserved.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
-        self.gridLayout.addWidget(self.label_5, 2, 0, 1, 1)
+        self.gridLayout.addWidget(self.l_reserved, 2, 0, 1, 1)
 
-        self.horizontalSpacer = QSpacerItem(40, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.s_reserved = QSpacerItem(40, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.gridLayout.addItem(self.horizontalSpacer, 2, 1, 1, 1)
+        self.gridLayout.addItem(self.s_reserved, 2, 1, 1, 1)
 
         self.c_savty_space = QCheckBox(self.widget1)
         self.c_savty_space.setObjectName(u"c_savty_space")
@@ -405,9 +405,9 @@ class Ui_Settings_Dialog(object):
         self.label_2.setText(QCoreApplication.translate("Settings_Dialog", u"Rendering", None))
         self.label_2.setProperty(u"class", QCoreApplication.translate("Settings_Dialog", u"label", None))
         self.widget1.setProperty(u"class", QCoreApplication.translate("Settings_Dialog", u"container", None))
-        self.label_9.setText(QCoreApplication.translate("Settings_Dialog", u"Show Coordinate System", None))
-        self.label_6.setText(QCoreApplication.translate("Settings_Dialog", u"Show Background Grid", None))
-        self.label_5.setText(QCoreApplication.translate("Settings_Dialog", u"Show reserved Savety Space", None))
+        self.label_9.setText(QCoreApplication.translate("Settings_Dialog", u"Show coordinate system", None))
+        self.label_6.setText(QCoreApplication.translate("Settings_Dialog", u"Show background grid", None))
+        self.l_reserved.setText(QCoreApplication.translate("Settings_Dialog", u"Show reserved space", None))
         self.c_savty_space.setText("")
         self.label_3.setText(QCoreApplication.translate("Settings_Dialog", u"Simulation", None))
         self.label_3.setProperty(u"class", QCoreApplication.translate("Settings_Dialog", u"label", None))
@@ -415,8 +415,8 @@ class Ui_Settings_Dialog(object):
         self.label_11.setText(QCoreApplication.translate("Settings_Dialog", u"Braking deceleration", None))
         self.label_4.setText(QCoreApplication.translate("Settings_Dialog", u"u/s^2", None))
         self.label_4.setProperty(u"class", QCoreApplication.translate("Settings_Dialog", u"hint", None))
-        self.label_7.setText(QCoreApplication.translate("Settings_Dialog", u"Max acceleration", None))
-        self.label_8.setText(QCoreApplication.translate("Settings_Dialog", u"u/s^2", None))
+        self.label_7.setText(QCoreApplication.translate("Settings_Dialog", u"Max velocity", None))
+        self.label_8.setText(QCoreApplication.translate("Settings_Dialog", u"u/s", None))
         self.label_8.setProperty(u"class", QCoreApplication.translate("Settings_Dialog", u"hint", None))
     # retranslateUi
 
