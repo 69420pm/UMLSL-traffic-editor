@@ -7,7 +7,8 @@ the UMLSL Traffic Editor Program.
 
 To run the program the user must be able to run Python-3.11
 files (Python must be installed). The user also must have installed
-the PyQT6 library (installation in setup tutorial).
+the PyQT6 library (installation in setup tutorial). Setting up a virtual
+environment is recommended before installing.
 
 ## 🔧 Setup Program
 
@@ -16,8 +17,12 @@ the PyQT6 library (installation in setup tutorial).
    *bash*:
    
    git clone https://github.com/69420pm/UMLSL-traffic-editor.git
+
+   *alternative installation for the downloaded zip file*:
+
+   Unpack the zip file and execute the following bash commands from the same folder.
    
-2. Navigate to main project folder and install library dependencies.
+3. Navigate to main project folder and install library dependencies.
 
    *bash*:
 
