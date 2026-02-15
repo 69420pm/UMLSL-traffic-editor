@@ -5,31 +5,18 @@ from pse.umlsl_editor.src.model.interval import Interval
 
 # Sets the number of iterations for the horizontal chopping (at least 1). In each iteration, the new step_size is
 # computed via step_size = prev_step_size / 2.
-H_CHOP_EVAL_ITERATIONS = 5
+H_CHOP_EVAL_ITERATIONS = 4
 
 class HorizontalChopNode(BinaryNode):
     def __init__(self, left: ASTNode, right: ASTNode):
         super().__init__(Precedence.BINARY_CHOP, left, right)
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
-        for i in range(0, H_CHOP_EVAL_ITERATIONS - 1):
-            if self.evaluate_with_step_size(i, traffic_snapshot, view, variable_car_map):
-                return True
-
-        return False
-
-    def evaluate_with_step_size(self, eval_iteration: int, traffic_snapshot: TrafficSnapshotModel, view: View,
-                                variable_car_map: dict[str, Car]):
-        step_size = self.compute_step_size(eval_iteration)
-
-        space_interval = view.space_interval
-        split_value = space_interval.start
-
+        step_size = 3  # self.compute_step_size(eval_iteration)
         iteration = 0
-        while split_value < space_interval.end:
-            if eval_iteration != 0 and self.skip_step(iteration):
-                continue
-
+        split_value = view.space_interval.start
+        space_interval = view.space_interval
+        while split_value < space_interval.end - 0.001:
             space_interval1 = Interval(space_interval.start, split_value)
             space_interval2 = Interval(split_value, space_interval.end)
 
@@ -41,7 +28,8 @@ class HorizontalChopNode(BinaryNode):
                 return True
 
             split_value += step_size
-            iteration += 1
+
+        return False
 
     def compute_step_size(self, eval_iteration: int) -> float:
         # uses step_size: 1, 1/2, 1/4, 1/8, ...
