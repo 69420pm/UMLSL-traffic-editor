@@ -36,7 +36,9 @@ class ReserveNode(AtomNode):
         space_intervals: list[Interval] = []
         virtual_pos = 0
         for segment in lane_segments:
-            car_segment_interval = car_segment_to_interval_map[segment]
+            car_segment_interval = car_segment_to_interval_map.get(segment)
+            if car_segment_interval is None:
+                return False
             interval = car_segment_interval.interval
 
             # we need to ensure every segment of the lane is contained in a reserved segment interval of the car
