@@ -8,15 +8,14 @@ from pse.umlsl_editor.src.query.view import View
 
 class SomewhereNode(UnaryNode):
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
-        # we treat <phi> as "<phi> = true hchop (true vchp (phi vchop true)) hchp true" (infix notation for readability)
-        # todo: iterate through all sub-layers directly for performance optimization
+        # we treat <phi> as "true hchop (true vchop (phi vchop true)) hchop true"
         vertical_somewhere_node = VerticalChopNode(
             TrueNode(),
             VerticalChopNode(self._child, TrueNode())
         )
         horizontal_somewhere_node = HorizontalChopNode(
             TrueNode(),
-            HorizontalChopNode(vertical_somewhere_node, TrueNode())
+            HorizontalChopNode(vertical_somewhere_node, TrueNode()),
         )
         return horizontal_somewhere_node.evaluate(traffic_snapshot, view, variable_car_map)
 
