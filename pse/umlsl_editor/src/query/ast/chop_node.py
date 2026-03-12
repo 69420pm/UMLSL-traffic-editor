@@ -12,20 +12,25 @@ class HorizontalChopNode(BinaryNode):
         super().__init__(Precedence.BINARY_CHOP, left, right)
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
-        step_size = 3  # self.compute_step_size(eval_iteration)
+        # todo: split pieces in half on every iteration
+        step_size = 0.5  # self.compute_step_size(eval_iteration)
         iteration = 0
-        split_value = view.space_interval.start
-        space_interval = view.space_interval
+
+        split_value = view.horizon.start
+        space_interval = view.horizon
         while split_value < space_interval.end - 0.001:
-            space_interval1 = Interval(space_interval.start, split_value)
-            space_interval2 = Interval(split_value, space_interval.end)
+            left_horizon = Interval(space_interval.start, split_value)
+            left_view = View(view.virtual_lanes, left_horizon, view.car)
+            left = self._left.evaluate(traffic_snapshot, left_view, variable_car_map)
 
-            view1 = View(view.virtual_lanes, space_interval1, view.car)
-            view2 = View(view.virtual_lanes, space_interval2, view.car)
+            # if the lhs is false, we can skip the computation of the rhs
+            if left:
+                right_horizon = Interval(split_value, space_interval.end)
+                right_view = View(view.virtual_lanes, right_horizon, view.car)
 
-            if (self._left.evaluate(traffic_snapshot, view1, variable_car_map)
-                    and self._right.evaluate(traffic_snapshot, view2, variable_car_map)):
-                return True
+                right = self._right.evaluate(traffic_snapshot, right_view, variable_car_map)
+                if right:
+                    return True
 
             split_value += step_size
 
@@ -51,15 +56,18 @@ class VerticalChopNode(BinaryNode):
         seq_lanes = view.virtual_lanes
 
         for split_index in range(0, len(seq_lanes) + 1):
-            smaller = seq_lanes[:split_index]  # take all lanes whose index is < split_index
-            bigger = seq_lanes[split_index:]
+            lower_lanes = seq_lanes[:split_index]  # take all lanes whose index is < split_index
+            lower_view = View(lower_lanes, view.horizon, view.car)
+            lower_eval = self._left.evaluate(traffic_snapshot, lower_view, variable_car_map)
 
-            view1 = View(smaller, view.space_interval, view.car)
-            view2 = View(bigger, view.space_interval, view.car)
+            # if the lower part is false, we can skip the computation of the upper part
+            if lower_eval:
+                upper_lanes = seq_lanes[split_index:]
+                upper_view = View(upper_lanes, view.horizon, view.car)
+                right_eval = self._right.evaluate(traffic_snapshot, upper_view, variable_car_map)
 
-            if (self._left.evaluate(traffic_snapshot, view1, variable_car_map)
-                    and self._right.evaluate(traffic_snapshot, view2, variable_car_map)):
-                return True
+                if right_eval:
+                    return True
 
         return False
 

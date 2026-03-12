@@ -68,15 +68,31 @@ class CarEnvironment:
     def visible_segments_in_view(self, view: View) -> list[SegmentInterval]:
         # collect visible segments in the view
         visible_segments: list[Segment] = []
-        for lane in view.virtual_lanes:
-            for segment in lane.segments:
-                visible_segments.append(segment)
+        for virtual_lane in view.virtual_lanes:
+            visible_segments.extend(virtual_lane.segments)
 
-        # for each path_segment_interval we have to check if it is visible
-        return list(filter(
-            lambda path_seg_interval: path_seg_interval.segment in visible_segments,
-            self.physical_segment_intervals
-        ))
+        physical_visible_segments = []
+
+        if len(self.physical_segment_intervals) == 0:
+            return []
+
+        horizon = view.horizon
+        next_start = self.physical_segment_intervals[0].interval.start
+        for physical_segment_interval in self.physical_segment_intervals:
+            interval = physical_segment_interval.interval
+
+            end = next_start + interval.length()
+            abs_pos_interval = Interval(next_start, end)
+
+            # check if segment_interval intersects horizon
+            if horizon.intersects(abs_pos_interval):
+                # we only consider those that are inside the view
+                if physical_segment_interval.segment in visible_segments:
+                    physical_visible_segments.append(physical_segment_interval)
+
+            next_start = end
+
+        return physical_visible_segments
 
     @staticmethod
     def validate_environment(
@@ -174,6 +190,7 @@ class CarEnvironment:
 
         print("--------")
         print("path is ", list(map(lambda seg: ts.get_segment_info(seg.uid), path.segments)))
+        print("horizon is ", horizontal_horizon)
         print("physical segment intervals are ",
               list(
                   map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", physical_segment_intervals)))
@@ -189,6 +206,7 @@ class CarEnvironment:
         parallel_virtual_lanes: list[list[VirtualLane]] = _compute_parallel_virtual_lanes(
             ts,
             start_segment,
+            turn_segment,
             path,
             car_direction
         )
@@ -243,31 +261,14 @@ def _compute_path(
     """
 
     turn_segment: LaneSegment = _find_turn_intent_segment(ts, start_segment, turn_intent, car_direction)
-    unbounded_path: VirtualLane | None = _compute_path_through_crossing(ts, start_segment, turn_segment)
+    path: VirtualLane | None = _compute_path_through_crossing(ts, start_segment, turn_segment)
 
-    if unbounded_path is None:
+    if path is None:
         raise ValueError("Car specified a turn intent with invalid path.")
 
-    horizontal_horizon: Interval = compute_horizontal_horizon(
-        ts,
-        unbounded_path.segments,
-        pos_on_segment,
-        braking_dist
-    )
+    braking_pos = pos_on_segment + braking_dist
+    horizontal_horizon = Interval(pos_on_segment, braking_pos)
 
-    # take only those segments in the path within in the horizontal horizon
-    path_segments: list[Segment] = []
-    virtual_pos: float = 0
-    for segment in unbounded_path.segments:
-        size = segment.get_size_in_direction(ts)
-
-        if virtual_pos > horizontal_horizon.end:
-            break
-
-        path_segments.append(segment)
-        virtual_pos += size
-
-    path = VirtualLane(path_segments)
     physical_segment_intervals: list[SegmentInterval] = _compute_segment_intervals(ts, path, pos_on_segment, length)
     path_segment_intervals: list[SegmentInterval] = _compute_segments_safety_envelope(
         ts,
@@ -279,8 +280,8 @@ def _compute_path(
 
     # If the turn intent exceeds what the car can see, we set the turn intent to the last lane segment.
     # For example, if the car turns left 1k units away but can only see 10 forward, the turn_segment gets useless.
-    if turn_segment not in path_segments:
-        end_lane: Segment = path_segments[-1]
+    if turn_segment not in path.segments:
+        end_lane: Segment = path.segments[-1]
         if not isinstance(end_lane, LaneSegment):
             raise ValueError("Path must end on a lane segment.")
         turn_segment = end_lane
@@ -291,13 +292,14 @@ def _compute_path(
 def _compute_parallel_virtual_lanes(
         ts: TrafficSnapshotReader,
         start_segment: LaneSegment,
+        turn_segment: LaneSegment,
         path: VirtualLane,
         car_direction: Direction
 ) -> list[list[VirtualLane]]:
     through_crossing = any(map(lambda seg: not seg.is_lane_segment, path.segments))
     if through_crossing:
         lanes_connected_to_crossing = _compute_all_lanes_connected_to_crossing(ts, start_segment, car_direction)
-        return _compute_parallel_virtual_lanes_crossing(ts, start_segment, lanes_connected_to_crossing, path)
+        return _compute_parallel_virtual_lanes_crossing(ts, start_segment, turn_segment, lanes_connected_to_crossing, path)
     else:
         # no crossing found
         parallel_lane_segments: list[LaneSegment] = _compute_parallel_lane_segments(ts, start_segment)
@@ -353,12 +355,12 @@ def _compute_all_lanes_connected_to_crossing(ts: TrafficSnapshotReader, start_se
 def _compute_parallel_virtual_lanes_crossing(
         ts: TrafficSnapshotReader,
         start_segment: LaneSegment,
+        turn_segment: LaneSegment,
         lanes_connected_to_crossing: list[LaneSegment],
         path: VirtualLane
 ) -> list[list[VirtualLane]]:
     parallel_lane_segments: list[LaneSegment] = _compute_parallel_lane_segments(ts, start_segment)
-    # must be sorted (left to right); that means for us in ascending order
-    parallel_lane_segments.sort(key=lambda seg: seg.lane.lane_index)
+    opposite_lane_segments: list[LaneSegment] = _compute_parallel_lane_segments(ts, turn_segment)
 
     lane_candidates: list[VirtualLane] = []
     for lane in parallel_lane_segments:
@@ -366,7 +368,7 @@ def _compute_parallel_virtual_lanes_crossing(
             lane_candidates.append(path)
         else:
             for dest_lane in lanes_connected_to_crossing:
-                if dest_lane in parallel_lane_segments:
+                if dest_lane not in opposite_lane_segments:
                     continue
 
                 opposing_lane: VirtualLane | None
@@ -419,58 +421,6 @@ def _compute_parallel_lane_segments(ts: TrafficSnapshotReader, segment: LaneSegm
 
     segments.sort(key=lambda seg: seg.lane.lane_index)
     return segments
-
-
-def compute_horizontal_horizon(
-        ts: TrafficSnapshotReader,
-        segments: list[Segment],
-        pos_on_segment: float,
-        braking_dist: float
-) -> Interval:
-    """
-    Computes the horizontal horizon of the car's path.
-    It usually equals the (maximum) braking distance, so that every car can come ot a complete stand-still within
-    the horizon. However, on crossings, the horizon is expanded until after the crossing.
-    """
-    stopped_crossing_i: int = -1
-    virtual_pos: float = pos_on_segment
-    braking_pos = pos_on_segment + braking_dist
-
-    for i, seg_interval in enumerate(segments):
-        segment = segments[i]
-        segment_size = segment.get_size_in_direction(ts)
-        # we have to compute the remaining size on the car's segment
-        # in the first iteration, we need to add the remaining size, otherwise the whole segment
-        size_advancement = (segment_size - pos_on_segment) if i == 0 else segment_size
-
-        virtual_pos += size_advancement
-
-        if virtual_pos > braking_pos:
-            if segment.is_lane_segment:
-                # the car can come to a complete stand-still within the horizon
-                return Interval(pos_on_segment, braking_pos)
-            else:
-                # car stops at crossing (segment with index i)
-                stopped_crossing_i = i
-                break
-
-    # the car did not reach the braking distance before the crossing
-    if stopped_crossing_i == -1:
-        return Interval(pos_on_segment, braking_pos)
-
-    # we have to advance until after the crossing starting at index stopped_crossing_i
-    for i in range(stopped_crossing_i + 1, len(segments)):
-        segment = segments[i]
-        virtual_pos += segment.get_size_in_direction(ts)
-
-        if segment.is_lane_segment:
-            # the path_segment_intervals already guarantees the safety envelope after a crossing
-            # (the algorithm uses the size of the car exactly if the car otherwise stops in a crossing)
-            return Interval(pos_on_segment, virtual_pos)
-
-    # not terminating here would mean the there segments_interval algorithm stops in a crossing
-    # this is not the case
-    raise ValueError("The algorithm stopped in a crossing")
 
 
 def _find_turn_intent_segment(

@@ -1,5 +1,3 @@
-from networkx.algorithms.planarity import Interval
-
 class Interval:
     def __init__(self, start: float, end: float) -> None:
         if start > end:
@@ -17,7 +15,7 @@ class Interval:
                 return True
         return False
 
-    def intersection(self, other: 'Interval') -> Interval | None:
+    def intersection(self, other: 'Interval') -> 'Interval | None':
         intersect_end = min(self.end, other.end)
         intersect_start = max(self.start, other.start)
 
@@ -26,12 +24,16 @@ class Interval:
 
         return Interval(intersect_start, intersect_end)
 
+    def intersects(self, other: 'Interval') -> bool:
+        return self.intersection(other) is not None
 
     @staticmethod
-    def union(interval: list['Interval']) -> list[Interval]:
+    def union(interval: list['Interval']) -> list['Interval']:
         """"
         Returns the union of a list of intervals (that may overlap).
         """
+        if len(interval) == 0:
+            return []
 
         sorted_intervals = sorted(interval, key=lambda x: x.start)
         merged = []
