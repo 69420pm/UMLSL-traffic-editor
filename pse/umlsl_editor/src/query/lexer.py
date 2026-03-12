@@ -167,6 +167,4 @@ class Lexer:
             if len(literal_text) != 0 and literal_text != " ":
                 tokens.append(Literal(literal_text, last_pos, len(input)))
 
-        print("tokens ", list(map(lambda t: str(t), tokens)))
-
         return tokens
