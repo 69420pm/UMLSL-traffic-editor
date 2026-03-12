@@ -4,6 +4,7 @@ from enum import Enum
 
 
 class TokenType(Enum):
+    IMPLIES = "=>"
     L_PAREN = "("
     R_PAREN = ")"
     L_CURLY = "{"
@@ -74,6 +75,7 @@ _UNARY_OPS = {
 _INFIX_BINARY_OPS = {
     TokenType.AND,
     TokenType.OR,
+    TokenType.IMPLIES,
     TokenType.CAR_EQUALS
 }
 _PREFIX_BINARY_OPS = {
@@ -89,7 +91,8 @@ _QUANTOR_OPS = {
 _INFIX_BINARY_OPS_PRECEDENCE = {
     TokenType.AND: 2,
     TokenType.OR: 1,
-    TokenType.CAR_EQUALS: 3  # irrelevant since equality requires parameters to be cars ({and, or} return booleans)
+    TokenType.IMPLIES: 0,
+    TokenType.CAR_EQUALS: 4  # irrelevant since equality requires parameters to be cars (unambiguous since no expressions are involved)
 }
 
 
@@ -163,5 +166,7 @@ class Lexer:
             literal_text = input[last_pos:].strip()
             if len(literal_text) != 0 and literal_text != " ":
                 tokens.append(Literal(literal_text, last_pos, len(input)))
+
+        print("tokens ", list(map(lambda t: str(t), tokens)))
 
         return tokens

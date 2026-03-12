@@ -41,3 +41,14 @@ class DisjunctionNode(BinaryNode):
 
     def _format(self, left: str, right: str) -> str:
         return f"{left} \\vee {right}"
+
+class ImpliesNode(BinaryNode):
+    def __init__(self, left: ASTNode, right: ASTNode):
+        super().__init__(Precedence.BINARY_DISJUNCTION, left, right)
+
+    def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
+        return (not self._left.evaluate(traffic_snapshot, view, variable_car_map)
+                or self._right.evaluate(traffic_snapshot, view, variable_car_map))
+
+    def _format(self, left: str, right: str) -> str:
+        return f"{left} \\Longrightarrow {right}"

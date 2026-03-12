@@ -6,7 +6,8 @@ from pse.umlsl_editor.src.query.ast.claim_node import ClaimNode
 from pse.umlsl_editor.src.query.ast.crossing_node import CrossingSegmentNode
 from pse.umlsl_editor.src.query.ast.equality_node import EqualityCarNode
 from pse.umlsl_editor.src.query.ast.free_node import FreeNode
-from pse.umlsl_editor.src.query.ast.logic_node import ConjunctionNode, DisjunctionNode, NegationNode, TrueNode
+from pse.umlsl_editor.src.query.ast.logic_node import ConjunctionNode, DisjunctionNode, NegationNode, TrueNode, \
+    ImpliesNode
 from pse.umlsl_editor.src.query.ast.quantor_node import ExistsNode, ForallNode
 from pse.umlsl_editor.src.query.ast.reserve_node import ReserveNode
 from pse.umlsl_editor.src.query.ast.somewhere_node import SomewhereNode
@@ -106,6 +107,8 @@ class ASTParser:
                     return ConjunctionNode(left_ast, right_ast)
                 case TokenType.OR:
                     return DisjunctionNode(left_ast, right_ast)
+                case TokenType.IMPLIES:
+                    return ImpliesNode(left_ast, right_ast)
                 case _:
                     raise NotImplementedError(f"Unknown binary operator {token_type}")
 
