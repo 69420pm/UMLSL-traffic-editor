@@ -5,43 +5,36 @@ from pse.umlsl_editor.src.model.interval import Interval
 
 # Sets the number of iterations for the horizontal chopping (at least 1). In each iteration, the new step_size is
 # computed via step_size = prev_step_size / 2.
-H_CHOP_EVAL_ITERATIONS = 5
+H_CHOP_EVAL_ITERATIONS = 4
 
 class HorizontalChopNode(BinaryNode):
     def __init__(self, left: ASTNode, right: ASTNode):
         super().__init__(Precedence.BINARY_CHOP, left, right)
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
-        for i in range(0, H_CHOP_EVAL_ITERATIONS - 1):
-            if self.evaluate_with_step_size(i, traffic_snapshot, view, variable_car_map):
-                return True
-
-        return False
-
-    def evaluate_with_step_size(self, eval_iteration: int, traffic_snapshot: TrafficSnapshotModel, view: View,
-                                variable_car_map: dict[str, Car]):
-        step_size = self.compute_step_size(eval_iteration)
-
-        space_interval = view.space_interval
-        split_value = space_interval.start
-
+        # todo: split pieces in half on every iteration
+        step_size = 0.5  # self.compute_step_size(eval_iteration)
         iteration = 0
-        while split_value < space_interval.end:
-            if eval_iteration != 0 and self.skip_step(iteration):
-                continue
 
-            space_interval1 = Interval(space_interval.start, split_value)
-            space_interval2 = Interval(split_value, space_interval.end)
+        split_value = view.horizon.start
+        space_interval = view.horizon
+        while split_value < space_interval.end - 0.001:
+            left_horizon = Interval(space_interval.start, split_value)
+            left_view = View(view.virtual_lanes, left_horizon, view.car)
+            left = self._left.evaluate(traffic_snapshot, left_view, variable_car_map)
 
-            view1 = View(view.virtual_lanes, space_interval1, view.car)
-            view2 = View(view.virtual_lanes, space_interval2, view.car)
+            # if the lhs is false, we can skip the computation of the rhs
+            if left:
+                right_horizon = Interval(split_value, space_interval.end)
+                right_view = View(view.virtual_lanes, right_horizon, view.car)
 
-            if (self._left.evaluate(traffic_snapshot, view1, variable_car_map)
-                    and self._right.evaluate(traffic_snapshot, view2, variable_car_map)):
-                return True
+                right = self._right.evaluate(traffic_snapshot, right_view, variable_car_map)
+                if right:
+                    return True
 
             split_value += step_size
-            iteration += 1
+
+        return False
 
     def compute_step_size(self, eval_iteration: int) -> float:
         # uses step_size: 1, 1/2, 1/4, 1/8, ...
@@ -63,15 +56,18 @@ class VerticalChopNode(BinaryNode):
         seq_lanes = view.virtual_lanes
 
         for split_index in range(0, len(seq_lanes) + 1):
-            smaller = seq_lanes[:split_index]  # take all lanes whose index is < split_index
-            bigger = seq_lanes[split_index:]
+            lower_lanes = seq_lanes[:split_index]  # take all lanes whose index is < split_index
+            lower_view = View(lower_lanes, view.horizon, view.car)
+            lower_eval = self._left.evaluate(traffic_snapshot, lower_view, variable_car_map)
 
-            view1 = View(smaller, view.space_interval, view.car)
-            view2 = View(bigger, view.space_interval, view.car)
+            # if the lower part is false, we can skip the computation of the upper part
+            if lower_eval:
+                upper_lanes = seq_lanes[split_index:]
+                upper_view = View(upper_lanes, view.horizon, view.car)
+                right_eval = self._right.evaluate(traffic_snapshot, upper_view, variable_car_map)
 
-            if (self._left.evaluate(traffic_snapshot, view1, variable_car_map)
-                    and self._right.evaluate(traffic_snapshot, view2, variable_car_map)):
-                return True
+                if right_eval:
+                    return True
 
         return False
 

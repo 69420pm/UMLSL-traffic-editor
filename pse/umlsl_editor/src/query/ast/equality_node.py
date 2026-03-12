@@ -22,4 +22,4 @@ class EqualityHorizonNode(AtomNode):
         self._length = length
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
-        return view.space_interval.length() == self._length
+        return view.horizon.length() == self._length

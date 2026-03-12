@@ -12,7 +12,7 @@ class ClaimNode(AtomNode):
         self._car_resolve = car_resolve
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
-        if len(view.virtual_lanes) != 1 or view.space_interval.length() <= 0:
+        if len(view.virtual_lanes) != 1 or view.horizon.length() <= 0:
             return False
         lane = view.virtual_lanes[0]
         car_eval = self._car_resolve.resolve(variable_car_map)
@@ -31,7 +31,7 @@ class ClaimNode(AtomNode):
             interval: Interval = segment_interval.interval
             segment: Segment = segment_interval.segment
 
-            if segment == target_segment and view.space_interval.subset_of(list(interval)):
+            if segment == target_segment and view.horizon.subset_of(list(interval)):
                 return True
 
         return False

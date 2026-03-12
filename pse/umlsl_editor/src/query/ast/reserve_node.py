@@ -13,7 +13,7 @@ class ReserveNode(AtomNode):
         self._car_resolve = car_resolve
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
-        if len(view.virtual_lanes) != 1 or view.space_interval.length() <= 0:
+        if len(view.virtual_lanes) != 1 or view.horizon.length() <= 0:
             return False
 
         # the car to evaluate the reserve node on
@@ -32,11 +32,19 @@ class ReserveNode(AtomNode):
         for car_segment_interval in car_segment_intervals:
             car_segment_to_interval_map[car_segment_interval.segment] = car_segment_interval
 
-        lane_segments = view.virtual_lanes[0].segments
+        lane_segments = view.virtual_lanes[0].segments_in_horizon(view.horizon, traffic_snapshot)
+
+        # special case: if the reserve node is on a crossing, we only need to check if the crossing is reserved
+        # since a car can only fully reserve a crossing, we can skip the interval check
+        if all(map(lambda seg: not seg.is_lane_segment, lane_segments)):
+            return all(map(lambda seg: seg in car_reserved_segments, lane_segments))
+
         space_intervals: list[Interval] = []
         virtual_pos = 0
         for segment in lane_segments:
-            car_segment_interval = car_segment_to_interval_map[segment]
+            car_segment_interval = car_segment_to_interval_map.get(segment)
+            if car_segment_interval is None:
+                return False
             interval = car_segment_interval.interval
 
             # we need to ensure every segment of the lane is contained in a reserved segment interval of the car
@@ -51,4 +59,5 @@ class ReserveNode(AtomNode):
             space_intervals.append(absolute_interval)
             virtual_pos += interval.length()
 
-        return view.space_interval.subset_of(Interval.union(space_intervals))
+        x = view.horizon.subset_of(Interval.union(space_intervals))
+        return view.horizon.subset_of(Interval.union(space_intervals))
