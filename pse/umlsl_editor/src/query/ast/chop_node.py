@@ -21,15 +21,15 @@ class HorizontalChopNode(BinaryNode):
         while split_value < space_interval.end - 0.001:
             left_horizon = Interval(space_interval.start, split_value)
             left_view = View(view.virtual_lanes, left_horizon, view.car)
-            left = self._left.evaluate(traffic_snapshot, left_view, variable_car_map)
+            left_eval = self._left.evaluate(traffic_snapshot, left_view, variable_car_map)
 
             # if the lhs is false, we can skip the computation of the rhs
-            if left:
+            if left_eval:
                 right_horizon = Interval(split_value, space_interval.end)
                 right_view = View(view.virtual_lanes, right_horizon, view.car)
 
-                right = self._right.evaluate(traffic_snapshot, right_view, variable_car_map)
-                if right:
+                right_eval = self._right.evaluate(traffic_snapshot, right_view, variable_car_map)
+                if right_eval:
                     return True
 
             split_value += step_size
