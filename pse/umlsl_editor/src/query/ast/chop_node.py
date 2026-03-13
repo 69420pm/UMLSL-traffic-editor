@@ -11,8 +11,22 @@ class HorizontalChopNode(BinaryNode):
         super().__init__(Precedence.BINARY_CHOP, left, right)
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
-        horizon_length = view.horizon.length()
+        horizon = view.horizon
+        horizon_length = horizon.length()
 
+        # we first iterate through interesting values of the horizon, i.e., the start and end positions of cars
+        # for example, by doing so, hchop can be precisely used to detect collisions
+        for car in traffic_snapshot.get_car_list():
+            abs_intervals = car.environment.visible_segments_in_view_abs_intervals(view)
+            for segment_interval in abs_intervals:
+                interval = segment_interval.interval
+
+                start, end = interval.start, interval.end
+                if self.evaluate_at_split(view, traffic_snapshot, variable_car_map, start) \
+                        or self.evaluate_at_split(view, traffic_snapshot, variable_car_map, end):
+                    return True
+
+        # if hchop did not succeed, we iterate through the horizon with exponentially decreasing step sizes
         level = 0
         while True:
             computed_step_size = 1.0 / (2 ** (1.5 * level + 1)) * horizon_length
@@ -26,28 +40,38 @@ class HorizontalChopNode(BinaryNode):
 
             level += 1
 
+
     def evaluate_with_step_size(self, view: View, traffic_snapshot: TrafficSnapshotModel,
                                 variable_car_map: dict[str, Car], step_size: float):
         horizon = view.horizon
         split_value = view.horizon.start
 
-        while split_value < horizon.end - 0.001:
-            left_horizon = Interval(horizon.start, split_value)
-            left_view = View(view.virtual_lanes, left_horizon, view.car)
-            left_eval = self._left.evaluate(traffic_snapshot, left_view, variable_car_map)
-
-            # if the lhs is false, we can skip the computation of the rhs
-            if left_eval:
-                right_horizon = Interval(split_value, horizon.end)
-                right_view = View(view.virtual_lanes, right_horizon, view.car)
-
-                right_eval = self._right.evaluate(traffic_snapshot, right_view, variable_car_map)
-                if right_eval:
-                    return True
-
+        while split_value < horizon.end:
+            if self.evaluate_at_split(view, traffic_snapshot, variable_car_map, split_value):
+                return True
             split_value += step_size
 
         return False
+
+    def evaluate_at_split(self, view: View, traffic_snapshot: TrafficSnapshotModel, variable_car_map: dict[str, Car],
+                          split_value: float):
+        horizon = view.horizon
+
+        if not (horizon.start <= split_value <= horizon.end):
+            return False
+
+        left_horizon = Interval(horizon.start, split_value)
+        left_view = View(view.virtual_lanes, left_horizon, view.car)
+        left_eval = self._left.evaluate(traffic_snapshot, left_view, variable_car_map)
+
+        # if the lhs is false, we can skip the computation of the rhs
+        if left_eval:
+            right_horizon = Interval(split_value, horizon.end)
+            right_view = View(view.virtual_lanes, right_horizon, view.car)
+
+            right_eval = self._right.evaluate(traffic_snapshot, right_view, variable_car_map)
+            if right_eval:
+                return True
 
     def _format(self, left: str, right: str) -> str:
         return f"{left} \\frown {right}"

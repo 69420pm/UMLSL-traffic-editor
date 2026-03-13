@@ -1,5 +1,6 @@
 from collections import deque
 from enum import Enum
+from typing import Tuple
 
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
@@ -65,7 +66,7 @@ class CarEnvironment:
         self.claimed_lanes = list(filter(lambda seg: seg.segment.is_lane_segment, claimed_segment_intervals))
         self.claimed_crossings = list(filter(lambda seg: not seg.segment.is_lane_segment, claimed_segment_intervals))
 
-    def visible_segments_in_view(self, view: View) -> list[SegmentInterval]:
+    def _visible_segments_in_view(self, view: View) -> list[tuple[Segment, Interval, Interval]]:
         # collect visible segments in the view
         visible_segments: list[Segment] = []
         for virtual_lane in view.virtual_lanes:
@@ -113,11 +114,25 @@ class CarEnvironment:
             if horizon.intersects(abs_pos_interval):
                 # we only consider those that are inside the view
                 if physical_segment_interval.segment in visible_segments:
-                    physical_visible_segments.append(physical_segment_interval)
+                    physical_visible_segments.append((physical_segment_interval.segment, interval, abs_pos_interval))
 
             next_start += segment_length
 
         return physical_visible_segments
+
+    def visible_segments_in_view_abs_intervals(self, view: View) -> list[SegmentInterval]:
+        segments = self._visible_segments_in_view(view)
+        abs_segment_intervals = []
+        for segment, interval, abs_interval in segments:
+            abs_segment_intervals.append(SegmentInterval(segment, abs_interval))
+        return abs_segment_intervals
+
+    def visible_segments_in_view(self, view: View) -> list[SegmentInterval]:
+        segments = self._visible_segments_in_view(view)
+        abs_segment_intervals = []
+        for segment, interval, abs_interval in segments:
+            abs_segment_intervals.append(SegmentInterval(segment, interval))
+        return abs_segment_intervals
 
     @staticmethod
     def validate_environment(
@@ -324,7 +339,8 @@ def _compute_parallel_virtual_lanes(
     through_crossing = any(map(lambda seg: not seg.is_lane_segment, path.segments))
     if through_crossing:
         lanes_connected_to_crossing = _compute_all_lanes_connected_to_crossing(ts, start_segment, car_direction)
-        return _compute_parallel_virtual_lanes_crossing(ts, start_segment, turn_segment, lanes_connected_to_crossing, path)
+        return _compute_parallel_virtual_lanes_crossing(ts, start_segment, turn_segment, lanes_connected_to_crossing,
+                                                        path)
     else:
         # no crossing found
         parallel_lane_segments: list[LaneSegment] = _compute_parallel_lane_segments(ts, start_segment)

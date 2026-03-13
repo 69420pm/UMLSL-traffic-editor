@@ -13,7 +13,7 @@ class FreeNode(AtomNode):
             return False
 
         horizon = view.horizon
-        horizon_reduction = 0.5001
+        horizon_reduction = 0.001
 
         smaller_start = horizon.start + horizon_reduction
         smaller_end = max(smaller_start, horizon.end - horizon_reduction)
