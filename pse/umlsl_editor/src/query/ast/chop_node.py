@@ -1,12 +1,9 @@
-from math import ceil
-
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.query.ast.ast import View, BinaryNode, Precedence, ASTNode
 from pse.umlsl_editor.src.model.interval import Interval
+from pse.umlsl_editor.src.query.ast.ast import View, BinaryNode, Precedence, ASTNode
 
 SMALLEST_STEP_SIZE = 0.5
-MAX_ITERATIONS = 4
 
 
 class HorizontalChopNode(BinaryNode):
@@ -16,23 +13,18 @@ class HorizontalChopNode(BinaryNode):
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         horizon_length = view.horizon.length()
 
-        # how many iterations we need to compute the chopping
-        total_steps = horizon_length / SMALLEST_STEP_SIZE
-        step_size = ceil(total_steps / MAX_ITERATIONS)
+        level = 0
+        while True:
+            computed_step_size = 1.0 / (2 ** (1.5 * level + 1)) * horizon_length
+            step_size = max(SMALLEST_STEP_SIZE, computed_step_size)
 
-        current_step = 0
-        while current_step < total_steps:
-            eval_step_size = max(SMALLEST_STEP_SIZE, horizon_length / (1 + current_step))
-
-            if self.evaluate_with_step_size(view, traffic_snapshot, variable_car_map, eval_step_size):
+            if self.evaluate_with_step_size(view, traffic_snapshot, variable_car_map, step_size):
                 return True
 
-            if eval_step_size == SMALLEST_STEP_SIZE:
-                break
+            if computed_step_size < SMALLEST_STEP_SIZE:
+                return False
 
-            current_step += step_size
-
-        return False
+            level += 1
 
     def evaluate_with_step_size(self, view: View, traffic_snapshot: TrafficSnapshotModel,
                                 variable_car_map: dict[str, Car], step_size: float):
