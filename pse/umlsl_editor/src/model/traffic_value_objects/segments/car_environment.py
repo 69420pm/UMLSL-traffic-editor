@@ -77,12 +77,37 @@ class CarEnvironment:
             return []
 
         horizon = view.horizon
+
+        start_segment = self.physical_segment_intervals[0].segment
+        # If the horizon ranges over multiple segments and eventually reaches the physical segments occupied by this
+        # car, we have to compute the correct offset when checking whether the segments of this car intersect the horizon.
+        #
+        # For instance, consider ego with horizon that ranges over 'lane1 - crossing1 - crossing2 - lane2', with
+        # driving direction left to right, where "this" car is placed on lane2 directly after crossing2.
+        # Since ego is placed rather at the end of lane1 (we consider a horizon that ranges over the crossing), a realistic horizon
+        # may be [100, 150] (the start of the interval is relative to the start of lane1).
+        # However, when considering the physically occupied segments of "this" car, they may be [1, 10] (indicating
+        # that the car is placed on lane2 with a starting offset of 1 on lane2).
+        # When computing the intersection, we have to shift the physically occupied segments of "this" car by an offset
+        # that is computed by iterating through the path of ego and collecting the lengths until the segment lane2 is reached.
         next_start = self.physical_segment_intervals[0].interval.start
+        for i, path_segment_interval in enumerate(view.car.environment.path_segment_intervals):
+            segment = path_segment_interval.segment
+            interval = path_segment_interval.interval
+
+            if segment.uid == start_segment.uid:
+                break
+            else:
+                if i == 0:
+                    next_start += interval.start
+
+                next_start += interval.length()
+
         for physical_segment_interval in self.physical_segment_intervals:
             interval = physical_segment_interval.interval
+            segment_length = interval.length()
 
-            end = next_start + interval.length()
-            abs_pos_interval = Interval(next_start, end)
+            abs_pos_interval = Interval(next_start, next_start + segment_length)
 
             # check if segment_interval intersects horizon
             if horizon.intersects(abs_pos_interval):
@@ -90,7 +115,7 @@ class CarEnvironment:
                 if physical_segment_interval.segment in visible_segments:
                     physical_visible_segments.append(physical_segment_interval)
 
-            next_start = end
+            next_start += segment_length
 
         return physical_visible_segments
 
