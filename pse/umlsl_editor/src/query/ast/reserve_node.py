@@ -39,25 +39,31 @@ class ReserveNode(AtomNode):
         if all(map(lambda seg: not seg.is_lane_segment, lane_segments)):
             return all(map(lambda seg: seg in car_reserved_segments, lane_segments))
 
+        if len(lane_segments) == 0:
+            return False
+
         space_intervals: list[Interval] = []
-        virtual_pos = 0
+        next_start = -1
         for segment in lane_segments:
             car_segment_interval = car_segment_to_interval_map.get(segment)
             if car_segment_interval is None:
                 return False
-            interval = car_segment_interval.interval
 
             # we need to ensure every segment of the lane is contained in a reserved segment interval of the car
             if car_segment_interval is None or segment not in car_reserved_segments:
                 return False
 
+            if next_start == -1:
+                next_start = car_segment_interval.interval.start
+
+            segment_length = car_segment_interval.interval.length()
+
             # we need to convert the relative position of the segment to its absolute position
             absolute_interval = Interval(
-                virtual_pos + interval.start,
-                virtual_pos + interval.end
+                next_start,
+                next_start + segment_length
             )
             space_intervals.append(absolute_interval)
-            virtual_pos += interval.length()
+            next_start += segment_length
 
-        x = view.horizon.subset_of(Interval.union(space_intervals))
         return view.horizon.subset_of(Interval.union(space_intervals))
