@@ -1,0 +1,103 @@
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.interval import Interval
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import VirtualLane
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
+
+
+def compute_segment_intervals(
+        ts: TrafficSnapshotReader,
+        path: VirtualLane,
+        pos_on_segment: float,
+        car_size: float
+) -> list[SegmentInterval]:
+    """"
+    This algorithm computes the real space a car occupies on a path.
+    It is similar to the "Algorithm 2" (seg_V) method in the paper, however, the algorithm in the paper collects
+    only those segments that are inside a given View.
+    For performance and implementation reasons, we collect all these segment intervals when a car is created and later
+    - during query evaluation - only take the relevant ones from this list that are inside the current View.
+    """
+    interval_start_offset = pos_on_segment
+
+    result = []
+    next_size = car_size
+
+    i = 0
+    while next_size > 0:
+        current_size = next_size
+
+        if i >= len(path.segments):
+            return result
+
+        seg_i = path.segments[i]
+
+        b_i: float
+        if seg_i.is_lane_segment:
+            b_i = min(interval_start_offset + current_size, seg_i.get_size_in_direction(ts))
+        else:
+            b_i = seg_i.get_size_in_direction(ts)
+
+        interval = Interval(interval_start_offset, b_i)
+        next_size = current_size - interval.length()
+
+        if next_size > 0:
+            interval_start_offset = 0
+
+        result.append(SegmentInterval(seg_i, interval))
+        i += 1
+
+    return result
+
+
+def compute_segments_safety_envelope(
+        ts: TrafficSnapshotReader,
+        path: VirtualLane,
+        pos_on_segment: float,
+        horizon_size: float,
+        car_size: float
+) -> list[SegmentInterval]:
+    """"
+    Computes the segment intervals of the car's path but expands over crossings and includes a safety envelope.
+    The algorithm stops when the car reaches the horizon_size.
+
+    If the car ends in a crossing, we make sure the segment_intervals are expanded until after the crossing.
+    In this case, the last interval equals [0, car_size] to guarantee the safety envelope.
+    """
+    interval_start_offset = pos_on_segment
+
+    result = []
+    next_size = horizon_size
+
+    i = 0
+    while next_size > 0:
+        current_size = next_size
+
+        # since the input size can be arbitrarily large, we need to check if we reached the end of the path
+        # unlike in the segment_intervals method, it is not guaranteed that the car reaches the end of the path
+        if i >= len(path.segments):
+            return result
+
+        seg_i = path.segments[i]
+
+        b_i: float
+        if seg_i.is_lane_segment:
+            # debug: print((interval_start_offset + current_size, seg_i.get_size_in_direction(ts)))
+            b_i = min(interval_start_offset + current_size, seg_i.get_size_in_direction(ts))
+        else:
+            b_i = seg_i.get_size_in_direction(ts)
+            # However, if the car exists the crossing segments, it must occupy its own size
+            next_size = max(current_size, car_size)
+
+        interval = Interval(interval_start_offset, b_i)
+        # debug: print("interval:",interval)
+        # without this check, the algorithm would stop in a crossing
+        if seg_i.is_lane_segment:
+            next_size = current_size - interval.length()
+
+        if next_size > 0:
+            interval_start_offset = 0
+
+        result.append(SegmentInterval(seg_i, interval))
+        i += 1
+
+    return result
