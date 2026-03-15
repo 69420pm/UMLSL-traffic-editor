@@ -1,21 +1,20 @@
-from collections import deque
 from enum import Enum
-from typing import Tuple
 
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.entities.road import RoadOrientation
+from pse.umlsl_editor.src.model.entities.road import RoadOrientation, Road
 from pse.umlsl_editor.src.model.environment.environment_helper import compute_parallel_lane_segments
-from pse.umlsl_editor.src.model.environment.multi_view import compute_parallel_virtual_lanes, compute_path
-from pse.umlsl_editor.src.model.environment.segment_intervals_helper import compute_segment_intervals, \
-    compute_segments_safety_envelope
+from pse.umlsl_editor.src.model.environment.multi_view import compute_path, \
+    compute_parallel_virtual_lanes
+from pse.umlsl_editor.src.model.environment.segment_intervals_helper import compute_segments_safety_envelope
 from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError
 from pse.umlsl_editor.src.model.helper.directional_graph import Direction
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import VirtualLane, Segment
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.virtual_lane import VirtualLane, VirtualLaneNew
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnDirection, TurnIntent
 from pse.umlsl_editor.src.query.view import View
 
@@ -31,7 +30,7 @@ class CarEnvironment:
     """
 
     # List of parallel virtual lanes.
-    parallel_virtual_lanes: list[list[VirtualLane]]
+    parallel_virtual_lanes: list[list[VirtualLaneNew]]
     # The path of the car which is a list of segments.
     path: VirtualLane
     # The path of the car where each segment is equipped with an interval.
@@ -45,19 +44,23 @@ class CarEnvironment:
 
     reserved_lanes: list[SegmentInterval]
     reserved_crossings: list[SegmentInterval]
+    reserved: list[SegmentInterval]
     claimed_lanes: list[SegmentInterval]
     claimed_crossings: list[SegmentInterval]
+    claimed: list[SegmentInterval]
 
     def __init__(
             self,
+            car_direction: Direction,
             path: VirtualLane,
             physical_segment_intervals: list[SegmentInterval],
             path_segment_intervals: list[SegmentInterval],
             horizontal_horizon: Interval,
-            parallel_virtual_lanes: list[list[VirtualLane]],
+            parallel_virtual_lanes: list[list[VirtualLaneNew]],
             reserved_segment_intervals: list[SegmentInterval],
             claimed_segment_intervals: list[SegmentInterval],
     ):
+        self.car_direction = car_direction
         self.path = path
         self.physical_segment_intervals = physical_segment_intervals
         self.path_segment_intervals = path_segment_intervals
@@ -66,77 +69,11 @@ class CarEnvironment:
 
         self.reserved_lanes = list(filter(lambda seg: seg.segment.is_lane_segment, reserved_segment_intervals))
         self.reserved_crossings = list(filter(lambda seg: not seg.segment.is_lane_segment, reserved_segment_intervals))
+        self.reserved = self.reserved_lanes + self.reserved_crossings
 
         self.claimed_lanes = list(filter(lambda seg: seg.segment.is_lane_segment, claimed_segment_intervals))
         self.claimed_crossings = list(filter(lambda seg: not seg.segment.is_lane_segment, claimed_segment_intervals))
-
-    def _visible_segments_in_view(self, view: View) -> list[tuple[Segment, Interval, Interval]]:
-        # collect visible segments in the view
-        visible_segments: list[Segment] = []
-        for virtual_lane in view.virtual_lanes:
-            visible_segments.extend(virtual_lane.segments)
-
-        physical_visible_segments = []
-
-        if len(self.physical_segment_intervals) == 0:
-            return []
-
-        horizon = view.horizon
-
-        start_segment = self.physical_segment_intervals[0].segment
-        # If the horizon ranges over multiple segments and eventually reaches the physical segments occupied by this
-        # car, we have to compute the correct offset when checking whether the segments of this car intersect the horizon.
-        #
-        # For instance, consider ego with horizon that ranges over 'lane1 - crossing1 - crossing2 - lane2', with
-        # driving direction left to right, where "this" car is placed on lane2 directly after crossing2.
-        # Since ego is placed rather at the end of lane1 (we consider a horizon that ranges over the crossing), a realistic horizon
-        # may be [100, 150] (the start of the interval is relative to the start of lane1).
-        # However, when considering the physically occupied segments of "this" car, they may be [1, 10] (indicating
-        # that the car is placed on lane2 with a starting offset of 1 on lane2).
-        # When computing the intersection, we have to shift the physically occupied segments of "this" car by an offset
-        # that is computed by iterating through the path of ego and collecting the lengths until the segment lane2 is reached.
-        next_start = self.physical_segment_intervals[0].interval.start
-        for i, path_segment_interval in enumerate(view.car.environment.path_segment_intervals):
-            segment = path_segment_interval.segment
-            interval = path_segment_interval.interval
-
-            if segment.uid == start_segment.uid:
-                break
-            else:
-                if i == 0:
-                    next_start += interval.start
-
-                next_start += interval.length()
-
-        for physical_segment_interval in self.physical_segment_intervals:
-            interval = physical_segment_interval.interval
-            segment_length = interval.length()
-
-            abs_pos_interval = Interval(next_start, next_start + segment_length)
-
-            # check if segment_interval intersects horizon
-            if horizon.intersects(abs_pos_interval):
-                # we only consider those that are inside the view
-                if physical_segment_interval.segment in visible_segments:
-                    physical_visible_segments.append((physical_segment_interval.segment, interval, abs_pos_interval))
-
-            next_start += segment_length
-
-        return physical_visible_segments
-
-    def visible_segments_in_view_abs_intervals(self, view: View) -> list[SegmentInterval]:
-        segments = self._visible_segments_in_view(view)
-        abs_segment_intervals = []
-        for segment, interval, abs_interval in segments:
-            abs_segment_intervals.append(SegmentInterval(segment, abs_interval))
-        return abs_segment_intervals
-
-    def visible_segments_in_view(self, view: View) -> list[SegmentInterval]:
-        segments = self._visible_segments_in_view(view)
-        abs_segment_intervals = []
-        for segment, interval, abs_interval in segments:
-            abs_segment_intervals.append(SegmentInterval(segment, interval))
-        return abs_segment_intervals
+        self.claimed = self.claimed_lanes + self.claimed_crossings
 
     @staticmethod
     def validate_environment(
@@ -164,15 +101,7 @@ class CarEnvironment:
         road = ts.get_road_by_uid(car_lane.road_uid)
 
         length = car_params.get_braking_dist(settings_model.braking_acceleration)
-
-        # compute car direction
-        car_direction: Direction
-        if road.orientation == RoadOrientation.HORIZONTAL:
-            car_direction = Direction.LEFT if (speed < 0) else Direction.RIGHT
-        else:
-            car_direction = Direction.DOWN if (speed < 0) else Direction.UP
-        if not car_lane.is_forward():
-            car_direction = car_direction.opposite
+        car_direction = _compute_car_direction(speed, car_lane, road)
 
         if turn_intent is None:
             # if the turn_intent is not specified, it means the car drives straight
@@ -236,18 +165,23 @@ class CarEnvironment:
         print("claimed segment intervals are ",
               list(map(lambda seg: f"{ts.get_segment_info(seg.segment.uid)}{seg.interval}", claimed_segment_intervals)))
 
-        parallel_virtual_lanes: list[list[VirtualLane]] = compute_parallel_virtual_lanes(
+        parallel_virtual_lanes: list[list[VirtualLaneNew]] = compute_parallel_virtual_lanes(
             ts,
+            pos_on_segment,
             start_segment,
             turn_segment,
             path,
-            car_direction
+            car_direction,
+            horizontal_horizon
         )
+
         for parallel_virtual_lane in parallel_virtual_lanes:
             print("parallel virtual lane:")
             for virtual_lane in parallel_virtual_lane:
-                print(" > virtual lane is ", list(map(lambda seg: ts.get_segment_info(seg.uid), virtual_lane.segments)))
+                print(" > virtual lane is ", list(map(lambda seg: ts.get_segment_info(seg.segment.uid) + " " + str(seg.interval), virtual_lane.segment_intervals)))
+
         return CarEnvironment(
+            car_direction,
             path,
             physical_segment_intervals,
             path_segment_intervals,
@@ -256,6 +190,63 @@ class CarEnvironment:
             reserved_segment_intervals,
             claimed_segment_intervals
         )
+
+    def translate_interval_coordinates(self, virtual_lanes: list[VirtualLaneNew], horizon: Interval, to_translate: list[SegmentInterval], translate_car: 'Car', ts: TrafficSnapshotReader) -> dict[Segment, Interval]:
+        """"
+        Translates the segment of the given interval into the coordinates of the "self" car - w.r.t the virtual_lanes.
+        """
+
+        # 1) for each element in to_translate, figure out the corresponding virtual lane that includes that segment -> create a map from to_translate to virtual_lane
+        # 2) for each virtual lane, translate the interval into the coordinate system of the "self" car
+        # 3) remove those segment intervals that do not intersect with the horizon of the "self" car
+
+        lane_to_segment_intervals: dict[int, list[SegmentInterval]] = {}
+        segments_to_virtual_lane: dict[Segment, VirtualLaneNew] = {}
+        for virtual_lane in virtual_lanes:
+            for segment_interval in virtual_lane.segment_intervals:
+                segments_to_virtual_lane[segment_interval.segment] = virtual_lane
+
+        for translate_segment_interval in to_translate:
+            virtual_lane = segments_to_virtual_lane.get(translate_segment_interval.segment)
+            if virtual_lane is not None:
+                if lane_to_segment_intervals.get(virtual_lane) is None:
+                    lane_to_segment_intervals[virtual_lane] = []
+
+                lane_to_segment_intervals[virtual_lane].append(translate_segment_interval)
+
+        # 2) translation...
+
+        # 3)
+
+        translated_segment_intervals: dict[Segment, Interval] = {}
+        for virtual_lane, to_translate_segments_intervals in lane_to_segment_intervals.items():
+            virtual_pos = -1
+
+            for segment_interval in to_translate_segments_intervals:
+                interval = segment_interval.interval
+
+                if virtual_pos == -1:
+                    virtual_pos = interval.start
+
+                interval_on_lane = Interval(virtual_pos, virtual_pos + interval.length())
+                if interval_on_lane.intersects(horizon):
+                    translated_segment_intervals[segment_interval.segment] = interval
+
+                virtual_pos += interval.length
+
+        return translated_segment_intervals
+
+
+def _compute_car_direction( speed: float, lane: Lane, road: Road) -> Direction:
+    # compute car direction
+    car_direction: Direction
+    if road.orientation == RoadOrientation.HORIZONTAL:
+        car_direction = Direction.LEFT if (speed < 0) else Direction.RIGHT
+    else:
+        car_direction = Direction.DOWN if (speed < 0) else Direction.UP
+    if not lane.is_forward():
+        car_direction = car_direction.opposite
+    return car_direction
 
 
 def _compute_claimed_envelope(reserved_segment_intervals: list[SegmentInterval], transition: float,

@@ -1,7 +1,7 @@
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.interval import Interval
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import VirtualLane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.virtual_lane import VirtualLane
 
 
 def compute_segment_intervals(

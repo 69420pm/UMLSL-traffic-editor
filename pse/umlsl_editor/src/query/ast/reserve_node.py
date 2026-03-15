@@ -2,7 +2,6 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import Traf
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
 from pse.umlsl_editor.src.query.ast.ast import View, AtomNode
 from pse.umlsl_editor.src.query.ast.car_resolve import CarResolve
 
@@ -19,51 +18,30 @@ class ReserveNode(AtomNode):
         # the car to evaluate the reserve node on
         eval_car = self._car_resolve.resolve(variable_car_map)
 
-        # the list of reserved segments of the car
+        # collect reserved segments of the car
         car_reserved_segments: list[Segment] = []
         for reserved_lane in eval_car.environment.reserved_lanes:
             car_reserved_segments.append(reserved_lane.segment)
         for reserved_crossing in eval_car.environment.reserved_crossings:
             car_reserved_segments.append(reserved_crossing.segment)
 
-        car_segment_intervals: list[SegmentInterval] = eval_car.environment.visible_segments_in_view(view)
-        # maps each segment to its segment_interval
-        car_segment_to_interval_map: dict[Segment, SegmentInterval] = dict()
-        for car_segment_interval in car_segment_intervals:
-            car_segment_to_interval_map[car_segment_interval.segment] = car_segment_interval
-
-        lane_segments = view.virtual_lanes[0].segments_in_horizon(view.horizon, traffic_snapshot)
-
-        # special case: if the reserve node is on a crossing, we only need to check if the crossing is reserved
-        # since a car can only fully reserve a crossing, we can skip the interval check
-        if all(map(lambda seg: not seg.is_lane_segment, lane_segments)):
-            return all(map(lambda seg: seg in car_reserved_segments, lane_segments))
-
-        if len(lane_segments) == 0:
-            return False
-
-        space_intervals: list[Interval] = []
-        next_start = -1
-        for segment in lane_segments:
-            car_segment_interval = car_segment_to_interval_map.get(segment)
-            if car_segment_interval is None:
+        single_lane = view.virtual_lanes[0]
+        reserved_intervals: list[Interval] = []
+        for segment_interval in single_lane.segment_intervals:
+            segment = segment_interval.segment
+            # we have to ensure every segment of the lane is contained in a reserved segment of the car
+            if segment_interval.segment not in car_reserved_segments:
                 return False
 
-            # we need to ensure every segment of the lane is contained in a reserved segment interval of the car
-            if car_segment_interval is None or segment not in car_reserved_segments:
+            reserved_segments = view.reserved_segments.get(eval_car.uid)
+            if reserved_segments is None:
                 return False
 
-            if next_start == -1:
-                next_start = car_segment_interval.interval.start
+            interval = reserved_segments.get(segment)
+            if interval is None:
+                return False
 
-            segment_length = car_segment_interval.interval.length()
+            reserved_intervals.append(interval)
 
-            # we need to convert the relative position of the segment to its absolute position
-            absolute_interval = Interval(
-                next_start,
-                next_start + segment_length
-            )
-            space_intervals.append(absolute_interval)
-            next_start += segment_length
-
-        return view.horizon.subset_of(Interval.union(space_intervals))
+        # check if the horizon is fully contained in the reserved segments of the car
+        return view.horizon.subset_of(Interval.union(reserved_intervals))
