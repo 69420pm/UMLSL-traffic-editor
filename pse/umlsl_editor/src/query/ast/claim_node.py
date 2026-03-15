@@ -14,24 +14,26 @@ class ClaimNode(AtomNode):
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         if len(view.virtual_lanes) != 1 or view.horizon.length() <= 0:
             return False
-        lane = view.virtual_lanes[0]
+
+        return True # todo
+        segments: list[Segment] = view.virtual_lanes[0].segments_in_horizon(view.horizon, traffic_snapshot)
         car_eval = self._car_resolve.resolve(variable_car_map)
 
-        # 1) claim evaluates true if all segment in the lane are crossing segments
+        # claim evaluates true if all segments (in the horizon) are crossing segments reserved by the (eval) car
         reserved_crossings = car_eval.environment.reserved_crossings
-        if all(map(lambda s: s in reserved_crossings, lane.segments)):
+        if all(map(lambda s: s in reserved_crossings, segments)):
             return True
 
-        # 2)
-        if len(lane.segments) != 1:
+        # otherwise, we need to check whether the horizon is fully contained in the segment reserved by the (eval) car
+        if len(segments) != 1:
             return False
-        target_segment = lane.segments[0]
+        target_segment = segments[0]
 
         for segment_interval in car_eval.environment.visible_segments_in_view(view):
             interval: Interval = segment_interval.interval
             segment: Segment = segment_interval.segment
 
-            if segment == target_segment and view.horizon.subset_of(list(interval)):
+            if segment == target_segment and view.horizon.subset_of([interval]):
                 return True
 
         return False

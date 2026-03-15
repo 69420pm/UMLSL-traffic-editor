@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from pse.umlsl_editor.src.model.entities.car import Car
 
 
-@dataclass
+@dataclass(frozen=True)
 class SegmentInterval:
     """
     Represents a segment interval on the virtual lane of the car.

@@ -1,10 +1,14 @@
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
 class Interval:
-    def __init__(self, start: float, end: float) -> None:
-        if start > end:
-            raise ValueError(f"End must be greater than or equal to start but got start={start} and end={end}")
-        else:
-            self.start = start
-            self.end = end
+    start: float
+    end: float
+
+    def __post_init__(self) -> None:
+        if self.start > self.end:
+            raise ValueError(f"End must be greater than or equal to start but got start={self.start} and end={self.end}")
 
     def length(self):
         return self.end - self.start
