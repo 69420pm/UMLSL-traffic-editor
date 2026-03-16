@@ -42,12 +42,11 @@ def compute_path(
 
     horizontal_horizon = Interval(pos_on_segment, pos_on_segment + braking_dist)
     physical_segment_intervals: list[SegmentInterval] = compute_segment_intervals(ts, path, pos_on_segment, length)
-    path_segment_intervals: list[SegmentInterval] = compute_segments_safety_envelope(
+    path_segment_intervals: list[SegmentInterval] = compute_segment_intervals(
         ts,
         path,
         pos_on_segment,
         horizontal_horizon.length(),
-        length
     )
 
     # If the turn intent exceeds what the car can see, we set the turn intent to the last lane segment.
