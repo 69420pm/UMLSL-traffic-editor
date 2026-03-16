@@ -79,12 +79,17 @@ class CarItem(SelectableGraphicsItem):
         self._clear_segments()
 
         self._add_segments(
-            self._car.environment.reserved_lanes + self._car.environment.reserved_crossings,
+            self._car.environment.path_segment_intervals,
             self._car,
             False
         )
         self._add_segments(
-            self._car.environment.claimed_lanes + self._car.environment.claimed_crossings,
+            self._car.environment.reserved,
+            self._car,
+            False
+        )
+        self._add_segments(
+            self._car.environment.claimed,
             self._car,
             True
         )
@@ -136,12 +141,6 @@ class CarItem(SelectableGraphicsItem):
         self._body_pen = QPen(border_color, CarItemStyle.PEN_WIDTH)
 
     def on_selection_changed(self, is_selected: bool) -> None:
-        if is_selected:
-            self.application_controller.get_traffic_snapshot_reader().debug_get_segments().clear()
-            for seg in self._car.environment.path_segment_intervals:
-                self.application_controller.get_traffic_snapshot_reader().debug_get_segments()[
-                    seg.segment.uid] = seg.segment
-
         self._update_styles()
         self.update()
 
