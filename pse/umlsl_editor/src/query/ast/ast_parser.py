@@ -168,7 +168,7 @@ class ASTParser:
 
         try:
             length = float(literal_value)
-        except ValueError | TypeError:
+        except (ValueError, TypeError):
             length = None
 
         if number_literal.type != TokenType.LITERAL or length is None:
