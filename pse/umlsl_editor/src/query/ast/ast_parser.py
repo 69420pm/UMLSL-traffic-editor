@@ -318,7 +318,7 @@ class ASTParser:
     def parse_expression_argument(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
         if self._tokens[start].type != TokenType.L_CURLY:
             raise ASTParserError(
-                "argument must start by '}'",
+                "argument must start by '{'",
                 start,
                 end
             )
