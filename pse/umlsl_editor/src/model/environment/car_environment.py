@@ -67,13 +67,13 @@ class CarEnvironment:
         self.horizontal_horizon = horizontal_horizon
         self.parallel_virtual_lanes = parallel_virtual_lanes
 
+        self.reserved = reserved_segment_intervals
         self.reserved_lanes = list(filter(lambda seg: seg.segment.is_lane_segment, reserved_segment_intervals))
         self.reserved_crossings = list(filter(lambda seg: not seg.segment.is_lane_segment, reserved_segment_intervals))
-        self.reserved = self.reserved_lanes + self.reserved_crossings
 
+        self.claimed = claimed_segment_intervals
         self.claimed_lanes = list(filter(lambda seg: seg.segment.is_lane_segment, claimed_segment_intervals))
         self.claimed_crossings = list(filter(lambda seg: not seg.segment.is_lane_segment, claimed_segment_intervals))
-        self.claimed = self.claimed_lanes + self.claimed_crossings
 
     @staticmethod
     def validate_environment(
@@ -200,39 +200,49 @@ class CarEnvironment:
         # 2) for each virtual lane, translate the interval into the coordinate system of the "self" car
         # 3) remove those segment intervals that do not intersect with the horizon of the "self" car
 
-        lane_to_segment_intervals: dict[int, list[SegmentInterval]] = {}
-        segments_to_virtual_lane: dict[Segment, VirtualLaneNew] = {}
-        for virtual_lane in virtual_lanes:
-            for segment_interval in virtual_lane.segment_intervals:
-                segments_to_virtual_lane[segment_interval.segment] = virtual_lane
+        lane_to_segment_intervals: dict[int, dict[Segment, Interval]] = {}
+        segments_to_virtual_lane: dict[Segment, int] = {}
+        for virtual_lane_index in virtual_lanes:
+            for segment_interval in virtual_lane_index.segment_intervals:
+                lane_index = virtual_lanes.index(virtual_lane_index)
+                segments_to_virtual_lane[segment_interval.segment] = lane_index
 
         for translate_segment_interval in to_translate:
-            virtual_lane = segments_to_virtual_lane.get(translate_segment_interval.segment)
-            if virtual_lane is not None:
-                if lane_to_segment_intervals.get(virtual_lane) is None:
-                    lane_to_segment_intervals[virtual_lane] = []
+            lane_index = segments_to_virtual_lane.get(translate_segment_interval.segment)
+            if lane_index is not None:
+                if lane_to_segment_intervals.get(lane_index) is None:
+                    lane_to_segment_intervals[lane_index] = {}
 
-                lane_to_segment_intervals[virtual_lane].append(translate_segment_interval)
+                lane_to_segment_intervals[lane_index][translate_segment_interval.segment] = translate_segment_interval.interval
 
-        # 2) translation...
+        for lane_index, segments in lane_to_segment_intervals.items():
+            print("lane with index ", lane_index, " has segments ", [ts.get_segment_info(seg.uid) + " " + str(i) for seg, i in segments.items()])
+
+
+        # 2) translation... (left or right alignment - that's all)
 
         # 3)
 
         translated_segment_intervals: dict[Segment, Interval] = {}
-        for virtual_lane, to_translate_segments_intervals in lane_to_segment_intervals.items():
-            virtual_pos = -1
+        for lane_index, virtual_lane in enumerate(virtual_lanes):
+            segment_intervals_on_lane: dict[Segment, Interval] = lane_to_segment_intervals.get(lane_index)
+            if segment_intervals_on_lane is None:
+                continue
 
-            for segment_interval in to_translate_segments_intervals:
-                interval = segment_interval.interval
+            offset = 0
+            for lane_segment_interval in virtual_lane.segment_intervals:
+                lane_segment = lane_segment_interval.segment
 
-                if virtual_pos == -1:
-                    virtual_pos = interval.start
+                interval = segment_intervals_on_lane.get(lane_segment)
+                if interval is not None:
+                    interval_on_lane = Interval(interval.start + offset, interval.end + offset)
+                  #  print("checking for ", ts.get_segment_info(lane_segment.uid), interval_on_lane, " vs ", horizon)
+                    if interval_on_lane.intersects(horizon):
+                      #  print("intersects")
+                        translated_segment_intervals[lane_segment] = interval_on_lane
 
-                interval_on_lane = Interval(virtual_pos, virtual_pos + interval.length())
-                if interval_on_lane.intersects(horizon):
-                    translated_segment_intervals[segment_interval.segment] = interval
+                offset += lane_segment.get_size_in_direction(ts)
 
-                virtual_pos += interval.length
 
         return translated_segment_intervals
 

@@ -48,15 +48,11 @@ class CarInterval:
     car: 'Car'
     interval: Interval
 
-@dataclass
+@dataclass(frozen=True)
 class VirtualLaneNew:
     """Describes a list of ordered segments"""
     segment_intervals: list[SegmentInterval]
     car_info: list[CarInterval]
-
-    def __post_init__(self) -> None:
-        self.validate()
-        self._initialized = True
 
     def segments_in_horizon(self, horizon: Interval) -> list[SegmentInterval]:
         segments_in_horizon = []
@@ -66,15 +62,3 @@ class VirtualLaneNew:
                 segments_in_horizon.append(segment_interval)
 
         return segments_in_horizon
-
-    def __setattr__(self, name: str, value: object) -> None:
-        super().__setattr__(name, value)
-        if getattr(self, "_initialized", False):
-            self.validate()
-
-    def validate(self) -> None:
-        if not isinstance(self.segment_intervals, list):
-            raise ValueError("segments must be a list")
-        for s in self.segment_intervals:
-            if not isinstance(s, SegmentInterval):
-                raise ValueError("All elements in segments must be Segment instances")
