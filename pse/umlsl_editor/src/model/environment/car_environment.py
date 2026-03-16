@@ -16,7 +16,6 @@ from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Se
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.virtual_lane import VirtualLane, VirtualLaneNew
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnDirection, TurnIntent
-from pse.umlsl_editor.src.query.view import View
 
 
 class Orientation(Enum):
@@ -28,6 +27,7 @@ class CarEnvironment:
     """
     This class includes information on how the car interacts with the segments of the traffic snapshot.
     """
+    turn_direction: TurnDirection | None
 
     # List of parallel virtual lanes.
     parallel_virtual_lanes: list[list[VirtualLaneNew]]
@@ -52,6 +52,7 @@ class CarEnvironment:
     def __init__(
             self,
             car_direction: Direction,
+            turn_direction: TurnDirection,
             path: VirtualLane,
             physical_segment_intervals: list[SegmentInterval],
             path_segment_intervals: list[SegmentInterval],
@@ -61,6 +62,7 @@ class CarEnvironment:
             claimed_segment_intervals: list[SegmentInterval],
     ):
         self.car_direction = car_direction
+        self.turn_direction = turn_direction
         self.path = path
         self.physical_segment_intervals = physical_segment_intervals
         self.path_segment_intervals = path_segment_intervals
@@ -103,9 +105,12 @@ class CarEnvironment:
         length = car_params.get_braking_dist(settings_model.braking_acceleration)
         car_direction = _compute_car_direction(speed, car_lane, road)
 
+        turn_direction: TurnDirection = TurnDirection.STRAIGHT
         if turn_intent is None:
             # if the turn_intent is not specified, it means the car drives straight
             turn_intent = TurnIntent(TurnDirection.STRAIGHT, car_lane)
+        else:
+            turn_direction = turn_intent.direction
 
         pos_on_lane = car_params.position_on_lane  # rear of the car
         start_segment = ts.get_segment_from_lane_position(car_params.lane, pos_on_lane)
@@ -182,6 +187,7 @@ class CarEnvironment:
 
         return CarEnvironment(
             car_direction,
+            turn_direction,
             path,
             physical_segment_intervals,
             path_segment_intervals,
@@ -207,21 +213,38 @@ class CarEnvironment:
                 lane_index = virtual_lanes.index(virtual_lane_index)
                 segments_to_virtual_lane[segment_interval.segment] = lane_index
 
-        for translate_segment_interval in to_translate:
+        # 2) align intervals of to_translate
+        self_dir: Direction = self.car_direction
+        turn_dir: TurnDirection = self.turn_direction
+        car_dir: Direction = translate_car.environment.car_direction
+        swap_alignment = car_dir == self_dir.opposite
+
+        if not swap_alignment and turn_dir != TurnDirection.STRAIGHT:
+            # we have to be careful on turns
+            swap_alignment = turn_dir == TurnDirection.LEFT and car_dir == Direction.DOWN or turn_dir == TurnDirection.RIGHT and car_dir == Direction.UP
+
+        aligned_to_translate: list[SegmentInterval] = []
+        if swap_alignment:
+            for translate_segment_interval in to_translate:
+                segment = translate_segment_interval.segment
+                segment_length = segment.get_size_in_direction(ts)
+                interval = translate_segment_interval.interval
+
+                new_start = segment_length - interval.end
+                new_end = segment_length - interval.start
+
+                aligned_interval = Interval(new_start, new_end)
+                aligned_to_translate.append(SegmentInterval(segment, aligned_interval))
+        else:
+            aligned_to_translate = to_translate
+
+        for translate_segment_interval in aligned_to_translate:
             lane_index = segments_to_virtual_lane.get(translate_segment_interval.segment)
             if lane_index is not None:
                 if lane_to_segment_intervals.get(lane_index) is None:
                     lane_to_segment_intervals[lane_index] = {}
 
                 lane_to_segment_intervals[lane_index][translate_segment_interval.segment] = translate_segment_interval.interval
-
-        for lane_index, segments in lane_to_segment_intervals.items():
-            print("lane with index ", lane_index, " has segments ", [ts.get_segment_info(seg.uid) + " " + str(i) for seg, i in segments.items()])
-
-
-        # 2) translation... (left or right alignment - that's all)
-
-        # 3)
 
         translated_segment_intervals: dict[Segment, Interval] = {}
         for lane_index, virtual_lane in enumerate(virtual_lanes):
@@ -236,9 +259,7 @@ class CarEnvironment:
                 interval = segment_intervals_on_lane.get(lane_segment)
                 if interval is not None:
                     interval_on_lane = Interval(interval.start + offset, interval.end + offset)
-                  #  print("checking for ", ts.get_segment_info(lane_segment.uid), interval_on_lane, " vs ", horizon)
                     if interval_on_lane.intersects(horizon):
-                      #  print("intersects")
                         translated_segment_intervals[lane_segment] = interval_on_lane
 
                 offset += lane_segment.get_size_in_direction(ts)
