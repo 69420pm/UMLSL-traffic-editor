@@ -15,12 +15,20 @@ class HorizontalChopNode(BinaryNode):
 
         # we first iterate through interesting values of the horizon, i.e., the start and end positions of cars
         # for example, by doing so, hchop can be precisely used to detect collisions
-        for occupied_segments in view.intersecting_cars.values():
-            for segment, interval in occupied_segments.items():
-                start, end = interval.start, interval.end
-                if self.evaluate_at_split(view, traffic_snapshot, variable_car_map, start) \
-                        or self.evaluate_at_split(view, traffic_snapshot, variable_car_map, end):
-                    return True
+        interesting_splits = []
+        for physically_occupied_intervals in view.intersecting_cars.values():
+            for segment, interval in physically_occupied_intervals.items():
+                interesting_splits.extend([interval.start, interval.end])
+        for reserved_intervals in view.reserved_segments.values():
+            for segment, interval in reserved_intervals.items():
+                interesting_splits.extend([interval.start, interval.end])
+        for claimed_intervals in view.claimed_segments.values():
+            for segment, interval in claimed_intervals.items():
+                interesting_splits.extend([interval.start, interval.end])
+
+        for split in interesting_splits:
+            if self.evaluate_at_split(view, traffic_snapshot, variable_car_map, split):
+                return True
 
         # if hchop did not succeed, we iterate through the horizon with exponentially decreasing step sizes
         level = 0
