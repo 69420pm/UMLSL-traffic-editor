@@ -20,13 +20,10 @@ class FreeNode(AtomNode):
         smaller_end = max(smaller_start, horizon.end - horizon_reduction)
         smaller_horizon = Interval(smaller_start, smaller_end)
 
-        print("evaluate free at horizon ", smaller_horizon)
-
         for intersecting_car_uids in view.intersecting_cars:
             segment_intervals: dict[Segment, Interval] = view.intersecting_cars[intersecting_car_uids]
             for segment, interval in segment_intervals.items():
                 if smaller_horizon.intersects(interval):
-                    print(smaller_horizon, "intersects", interval, " at ", traffic_snapshot.get_segment_info(segment.uid))
                     return False
 
         return True
