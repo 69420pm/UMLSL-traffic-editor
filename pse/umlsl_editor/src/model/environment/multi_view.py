@@ -129,7 +129,7 @@ def compute_parallel_segments(
         for parallel_lane_segment in parallel_lane_segments:
             parallel_segments.append([parallel_lane_segment])
 
-        parallel_segments.sort(key=lambda lane: lane.segments[0].lane.lane_index)
+        parallel_segments.sort(key=lambda lane: lane[0].lane.lane_index)
 
         return [parallel_segments]
 
