@@ -17,13 +17,7 @@ class ReserveNode(AtomNode):
 
         # the car to evaluate the reserve node on
         eval_car = self._car_resolve.resolve(variable_car_map)
-
-        # collect reserved segments of the car
-        car_reserved_segments: list[Segment] = []
-        for reserved_lane in eval_car.environment.reserved_lanes:
-            car_reserved_segments.append(reserved_lane.segment)
-        for reserved_crossing in eval_car.environment.reserved_crossings:
-            car_reserved_segments.append(reserved_crossing.segment)
+        car_reserved_segments: list[Segment] = list(map(lambda res: res.segment, eval_car.environment.reserved))
 
         single_lane = view.virtual_lanes[0]
         reserved_intervals: list[Interval] = []
