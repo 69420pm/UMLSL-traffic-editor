@@ -56,7 +56,7 @@ class View:
         for intersecting_car in self.intersecting_cars:
             occupied_segment_interval: dict[Segment, Interval] = self.intersecting_cars[intersecting_car]
             any_intersects = any(
-                occupied_interval.intersects(horizon)
+                occupied_segment in segments_in_view and occupied_interval.intersects(horizon)
                 for occupied_segment, occupied_interval in occupied_segment_interval.items()
             )
             if any_intersects:
