@@ -4,12 +4,16 @@ from enum import Enum
 
 
 class TokenType(Enum):
-    IMPLIES = "=>"
     L_PAREN = "("
     R_PAREN = ")"
     L_CURLY = "{"
     R_CURLY = "}"
     COLON = ":"
+    HORIZON_GE = "l>="
+    HORIZON_LE = "l<="
+    HORIZON_LT = "l<"
+    HORIZON_GT = "l>"
+    IMPLIES = "=>"
     LESS_THAN = "<"
     GREATER_THAN = ">"
     H_CHOP = "hchop"
@@ -41,6 +45,10 @@ class TokenType(Enum):
         return self.is_infix_binary_op or self.is_prefix_binary_op
 
     @property
+    def is_unary_cmp_op(self):
+        return self in _UNARY_CMP_OPS
+
+    @property
     def is_unary_op(self):
         return self in _UNARY_OPS
 
@@ -68,6 +76,12 @@ _UNARY_OPS = {
     TokenType.NEGATION_SHORT,
     TokenType.CLAIM,
     TokenType.RESERVE,
+}
+_UNARY_CMP_OPS = {
+    TokenType.HORIZON_GT,
+    TokenType.HORIZON_GE,
+    TokenType.HORIZON_LT,
+    TokenType.HORIZON_LE,
 }
 
 ### For tokens that correspond to operations and require 2 parameters, we specify whether they are infix ({p1} op {p2}) or
