@@ -15,11 +15,3 @@ class EqualityCarNode(AtomNode):
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         return self._car_resolve1.resolve(variable_car_map) is self._car_resolve2.resolve(variable_car_map)
 
-
-class EqualityHorizonNode(AtomNode):
-    def __init__(self, length: float):
-        super().__init__(f"l = {length}")
-        self._length = length
-
-    def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
-        return view.horizon.length() == self._length
