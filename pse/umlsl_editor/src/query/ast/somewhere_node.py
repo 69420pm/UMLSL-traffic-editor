@@ -8,7 +8,6 @@ from pse.umlsl_editor.src.query.view import View
 
 class SomewhereNode(UnaryNode):
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
-        # we treat <phi> as "true hchop (true vchop (phi vchop true)) hchop true"
         somewhere_node = VerticalChopNode.create_nested_vchop(
             [
                 TrueNode(),
