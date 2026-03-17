@@ -40,12 +40,13 @@ def compute_path(
     if path is None:
         raise ValueError("Car specified a turn intent with invalid path.")
 
-    horizontal_horizon = Interval(pos_on_segment, pos_on_segment + braking_dist)
+    horizontal_horizon = Interval(max(pos_on_segment - braking_dist, 0), pos_on_segment + braking_dist)
+
     physical_segment_intervals: list[SegmentInterval] = compute_segment_intervals(ts, path, pos_on_segment, length)
     path_segment_intervals: list[SegmentInterval] = compute_segment_intervals(
         ts,
         path,
-        pos_on_segment,
+        horizontal_horizon.start,
         horizontal_horizon.length(),
     )
 
