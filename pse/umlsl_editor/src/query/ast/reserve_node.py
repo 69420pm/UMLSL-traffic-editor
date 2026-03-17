@@ -19,16 +19,16 @@ class ReserveNode(AtomNode):
         eval_car = self._car_resolve.resolve(variable_car_map)
         car_reserved_segments: list[Segment] = list(map(lambda res: res.segment, eval_car.environment.reserved))
 
+        reserved_segments = view.get_reserved_segments().get(eval_car.uid)
+        if reserved_segments is None:
+            return False
+
         single_lane = view.virtual_lanes[0]
         reserved_intervals: list[Interval] = []
         for segment_interval in single_lane.segment_intervals:
             segment = segment_interval.segment
             # we have to ensure every segment of the lane is contained in a reserved segment of the car
             if segment_interval.segment not in car_reserved_segments:
-                return False
-
-            reserved_segments = view.reserved_segments.get(eval_car.uid)
-            if reserved_segments is None:
                 return False
 
             interval = reserved_segments.get(segment)

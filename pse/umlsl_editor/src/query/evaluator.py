@@ -67,8 +67,16 @@ class UMLSLEvaluator:
                 print(">", ts.cars[intersecting_car].name, ":")
                 for segment, interval in reserved_segments[intersecting_car].items():
                     print(f"  {ts.get_segment_info(segment.uid)}: {interval}")
+
+            segments_in_view: list[Segment] = []
+            for virtual_lane in virtual_lanes:
+                for segment_interval in virtual_lane.segment_intervals:
+                    if segment_interval.interval.intersects(horizontal_horizon):
+                        segments_in_view.append(segment_interval.segment)
+
             view = View(
                 virtual_lanes,
+                segments_in_view,
                 horizontal_horizon,
                 car,
                 intersecting_cars,

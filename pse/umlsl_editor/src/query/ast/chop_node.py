@@ -2,7 +2,7 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import Traf
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.query.ast.ast import View, BinaryNode, Precedence, ASTNode
 
-SMALLEST_STEP_SIZE = 0.5
+SMALLEST_STEP_SIZE = 0.4
 
 
 class HorizontalChopNode(BinaryNode):
@@ -25,13 +25,13 @@ class HorizontalChopNode(BinaryNode):
         # we first iterate through interesting values of the horizon, i.e., the start and end positions of cars
         # for example, by doing so, hchop can be precisely used to detect collisions
         interesting_splits = []
-        for physically_occupied_intervals in view.intersecting_cars.values():
+        for physically_occupied_intervals in view.get_intersecting_cars().values():
             for segment, interval in physically_occupied_intervals.items():
                 interesting_splits.extend([interval.start, interval.end])
-        for reserved_intervals in view.reserved_segments.values():
+        for reserved_intervals in view.get_reserved_segments().values():
             for segment, interval in reserved_intervals.items():
                 interesting_splits.extend([interval.start, interval.end])
-        for claimed_intervals in view.claimed_segments.values():
+        for claimed_intervals in view.get_claimed_segments().values():
             for segment, interval in claimed_intervals.items():
                 interesting_splits.extend([interval.start, interval.end])
 

@@ -11,7 +11,7 @@ class ExistsNode(UnaryNode):
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         # the AST parser guarantees that the variable is not already in the map
-        for car_uid in view.intersecting_cars.keys():
+        for car_uid in view.get_intersecting_cars().keys():
             new_variable_map = variable_car_map.copy()
             new_variable_map[self._variable] = traffic_snapshot.cars[car_uid]
 
@@ -31,7 +31,7 @@ class ForallNode(UnaryNode):
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         # the AST parser guarantees that the variable is not already in the map
-        for car_uid in view.intersecting_cars.keys():
+        for car_uid in view.get_intersecting_cars().keys():
             new_variable_map = variable_car_map.copy()
             new_variable_map[self._variable] = traffic_snapshot.cars[car_uid]
 
