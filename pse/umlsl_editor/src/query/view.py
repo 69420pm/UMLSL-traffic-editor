@@ -49,7 +49,8 @@ class View:
                     segments_in_view.append(segment_interval.segment)
                     new_virtual_lane.append(segment_interval)
 
-            new_virtual_lanes.append(VirtualLaneNew(new_virtual_lane, []))
+            if len(new_virtual_lane) > 0:
+                new_virtual_lanes.append(VirtualLaneNew(new_virtual_lane, []))
 
         # only consider cars that intersect with the horizon
         new_intersecting_cars: dict[str, dict[Segment, Interval]] = dict()
@@ -77,7 +78,7 @@ class View:
         # only consider claimed segments that intersect with the horizon
         new_claimed_segments: dict[str, dict[Segment, Interval]] = dict()
         for car in self.claimed_segments:
-            claimed_segments: dict[Segment, Interval] = self.reserved_segments[car]
+            claimed_segments: dict[Segment, Interval] = self.claimed_segments[car]
 
             new_claimed_car_segments: dict[Segment, Interval] = dict()
             for segment, interval in claimed_segments.items():

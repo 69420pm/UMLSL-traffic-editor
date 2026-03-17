@@ -69,7 +69,7 @@ class HorizontalChopNode(BinaryNode):
                           split_value: float):
         horizon = view.horizon
 
-        if not (horizon.start <= split_value <= horizon.end):
+        if not (horizon.start < split_value < horizon.end):
             return False
 
         left_view, right_view = view.chop_horizontally(split_value)
