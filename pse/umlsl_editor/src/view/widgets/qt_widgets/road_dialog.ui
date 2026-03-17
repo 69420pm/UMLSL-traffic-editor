@@ -358,7 +358,7 @@ QPushButton#b_delete:pressed {
          <item row="3" column="1">
           <widget class="QLabel" name="l_axis">
            <property name="text">
-            <string>x-Axis</string>
+            <string>y-Axis</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
