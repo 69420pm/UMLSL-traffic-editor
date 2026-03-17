@@ -254,11 +254,11 @@ class Ui_Edit_Car_Dialog(object):
 
         self.gridLayout.addWidget(self.t_color, 1, 2, 1, 1)
 
-        self.l_axis = QLabel(self.widget1)
-        self.l_axis.setObjectName(u"l_axis")
-        self.l_axis.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.label_11 = QLabel(self.widget1)
+        self.label_11.setObjectName(u"label_11")
+        self.label_11.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
-        self.gridLayout.addWidget(self.l_axis, 2, 1, 1, 1)
+        self.gridLayout.addWidget(self.label_11, 2, 1, 1, 1)
 
         self.s_length = QSpinBox(self.widget1)
         self.s_length.setObjectName(u"s_length")
@@ -404,11 +404,11 @@ class Ui_Edit_Car_Dialog(object):
 
         self.gridLayout_3.addWidget(self.label_17, 4, 0, 1, 1)
 
-        self.l_axis_2 = QLabel(self.widget_6)
-        self.l_axis_2.setObjectName(u"l_axis_2")
-        self.l_axis_2.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.l_axis = QLabel(self.widget_6)
+        self.l_axis.setObjectName(u"l_axis")
+        self.l_axis.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
-        self.gridLayout_3.addWidget(self.l_axis_2, 3, 1, 1, 1)
+        self.gridLayout_3.addWidget(self.l_axis, 3, 1, 1, 1)
 
         self.s_position = QDoubleSpinBox(self.widget_6)
         self.s_position.setObjectName(u"s_position")
@@ -594,8 +594,8 @@ class Ui_Edit_Car_Dialog(object):
         self.label_2.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"label", None))
         self.widget1.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"container", None))
         self.label_15.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Color", None))
-        self.l_axis.setText(QCoreApplication.translate("Edit_Car_Dialog", u"[1,5]", None))
-        self.l_axis.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"hint", None))
+        self.label_11.setText(QCoreApplication.translate("Edit_Car_Dialog", u"[1,5]", None))
+        self.label_11.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"hint", None))
         self.label_7.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Speed", None))
         self.label_16.setText(QCoreApplication.translate("Edit_Car_Dialog", u"hex", None))
         self.label_16.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"hint", None))
@@ -617,8 +617,8 @@ class Ui_Edit_Car_Dialog(object):
         self.label_12.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"hint", None))
         self.label_13.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Lane", None))
         self.label_17.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Transition", None))
-        self.l_axis_2.setText(QCoreApplication.translate("Edit_Car_Dialog", u"x-Axis", None))
-        self.l_axis_2.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"hint", None))
+        self.l_axis.setText(QCoreApplication.translate("Edit_Car_Dialog", u"x-Axis", None))
+        self.l_axis.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"hint", None))
         self.label_14.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Road", None))
         self.label_3.setText(QCoreApplication.translate("Edit_Car_Dialog", u"Next Turn", None))
         self.label_3.setProperty(u"class", QCoreApplication.translate("Edit_Car_Dialog", u"label", None))

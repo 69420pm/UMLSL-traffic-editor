@@ -10,6 +10,7 @@ from PySide6.QtCore import QSignalBlocker, QTimer
 from PySide6.QtWidgets import QDialog, QWidget
 
 from pse.umlsl_editor.src.model.entities.car import Car
+from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.model.errors.car_errors import (
     CarTrafficSnapshotContextValidationError,
     CarValidationError,
@@ -189,6 +190,8 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
             self.d_road.setCurrentIndex(0)
             self._update_lane_dropdown(default_road, default_lane.lane_index)
 
+        self._update_axis_label(self.d_road.currentIndex())
+
         self.d_road.blockSignals(False)
 
     def _populate_turn_fields(self) -> None:
@@ -266,6 +269,15 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
 
         # Road change affects position context, so update turn options
         self._update_turn_options()
+        self._update_axis_label(index)
+
+    def _update_axis_label(self, index: int) -> None:
+        selected_road = self._roads_list[index]
+
+        if selected_road.orientation == RoadOrientation.HORIZONTAL:
+            self.l_axis.setText("x-Axis")
+        else:
+            self.l_axis.setText("y-Axis")
 
     def _on_direction_changed(self, index: int) -> None:
         """Handle user changing turn direction."""
