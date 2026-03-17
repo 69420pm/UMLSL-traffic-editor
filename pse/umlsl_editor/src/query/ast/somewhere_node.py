@@ -9,15 +9,14 @@ from pse.umlsl_editor.src.query.view import View
 class SomewhereNode(UnaryNode):
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         # we treat <phi> as "true hchop (true vchop (phi vchop true)) hchop true"
-        vertical_somewhere_node = VerticalChopNode(
-            TrueNode(),
-            VerticalChopNode(self._child, TrueNode())
+        somewhere_node = VerticalChopNode.create_nested_vchop(
+            [
+                TrueNode(),
+                HorizontalChopNode.create_nested_hchop([TrueNode(), self._child, TrueNode()]),
+                TrueNode()
+            ]
         )
-        horizontal_somewhere_node = HorizontalChopNode(
-            TrueNode(),
-            HorizontalChopNode(vertical_somewhere_node, TrueNode()),
-        )
-        return horizontal_somewhere_node.evaluate(traffic_snapshot, view, variable_car_map)
+        return somewhere_node.evaluate(traffic_snapshot, view, variable_car_map)
 
     def to_latex(self) -> str:
         # we do not need to encapsulate anything in parentheses, it is already clear because of <...>
