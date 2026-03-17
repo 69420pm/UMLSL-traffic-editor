@@ -254,31 +254,39 @@ def _find_turn_intent_segment(
 
     # the segment_position_index is used to consider only the relevant coordinate of the segments_of_target_lane list
     segment_position_index: int = 1 if start_road_direction == RoadOrientation.HORIZONTAL else 0
-
     segments_of_target_lane.sort(key=lambda x: x.get_position(ts)[segment_position_index])
-    if (turn_direction == TurnDirection.RIGHT and start_road_direction == RoadOrientation.HORIZONTAL) \
-            or (turn_direction == TurnDirection.LEFT and start_road_direction == RoadOrientation.VERTICAL):
-        segments_of_target_lane.reverse()
 
-    for segment in segments_of_target_lane:
-        pos = segment.get_position(ts)[segment_position_index]
-        start_pos = start_coords[segment_position_index]
+    if car_direction in {Direction.LEFT, Direction.UP}:
+        if turn_direction == TurnDirection.LEFT:
+            segments_of_target_lane.reverse()
 
-        match turn_direction:
-            case TurnDirection.LEFT:
-                if start_road_direction == RoadOrientation.HORIZONTAL:
-                    if pos > start_pos:
-                        return segment
-                else:
-                    if pos < start_pos:
-                        return segment
-            case TurnDirection.RIGHT:
-                if start_road_direction == RoadOrientation.VERTICAL:
-                    if pos > start_pos:
-                        return segment
-                else:
-                    if pos < start_pos:
-                        return segment
+            for segment in segments_of_target_lane:
+                pos = segment.get_position(ts)[segment_position_index]
+                start_pos = start_coords[segment_position_index]
+                if isinstance(segment, LaneSegment) and pos < start_pos:
+                    return segment
+        else:
+            for segment in segments_of_target_lane:
+                pos = segment.get_position(ts)[segment_position_index]
+                start_pos = start_coords[segment_position_index]
+                if isinstance(segment, LaneSegment) and pos > start_pos:
+                    return segment
+    else:
+        if turn_direction == TurnDirection.RIGHT:
+            segments_of_target_lane.reverse()
+
+            for segment in segments_of_target_lane:
+                pos = segment.get_position(ts)[segment_position_index]
+                start_pos = start_coords[segment_position_index]
+                if isinstance(segment, LaneSegment) and pos < start_pos:
+                    return segment
+        else:
+            for segment in segments_of_target_lane:
+                pos = segment.get_position(ts)[segment_position_index]
+                start_pos = start_coords[segment_position_index]
+                if isinstance(segment, LaneSegment) and pos > start_pos:
+                    return segment
+
     raise ValueError("Turn intent not found.")
 
 
