@@ -245,20 +245,28 @@ class ASTParser:
                 case _:
                     raise NotImplementedError(f"Unknown quantor operator {token_type}")
         else:
-            # first operand
-            arg1_start = start + 1
-            arg1_end = self.find_closing_argument_index(arg1_start, end)
-            operand1 = self.parse_expression_argument(arg1_start, arg1_end, declared_variables)
-            # second operand
-            arg2_start = arg1_end + 1
-            arg2_end = self.find_closing_argument_index(arg2_start, end)
-            operand2 = self.parse_expression_argument(arg2_start, arg2_end, declared_variables)
+            operands: list[ASTNode] = []
+
+            arg_start = start + 1
+            while arg_start < end:
+                arg_end = self.find_closing_argument_index(arg_start, end)
+                operands.append(self.parse_expression_argument(arg_start, arg_end, declared_variables))
+                arg_start = arg_end + 1
+
+            if len(operands) <= 1:
+                help_message = f"Consider defining the operator like '{token_type.value}{{arg1}}{{arg2}}...'"
+                raise ASTParserError(
+                    f"expected at least two arguments",
+                    start + 1,
+                    end,
+                    help_message
+                )
 
             match token_type:
                 case TokenType.H_CHOP:
-                    return HorizontalChopNode(operand1, operand2)
+                    return HorizontalChopNode.create_nested_hchop(operands)
                 case TokenType.V_CHOP:
-                    return VerticalChopNode(operand2, operand1)
+                    return VerticalChopNode.create_nested_vchop(operands)
                 case _:
                     raise NotImplementedError(f"Unknown binary operator {token_type}")
 
