@@ -1,8 +1,10 @@
 from dataclasses import dataclass
 
+
 class LaneDirection:
     FORWARD = 1
     BACKWARD = -1
+
 
 @dataclass(frozen=True, kw_only=True)
 class Lane:
@@ -36,8 +38,12 @@ class Lane:
             return road.position + (abs(self.lane_index)) * lane_width
         return road.position + self.lane_index * lane_width
 
-    def get_name(self) -> str:
-        return f"f{self.lane_index + 1}" if self.lane_index >= 0 else f"b{-self.lane_index}"
+    def get_name(self, traffic_snapshot_reader) -> str:
+        road = traffic_snapshot_reader.get_road_by_uid(self.road_uid)
+        if road.orientation.value == 0:
+            return f"r{self.lane_index + 1}" if self.lane_index >= 0 else f"l{-self.lane_index}"
+        else:
+            return f"u{self.lane_index + 1}" if self.lane_index >= 0 else f"d{-self.lane_index}"
 
     def get_direction(self) -> int:
         return LaneDirection.FORWARD if self.lane_index >= 0 else LaneDirection.BACKWARD
