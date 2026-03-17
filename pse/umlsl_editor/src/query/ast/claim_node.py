@@ -17,7 +17,7 @@ class ClaimNode(AtomNode):
         segments_on_lane = list(map(lambda si: si.segment, single_lane.segment_intervals))
 
         car_eval = self._car_resolve.resolve(variable_car_map)
-        claimed_segment_intervals = view.claimed_segments.get(car_eval.uid, {})
+        claimed_segment_intervals = view.get_claimed_segments().get(car_eval.uid, {})
         claimed_crossing_segments = map(
             lambda seg_interval: seg_interval.segment,
             filter(lambda seg_interval: not seg_interval.segment.is_lane_segment, claimed_segment_intervals)
@@ -33,7 +33,7 @@ class ClaimNode(AtomNode):
 
         single_segment = segments_on_lane[0]
 
-        for physically_occupied_interval in view.intersecting_cars.get(car_eval.uid, []):
+        for physically_occupied_interval in view.get_intersecting_cars().get(car_eval.uid, []):
             if physically_occupied_interval.uid == single_segment.uid \
                     and view.horizon.subset_of(physically_occupied_interval):
                 return True
