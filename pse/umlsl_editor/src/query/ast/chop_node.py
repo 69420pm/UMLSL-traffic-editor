@@ -9,6 +9,15 @@ class HorizontalChopNode(BinaryNode):
     def __init__(self, left: ASTNode, right: ASTNode):
         super().__init__(Precedence.BINARY_CHOP, left, right)
 
+    @classmethod
+    def create_nested_hchop(cls, operands: list[ASTNode]):
+        if len(operands) <= 1:
+            raise ValueError("At least two operands are required")
+        elif len(operands) == 2:
+            return cls(operands[0], operands[1])
+        else:
+            return cls(cls.create_nested_hchop(operands[0:-1]), operands[-1])
+
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         horizon = view.horizon
         horizon_length = horizon.length()
@@ -82,6 +91,15 @@ class VerticalChopNode(BinaryNode):
     def __init__(self, left: ASTNode, right: ASTNode):
         super().__init__(Precedence.BINARY_CHOP, left, right)
 
+    @classmethod
+    def create_nested_vchop(cls, operands: list[ASTNode]):
+        if len(operands) <= 1:
+            raise ValueError("At least two operands are required")
+        elif len(operands) == 2:
+            return cls(operands[0], operands[1])
+        else:
+            return cls(cls.create_nested_vchop(operands[0:-1]), operands[-1])
+
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         seq_lanes = view.virtual_lanes
 
@@ -99,4 +117,4 @@ class VerticalChopNode(BinaryNode):
         return False
 
     def _format(self, left: str, right: str) -> str:
-        return f"_{{{left}}}^{{{right}}}"
+        return f"_{{{right}}}^{{{left}}}"
