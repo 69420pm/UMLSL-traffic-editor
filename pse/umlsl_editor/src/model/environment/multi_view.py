@@ -8,8 +8,9 @@ from pse.umlsl_editor.src.model.environment.segment_intervals_helper import comp
 from pse.umlsl_editor.src.model.helper.directional_graph import Direction
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import VirtualLane, Segment
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.virtual_lane import VirtualLane, VirtualLaneNew
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent, TurnDirection
 
 
@@ -41,12 +42,11 @@ def compute_path(
 
     horizontal_horizon = Interval(pos_on_segment, pos_on_segment + braking_dist)
     physical_segment_intervals: list[SegmentInterval] = compute_segment_intervals(ts, path, pos_on_segment, length)
-    path_segment_intervals: list[SegmentInterval] = compute_segments_safety_envelope(
+    path_segment_intervals: list[SegmentInterval] = compute_segment_intervals(
         ts,
         path,
         pos_on_segment,
         horizontal_horizon.length(),
-        length
     )
 
     # If the turn intent exceeds what the car can see, we set the turn intent to the last lane segment.
@@ -59,29 +59,78 @@ def compute_path(
 
     return path, physical_segment_intervals, path_segment_intervals, turn_segment, horizontal_horizon
 
+
 def compute_parallel_virtual_lanes(
+        ts: TrafficSnapshotReader,
+        pos_on_segment: float,
+        start_segment: LaneSegment,
+        turn_segment: LaneSegment,
+        path: VirtualLane,
+        car_direction: Direction,
+        horizon: Interval
+) -> list[list[VirtualLaneNew]]:
+    parallel_segments = compute_parallel_segments(ts, start_segment, turn_segment, path, car_direction)
+
+    parallel_virtual_lanes: list[list[VirtualLaneNew]] = []
+    for parallel_segment in parallel_segments:
+        virtual_lanes: list[VirtualLaneNew] = []
+        for segment_list in parallel_segment:
+            virtual_lanes.append(segments_to_virtual_lane(pos_on_segment, segment_list, horizon, ts))
+        parallel_virtual_lanes.append(virtual_lanes)
+
+    return parallel_virtual_lanes
+
+
+def segments_to_virtual_lane(pos_on_segment: float, segments: list[Segment], horizon: Interval, ts: TrafficSnapshotReader) -> VirtualLaneNew:
+    current_pos = pos_on_segment
+    segment_intervals: list[SegmentInterval] = []
+
+    for i, segment in enumerate(segments):
+        # in the first iteration, we need to add the remaining length of the segment to the current position
+        segment_size = segment.get_size_in_direction(ts)
+        segment_length = (segment_size - current_pos) if i == 0 else segment_size
+
+        physical_end = current_pos + segment_length
+        view_end = min(physical_end, horizon.end)
+
+        interval = Interval(current_pos, view_end)
+        segment_intervals.append(SegmentInterval(segment, interval))
+
+        if view_end < physical_end:
+            break
+
+        current_pos += segment_length
+
+    return VirtualLaneNew(segment_intervals, [])
+
+def compute_parallel_segments(
         ts: TrafficSnapshotReader,
         start_segment: LaneSegment,
         turn_segment: LaneSegment,
         path: VirtualLane,
         car_direction: Direction
-) -> list[list[VirtualLane]]:
+) -> list[list[list[Segment]]]:
     through_crossing = any(map(lambda seg: not seg.is_lane_segment, path.segments))
     if through_crossing:
         lanes_connected_to_crossing = _compute_all_lanes_connected_to_crossing(ts, start_segment, car_direction)
-        return _compute_parallel_virtual_lanes_crossing(ts, start_segment, turn_segment, lanes_connected_to_crossing,
-                                                        path)
+        return _compute_segments_through_crossing(
+            ts,
+            start_segment,
+            turn_segment,
+            lanes_connected_to_crossing,
+                                 path
+        )
     else:
         # no crossing found
         parallel_lane_segments: list[LaneSegment] = compute_parallel_lane_segments(ts, start_segment)
-        virtual_lanes: list[VirtualLane] = []
+        parallel_segments: list[list[Segment]] = []
 
         for parallel_lane_segment in parallel_lane_segments:
-            virtual_lanes.append(VirtualLane([parallel_lane_segment]))
+            parallel_segments.append([parallel_lane_segment])
 
-        virtual_lanes.sort(key=lambda lane: lane.segments[0].lane.lane_index)
+        parallel_segments.sort(key=lambda lane: lane[0].lane.lane_index)
 
-        return [virtual_lanes]
+        return [parallel_segments]
 
 
 def _compute_all_lanes_connected_to_crossing(ts: TrafficSnapshotReader, start_segment: LaneSegment,
@@ -122,48 +171,43 @@ def _compute_all_lanes_connected_to_crossing(ts: TrafficSnapshotReader, start_se
 
     return lanes_connected_to_crossing
 
-
-def _compute_parallel_virtual_lanes_crossing(
+def _compute_segments_through_crossing(
         ts: TrafficSnapshotReader,
         start_segment: LaneSegment,
         turn_segment: LaneSegment,
         lanes_connected_to_crossing: list[LaneSegment],
         path: VirtualLane
-) -> list[list[VirtualLane]]:
-    parallel_lane_segments: list[LaneSegment] = compute_parallel_lane_segments(ts, start_segment)
-    opposite_lane_segments: list[LaneSegment] = compute_parallel_lane_segments(ts, turn_segment)
+) -> list[list[list[Segment]]]:
+    start_parallel_segments: list[LaneSegment] = compute_parallel_lane_segments(ts, start_segment)
+    turn_parallel_segments: list[LaneSegment] = compute_parallel_lane_segments(ts, turn_segment)
 
     lane_candidates: list[VirtualLane] = []
-    for lane in parallel_lane_segments:
-        if lane.uid == start_segment.uid:
-            lane_candidates.append(path)
-        else:
-            for dest_lane in lanes_connected_to_crossing:
-                if dest_lane not in opposite_lane_segments:
-                    continue
+    for lane in start_parallel_segments:
+        if lane == start_segment:
+            continue
 
-                opposing_lane: VirtualLane | None
-                is_forward = lane.lane.get_direction() == start_segment.lane.get_direction()
-                if is_forward:
-                    opposing_lane = _compute_path_through_crossing(ts, lane, dest_lane)
-                else:
-                    # for opposing paths we have to go from the intersection to the start
-                    opposing_lane = _compute_path_through_crossing(ts, dest_lane, lane)
+        for dest_lane in lanes_connected_to_crossing:
+            if dest_lane not in turn_parallel_segments or dest_lane == turn_segment:
+                continue
 
-                if opposing_lane is not None:
-                    lane_candidates.append(opposing_lane)
+            opposing_lane: VirtualLane | None = _compute_path_through_crossing(ts, lane, dest_lane)
+            if opposing_lane is not None:
+                lane_candidates.append(opposing_lane)
 
         # create the placeholder
         if len(lane_candidates) == 0:
             lane_candidates.append(VirtualLane([lane]))
 
-    parallel_virtual_lanes: list[list[VirtualLane]] = []
+    total_parallel_segments: list[list[list[Segment]]] = []
     for lane_candidate in lane_candidates:
-        parallel_virtual_lane: list[VirtualLane] = [lane_candidate, path]
-        parallel_virtual_lane.sort(key=lambda vl: vl.segments[0].lane.lane_index)
-        parallel_virtual_lanes.append(parallel_virtual_lane)
+        parallel_segments: list[list[Segment]] = [
+            lane_candidate.segments,
+            path.segments
+        ]
+        parallel_segments.sort(key=lambda segments: segments[0].lane.lane_index)
+        total_parallel_segments.append(parallel_segments)
 
-    return parallel_virtual_lanes
+    return total_parallel_segments
 
 
 def _find_turn_intent_segment(

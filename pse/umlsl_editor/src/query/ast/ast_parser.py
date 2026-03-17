@@ -6,6 +6,8 @@ from pse.umlsl_editor.src.query.ast.claim_node import ClaimNode
 from pse.umlsl_editor.src.query.ast.crossing_node import CrossingSegmentNode
 from pse.umlsl_editor.src.query.ast.equality_node import EqualityCarNode
 from pse.umlsl_editor.src.query.ast.free_node import FreeNode
+from pse.umlsl_editor.src.query.ast.horizon_cmp_node import HorizonCmpGreaterNode, HorizonCmpGreaterEqualsNode, \
+    HorizonCmpLessNode, HorizonCmpLessEqualsNode
 from pse.umlsl_editor.src.query.ast.logic_node import ConjunctionNode, DisjunctionNode, NegationNode, TrueNode, \
     ImpliesNode
 from pse.umlsl_editor.src.query.ast.quantor_node import ExistsNode, ForallNode
@@ -120,6 +122,8 @@ class ASTParser:
             return self.parse_atom_node(token_type, start, end)
         elif token_type.is_unary_op:
             return self.parse_unary_node(token_type, start, end, declared_variables)
+        elif token_type.is_unary_cmp_op:
+            return self.parse_unary_cmp_node(token_type, start, end)
         elif token_type.is_binary_op:
             return self.parse_binary_node(start, end, declared_variables)
         else:
@@ -147,6 +151,45 @@ class ASTParser:
                 return CrossingSegmentNode()
             case _:
                 raise NotImplementedError(f"Unknown atom operator {token_type}")
+
+    def parse_unary_cmp_node(self, token_type: TokenType, start: int, end: int) -> ASTNode:
+        help_correct_definition = "Consider defining the operator like 'l cmp number', where cmp is one of [<, <=, >, >=]"
+        if start == end:
+            raise ASTParserError(
+                f"expected exactly one argument",
+                start,
+                end,
+                help_correct_definition
+            )
+
+        number_literal = self._tokens[start + 1]
+        literal_value = number_literal.value()
+        length: float | None
+
+        try:
+            length = float(literal_value)
+        except (ValueError, TypeError):
+            length = None
+
+        if number_literal.type != TokenType.LITERAL or length is None:
+            raise ASTParserError(
+                "expected number literal",
+                start + 1,
+                start + 1,
+                help_correct_definition
+            )
+
+        match token_type:
+            case TokenType.HORIZON_GT:
+                return HorizonCmpGreaterNode(length)
+            case TokenType.HORIZON_GE:
+                return HorizonCmpGreaterEqualsNode(length)
+            case TokenType.HORIZON_LT:
+                return HorizonCmpLessNode(length)
+            case TokenType.HORIZON_LE:
+                return HorizonCmpLessEqualsNode(length)
+            case _:
+                raise NotImplementedError(f"Unknown unary compare operator {token_type}")
 
     def parse_unary_node(self, token_type: TokenType, start: int, end: int, declared_variables: list[str]) -> ASTNode:
         if start == end:
@@ -202,20 +245,28 @@ class ASTParser:
                 case _:
                     raise NotImplementedError(f"Unknown quantor operator {token_type}")
         else:
-            # first operand
-            arg1_start = start + 1
-            arg1_end = self.find_closing_argument_index(arg1_start, end)
-            operand1 = self.parse_expression_argument(arg1_start, arg1_end, declared_variables)
-            # second operand
-            arg2_start = arg1_end + 1
-            arg2_end = self.find_closing_argument_index(arg2_start, end)
-            operand2 = self.parse_expression_argument(arg2_start, arg2_end, declared_variables)
+            operands: list[ASTNode] = []
+
+            arg_start = start + 1
+            while arg_start < end:
+                arg_end = self.find_closing_argument_index(arg_start, end)
+                operands.append(self.parse_expression_argument(arg_start, arg_end, declared_variables))
+                arg_start = arg_end + 1
+
+            if len(operands) <= 1:
+                help_message = f"Consider defining the operator like '{token_type.value}{{arg1}}{{arg2}}...'"
+                raise ASTParserError(
+                    f"expected at least two arguments",
+                    start + 1,
+                    end,
+                    help_message
+                )
 
             match token_type:
                 case TokenType.H_CHOP:
-                    return HorizontalChopNode(operand1, operand2)
+                    return HorizontalChopNode.create_nested_hchop(operands)
                 case TokenType.V_CHOP:
-                    return VerticalChopNode(operand2, operand1)
+                    return VerticalChopNode.create_nested_vchop(operands)
                 case _:
                     raise NotImplementedError(f"Unknown binary operator {token_type}")
 
@@ -275,7 +326,7 @@ class ASTParser:
     def parse_expression_argument(self, start: int, end: int, declared_variables: list[str]) -> ASTNode:
         if self._tokens[start].type != TokenType.L_CURLY:
             raise ASTParserError(
-                "argument must start by '}'",
+                "argument must start by '{'",
                 start,
                 end
             )

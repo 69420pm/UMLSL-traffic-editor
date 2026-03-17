@@ -11,9 +11,9 @@ class ExistsNode(UnaryNode):
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         # the AST parser guarantees that the variable is not already in the map
-        for car in traffic_snapshot.get_car_list():
+        for car_uid in view.get_intersecting_cars().keys():
             new_variable_map = variable_car_map.copy()
-            new_variable_map[self._variable] = car
+            new_variable_map[self._variable] = traffic_snapshot.cars[car_uid]
 
             if self._child.evaluate(traffic_snapshot, view, new_variable_map):
                 return True
@@ -31,9 +31,9 @@ class ForallNode(UnaryNode):
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         # the AST parser guarantees that the variable is not already in the map
-        for car in traffic_snapshot.get_car_list():
+        for car_uid in view.get_intersecting_cars().keys():
             new_variable_map = variable_car_map.copy()
-            new_variable_map[self._variable] = car
+            new_variable_map[self._variable] = traffic_snapshot.cars[car_uid]
 
             if not self._child.evaluate(traffic_snapshot, view, new_variable_map):
                 return False

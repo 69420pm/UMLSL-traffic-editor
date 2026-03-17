@@ -1,14 +1,22 @@
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.query.ast.ast import View, BinaryNode, Precedence, ASTNode
 
-SMALLEST_STEP_SIZE = 0.5
+SMALLEST_STEP_SIZE = 0.25
 
 
 class HorizontalChopNode(BinaryNode):
     def __init__(self, left: ASTNode, right: ASTNode):
         super().__init__(Precedence.BINARY_CHOP, left, right)
+
+    @classmethod
+    def create_nested_hchop(cls, operands: list[ASTNode]):
+        if len(operands) <= 1:
+            raise ValueError("At least two operands are required")
+        elif len(operands) == 2:
+            return cls(operands[0], operands[1])
+        else:
+            return cls(cls.create_nested_hchop(operands[0:-1]), operands[-1])
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         horizon = view.horizon
@@ -16,15 +24,20 @@ class HorizontalChopNode(BinaryNode):
 
         # we first iterate through interesting values of the horizon, i.e., the start and end positions of cars
         # for example, by doing so, hchop can be precisely used to detect collisions
-        for car in traffic_snapshot.get_car_list():
-            abs_intervals = car.environment.visible_segments_in_view_abs_intervals(view)
-            for segment_interval in abs_intervals:
-                interval = segment_interval.interval
+        interesting_splits = []
+        for physically_occupied_intervals in view.get_intersecting_cars().values():
+            for segment, interval in physically_occupied_intervals.items():
+                interesting_splits.extend([interval.start, interval.end])
+        for reserved_intervals in view.get_reserved_segments().values():
+            for segment, interval in reserved_intervals.items():
+                interesting_splits.extend([interval.start, interval.end])
+        for claimed_intervals in view.get_claimed_segments().values():
+            for segment, interval in claimed_intervals.items():
+                interesting_splits.extend([interval.start, interval.end])
 
-                start, end = interval.start, interval.end
-                if self.evaluate_at_split(view, traffic_snapshot, variable_car_map, start) \
-                        or self.evaluate_at_split(view, traffic_snapshot, variable_car_map, end):
-                    return True
+        for split in interesting_splits:
+            if self.evaluate_at_split(view, traffic_snapshot, variable_car_map, split):
+                return True
 
         # if hchop did not succeed, we iterate through the horizon with exponentially decreasing step sizes
         level = 0
@@ -39,7 +52,6 @@ class HorizontalChopNode(BinaryNode):
                 return False
 
             level += 1
-
 
     def evaluate_with_step_size(self, view: View, traffic_snapshot: TrafficSnapshotModel,
                                 variable_car_map: dict[str, Car], step_size: float):
@@ -57,21 +69,20 @@ class HorizontalChopNode(BinaryNode):
                           split_value: float):
         horizon = view.horizon
 
-        if not (horizon.start <= split_value <= horizon.end):
+        if not (horizon.start < split_value < horizon.end):
             return False
 
-        left_horizon = Interval(horizon.start, split_value)
-        left_view = View(view.virtual_lanes, left_horizon, view.car)
+        left_view, right_view = view.chop_horizontally(split_value)
+
+        # if the left part is false, we can skip the computation of the right part
         left_eval = self._left.evaluate(traffic_snapshot, left_view, variable_car_map)
-
-        # if the lhs is false, we can skip the computation of the rhs
         if left_eval:
-            right_horizon = Interval(split_value, horizon.end)
-            right_view = View(view.virtual_lanes, right_horizon, view.car)
-
             right_eval = self._right.evaluate(traffic_snapshot, right_view, variable_car_map)
             if right_eval:
+               # print("evaluated true on ", horizon.start, horizon.end, " split at ", split_value, " i.e. ", self._left.to_latex(), " and ", self._right.to_latex())
                 return True
+
+        return False
 
     def _format(self, left: str, right: str) -> str:
         return f"{left} \\frown {right}"
@@ -81,18 +92,24 @@ class VerticalChopNode(BinaryNode):
     def __init__(self, left: ASTNode, right: ASTNode):
         super().__init__(Precedence.BINARY_CHOP, left, right)
 
+    @classmethod
+    def create_nested_vchop(cls, operands: list[ASTNode]):
+        if len(operands) <= 1:
+            raise ValueError("At least two operands are required")
+        elif len(operands) == 2:
+            return cls(operands[0], operands[1])
+        else:
+            return cls(cls.create_nested_vchop(operands[0:-1]), operands[-1])
+
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         seq_lanes = view.virtual_lanes
 
         for split_index in range(0, len(seq_lanes) + 1):
-            lower_lanes = seq_lanes[:split_index]  # take all lanes whose index is < split_index
-            lower_view = View(lower_lanes, view.horizon, view.car)
+            lower_view, upper_view = view.chop_vertically(split_index)
             lower_eval = self._left.evaluate(traffic_snapshot, lower_view, variable_car_map)
 
             # if the lower part is false, we can skip the computation of the upper part
             if lower_eval:
-                upper_lanes = seq_lanes[split_index:]
-                upper_view = View(upper_lanes, view.horizon, view.car)
                 right_eval = self._right.evaluate(traffic_snapshot, upper_view, variable_car_map)
 
                 if right_eval:
@@ -101,4 +118,4 @@ class VerticalChopNode(BinaryNode):
         return False
 
     def _format(self, left: str, right: str) -> str:
-        return f"_{{{left}}}^{{{right}}}"
+        return f"_{{{right}}}^{{{left}}}"

@@ -817,7 +817,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         umlsl_evaluator = UMLSLEvaluator(self)
         for query in self._queries_model.queries.values():
             car = self._cars.get(query.assigned_car_uid)
-            holding = umlsl_evaluator.evaluate_query(query.latex, car).holds
+            holding = umlsl_evaluator.evaluate_query(query.latex, car, self).holds
             new_query_params = UMLSLQueryParams(latex=query.latex,
                                                 validation=holding,
                                                 assigned_car_uid=car.uid)

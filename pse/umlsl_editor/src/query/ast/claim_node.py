@@ -1,7 +1,5 @@
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.interval import Interval
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.query.ast.ast import View, AtomNode
 from pse.umlsl_editor.src.query.ast.car_resolve import CarResolve
 
@@ -14,24 +12,30 @@ class ClaimNode(AtomNode):
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         if len(view.virtual_lanes) != 1 or view.horizon.length() <= 0:
             return False
-        lane = view.virtual_lanes[0]
-        car_eval = self._car_resolve.resolve(variable_car_map)
 
-        # 1) claim evaluates true if all segment in the lane are crossing segments
-        reserved_crossings = car_eval.environment.reserved_crossings
-        if all(map(lambda s: s in reserved_crossings, lane.segments)):
+        single_lane = view.virtual_lanes[0]
+        segments_on_lane = list(map(lambda si: si.segment, single_lane.segment_intervals))
+
+        car_eval = self._car_resolve.resolve(variable_car_map)
+        claimed_segment_intervals = view.get_claimed_segments().get(car_eval.uid, {})
+        claimed_crossing_segments = map(
+            lambda seg_interval: seg_interval.segment,
+            filter(lambda seg_interval: not seg_interval.segment.is_lane_segment, claimed_segment_intervals)
+        )
+
+        # claim evaluates true if all segments (in the horizon) are crossing segments reserved by the (eval) car
+        if all(map(lambda claimed: claimed in claimed_crossing_segments, segments_on_lane)):
             return True
 
-        # 2)
-        if len(lane.segments) != 1:
+        # otherwise, we need to check whether the horizon is fully contained in the segment of the (eval) car
+        if len(segments_on_lane) != 1:
             return False
-        target_segment = lane.segments[0]
 
-        for segment_interval in car_eval.environment.visible_segments_in_view(view):
-            interval: Interval = segment_interval.interval
-            segment: Segment = segment_interval.segment
+        single_segment = segments_on_lane[0]
 
-            if segment == target_segment and view.horizon.subset_of(list(interval)):
+        for physically_occupied_interval in view.get_intersecting_cars().get(car_eval.uid, []):
+            if physically_occupied_interval.uid == single_segment.uid \
+                    and view.horizon.subset_of(physically_occupied_interval):
                 return True
 
         return False

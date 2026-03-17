@@ -4,12 +4,16 @@ from enum import Enum
 
 
 class TokenType(Enum):
-    IMPLIES = "=>"
-    L_PAREN = "("
-    R_PAREN = ")"
-    L_CURLY = "{"
-    R_CURLY = "}"
+    L_PAREN = "\\("
+    R_PAREN = "\\)"
+    L_CURLY = "\\{"
+    R_CURLY = "\\}"
     COLON = ":"
+    HORIZON_GE = "l\\s*>="
+    HORIZON_LE = "l\\s*<="
+    HORIZON_LT = "l\\s*<"
+    HORIZON_GT = "l\\s*>"
+    IMPLIES = "=>"
     LESS_THAN = "<"
     GREATER_THAN = ">"
     H_CHOP = "hchop"
@@ -41,6 +45,10 @@ class TokenType(Enum):
         return self.is_infix_binary_op or self.is_prefix_binary_op
 
     @property
+    def is_unary_cmp_op(self):
+        return self in _UNARY_CMP_OPS
+
+    @property
     def is_unary_op(self):
         return self in _UNARY_OPS
 
@@ -68,6 +76,12 @@ _UNARY_OPS = {
     TokenType.NEGATION_SHORT,
     TokenType.CLAIM,
     TokenType.RESERVE,
+}
+_UNARY_CMP_OPS = {
+    TokenType.HORIZON_GT,
+    TokenType.HORIZON_GE,
+    TokenType.HORIZON_LT,
+    TokenType.HORIZON_LE,
 }
 
 ### For tokens that correspond to operations and require 2 parameters, we specify whether they are infix ({p1} op {p2}) or
@@ -132,12 +146,12 @@ class Lexer:
         self._input = text
 
     def tokenize(self) -> list[Token]:
-        input = self._input
+        query_input = self._input
 
         token_patterns = []
         for t in TokenType:
             if t is not TokenType.LITERAL:
-                pattern = f"(?P<{t.name}>{re.escape(t.value)})"
+                pattern = f"(?P<{t.name}>{t.value})"
                 token_patterns.append(pattern)
 
         master_pattern = re.compile("|".join(token_patterns))
@@ -145,12 +159,12 @@ class Lexer:
         tokens = []
         last_pos = 0
 
-        for match in master_pattern.finditer(input):
+        for match in master_pattern.finditer(query_input):
             start = match.start()
             if start > last_pos:
                 literal_start = last_pos
                 literal_end = match.start()
-                literal_text = input[literal_start:literal_end].strip()
+                literal_text = query_input[literal_start:literal_end].strip()
 
                 if len(literal_text) != 0 and literal_text != " ":
                     tokens.append(Literal(literal_text, literal_start, literal_end))
@@ -162,9 +176,9 @@ class Lexer:
 
             last_pos = end
 
-        if last_pos < len(input):
-            literal_text = input[last_pos:].strip()
+        if last_pos < len(query_input):
+            literal_text = query_input[last_pos:].strip()
             if len(literal_text) != 0 and literal_text != " ":
-                tokens.append(Literal(literal_text, last_pos, len(input)))
+                tokens.append(Literal(literal_text, last_pos, len(query_input)))
 
         return tokens

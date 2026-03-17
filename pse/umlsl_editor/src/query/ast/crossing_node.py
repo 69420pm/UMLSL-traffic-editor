@@ -11,8 +11,9 @@ class CrossingSegmentNode(AtomNode):
         if len(view.virtual_lanes) != 1 or view.horizon.length() <= 0:
             return False
 
-        for segment in view.virtual_lanes[0].segments_in_horizon(view.horizon, traffic_snapshot):
-            if segment.is_lane_segment:
+        single_lane = view.virtual_lanes[0]
+        for segment_interval in single_lane.segment_intervals:
+            if segment_interval.segment.is_lane_segment:
                 return False
 
         return True

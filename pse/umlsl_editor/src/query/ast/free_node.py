@@ -1,5 +1,5 @@
-from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
+from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.query.ast.ast import AtomNode, View
 
@@ -18,11 +18,10 @@ class FreeNode(AtomNode):
         smaller_start = horizon.start + horizon_reduction
         smaller_end = max(smaller_start, horizon.end - horizon_reduction)
         smaller_horizon = Interval(smaller_start, smaller_end)
-        smaller_view = View(view.virtual_lanes, smaller_horizon, view.car)
 
-        return all(
-            map(
-                lambda car: len(car.environment.visible_segments_in_view(smaller_view)) == 0,
-                traffic_snapshot.get_car_list()
-            )
-        )
+        for intersecting_car_uids, segment_intervals in view.get_intersecting_cars().items():
+            for segment, interval in segment_intervals.items():
+                if smaller_horizon.intersects(interval):
+                    return False
+
+        return True
