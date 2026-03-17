@@ -34,16 +34,6 @@ from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_car_dialog import (
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
 
-# Default values for new cars
-DEFAULT_CAR_CONFIG = {
-    "color": "lightblue",
-    "length": 1,
-    "speed": 10.0,
-    "acceleration": 1.0,
-    "position": 0.0,
-    "transition": 0.0,
-}
-
 
 class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
     """
@@ -117,14 +107,15 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
 
     def _get_default_car_values(self) -> dict[str, Any]:
         """Return default car field values for create mode."""
+        num_of_cars = len(self._application_controller.data_controller.get_all_cars())
         return {
-            "name": "default",
-            "color": DEFAULT_CAR_CONFIG["color"],
-            "length": DEFAULT_CAR_CONFIG["length"],
-            "speed": DEFAULT_CAR_CONFIG["speed"],
-            "acceleration": DEFAULT_CAR_CONFIG["acceleration"],
-            "position": DEFAULT_CAR_CONFIG["position"],
-            "transition": DEFAULT_CAR_CONFIG["transition"],
+            "name": "C" + str(num_of_cars + 1),
+            "color": "lightblue",
+            "length": 1,
+            "speed": 10.0,
+            "acceleration": 1.0,
+            "position": -2.0 * num_of_cars - 2.0,
+            "transition": 0.0,
         }
 
     def _connect_signals(self) -> None:

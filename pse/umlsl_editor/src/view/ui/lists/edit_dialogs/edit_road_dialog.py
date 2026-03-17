@@ -21,6 +21,7 @@ from pse.umlsl_editor.src.view.ui.lists.deletion_checks import (
 from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.confirm_deletion_dialog import (
     ConfirmDeletionDialog,
 )
+from pse.umlsl_editor.src.view.view_constants import DIMENSION
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
@@ -107,10 +108,11 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
 
     def _get_default_road_values(self) -> dict:
         """Return default road field values for create mode."""
+        num_of_roads = len(self._application_controller.data_controller.get_all_roads())
         return {
-            "name": "default",
+            "name": "R" + str(num_of_roads + 1),
             "orientation": RoadOrientation.HORIZONTAL,
-            "position": 0,
+            "position": num_of_roads * 4 * DIMENSION.LANE_WIDTH,
             "number_of_forward_lanes": 1,
             "number_of_backward_lanes": 1,
         }
