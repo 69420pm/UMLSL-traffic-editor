@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>232</width>
-    <height>491</height>
+    <width>366</width>
+    <height>721</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -246,7 +246,7 @@ QPushButton#b_close:pressed {
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>13</height>
+             <height>16777215</height>
             </size>
            </property>
            <property name="text">
@@ -268,7 +268,7 @@ QPushButton#b_close:pressed {
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>13</height>
+             <height>16777215</height>
             </size>
            </property>
            <property name="text">
@@ -290,7 +290,7 @@ QPushButton#b_close:pressed {
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>13</height>
+             <height>16777215</height>
             </size>
            </property>
            <property name="text">
@@ -312,7 +312,7 @@ QPushButton#b_close:pressed {
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>13</height>
+             <height>16777215</height>
             </size>
            </property>
            <property name="text">
@@ -353,11 +353,11 @@ QPushButton#b_close:pressed {
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>13</height>
+             <height>16777215</height>
             </size>
            </property>
            <property name="text">
-            <string>exists c: 𝜙</string>
+            <string>forall c: 𝜙</string>
            </property>
            <property name="textFormat">
             <enum>Qt::TextFormat::MarkdownText</enum>
@@ -375,7 +375,7 @@ QPushButton#b_close:pressed {
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>13</height>
+             <height>16777215</height>
             </size>
            </property>
            <property name="text">
@@ -441,7 +441,7 @@ QPushButton#b_close:pressed {
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>13</height>
+             <height>16777215</height>
             </size>
            </property>
            <property name="text">
@@ -507,7 +507,7 @@ QPushButton#b_close:pressed {
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>13</height>
+             <height>16777215</height>
             </size>
            </property>
            <property name="text">
@@ -529,7 +529,7 @@ QPushButton#b_close:pressed {
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>13</height>
+             <height>16777215</height>
             </size>
            </property>
            <property name="text">
@@ -573,7 +573,7 @@ QPushButton#b_close:pressed {
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>13</height>
+             <height>16777215</height>
             </size>
            </property>
            <property name="text">
@@ -639,11 +639,11 @@ QPushButton#b_close:pressed {
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>13</height>
+             <height>16777215</height>
             </size>
            </property>
            <property name="text">
-            <string>forall c: 𝜙</string>
+            <string>exists c: 𝜙</string>
            </property>
            <property name="textFormat">
             <enum>Qt::TextFormat::MarkdownText</enum>
@@ -661,7 +661,7 @@ QPushButton#b_close:pressed {
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>13</height>
+             <height>16777215</height>
             </size>
            </property>
            <property name="text">
@@ -683,7 +683,7 @@ QPushButton#b_close:pressed {
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>13</height>
+             <height>16777215</height>
             </size>
            </property>
            <property name="text">

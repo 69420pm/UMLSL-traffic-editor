@@ -24,7 +24,7 @@ class Ui_QueryHelpDialog(object):
     def setupUi(self, QueryHelpDialog):
         if not QueryHelpDialog.objectName():
             QueryHelpDialog.setObjectName(u"QueryHelpDialog")
-        QueryHelpDialog.resize(232, 491)
+        QueryHelpDialog.resize(366, 721)
         QueryHelpDialog.setMinimumSize(QSize(0, 0))
         QueryHelpDialog.setMaximumSize(QSize(16777215, 16777215))
         QueryHelpDialog.setStyleSheet(u"QDialog {\n"
@@ -209,7 +209,7 @@ class Ui_QueryHelpDialog(object):
         self.label_13 = QLabel(self.widget_3)
         self.label_13.setObjectName(u"label_13")
         self.label_13.setMinimumSize(QSize(0, 13))
-        self.label_13.setMaximumSize(QSize(16777215, 13))
+        self.label_13.setMaximumSize(QSize(16777215, 16777215))
         self.label_13.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_13, 2, 0, 1, 1)
@@ -217,7 +217,7 @@ class Ui_QueryHelpDialog(object):
         self.label_23 = QLabel(self.widget_3)
         self.label_23.setObjectName(u"label_23")
         self.label_23.setMinimumSize(QSize(0, 13))
-        self.label_23.setMaximumSize(QSize(16777215, 13))
+        self.label_23.setMaximumSize(QSize(16777215, 16777215))
         self.label_23.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_23, 10, 0, 1, 1)
@@ -225,7 +225,7 @@ class Ui_QueryHelpDialog(object):
         self.label_16 = QLabel(self.widget_3)
         self.label_16.setObjectName(u"label_16")
         self.label_16.setMinimumSize(QSize(0, 13))
-        self.label_16.setMaximumSize(QSize(16777215, 13))
+        self.label_16.setMaximumSize(QSize(16777215, 16777215))
         self.label_16.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_16, 5, 0, 1, 1)
@@ -233,7 +233,7 @@ class Ui_QueryHelpDialog(object):
         self.label_10 = QLabel(self.widget_3)
         self.label_10.setObjectName(u"label_10")
         self.label_10.setMinimumSize(QSize(0, 13))
-        self.label_10.setMaximumSize(QSize(16777215, 13))
+        self.label_10.setMaximumSize(QSize(16777215, 16777215))
         self.label_10.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_10, 0, 0, 1, 1)
@@ -248,7 +248,7 @@ class Ui_QueryHelpDialog(object):
         self.label_19 = QLabel(self.widget_3)
         self.label_19.setObjectName(u"label_19")
         self.label_19.setMinimumSize(QSize(0, 13))
-        self.label_19.setMaximumSize(QSize(16777215, 13))
+        self.label_19.setMaximumSize(QSize(16777215, 16777215))
         self.label_19.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_19, 12, 0, 1, 1)
@@ -256,7 +256,7 @@ class Ui_QueryHelpDialog(object):
         self.label_18 = QLabel(self.widget_3)
         self.label_18.setObjectName(u"label_18")
         self.label_18.setMinimumSize(QSize(0, 13))
-        self.label_18.setMaximumSize(QSize(16777215, 13))
+        self.label_18.setMaximumSize(QSize(16777215, 16777215))
         self.label_18.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_18, 9, 0, 1, 1)
@@ -280,7 +280,7 @@ class Ui_QueryHelpDialog(object):
         self.label_25 = QLabel(self.widget_3)
         self.label_25.setObjectName(u"label_25")
         self.label_25.setMinimumSize(QSize(0, 13))
-        self.label_25.setMaximumSize(QSize(16777215, 13))
+        self.label_25.setMaximumSize(QSize(16777215, 16777215))
         self.label_25.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_25, 6, 0, 1, 1)
@@ -304,7 +304,7 @@ class Ui_QueryHelpDialog(object):
         self.label_11 = QLabel(self.widget_3)
         self.label_11.setObjectName(u"label_11")
         self.label_11.setMinimumSize(QSize(0, 13))
-        self.label_11.setMaximumSize(QSize(16777215, 13))
+        self.label_11.setMaximumSize(QSize(16777215, 16777215))
         self.label_11.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_11, 1, 0, 1, 1)
@@ -312,7 +312,7 @@ class Ui_QueryHelpDialog(object):
         self.label_12 = QLabel(self.widget_3)
         self.label_12.setObjectName(u"label_12")
         self.label_12.setMinimumSize(QSize(0, 13))
-        self.label_12.setMaximumSize(QSize(16777215, 13))
+        self.label_12.setMaximumSize(QSize(16777215, 16777215))
         self.label_12.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_12, 3, 0, 1, 1)
@@ -328,7 +328,7 @@ class Ui_QueryHelpDialog(object):
         self.label_21 = QLabel(self.widget_3)
         self.label_21.setObjectName(u"label_21")
         self.label_21.setMinimumSize(QSize(0, 13))
-        self.label_21.setMaximumSize(QSize(16777215, 13))
+        self.label_21.setMaximumSize(QSize(16777215, 16777215))
         self.label_21.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_21, 7, 0, 1, 1)
@@ -352,7 +352,7 @@ class Ui_QueryHelpDialog(object):
         self.label_31 = QLabel(self.widget_3)
         self.label_31.setObjectName(u"label_31")
         self.label_31.setMinimumSize(QSize(0, 13))
-        self.label_31.setMaximumSize(QSize(16777215, 13))
+        self.label_31.setMaximumSize(QSize(16777215, 16777215))
         self.label_31.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_31, 13, 0, 1, 1)
@@ -360,7 +360,7 @@ class Ui_QueryHelpDialog(object):
         self.label_28 = QLabel(self.widget_3)
         self.label_28.setObjectName(u"label_28")
         self.label_28.setMinimumSize(QSize(0, 13))
-        self.label_28.setMaximumSize(QSize(16777215, 13))
+        self.label_28.setMaximumSize(QSize(16777215, 16777215))
         self.label_28.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_28, 11, 0, 1, 1)
@@ -368,7 +368,7 @@ class Ui_QueryHelpDialog(object):
         self.label_15 = QLabel(self.widget_3)
         self.label_15.setObjectName(u"label_15")
         self.label_15.setMinimumSize(QSize(0, 13))
-        self.label_15.setMaximumSize(QSize(16777215, 13))
+        self.label_15.setMaximumSize(QSize(16777215, 16777215))
         self.label_15.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_15, 4, 0, 1, 1)
@@ -467,7 +467,7 @@ class Ui_QueryHelpDialog(object):
         self.label_16.setText(QCoreApplication.translate("QueryHelpDialog", u"cl{c}", None))
         self.label_10.setText(QCoreApplication.translate("QueryHelpDialog", u"c", None))
         self.label_30.setText(QCoreApplication.translate("QueryHelpDialog", u"\U0001d7192", None))
-        self.label_19.setText(QCoreApplication.translate("QueryHelpDialog", u"exists c: \U0001d719", None))
+        self.label_19.setText(QCoreApplication.translate("QueryHelpDialog", u"forall c: \U0001d719", None))
         self.label_18.setText(QCoreApplication.translate("QueryHelpDialog", u"neg \U0001d719, !\U0001d719", None))
         self.label_5.setText(QCoreApplication.translate("QueryHelpDialog", u"Car c", None))
         self.label_33.setText(QCoreApplication.translate("QueryHelpDialog", u"\u2203 / Exists Car c", None))
@@ -480,7 +480,7 @@ class Ui_QueryHelpDialog(object):
         self.label_21.setText(QCoreApplication.translate("QueryHelpDialog", u"vchop {\U0001d7191} {\U0001d7192}", None))
         self.label_29.setText(QCoreApplication.translate("QueryHelpDialog", u"\U0001d7191 \U00002322 \U0001d7192", None))
         self.label_26.setText(QCoreApplication.translate("QueryHelpDialog", u"\U0001d7191 \U00002227 \U0001d7192", None))
-        self.label_31.setText(QCoreApplication.translate("QueryHelpDialog", u"forall c: \U0001d719", None))
+        self.label_31.setText(QCoreApplication.translate("QueryHelpDialog", u"exists c: \U0001d719", None))
         self.label_28.setText(QCoreApplication.translate("QueryHelpDialog", u"\U0001d7191 or \U0001d7192", None))
         self.label_15.setText(QCoreApplication.translate("QueryHelpDialog", u"re{c}", None))
         self.label_6.setText(QCoreApplication.translate("QueryHelpDialog", u"Crossing Segment", None))
