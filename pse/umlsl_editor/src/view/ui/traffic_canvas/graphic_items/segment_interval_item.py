@@ -210,12 +210,12 @@ class PathSegmentItem(SegmentIntervalItem):
 
     def _setup_style(self) -> None:
         self.pen = QPen(COLORS.TEXT, .04)
-        self.pen.setStyle(Qt.DashLine)
-        self.pen.setDashPattern([2, 2])
+        # self.pen.setStyle(Qt.DashLine)
+        # self.pen.setDashPattern([2, 2])
         self.pen.setCosmetic(False)
         self.color = QColor(COLORS.TEXT)
-        self.color.setAlphaF(0.4)
-        self.brush.setColor(COLORS.TRANSPARENT)
+        self.color.setAlphaF(0.2)
+        self.brush.setColor(self.color)
 
 
 class ReservedSegmentItem(SegmentIntervalItem):
