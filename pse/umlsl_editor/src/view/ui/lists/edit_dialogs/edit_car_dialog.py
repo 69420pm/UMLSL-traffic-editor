@@ -214,7 +214,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         """
         Refresh lane dropdown based on the selected road.
         """
-        all_lanes = road.backward_lanes + road.forward_lanes
+        all_lanes = road.backward_lanes[::-1] + road.forward_lanes
         lane_labels = [lane.get_name(self._application_controller.get_traffic_snapshot_reader()) for lane in all_lanes]
 
         with QSignalBlocker(self.d_lane):

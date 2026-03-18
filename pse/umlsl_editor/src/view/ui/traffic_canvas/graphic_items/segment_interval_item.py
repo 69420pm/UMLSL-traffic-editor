@@ -207,7 +207,15 @@ class SegmentIntervalItem(QGraphicsItem):
 
 class PathSegmentItem(SegmentIntervalItem):
     """Visualizes standard path segments."""
-    pass
+
+    def _setup_style(self) -> None:
+        self.pen = QPen(COLORS.TEXT, .04)
+        self.pen.setStyle(Qt.DashLine)
+        self.pen.setDashPattern([2, 2])
+        self.pen.setCosmetic(False)
+        self.color = QColor(COLORS.TEXT)
+        self.color.setAlphaF(0.4)
+        self.brush.setColor(COLORS.TRANSPARENT)
 
 
 class ReservedSegmentItem(SegmentIntervalItem):
