@@ -1,12 +1,12 @@
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.interval import Interval
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.virtual_lane import VirtualLane
 
 
 def compute_segment_intervals(
         ts: TrafficSnapshotReader,
-        path: VirtualLane,
+        path: list[Segment],
         pos_on_segment: float,
         car_size: float
 ) -> list[SegmentInterval]:
@@ -26,10 +26,10 @@ def compute_segment_intervals(
     while next_size > 0:
         current_size = next_size
 
-        if i >= len(path.segments):
+        if i >= len(path):
             return result
 
-        seg_i = path.segments[i]
+        seg_i = path[i]
 
         b_i: float
         if seg_i.is_lane_segment:
@@ -51,7 +51,7 @@ def compute_segment_intervals(
 
 def compute_segments_safety_envelope(
         ts: TrafficSnapshotReader,
-        path: VirtualLane,
+        path: list[Segment],
         pos_on_segment: float,
         horizon_size: float,
         car_size: float
@@ -72,10 +72,10 @@ def compute_segments_safety_envelope(
     while size > 0:
         # since the input size can be arbitrarily large, we need to check if we reached the end of the path
         # unlike in the segment_intervals method, it is not guaranteed that the car reaches the end of the path
-        if i >= len(path.segments):
+        if i >= len(path):
             return result
 
-        seg_i = path.segments[i]
+        seg_i = path[i]
         seg_size = seg_i.get_size_in_direction(ts)
 
         b_i: float

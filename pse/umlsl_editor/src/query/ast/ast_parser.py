@@ -4,7 +4,7 @@ from pse.umlsl_editor.src.query.ast.car_resolve import ConstantCarResolve, Varia
 from pse.umlsl_editor.src.query.ast.chop_node import HorizontalChopNode, VerticalChopNode
 from pse.umlsl_editor.src.query.ast.claim_node import ClaimNode
 from pse.umlsl_editor.src.query.ast.crossing_node import CrossingSegmentNode
-from pse.umlsl_editor.src.query.ast.equality_node import EqualityCarNode
+from pse.umlsl_editor.src.query.ast.equality_node import CarEqualityNode, CarNotEqualsNode
 from pse.umlsl_editor.src.query.ast.free_node import FreeNode
 from pse.umlsl_editor.src.query.ast.horizon_cmp_node import HorizonCmpGreaterNode, HorizonCmpGreaterEqualsNode, \
     HorizonCmpLessNode, HorizonCmpLessEqualsNode
@@ -97,10 +97,14 @@ class ASTParser:
                     f"Consider adding an argument after '{token_type.value}'"
                 )
 
-        if token_type == TokenType.CAR_EQUALS:
+        if token_type in {TokenType.EQUALS, TokenType.NOT_EQUALS}:
             car1 = self.parse_car(start, declared_variables)
             car2 = self.parse_car(end, declared_variables)
-            return EqualityCarNode(car1, car2)
+            match token_type:
+                case TokenType.EQUALS:
+                    return CarEqualityNode(car1, car2)
+                case TokenType.NOT_EQUALS:
+                    return CarNotEqualsNode(car1, car2)
         else:
             left_ast = self.parse_ast_rec(start, split_index - 1, declared_variables)
             right_ast = self.parse_ast_rec(split_index + 1, end, declared_variables)

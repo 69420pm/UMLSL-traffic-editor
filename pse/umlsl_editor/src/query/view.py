@@ -22,7 +22,7 @@ class LazyEvaluator(Generic[T]):
 
 class View:
     def __init__(self, virtual_lanes: list[VirtualLaneNew], segments_in_view: list[Segment],
-                 horizon: Interval, car: 'Car',
+                 horizon: Interval, ego: 'Car',
                  intersecting_cars: dict[str, dict[Segment, Interval]],
                  reserved_segments: dict[str, dict[Segment, Interval]],
                  claimed_segments: dict[str, dict[Segment, Interval]],
@@ -30,8 +30,7 @@ class View:
         self.virtual_lanes = virtual_lanes
         self.segments_in_view = segments_in_view
         self.horizon = horizon
-        # todo: rename to ego
-        self.car = car
+        self.ego = ego
 
         self._lazy_intersecting_cars = LazyEvaluator(
             intersecting_cars,
@@ -84,7 +83,7 @@ class View:
             new_virtual_lanes,
             segments_in_view,
             horizon,
-            self.car,
+            self.ego,
             self._lazy_intersecting_cars.data,
             self._lazy_reserved_segments.data,
             self._lazy_claimed_segments.data
@@ -132,11 +131,11 @@ class View:
 
         return new_claimed_segments
 
-    def get_intersecting_cars(self):
+    def get_intersecting_cars(self) -> dict[str, dict[Segment, Interval]]:
         return self._lazy_intersecting_cars.acquire_data()
 
-    def get_reserved_segments(self):
+    def get_reserved_segments(self) -> dict[str, dict[Segment, Interval]]:
         return self._lazy_reserved_segments.acquire_data()
 
-    def get_claimed_segments(self):
+    def get_claimed_segments(self) -> dict[str, dict[Segment, Interval]]:
         return self._lazy_claimed_segments.acquire_data()

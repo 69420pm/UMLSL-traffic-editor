@@ -21,7 +21,8 @@ class TokenType(Enum):
     CLAIM = "cl"
     CROSSING = "cs"
     RESERVE = "re"
-    CAR_EQUALS = "="
+    NOT_EQUALS = "!="
+    EQUALS = "="
     FREE = "free"
     AND = "and"
     OR = "or"
@@ -90,7 +91,8 @@ _INFIX_BINARY_OPS = {
     TokenType.AND,
     TokenType.OR,
     TokenType.IMPLIES,
-    TokenType.CAR_EQUALS
+    TokenType.EQUALS,
+    TokenType.NOT_EQUALS,
 }
 _PREFIX_BINARY_OPS = {
     TokenType.H_CHOP,
@@ -106,7 +108,8 @@ _INFIX_BINARY_OPS_PRECEDENCE = {
     TokenType.AND: 2,
     TokenType.OR: 1,
     TokenType.IMPLIES: 0,
-    TokenType.CAR_EQUALS: 4  # irrelevant since equality requires parameters to be cars (unambiguous since no expressions are involved)
+    TokenType.EQUALS: 4,  # irrelevant since equality requires parameters to be cars (unambiguous since no expressions are involved)
+    TokenType.NOT_EQUALS: 4, # irrelevant since equality requires parameters to be cars (unambiguous since no expressions are involved)
 }
 
 
