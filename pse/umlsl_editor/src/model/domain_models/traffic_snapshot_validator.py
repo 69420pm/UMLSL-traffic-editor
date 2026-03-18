@@ -176,8 +176,8 @@ class TrafficSnapshotValidator:
 
     def _check_transition_valid(self, transition: float, lane: Lane, car_driving_backwards: bool) -> bool:
         """Check if the transition value is valid for the given lane. It is not valid if the car changes out of the road,
-        because right or left of the road is no lane. The transition value is aligned after the car
-        (right is positive transition, left is negative) not the lane direction."""
+        because right or left of the road is no lane. The transition value is aligned with the axes
+        (1 means up/right, -1 means down/left)."""
         if transition == 0.0:
             return True
         try:
@@ -185,9 +185,10 @@ class TrafficSnapshotValidator:
         except ValueError:
             return False
 
-        direction = -1 if car_driving_backwards else 1
         delta = 1 if transition > 0 else -1
-        new_lane_index = lane.lane_index + delta * direction
+        if getattr(road.orientation, "name", None) == "HORIZONTAL":
+            delta = -delta
+        new_lane_index = lane.lane_index + delta
 
         if new_lane_index >= 0:
             return new_lane_index <= len(road.forward_lanes) - 1

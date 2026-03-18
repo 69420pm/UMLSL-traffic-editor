@@ -20,15 +20,10 @@ from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.car_item import C
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.crossing_item import (
     CrossingItem,
 )
-from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.debug_segment_item import (
-    DebugSegmentItem,
-)
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import RoadItem
 from pse.umlsl_editor.src.view.view_constants import DIMENSION
 
 logger = logging.getLogger(__name__)
-
-SHOW_DEBUG_SEGMENTS = True
 
 
 class TrafficScene(QGraphicsScene):
@@ -53,7 +48,6 @@ class TrafficScene(QGraphicsScene):
 
         # Registries
         self._item_registry: Dict[str, QGraphicsItem] = {}
-        self._debug_registry: Dict[str, DebugSegmentItem] = {}
 
         # Models
         view_models = application_controller.view_event_handler.view_models
@@ -262,23 +256,6 @@ class TrafficScene(QGraphicsScene):
     # -------------------------------------------------------------------------
 
     def _refresh_segments(self) -> None:
-        """Refresh debug segments and per-car interval overlays."""
-        if SHOW_DEBUG_SEGMENTS:
-            # Recreate debug visualizations from snapshot data.
-            for item in self._debug_registry.values():
-                self.removeItem(item)
-            self._debug_registry.clear()
-
-            snapshot_reader = self._app_controller.get_traffic_snapshot_reader()
-            if not snapshot_reader:
-                return
-
-            segments = snapshot_reader.debug_get_segments()
-            for segment in segments.values():
-                item = DebugSegmentItem(segment, self._app_controller)
-                self._debug_registry[segment.uid] = item
-                self.addItem(item)
-
         # Update all car segments (e.g., when roads change).
         for item in self._item_registry.values():
             if isinstance(item, CarItem):

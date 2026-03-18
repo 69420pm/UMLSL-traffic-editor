@@ -207,13 +207,21 @@ class TrafficView(QGraphicsView):
     def mousePressEvent(self, event) -> None:
         """
         Handle mouse press events.
-
-        Deselects the current entity if the click occurs on the empty background.
         """
-        if self.itemAt(event.position().toPoint()) is None:
-            self.application_controller.view_event_handler.entity_selected_view("")
-
+        self._mouse_press_pos = event.position()
         super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event) -> None:
+        """
+        Handle mouse release events.
+
+        Deselects the current entity if the click occurs on the empty background without dragging.
+        """
+        if hasattr(self, "_mouse_press_pos"):
+            if (event.position() - self._mouse_press_pos).manhattanLength() < 5:
+                if self.itemAt(event.position().toPoint()) is None:
+                    self.application_controller.view_event_handler.entity_selected_view("")
+        super().mouseReleaseEvent(event)
 
     def _calculate_clamped_scale(self, scale_factor: float) -> float:
         """

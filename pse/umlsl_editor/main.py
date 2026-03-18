@@ -5,11 +5,14 @@ import os
 import sys
 import warnings
 
+from PySide6.QtCore import QTimer
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
 from pse.umlsl_editor.src.controllers import ApplicationController
-from pse.umlsl_editor.src.view.ui.exeption_handling.exeption_handler import ExceptionHandler
+from pse.umlsl_editor.src.view.ui.exeption_handling.exeption_handler import (
+    ExceptionHandler,
+)
 from pse.umlsl_editor.src.view.ui.main_window import MainWindow
 
 
@@ -40,6 +43,12 @@ class Main:
         warnings.showwarning = exception_handler.handle_warning
 
         window.show()
+
+        if len(sys.argv) > 1:
+            file_path = sys.argv[1]
+            if os.path.exists(file_path):
+                QTimer.singleShot(0, lambda: self.application_controller.command_controller.load_traffic_snapshot(file_path))
+
         sys.exit(app.exec())
 
 
