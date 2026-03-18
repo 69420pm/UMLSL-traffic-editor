@@ -182,13 +182,20 @@ class TrafficScene(QGraphicsScene):
             bottom_right: QModelIndex,
             roles,
     ) -> None:
-        """Updates RoadItem visuals."""
+        """Updates RoadItem visuals. Updates crossings only if orientation changed."""
         for row in range(top_left.row(), bottom_right.row() + 1):
             road: Road = self._road_model.get_entity_at(row)
             road_item = self._item_registry.get(road.uid)
 
             if isinstance(road_item, RoadItem):
+                # Capture old orientation BEFORE updating
+                old_orientation = road_item.orientation
+
                 road_item.update_data(road)
+
+                # Only update crossings if orientation changed
+                if old_orientation != road.orientation:
+                    self._update_crossings_for_road(road_item)
 
         self._refresh_segments()
 
@@ -214,6 +221,19 @@ class TrafficScene(QGraphicsScene):
     # -------------------------------------------------------------------------
     # Crossing Management
     # -------------------------------------------------------------------------
+
+    def _update_crossings_for_road(self, road_item: RoadItem) -> None:
+        """Updates all crossings connected to the given road item."""
+        # Remove ALL existing crossings connected to this road
+        # This ensures old crossings are cleaned up when orientation changes
+        for listener in list(road_item.position_listeners):
+            if isinstance(listener, CrossingItem):
+                self._remove_crossing(listener)
+
+        # Recreate crossings with the new orientation
+        self._check_and_create_crossings(road_item)
+
+        self._refresh_segments()
 
     def _check_and_create_crossings(self, new_road_item: RoadItem) -> None:
         """Detects intersections with existing roads and creates CrossingItems."""

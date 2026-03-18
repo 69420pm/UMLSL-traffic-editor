@@ -1,16 +1,19 @@
-from collections.abc import Callable
+from typing import TypeVar, Generic, Callable
+
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.virtual_lane import VirtualLaneNew
 
+T = TypeVar('T')
 
-class LazyEvaluator[T]:
+
+class LazyEvaluator(Generic[T]):
     def __init__(self, data: T, on_update: Callable[[T], T]):
         self.data = data
         self.updated = False
         self.on_update = on_update
 
-    def acquire_data(self):
+    def acquire_data(self) -> T:
         if not self.updated:
             self.data = self.on_update(self.data)
             self.updated = True
