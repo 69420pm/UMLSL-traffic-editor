@@ -89,7 +89,7 @@ class CarModel(EntityModel):
         elif role == CarModel.ColorRole:
             return str(car.color)
         elif role == CarModel.ValueRole:
-            return f"R: {self._application_controller.data_controller.get_road_by_uid(car.lane.road_uid).name} L: {car.lane.get_name()}"
+            return f"R: {self._application_controller.data_controller.get_road_by_uid(car.lane.road_uid).name} L: {car.lane.get_name(self._application_controller.get_traffic_snapshot_reader())}"
 
         return None
 

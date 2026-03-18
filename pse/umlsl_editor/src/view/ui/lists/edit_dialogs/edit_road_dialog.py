@@ -21,6 +21,7 @@ from pse.umlsl_editor.src.view.ui.lists.deletion_checks import (
 from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.confirm_deletion_dialog import (
     ConfirmDeletionDialog,
 )
+from pse.umlsl_editor.src.view.view_constants import DIMENSION
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
@@ -74,6 +75,7 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
         """Connect UI signals to their handlers."""
         self.b_save.clicked.connect(self._on_save_clicked)
         self.b_delete.clicked.connect(self._on_delete_clicked)
+        self.d_orientation.currentIndexChanged.connect(self._update_axis_label)
 
     def _on_save_clicked(self) -> None:
         self.accept()
@@ -106,10 +108,11 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
 
     def _get_default_road_values(self) -> dict:
         """Return default road field values for create mode."""
+        num_of_roads = len(self._application_controller.data_controller.get_all_roads())
         return {
-            "name": "default",
+            "name": "R" + str(num_of_roads + 1),
             "orientation": RoadOrientation.HORIZONTAL,
-            "position": 0,
+            "position": num_of_roads * 4 * DIMENSION.LANE_WIDTH,
             "number_of_forward_lanes": 1,
             "number_of_backward_lanes": 1,
         }
@@ -119,7 +122,7 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
             *,
             name: str,
             orientation: RoadOrientation,
-            position: int,
+            position: float,
             number_of_forward_lanes: int,
             number_of_backward_lanes: int,
     ) -> None:
@@ -134,6 +137,12 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
         self.s_position.setValue(position)
         self.s_forward.setValue(number_of_forward_lanes)
         self.s_backward.setValue(number_of_backward_lanes)
+
+    def _update_axis_label(self) -> None:
+        if self.d_orientation.currentIndex() == 0:
+            self.l_axis.setText("y-Axis")
+        else:
+            self.l_axis.setText("x-Axis")
 
     def _populate_fields(self) -> None:
         """Populate dialog fields with the current road's values."""
@@ -151,6 +160,8 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
             number_of_forward_lanes=self._road.number_of_forward_lanes,
             number_of_backward_lanes=self._road.number_of_backward_lanes,
         )
+
+        self._update_axis_label()
 
     def accept(self) -> None:
         """

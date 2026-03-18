@@ -10,6 +10,7 @@ from PySide6.QtCore import QSignalBlocker, QTimer
 from PySide6.QtWidgets import QDialog, QWidget
 
 from pse.umlsl_editor.src.model.entities.car import Car
+from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.model.errors.car_errors import (
     CarTrafficSnapshotContextValidationError,
     CarValidationError,
@@ -32,16 +33,6 @@ from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_car_dialog import (
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
-
-# Default values for new cars
-DEFAULT_CAR_CONFIG = {
-    "color": "lightblue",
-    "length": 1,
-    "speed": 10.0,
-    "acceleration": 1.0,
-    "position": 0.0,
-    "transition": 0.0,
-}
 
 
 class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
@@ -116,14 +107,15 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
 
     def _get_default_car_values(self) -> dict[str, Any]:
         """Return default car field values for create mode."""
+        num_of_cars = len(self._application_controller.data_controller.get_all_cars())
         return {
-            "name": "default",
-            "color": DEFAULT_CAR_CONFIG["color"],
-            "length": DEFAULT_CAR_CONFIG["length"],
-            "speed": DEFAULT_CAR_CONFIG["speed"],
-            "acceleration": DEFAULT_CAR_CONFIG["acceleration"],
-            "position": DEFAULT_CAR_CONFIG["position"],
-            "transition": DEFAULT_CAR_CONFIG["transition"],
+            "name": "C" + str(num_of_cars + 1),
+            "color": "lightblue",
+            "length": 1,
+            "speed": 10.0,
+            "acceleration": 1.0,
+            "position": -2.0 * num_of_cars - 2.0,
+            "transition": 0.0,
         }
 
     def _connect_signals(self) -> None:
@@ -189,6 +181,8 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
             self.d_road.setCurrentIndex(0)
             self._update_lane_dropdown(default_road, default_lane.lane_index)
 
+        self._update_labels(self.d_road.currentIndex())
+
         self.d_road.blockSignals(False)
 
     def _populate_turn_fields(self) -> None:
@@ -219,7 +213,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         Refresh lane dropdown based on the selected road.
         """
         all_lanes = road.backward_lanes + road.forward_lanes
-        lane_labels = [lane.get_name() for lane in all_lanes]
+        lane_labels = [lane.get_name(self._application_controller.get_traffic_snapshot_reader()) for lane in all_lanes]
 
         with QSignalBlocker(self.d_lane):
             self.d_lane.clear()
@@ -266,6 +260,17 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
 
         # Road change affects position context, so update turn options
         self._update_turn_options()
+        self._update_labels(index)
+
+    def _update_labels(self, index: int) -> None:
+        selected_road = self._roads_list[index]
+
+        if selected_road.orientation == RoadOrientation.HORIZONTAL:
+            self.l_axis.setText("x-Axis")
+            self.l_transition.setText("d (-1, 1) u")
+        else:
+            self.l_axis.setText("y-Axis")
+            self.l_transition.setText("l (-1, 1) r")
 
     def _on_direction_changed(self, index: int) -> None:
         """Handle user changing turn direction."""

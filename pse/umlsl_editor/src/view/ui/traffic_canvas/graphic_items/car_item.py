@@ -243,8 +243,11 @@ class CarItem(SelectableGraphicsItem):
         dir_mod = -1 if is_backward else 1
 
         center_offset = (lane_idx * lane_w * vert_mod) + \
-                        (lane_w / 2.0 * vert_mod) + \
-                        (car.transition * lane_w * dir_mod * vert_mod)
+                        (lane_w / 2.0 * vert_mod) \
+ \
+        # If the car has claimed lanes, apply the transition offset to shift towards the claimed lane.
+        if len(car.environment.claimed_lanes) > 0:
+            center_offset += (car.transition * lane_w * dir_mod * vert_mod)
 
         road_base = road.position + (self._road_item.x() if is_vertical else self._road_item.y())
         lat_pos = road_base + center_offset

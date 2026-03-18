@@ -311,7 +311,7 @@ class RoadItem(SelectableGraphicsItem):
         arrow_dist = (
                          RoadItemStyle.LABEL_ARROW_SPACING_H if is_horizontal else RoadItemStyle.LABEL_ARROW_SPACING_V) * scale
 
-        def draw_lane_set(count: int, prefix: str, is_forward: bool):
+        def draw_lane_set(count: int, is_forward: bool):
             for i in range(count):
                 offset = (i + 0.5) * lane_width
 
@@ -329,6 +329,10 @@ class RoadItem(SelectableGraphicsItem):
                     text_pt = QPointF(pos_perp, view_bounds.y())
                     arrow_pt = QPointF(pos_perp, view_bounds.y() - arrow_dist)
 
+                prefix = "u" if is_forward else "d"
+                if is_horizontal:
+                    prefix = "r" if is_forward else "l"
+
                 # Draw labels aligned with the road name for horizontal roads.
                 self._draw_text(
                     painter,
@@ -340,8 +344,8 @@ class RoadItem(SelectableGraphicsItem):
                 )
                 self._draw_arrow(painter, arrow_pt, scale, is_forward, is_horizontal)
 
-        draw_lane_set(road.number_of_forward_lanes, "f", is_forward=True)
-        draw_lane_set(road.number_of_backward_lanes, "b", is_forward=False)
+        draw_lane_set(road.number_of_forward_lanes, is_forward=True)
+        draw_lane_set(road.number_of_backward_lanes, is_forward=False)
 
     def _draw_text(
             self,

@@ -451,7 +451,7 @@ class Ui_Edit_Road_Dialog(object):
         self.d_orientation.setItemText(1, QCoreApplication.translate("Edit_Road_Dialog", u"vertical", None))
 
         self.label_6.setText(QCoreApplication.translate("Edit_Road_Dialog", u"Orientation", None))
-        self.l_axis.setText(QCoreApplication.translate("Edit_Road_Dialog", u"x-Axis", None))
+        self.l_axis.setText(QCoreApplication.translate("Edit_Road_Dialog", u"y-Axis", None))
         self.l_axis.setProperty(u"class", QCoreApplication.translate("Edit_Road_Dialog", u"hint", None))
         self.label_8.setText(QCoreApplication.translate("Edit_Road_Dialog", u"unique", None))
         self.label_8.setProperty(u"class", QCoreApplication.translate("Edit_Road_Dialog", u"hint", None))
