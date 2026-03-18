@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "version": 1
+  },
+  "roads": [
+    {
+      "uid": "ebd4992b-b2d1-4d66-8ae5-5add0e0043b6",
+      "name": "R1",
+      "orientation": "HORIZONTAL",
+      "position": 0.0,
+      "number_of_forward_lanes": 1,
+      "number_of_backward_lanes": 1
+    },
+    {
+      "uid": "62fd57d0-b677-4af4-acde-641ea4c55005",
+      "name": "R2",
+      "orientation": "VERTICAL",
+      "position": 4.0,
+      "number_of_forward_lanes": 1,
+      "number_of_backward_lanes": 1
+    }
+  ],
+  "cars": [
+    {
+      "uid": "5962b8a3-a4c6-4903-a2d6-8d5850d41f80",
+      "name": "C1",
+      "road_uid": "ebd4992b-b2d1-4d66-8ae5-5add0e0043b6",
+      "lane_index": 0,
+      "position_on_lane": -0.07500000000000018,
+      "transition": 0.0,
+      "speed": 10.0,
+      "length": 1,
+      "color": "lightblue",
+      "acceleration": 1.0,
+      "next_turn": {
+        "direction": "LEFT",
+        "target_lane": {
+          "road_uid": "62fd57d0-b677-4af4-acde-641ea4c55005",
+          "lane_index": 0
+        }
+      }
+    }
+  ],
+  "queries": []
+}
