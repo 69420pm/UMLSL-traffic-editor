@@ -132,8 +132,10 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         # We connect all these inputs to the update handler.
         self.s_position.valueChanged.connect(self._update_turn_options)
         self.s_speed.valueChanged.connect(self._update_turn_options)
+        self.s_speed.valueChanged.connect(lambda: self._update_labels(self.d_road.currentIndex()))
         self.s_length.valueChanged.connect(self._update_turn_options)
         self.d_lane.currentIndexChanged.connect(self._update_turn_options)
+        self.d_lane.currentIndexChanged.connect(lambda: self._update_labels(self.d_road.currentIndex()))
         # Note: d_direction and d_road also trigger this via their specific handlers
 
     # =========================================================================
@@ -263,14 +265,16 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
         self._update_labels(index)
 
     def _update_labels(self, index: int) -> None:
+        if index < 0 or index >= len(self._roads_list):
+            return
         selected_road = self._roads_list[index]
 
         if selected_road.orientation == RoadOrientation.HORIZONTAL:
             self.l_axis.setText("x-Axis")
-            self.l_transition.setText("d (-1, 1) u")
+            self.l_transition.setText("↓ (-1, 1) ↑")
         else:
             self.l_axis.setText("y-Axis")
-            self.l_transition.setText("l (-1, 1) r")
+            self.l_transition.setText("← (-1, 1) →")
 
     def _on_direction_changed(self, index: int) -> None:
         """Handle user changing turn direction."""

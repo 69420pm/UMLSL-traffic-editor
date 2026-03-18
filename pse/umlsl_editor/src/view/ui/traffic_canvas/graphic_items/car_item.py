@@ -256,7 +256,7 @@ class CarItem(SelectableGraphicsItem):
  \
             # If the car has claimed lanes, apply the transition offset to shift towards the claimed lane.
         if len(car.environment.claimed_lanes) > 0:
-            center_offset += (car.transition * lane_w * dir_mod * vert_mod)
+            center_offset += (car.transition * lane_w)
 
         road_base = road.position + (self._road_item.x() if is_vertical else self._road_item.y())
         lat_pos = road_base + center_offset

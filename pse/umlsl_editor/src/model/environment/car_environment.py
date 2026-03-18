@@ -1,21 +1,39 @@
 from enum import Enum
 
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.entities.road import RoadOrientation, Road
-from pse.umlsl_editor.src.model.environment.environment_helper import compute_parallel_lane_segments
-from pse.umlsl_editor.src.model.environment.multi_view import compute_path, \
-    compute_parallel_virtual_lanes
-from pse.umlsl_editor.src.model.environment.segment_intervals_helper import compute_segments_safety_envelope
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import (
+    TrafficSnapshotReader,
+)
+from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation
+from pse.umlsl_editor.src.model.environment.environment_helper import (
+    compute_parallel_lane_segments,
+)
+from pse.umlsl_editor.src.model.environment.multi_view import (
+    compute_parallel_virtual_lanes,
+    compute_path,
+)
+from pse.umlsl_editor.src.model.environment.segment_intervals_helper import (
+    compute_segments_safety_envelope,
+)
 from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError
 from pse.umlsl_editor.src.model.helper.directional_graph import Direction
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import (
+    LaneSegment,
+)
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.virtual_lane import VirtualLane, VirtualLaneNew
-from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnDirection, TurnIntent
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import (
+    SegmentInterval,
+)
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.virtual_lane import (
+    VirtualLane,
+    VirtualLaneNew,
+)
+from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import (
+    TurnDirection,
+    TurnIntent,
+)
 
 
 class Orientation(Enum):
@@ -288,7 +306,14 @@ def _compute_claimed_envelope(reserved_segment_intervals: list[SegmentInterval],
     segment_interval = reserved_segment_intervals[0]
     parallel_segments = compute_parallel_lane_segments(ts, segment_interval.segment)
     current_index = parallel_segments.index(segment_interval.segment)
-    claimed_segment_index = current_index + 1 if transition > 0 else current_index - 1
+
+    road = ts.get_road_by_uid(segment_interval.segment.lane.road_uid)
+    delta = 1 if transition > 0 else -1
+    if road.orientation == RoadOrientation.HORIZONTAL:
+        delta = -delta
+
+    # 1 means up/right, -1 means down/left. The segments are sorted by lane index which matches this mapping.
+    claimed_segment_index = current_index + delta
     claimed_segment = parallel_segments[claimed_segment_index]
 
     return [SegmentInterval(claimed_segment, segment_interval.interval)]
