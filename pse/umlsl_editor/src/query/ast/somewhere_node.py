@@ -1,5 +1,5 @@
-from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
+from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.query.ast.ast import UnaryNode
 from pse.umlsl_editor.src.query.ast.chop_node import VerticalChopNode, HorizontalChopNode
 from pse.umlsl_editor.src.query.ast.logic_node import TrueNode

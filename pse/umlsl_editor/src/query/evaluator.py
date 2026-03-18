@@ -48,14 +48,13 @@ class UMLSLEvaluator:
             # translate physical, reserved and claimed intervals of every car into the coordinate system of ego
             intersecting_cars: dict[str, dict[Segment, Interval]] = translate_coordinate_system(
                 lambda c: c.environment.physical_segment_intervals)
-            print("reserved segments:")
             reserved_segments: dict[str, dict[Segment, Interval]] = translate_coordinate_system(
                 lambda c: c.environment.reserved)
             claimed_segments: dict[str, dict[Segment, Interval]] = translate_coordinate_system(
                 lambda c: c.environment.claimed
             )
 
-            print("evaluating parallel virtual lane with:")
+            print("evaluating parallel virtual lane with horizon ", horizontal_horizon.start, horizontal_horizon.end)
             print("intersecting cars: ")
             for intersecting_car in intersecting_cars:
                 print(">", ts.cars[intersecting_car].name, ":")
