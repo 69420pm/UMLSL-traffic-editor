@@ -31,6 +31,13 @@ Launch the editor and load a specific traffic snapshot by passing the file path 
 python -m pse.umlsl_editor.main <path/to/snapshot_file>
 ```
 
+## Editor Features & Navigation
+
+* **Canvas Navigation:** Click and drag the left mouse button or use the arrow keys to pan across the canvas. Zoom using the mouse wheel or the `+`/`-` buttons.
+* **Entity Management:** Use the left panel to manage your environment. Click `+` to add entities, or use the pen icon to edit/delete them.
+* **Drag & Drop:** Select any car or road and drag it with the mouse to quickly reposition it.
+* **Settings & Files:** Access `Settings` and `File` management (`Load`, `Save`, `Save As`) from the top-left menu.
+
 ## Keyboard Shortcuts
 
 | Action | Shortcut |
@@ -40,10 +47,3 @@ python -m pse.umlsl_editor.main <path/to/snapshot_file>
 | Add Query | `Q` |
 | Edit Selected | `E` |
 | Delete Selected | `Backspace` |
-
-## Editor Features & Navigation
-
-* **Canvas Navigation:** Click and drag the left mouse button or use the arrow keys to pan across the canvas. Zoom using the mouse wheel or the `+`/`-` buttons.
-* **Entity Management:** Use the left panel to manage your environment. Click `+` to add entities, or use the pen icon to edit/delete them.
-* **Drag & Drop:** Select any car or road and drag it with the mouse to quickly reposition it.
-* **Settings & Files:** Access `Settings` and `File` management (`Load`, `Save`, `Save As`) from the top-left menu.
