@@ -178,25 +178,41 @@ class SegmentIntervalItem(QGraphicsItem):
                 if is_horizontal:
                     t = min(t, width)
                     if not is_backward:
-                        self._path.addRect(QRectF(x, y, width - t, height))
-                        poly = QPolygonF([QPointF(x + width - t, y), QPointF(x + width, y + height / 2.0),
-                                          QPointF(x + width - t, y + height)])
-                        self._path.addPolygon(poly)
+                        poly = QPolygonF([
+                            QPointF(x, y),
+                            QPointF(x + width - t, y),
+                            QPointF(x + width, y + height / 2.0),
+                            QPointF(x + width - t, y + height),
+                            QPointF(x, y + height)
+                        ])
                     else:
-                        self._path.addRect(QRectF(x + t, y, width - t, height))
-                        poly = QPolygonF([QPointF(x + t, y), QPointF(x, y + height / 2.0), QPointF(x + t, y + height)])
-                        self._path.addPolygon(poly)
+                        poly = QPolygonF([
+                            QPointF(x + width, y),
+                            QPointF(x + width, y + height),
+                            QPointF(x + t, y + height),
+                            QPointF(x, y + height / 2.0),
+                            QPointF(x + t, y)
+                        ])
+                    self._path.addPolygon(poly)
                 else:
                     t = min(t, height)
                     if not is_backward:
-                        self._path.addRect(QRectF(x, y, width, height - t))
-                        poly = QPolygonF([QPointF(x, y + height - t), QPointF(x + width / 2.0, y + height),
-                                          QPointF(x + width, y + height - t)])
-                        self._path.addPolygon(poly)
+                        poly = QPolygonF([
+                            QPointF(x, y),
+                            QPointF(x + width, y),
+                            QPointF(x + width, y + height - t),
+                            QPointF(x + width / 2.0, y + height),
+                            QPointF(x, y + height - t)
+                        ])
                     else:
-                        self._path.addRect(QRectF(x, y + t, width, height - t))
-                        poly = QPolygonF([QPointF(x, y + t), QPointF(x + width / 2.0, y), QPointF(x + width, y + t)])
-                        self._path.addPolygon(poly)
+                        poly = QPolygonF([
+                            QPointF(x, y + height),
+                            QPointF(x + width, y + height),
+                            QPointF(x + width, y + t),
+                            QPointF(x + width / 2.0, y),
+                            QPointF(x, y + t)
+                        ])
+                    self._path.addPolygon(poly)
 
                 self._rect = self._path.boundingRect()
             else:
