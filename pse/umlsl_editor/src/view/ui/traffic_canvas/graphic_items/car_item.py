@@ -13,9 +13,8 @@ from pse.umlsl_editor.src.model.errors.car_errors import (
 )
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import RoadItem
-from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.segment_interval_item import (
-    SegmentIntervalItem,
-)
+from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.segment_interval_item import PathSegmentItem, \
+    ReservedSegmentItem, ClaimedSegmentItem
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.selectable_graphics_item import (
     SelectableGraphicsItem,
 )
@@ -79,22 +78,10 @@ class CarItem(SelectableGraphicsItem):
         self._clear_segments()
 
         if self.is_selected:
-            self._add_segments(
-                self._car.environment.path_segment_intervals,
-                self._car,
-                False
-            )
+            self._add_segment_items(self._car.environment.path_segment_intervals, PathSegmentItem)
 
-        self._add_segments(
-            self._car.environment.reserved,
-            self._car,
-            False
-        )
-        self._add_segments(
-            self._car.environment.claimed,
-            self._car,
-            True
-        )
+        self._add_segment_items(self._car.environment.reserved, ReservedSegmentItem)
+        self._add_segment_items(self._car.environment.claimed, ClaimedSegmentItem)
 
     def _clear_segments(self) -> None:
         scene = self._get_scene()
@@ -105,17 +92,39 @@ class CarItem(SelectableGraphicsItem):
             scene.removeItem(seg)
         self._segments.clear()
 
-    def _add_segments(self, segments, car: Car, should_ignore_lane_direction: bool) -> None:
+    def _add_segment_items(self, segments, segment_class) -> None:
         scene = self._get_scene()
-        if scene is None:
+        if scene is None or not segments:
             return
-        for seg_data in segments:
-            seg_item = SegmentIntervalItem(
+
+        for i, seg_data in enumerate(segments):
+            entry_lane = None
+            exit_lane = None
+
+            # Find the closest preceding lane for entry
+            for j in range(i, -1, -1):
+                if hasattr(segments[j].segment, 'lane'):
+                    entry_lane = segments[j].segment.lane
+                    break
+
+            # Find the closest succeeding lane for exit
+            for j in range(i, len(segments)):
+                if hasattr(segments[j].segment, 'lane'):
+                    exit_lane = segments[j].segment.lane
+                    break
+
+            if entry_lane is None:
+                entry_lane = self._car.lane
+            if exit_lane is None:
+                exit_lane = entry_lane
+
+            seg_item = segment_class(
                 segment_interval=seg_data,
+                lane_start=entry_lane,
+                lane_end=exit_lane,
                 application_controller=self.application_controller,
                 car=self._car,
-                is_last_interval=False,
-                should_ignore_lane_direction=should_ignore_lane_direction,
+                is_last_interval=(i == len(segments) - 1)
             )
             scene.addItem(seg_item)
             self._segments.append(seg_item)
@@ -245,7 +254,7 @@ class CarItem(SelectableGraphicsItem):
         center_offset = (lane_idx * lane_w * vert_mod) + \
                         (lane_w / 2.0 * vert_mod) \
  \
-        # If the car has claimed lanes, apply the transition offset to shift towards the claimed lane.
+            # If the car has claimed lanes, apply the transition offset to shift towards the claimed lane.
         if len(car.environment.claimed_lanes) > 0:
             center_offset += (car.transition * lane_w * dir_mod * vert_mod)
 
