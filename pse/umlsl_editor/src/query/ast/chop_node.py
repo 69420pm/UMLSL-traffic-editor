@@ -2,7 +2,7 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import Traf
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.query.ast.ast import View, BinaryNode, Precedence, ASTNode
 
-SMALLEST_STEP_SIZE = 0.25
+SMALLEST_STEP_SIZE = 0.4
 
 
 class HorizontalChopNode(BinaryNode):
@@ -16,7 +16,7 @@ class HorizontalChopNode(BinaryNode):
         elif len(operands) == 2:
             return cls(operands[0], operands[1])
         else:
-            return cls(cls.create_nested_hchop(operands[0:-1]), operands[-1])
+            return cls(operands[0], cls.create_nested_hchop(operands[1:]))
 
     def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
         horizon = view.horizon
@@ -79,7 +79,7 @@ class HorizontalChopNode(BinaryNode):
         if left_eval:
             right_eval = self._right.evaluate(traffic_snapshot, right_view, variable_car_map)
             if right_eval:
-               # print("evaluated true on ", horizon.start, horizon.end, " split at ", split_value, " i.e. ", self._left.to_latex(), " and ", self._right.to_latex())
+                print("hchop: evaluated true on ", horizon.start, horizon.end, " split at ", split_value, " i.e. ", self._left.to_latex(), " and ", self._right.to_latex())
                 return True
 
         return False

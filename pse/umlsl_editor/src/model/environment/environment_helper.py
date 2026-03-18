@@ -4,7 +4,7 @@ from pse.umlsl_editor.src.model.helper.directional_graph import Direction
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
 
 
-def compute_parallel_lane_segments(ts: TrafficSnapshotReader, segment: LaneSegment) -> list[LaneSegment]:
+def compute_parallel_lane_segments(ts: TrafficSnapshotReader, segment: LaneSegment, dist: int = -1) -> list[LaneSegment]:
     """"
     Computes the segments parallel to the given lane segment.
     Parallel means that the segments are parallel to the driving direction of the lane segment.
@@ -21,12 +21,14 @@ def compute_parallel_lane_segments(ts: TrafficSnapshotReader, segment: LaneSegme
     segments: list[LaneSegment] = [segment]
     for direction in directions:
         next_segment = ts.get_adjacent_segment(segment.uid, direction)
-        while next_segment is not None:
+        advancement = 0
+        while next_segment is not None and (advancement < dist or dist == -1):
             # if we start on a lane segment and move orthogonal to its driving direction, we cannot reach a crossing
             # segment
             assert isinstance(next_segment, LaneSegment)
             segments.append(next_segment)
             next_segment = ts.get_adjacent_segment(next_segment.uid, direction)
+            advancement += 1
 
     segments.sort(key=lambda seg: seg.lane.lane_index)
     return segments

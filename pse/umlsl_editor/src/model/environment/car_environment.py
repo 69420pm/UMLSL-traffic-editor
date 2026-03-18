@@ -32,7 +32,7 @@ class CarEnvironment:
     # List of parallel virtual lanes.
     parallel_virtual_lanes: list[list[VirtualLaneNew]]
     # The path of the car which is a list of segments.
-    path: VirtualLane
+    path: list[Segment]
     # The path of the car where each segment is equipped with an interval.
     # This is analogous to the seg_V method in the paper if we assume the view occupies the entire map.
     # To access only the visible segments in a view, use the path_segments_in_view function in this class.
@@ -53,7 +53,7 @@ class CarEnvironment:
             self,
             car_direction: Direction,
             turn_direction: TurnDirection,
-            path: VirtualLane,
+            path: list[Segment],
             physical_segment_intervals: list[SegmentInterval],
             path_segment_intervals: list[SegmentInterval],
             horizontal_horizon: Interval,
@@ -158,7 +158,7 @@ class CarEnvironment:
         )
 
         print("--------")
-        print("path is ", list(map(lambda seg: ts.get_segment_info(seg.uid), path.segments)))
+        print("path is ", list(map(lambda seg: ts.get_segment_info(seg.uid), path)))
         print("path seg-intervals is ", list(
             map(lambda seg: ts.get_segment_info(seg.segment.uid) + " " + str(seg.interval), path_segment_intervals)))
         print("horizon is ", horizontal_horizon)
