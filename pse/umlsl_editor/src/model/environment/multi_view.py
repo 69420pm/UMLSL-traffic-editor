@@ -77,7 +77,7 @@ def compute_parallel_virtual_lanes(
     for parallel_segment in parallel_segments:
         virtual_lanes: list[VirtualLaneNew] = []
         for segment_list in parallel_segment:
-            virtual_lanes.append(segments_to_virtual_lane(pos_on_segment, segment_list, horizon, ts))
+            virtual_lanes.append(segments_to_virtual_lane(horizon.start, segment_list, horizon, ts))
         parallel_virtual_lanes.append(virtual_lanes)
 
     return parallel_virtual_lanes
