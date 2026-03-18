@@ -90,11 +90,17 @@ class RoadItem(SelectableGraphicsItem):
         if not self._arrow_renderer.isValid():
             logger.warning("Failed to load SVG: %s", RoadItemStyle.ARROW_SVG_PATH)
 
+        self._orientation = road.orientation
         self.update_data(road)
+
+    @property
+    def orientation(self):
+        return self._orientation
 
     def update_data(self, road: Road) -> None:
         """Update the road's display data and refresh geometry."""
 
+        self._orientation = road.orientation
         self._road = road
         self.setData(0, road)
 
