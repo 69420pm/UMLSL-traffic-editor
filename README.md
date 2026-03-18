@@ -47,4 +47,3 @@ python -m pse.umlsl_editor.main <path/to/snapshot_file>
 * **Entity Management:** Use the left panel to manage your environment. Click `+` to add entities, or use the pen icon to edit/delete them.
 * **Drag & Drop:** Select any car or road and drag it with the mouse to quickly reposition it.
 * **Settings & Files:** Access `Settings` and `File` management (`Load`, `Save`, `Save As`) from the top-left menu.
-```
