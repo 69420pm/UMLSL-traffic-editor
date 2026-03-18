@@ -189,6 +189,7 @@ class TrafficScene(QGraphicsScene):
 
             if isinstance(road_item, RoadItem):
                 road_item.update_data(road)
+                self._update_crossings_for_road(road_item)
 
         self._refresh_segments()
 
@@ -214,6 +215,17 @@ class TrafficScene(QGraphicsScene):
     # -------------------------------------------------------------------------
     # Crossing Management
     # -------------------------------------------------------------------------
+
+    def _update_crossings_for_road(self, road_item: RoadItem) -> None:
+        """Updates all crossings connected to the given road item."""
+        for listener in road_item.position_listeners:
+            if isinstance(listener, CrossingItem):
+                road_a = listener.road_1.data(0)
+                road_b = listener.road_2.data(0)
+
+                if road_a.orientation == road_b.orientation:
+                    # Roads are no longer perpendicular, remove crossing
+                    self._remove_crossing(listener)
 
     def _check_and_create_crossings(self, new_road_item: RoadItem) -> None:
         """Detects intersections with existing roads and creates CrossingItems."""

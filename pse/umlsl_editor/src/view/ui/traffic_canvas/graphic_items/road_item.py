@@ -94,6 +94,7 @@ class RoadItem(SelectableGraphicsItem):
 
     def update_data(self, road: Road) -> None:
         """Update the road's display data and refresh geometry."""
+
         self._road = road
         self.setData(0, road)
 
