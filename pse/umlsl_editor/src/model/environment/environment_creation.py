@@ -9,9 +9,9 @@ from pse.umlsl_editor.src.model.environment.helper.segment_intervals_helper impo
 from pse.umlsl_editor.src.model.environment.helper.segment_topology_helper import compute_path_through_crossing, \
     compute_parallel_lane_segments
 from pse.umlsl_editor.src.model.environment.helper.turn_intent_helper import find_turn_intent_segment
-from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError
 from pse.umlsl_editor.src.model.helper.directional_graph import Direction
 from pse.umlsl_editor.src.model.interval import Interval
+from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
@@ -31,7 +31,7 @@ class EnvironmentCreation:
         self.pos_on_lane = self.car_params.position_on_lane  # rear of the car
         start_segment = self.ts.get_segment_from_lane_position(self.car_params.lane, self.pos_on_lane)
         if start_segment is None or not isinstance(start_segment, LaneSegment):
-            raise CarValidationError(content="Car must start on a lange segment")
+            raise ValueError("Car must start on a lane segment.")
         self.start_segment = start_segment
 
         self.car_direction = self._compute_car_direction()
@@ -68,6 +68,11 @@ class EnvironmentCreation:
                 return self.start_segment.get_size_in_direction(self.ts) - (segment_start_pos - self.pos_on_lane)
             case Direction.DOWN:
                 return segment_start_pos - self.pos_on_lane
+
+    @staticmethod
+    def validate_environment(ts: TrafficSnapshotReader, pos_on_lane: float, lane: Lane) -> bool:
+        # ensure the car is placed on a lane segment (not a crossing)
+        return isinstance(ts.get_segment_from_lane_position(lane, pos_on_lane), LaneSegment)
 
     def build(self) -> CarEnvironment:
         turn_segment: LaneSegment = find_turn_intent_segment(self.ts, self.start_segment, self.specified_turn_intent,

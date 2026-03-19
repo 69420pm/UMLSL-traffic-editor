@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation, RoadParams
+from pse.umlsl_editor.src.model.environment.environment_creation import EnvironmentCreation
 from pse.umlsl_editor.src.model.errors.car_errors import (
     CarTrafficSnapshotContextValidationError,
 )
@@ -58,10 +59,13 @@ class TrafficSnapshotValidator:
         Raises:
             CarTrafficSnapshotContextValidationError: If any validation check fails.
         """
-        if not self._check_name_unique(car.name, car_uid):
+        if new_instantiation:
+            if not self._check_car_name_unique(car.name):
+                raise CarTrafficSnapshotContextValidationError(
+                    content=f"Car name '{car.name}' is not unique in the traffic snapshot.")
+        if not EnvironmentCreation.validate_environment(self._model, car.position_on_lane, car.lane):
             raise CarTrafficSnapshotContextValidationError(
-                content=f"Car name '{car.name}' is not unique in the traffic snapshot."
-            )
+                content=f"Car '{car.name}' cannot be placed inside a crossing.")
         if not self._check_lane_valid(car.lane):
             raise CarTrafficSnapshotContextValidationError(
                 content=f"Car '{car.name}' has an invalid lane: {car.lane}."
@@ -93,9 +97,8 @@ class TrafficSnapshotValidator:
         Args:
             car: The Car instance to validate.
         """
-        # TODO: Fix that methode
-        # if car.environment.validate_environment(self._model, car=car, settings_model=self._model.settings_model):
-        #   return False
+        if EnvironmentCreation.validate_environment(self._model, car.position_on_lane, car.lane):
+          return False
         if not self._check_lane_valid(car.lane):
             return False
         if not self._check_transition_valid(car.transition, car.lane, car.speed < 0):
