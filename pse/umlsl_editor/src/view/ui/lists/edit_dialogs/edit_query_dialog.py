@@ -11,6 +11,7 @@ from PySide6.QtCore import QObject, QThread, QTimer, Signal
 from PySide6.QtGui import QFontDatabase, QImage, QPixmap, QResizeEvent, Qt
 from PySide6.QtWidgets import QDialog
 
+from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery
 from pse.umlsl_editor.src.model.errors.umlsl_query_errors import (
     UMLSLQueryValidationError,
@@ -256,7 +257,13 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
             evaluator = UMLSLEvaluator(
                 self._application_controller.get_traffic_snapshot_reader()
             )
-            latex_code = evaluator.parse_ast(user_input).latex_code
+            selected_car = self.get_selected_car()
+            if selected_car is None:
+                # We raise an error here because the UI *should* ensure some car is always selected. Therefore, None
+                # corresponds to an invalid state.
+                raise ValueError("No car selected")
+
+            latex_code = evaluator.parse_ast(user_input, selected_car).latex_code
         except ParserError as e:
             self._display_parser_error(user_input, e)
             return
@@ -469,15 +476,8 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         """
         self._cleanup_render_thread()
 
-        selected_car_index = self.d_car.currentIndex()
-
         should_only_evaluate_on_cars_lane = self.c_only_lane.isChecked()
-
-        if selected_car_index < 0 or selected_car_index >= len(self._cars_list):
-            super().reject()
-            return
-
-        selected_car = self._cars_list[selected_car_index]
+        selected_car = self.get_selected_car()
         latex = self.t_umlsl.toPlainText()
 
         try:
@@ -505,6 +505,14 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
             self.parent().snackbar.show_message(
                 "Query updated successfully." if self._is_edit else "Query created successfully.")
             super().accept()
+
+    def get_selected_car(self) -> Car | None:
+        selected_car_index = self.d_car.currentIndex()
+        if selected_car_index < 0 or selected_car_index >= len(self._cars_list):
+            super().reject()
+            return None
+        else:
+            return self._cars_list[selected_car_index]
 
     def reject(self) -> None:
         """Handle dialog rejection by cleaning up resources."""
