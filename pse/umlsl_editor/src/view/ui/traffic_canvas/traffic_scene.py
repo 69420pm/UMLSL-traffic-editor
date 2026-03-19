@@ -81,7 +81,7 @@ class TrafficScene(QGraphicsScene):
                         self._remove_crossing(listener)
         self.clear()
         self._item_registry.clear()
-        self._debug_registry.clear()
+        # self._debug_registry.clear()
         self._refresh_segments()
 
     # -------------------------------------------------------------------------

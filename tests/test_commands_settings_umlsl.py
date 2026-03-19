@@ -5,8 +5,8 @@ from pse.umlsl_editor.src.commands.settings.change_braking_acceleration import (
     ChangeBrakingAccelerationCommand,
 )
 from pse.umlsl_editor.src.commands.umlsl.add_umlsl_query import AddUMLSLQuery
-from pse.umlsl_editor.src.commands.umlsl.edit_umlsl_query import EditUMLSLQuery
 from pse.umlsl_editor.src.commands.umlsl.delete_umlsl_query import DeleteUMLSLQuery
+from pse.umlsl_editor.src.commands.umlsl.edit_umlsl_query import EditUMLSLQuery
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQueryParams
 from pse.umlsl_editor.src.model.errors.settings_errors import SettingsValidationError
 from pse.umlsl_editor.src.model.errors.umlsl_query_errors import UMLSLQueryValidationError
@@ -36,11 +36,14 @@ class TestAddUMLSLQueryCommand(unittest.TestCase):
         reader = MagicMock()
         model = MagicMock()
         reader.is_car_existing.return_value = True
-        params = UMLSLQueryParams(latex="\\phi", assigned_car_uid="car-1")
+        params = UMLSLQueryParams(latex="\\phi", assigned_car_uid="car-1", holding=True,
+                                  should_only_evaluate_on_cars_lane=True)
+        cmd = AddUMLSLQuery(params, model, reader)
+        cmd.execute()
 
         with patch(
-            "pse.umlsl_editor.src.commands.umlsl.add_umlsl_query.UMLSLQuery.from_params",
-            autospec=True,
+                "pse.umlsl_editor.src.commands.umlsl.add_umlsl_query.UMLSLQuery.from_params",
+                autospec=True,
         ) as from_params:
             query_instance = MagicMock()
             from_params.return_value = query_instance
@@ -55,7 +58,7 @@ class TestAddUMLSLQueryCommand(unittest.TestCase):
         reader = MagicMock()
         model = MagicMock()
         reader.is_car_existing.return_value = False
-        params = UMLSLQueryParams(latex="\\phi", assigned_car_uid="car-1")
+        params = UMLSLQueryParams(latex="\\phi", assigned_car_uid="car-1", should_only_evaluate_on_cars_lane=True)
 
         cmd = AddUMLSLQuery(params, model, reader)
 
@@ -70,7 +73,7 @@ class TestEditUMLSLQueryCommand(unittest.TestCase):
         model = MagicMock()
         query = MagicMock()
         model.get_query_by_id.return_value = query
-        params = UMLSLQueryParams(latex="\\psi", assigned_car_uid="car-2", validation=True)
+        params = UMLSLQueryParams(latex="\\psi", assigned_car_uid="car-2", should_only_evaluate_on_cars_lane=True)
 
         cmd = EditUMLSLQuery(query_id="q-1", umlsl_query_params=params, umlsl_queries_model=model)
         cmd.execute()

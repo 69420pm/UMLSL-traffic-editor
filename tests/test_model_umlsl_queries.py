@@ -9,7 +9,7 @@ from pse.umlsl_editor.src.model.errors.umlsl_query_errors import UMLSLQueryValid
 class TestUMLSLQueriesModel(unittest.TestCase):
     def test_add_get_update_remove_query(self):
         model = UMLSLQueriesModel()
-        params = UMLSLQueryParams(latex="\\phi", assigned_car_uid="car-1")
+        params = UMLSLQueryParams(latex="\\phi", assigned_car_uid="car-1", should_only_evaluate_on_cars_lane=True)
         query = UMLSLQuery.from_params(params)
 
         model.add_umlsl_query(query)
@@ -17,13 +17,14 @@ class TestUMLSLQueriesModel(unittest.TestCase):
         self.assertEqual(fetched.uid, query.uid)
         self.assertEqual(fetched.latex, "\\phi")
 
-        updated_params = UMLSLQueryParams(latex="\\psi", assigned_car_uid="car-2", validation=True)
+        updated_params = UMLSLQueryParams(latex="\\psi", assigned_car_uid="car-2",
+                                          should_only_evaluate_on_cars_lane=True)
         model.update_umlsl_query(fetched, updated_params)
 
         updated = model.get_query_by_id(query.uid)
         self.assertEqual(updated.latex, "\\psi")
         self.assertEqual(updated.assigned_car_uid, "car-2")
-        self.assertTrue(updated.validation)
+        self.assertTrue(updated.holding)
 
         model.remove_umlsl_query(query.uid)
         with self.assertRaises(UMLSLQueryValidationError):
@@ -36,7 +37,8 @@ class TestUMLSLQueriesModel(unittest.TestCase):
 
     def test_to_dict_serializes(self):
         model = UMLSLQueriesModel()
-        query = UMLSLQuery.from_params(UMLSLQueryParams(latex="q", assigned_car_uid="car-1"))
+        query = UMLSLQuery.from_params(
+            UMLSLQueryParams(latex="q", assigned_car_uid="car-1", should_only_evaluate_on_cars_lane=True))
         model.add_umlsl_query(query)
 
         payload = model.to_dict()
@@ -47,8 +49,10 @@ class TestUMLSLQueriesModel(unittest.TestCase):
 
     def test_clear_removes_all(self):
         model = UMLSLQueriesModel()
-        q1 = UMLSLQuery.from_params(UMLSLQueryParams(latex="q1", assigned_car_uid="car-1"))
-        q2 = UMLSLQuery.from_params(UMLSLQueryParams(latex="q2", assigned_car_uid="car-2"))
+        q1 = UMLSLQuery.from_params(
+            UMLSLQueryParams(latex="q1", assigned_car_uid="car-1", should_only_evaluate_on_cars_lane=True))
+        q2 = UMLSLQuery.from_params(
+            UMLSLQueryParams(latex="q2", assigned_car_uid="car-2", should_only_evaluate_on_cars_lane=True))
         model.add_umlsl_query(q1)
         model.add_umlsl_query(q2)
 

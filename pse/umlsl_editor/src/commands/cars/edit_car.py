@@ -38,5 +38,5 @@ class EditCarCommand(Command[None]):
         """
         if not self._traffic_snapshot_reader.is_car_existing(self.car_uid):
             raise CarValidationError(content=f"Car with UID {self.car_uid} does not exist and cannot be edited.")
-        self._traffic_snapshot_reader.validate_car_params(self.car_params, False)
+        self._traffic_snapshot_reader.validate_car_params(self.car_params, False, self.car_uid)
         self._traffic_snapshot_writer.update_car_with_params(self.car_uid, self.car_params)
