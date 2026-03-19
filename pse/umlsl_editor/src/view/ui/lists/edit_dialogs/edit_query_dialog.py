@@ -256,7 +256,7 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
             evaluator = UMLSLEvaluator(
                 self._application_controller.get_traffic_snapshot_reader()
             )
-            latex_code = evaluator.compute_latex(user_input)
+            latex_code = evaluator.parse_ast(user_input).latex_code
         except ParserError as e:
             self._display_parser_error(user_input, e)
             return

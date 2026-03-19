@@ -1,4 +1,7 @@
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.model.entities.car import Car
+from pse.umlsl_editor.src.model.environment.view_coordinate_translation import translate_into_ego_coordinates
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.query.ast.ast import ASTNode
 from pse.umlsl_editor.src.query.ast.car_resolve import ConstantCarResolve, VariableCarResolve, CarResolve
 from pse.umlsl_editor.src.query.ast.chop_node import HorizontalChopNode, VerticalChopNode
@@ -14,14 +17,62 @@ from pse.umlsl_editor.src.query.ast.quantor_node import ExistsNode, ForallNode
 from pse.umlsl_editor.src.query.ast.reserve_node import ReserveNode
 from pse.umlsl_editor.src.query.ast.somewhere_node import SomewhereNode
 from pse.umlsl_editor.src.query.lexer import Token, TokenType
+from pse.umlsl_editor.src.query.view import View
+
+
+class ParsedUMLSLQuery:
+    def __init__(self, traffic_snapshot: TrafficSnapshotModel, ast: ASTNode, car_references: list[Car]):
+        self._traffic_snapshot = traffic_snapshot
+        self._ast = ast
+        self.car_references = car_references
+        self.latex_code = ast.to_latex()
+
+    def evaluate(self, ego: Car) -> bool:
+        horizon = ego.environment.horizon
+
+        for parallel_virtual_lane in ego.environment.parallel_virtual_lanes:
+            # collect visible segments
+            segments_in_view: list[Segment] = []
+            for virtual_lane in parallel_virtual_lane:
+                for segment_interval in virtual_lane.segment_intervals:
+                    if segment_interval.interval.intersects(horizon):
+                        segments_in_view.append(segment_interval.segment)
+
+            # translate environment information into ego's coordinate system
+            coordinate_translation = translate_into_ego_coordinates(
+                self._traffic_snapshot, ego, horizon, parallel_virtual_lane
+            )
+
+            view = View(
+                parallel_virtual_lane,
+                segments_in_view,
+                horizon,
+                ego,
+                coordinate_translation.visible,
+                coordinate_translation.reserved,
+                coordinate_translation.claimed,
+            )
+
+            # the query evaluates true if it holds in (at least) one of the views
+            if self._evaluate_in_view(self._traffic_snapshot, view):
+                return True
+
+        return False
+
+    def _evaluate_in_view(self, traffic_snapshot: TrafficSnapshotModel, view: View) -> bool:
+        return self._ast.evaluate(traffic_snapshot, view, {})
 
 
 class ASTParser:
     def __init__(self, tokens: list[Token], cars: list[Car]):
         self._tokens = tokens
         self._cars = cars
+        self._car_references: list[Car] = []
 
-    def parse_ast(self):
+    def parse_query(self, traffic_snapshot: TrafficSnapshotModel) -> ParsedUMLSLQuery:
+        return ParsedUMLSLQuery(traffic_snapshot, self.parse_ast(), self._car_references)
+
+    def parse_ast(self) -> ASTNode:
         if not self._tokens:
             raise SyntaxError("Empty token list")
         return self.parse_ast_rec(0, len(self._tokens) - 1, [])
