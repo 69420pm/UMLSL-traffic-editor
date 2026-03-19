@@ -83,6 +83,20 @@ class TrafficSnapshotReader(ABC):
         """
         pass
 
+
+    @abstractmethod
+    def get_outgoing_adjacent_segment(self, segment_uid: str, direction: Direction) -> Segment | None:
+        """
+        Returns the adjacent segment in the specified direction ('left', 'right', 'up', 'down').
+
+        Args:
+            segment_uid: The UID of the current segment.
+            direction: The direction to find the adjacent segment ('left', 'right', 'up', 'down').
+        Returns:
+            The adjacent Segment if found, otherwise None.
+        """
+        pass
+
     @abstractmethod
     def get_road_by_uid(self, uid: str) -> Road:
         """

@@ -135,6 +135,13 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             return self._segments[adjacent_uid]
         return None
 
+    def get_outgoing_adjacent_segment(self, segment_uid: str, direction: Direction) -> Segment | None:
+        adjacent_uid = self._get_neighbor_in_direction_outgoing(segment_uid, direction)
+        if adjacent_uid is not None:
+            return self._segments[adjacent_uid]
+        return None
+
+
     def get_lane_width(self):
         """Get the width of a single lane in the traffic snapshot.
 
@@ -383,6 +390,13 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                 return neighbor
         return None
 
+    def _get_neighbor_in_direction_outgoing(self, segment_uid: str, direction: Direction) -> str | None:
+        """Get the neighboring segment UID in a given direction from the graph."""
+        for _, neighbor, data in self._graph.out_edges(segment_uid, data=True):
+            if data.get('direction') == direction:
+                return neighbor
+        return None
+
     def _get_segment_by_uid(self, segment_uid: str) -> Segment:
         segment = self._segments.get(segment_uid)
         if segment is None:
@@ -567,18 +581,13 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             return f"unknown segment with uid {segment_uid}"
 
         def format_lane(lane: Lane) -> str:
-            actual_index = lane.lane_index + 1 if lane.lane_index >= 0 else -lane.lane_index
-            prefix = "f" if lane.lane_index >= 0 else "b"
-            road_uid = f"({lane.road_uid})" if include_uid else ""
-            return f"{prefix}{actual_index}{road_uid}"
+            return lane.get_name(self)
 
         uid_suffix = f"({segment.uid})" if include_uid else ""
         if isinstance(segment, CrossingSegment):
-            h_road = self.get_road_by_uid(segment.horizontal_lane.road_uid)
-            v_road = self.get_road_by_uid(segment.vertical_lane.road_uid)
             return (f"crossing{uid_suffix} "
-                    f"at R{h_road.name}({format_lane(segment.horizontal_lane)}) x "
-                    f"R{v_road.name}({format_lane(segment.vertical_lane)})")
+                    f"({format_lane(segment.horizontal_lane)}, "
+                    f"{format_lane(segment.vertical_lane)})")
 
         elif isinstance(segment, LaneSegment):
             road = self.get_road_by_uid(segment.lane.road_uid)

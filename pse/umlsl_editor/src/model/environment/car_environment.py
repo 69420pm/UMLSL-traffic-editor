@@ -71,6 +71,7 @@ class CarEnvironment:
             self,
             car_direction: Direction,
             turn_direction: TurnDirection,
+            turn_segment: SegmentInterval,
             path: list[Segment],
             physical_segment_intervals: list[SegmentInterval],
             path_segment_intervals: list[SegmentInterval],
@@ -81,6 +82,7 @@ class CarEnvironment:
     ):
         self.car_direction = car_direction
         self.turn_direction = turn_direction
+        self.turn_segment = turn_segment
         self.path = path
         self.physical_segment_intervals = physical_segment_intervals
         self.path_segment_intervals = path_segment_intervals
@@ -175,7 +177,7 @@ class CarEnvironment:
             ts
         )
 
-        print("--------")
+        print("-------- car ", car_params.name)
         print("path is ", list(map(lambda seg: ts.get_segment_info(seg.uid), path)))
         print("path seg-intervals is ", list(
             map(lambda seg: ts.get_segment_info(seg.segment.uid) + " " + str(seg.interval), path_segment_intervals)))
@@ -190,11 +192,10 @@ class CarEnvironment:
 
         parallel_virtual_lanes: list[list[VirtualLaneNew]] = compute_parallel_virtual_lanes(
             ts,
-            pos_on_segment,
             start_segment,
+            turn_direction,
             turn_segment,
             path,
-            car_direction,
             horizontal_horizon
         )
 
@@ -206,6 +207,7 @@ class CarEnvironment:
         return CarEnvironment(
             car_direction,
             turn_direction,
+            SegmentInterval(turn_segment, Interval(0, turn_segment.get_size_in_direction(ts))),
             path,
             physical_segment_intervals,
             path_segment_intervals,
