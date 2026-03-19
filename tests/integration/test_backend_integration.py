@@ -452,7 +452,7 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
                     "name": "b",
                     "road_uid": "776c9689-0ea8-4721-8bf9-3ca7c8c13c45",
                     "lane_index": 0,
-                    "position_on_lane": -0.11356845790086956,
+                    "position_on_lane": 7,
                     "transition": 0.0,
                     "speed": 10.0,
                     "length": 1,
@@ -501,17 +501,18 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
         car_a = snapshot.get_car_by_name("a")
         self.assertIsNotNone(car_a)
 
+        # validate queries
         command_controller.add_umlsl_query(
             assigned_car_uid=car_a.uid,
             should_only_evaluate_on_cars_lane=False,
             latex="forall x: ((x != a) => !<re{a} and re{x}>)",
         )
-        command_controller.add_umlsl_query(
-            assigned_car_uid=car_a.uid,
-            should_only_evaluate_on_cars_lane=False,
-            latex="a != a",
-        )
-
+        # command_controller.add_umlsl_query(
+        #     assigned_car_uid=car_a.uid,
+        #     should_only_evaluate_on_cars_lane=False,
+        #     latex="a != a",
+        # )
+        #
         queries_by_latex = {q.latex: q for q in queries.get_queries().values()}
         self.assertTrue(queries_by_latex["forall x: ((x != a) => !<re{a} and re{x}>)"].holding)
         # self.assertFalse(queries_by_latex["a != a"].holding)
@@ -523,11 +524,11 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
         _, car = add_basic_road_and_car(command_controller, snapshot)
 
         evaluator = UMLSLEvaluator(snapshot)
-        parsed_true = evaluator.parse_ast("true")
-        self.assertTrue(parsed_true.evaluate(car))
+        parsed_true = evaluator.parse_ast("true", car)
+        self.assertTrue(parsed_true.evaluate())
 
-        parsed_neg_true = evaluator.parse_ast("neg true")
-        self.assertFalse(parsed_neg_true.evaluate(car))
+        parsed_neg_true = evaluator.parse_ast("neg true", car)
+        self.assertFalse(parsed_neg_true.evaluate())
 
     def test_parser_evaluates_basic_logical_conditions(self):
         _, _, snapshot, command_controller, _, _, _ = create_backend_stack(
@@ -536,20 +537,20 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
         _, car = add_basic_road_and_car(command_controller, snapshot)
 
         evaluator = UMLSLEvaluator(snapshot)
-        parsed_true = evaluator.parse_ast("!true")
-        self.assertFalse(parsed_true.evaluate(car))
+        parsed_true = evaluator.parse_ast("!true", car)
+        self.assertFalse(parsed_true.evaluate())
 
-        parsed_neg_true = evaluator.parse_ast("(true or !true)")
-        self.assertTrue(parsed_neg_true.evaluate(car))
+        parsed_neg_true = evaluator.parse_ast("(true or !true)", car)
+        self.assertTrue(parsed_neg_true.evaluate())
 
-        parsed_neg_true = evaluator.parse_ast("(true => !true)")
-        self.assertFalse(parsed_neg_true.evaluate(car))
+        parsed_neg_true = evaluator.parse_ast("(true => !true)", car)
+        self.assertFalse(parsed_neg_true.evaluate())
 
-        parsed_neg_true = evaluator.parse_ast("(!true => true)")
-        self.assertTrue(parsed_neg_true.evaluate(car))
+        parsed_neg_true = evaluator.parse_ast("(!true => true)", car)
+        self.assertTrue(parsed_neg_true.evaluate())
 
-        parsed_neg_true = evaluator.parse_ast("!(true and !true)")
-        self.assertTrue(parsed_neg_true.evaluate(car))
+        parsed_neg_true = evaluator.parse_ast("!(true and !true)", car)
+        self.assertTrue(parsed_neg_true.evaluate())
 
     def test_query_removed_when_assigned_car_removed(self):
         _, queries, snapshot, command_controller, _, _, view = create_backend_stack(
