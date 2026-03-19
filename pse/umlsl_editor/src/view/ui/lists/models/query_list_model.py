@@ -55,7 +55,7 @@ class QueryListModel(EntityModel):
                 evaluator = UMLSLEvaluator(
                     self._application_controller.get_traffic_snapshot_reader()
                 )
-                latex_code = evaluator.compute_latex(query.latex)
+                latex_code = evaluator.parse_ast(query.latex).latex_code
                 # URL-encode the latex string to safely pass it to the image provider
                 encoded_latex = quote(latex_code, safe='')
                 return f"image://latex/{encoded_latex}"
