@@ -13,10 +13,11 @@ class UMLSLQueryParams:
     Attributes:
         latex (str): The UMLSL query in LaTeX format.
         assigned_car_uid (str): The name of the car associated with the query.
+        holding (str): Whether the UMLSL query is holding or not.
     """
     latex: str
     assigned_car_uid: str
-    validation: bool = False
+    holding: bool = False
 
 
 @dataclass()
