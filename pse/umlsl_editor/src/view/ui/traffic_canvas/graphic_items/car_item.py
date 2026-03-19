@@ -11,6 +11,8 @@ from pse.umlsl_editor.src.model.errors.car_errors import (
     CarTrafficSnapshotContextValidationError,
     CarValidationError,
 )
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import RoadItem
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.segment_interval_item import PathSegmentItem, \
@@ -117,6 +119,25 @@ class CarItem(SelectableGraphicsItem):
                 entry_lane = self._car.lane
             if exit_lane is None:
                 exit_lane = entry_lane
+
+            road_uid = ""
+            try:
+                segment = seg_data.segment
+
+                if isinstance(segment, LaneSegment):
+                    road_uid = segment.lane.road_uid
+                    self.application_controller.get_traffic_snapshot_reader().get_road_by_uid(road_uid)
+                elif isinstance(segment, CrossingSegment):
+                    road_uid = segment.vertical_lane.road_uid
+                    self.application_controller.get_traffic_snapshot_reader().get_road_by_uid(
+                        road_uid)
+
+                    road_uid = segment.horizontal_lane.road_uid
+                    self.application_controller.get_traffic_snapshot_reader().get_road_by_uid(
+                        road_uid)
+            except ValueError:
+                logger.warning(f"Skipping segment interval for non-existent road uid: {road_uid}")
+                continue
 
             seg_item = segment_class(
                 segment_interval=seg_data,
