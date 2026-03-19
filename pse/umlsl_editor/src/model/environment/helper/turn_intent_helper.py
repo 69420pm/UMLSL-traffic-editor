@@ -1,6 +1,6 @@
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation
-from pse.umlsl_editor.src.model.helper.directional_graph import Direction
+from pse.umlsl_editor.src.model.helper.direction import Direction
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent, TurnDirection
@@ -84,4 +84,3 @@ def find_turn_intent_segment(
                     return segment
 
     raise ValueError("Turn intent not found.")
-
