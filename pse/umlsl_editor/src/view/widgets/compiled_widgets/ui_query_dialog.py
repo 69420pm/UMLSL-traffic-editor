@@ -15,7 +15,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFormLayout,
+from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
     QGridLayout, QHBoxLayout, QLabel, QLayout,
     QPushButton, QSizePolicy, QTextEdit, QToolButton,
     QVBoxLayout, QWidget)
@@ -26,7 +26,7 @@ class Ui_Edit_Query_Dialog(object):
         if not Edit_Query_Dialog.objectName():
             Edit_Query_Dialog.setObjectName(u"Edit_Query_Dialog")
         Edit_Query_Dialog.setEnabled(True)
-        Edit_Query_Dialog.resize(360, 496)
+        Edit_Query_Dialog.resize(410, 526)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -228,6 +228,40 @@ class Ui_Edit_Query_Dialog(object):
 "\n"
 "QToolButton:pressed {\n"
 "    background-color: #032F40;\n"
+"}\n"
+"/* 1. Base setup for the checkbox text and spacing */\n"
+"QCheckBox {\n"
+"    spacing: 12px;\n"
+"    color: #ffffff; /* Text color */\n"
+"}\n"
+"\n"
+"/* 2. Define the size and shape of the box (The Indicator) */\n"
+"QCheckBox::indicator {\n"
+"    width: 16px;\n"
+"    height: 16px;\n"
+"    border-radius: 6px;  /* This creates the \"squircle\" roundness */\n"
+"    border: 2px solid #9ab5a3; /* The Sage Green border */\n"
+"}\n"
+""
+                        "\n"
+"/* 3. The Unchecked State (Empty with outline) */\n"
+"QCheckBox::indicator:unchecked {\n"
+"    background-color: transparent;\n"
+"}\n"
+"\n"
+"/* Optional: Slight hover effect for unchecked */\n"
+"QCheckBox::indicator:unchecked:hover {\n"
+"    background-color: rgba(154, 181, 163, 0.2);\n"
+"}\n"
+"\n"
+"/* 4. The Checked State (Filled Green) */\n"
+"QCheckBox::indicator:checked {\n"
+"    background-color: #9ab5a3;\n"
+"    border: 2px solid #9ab5a3;\n"
+"\n"
+"    /* CRITICAL: You must replace this path with your own icon!\n"
+"       Since we painted over the native box, we have to put the checkmark back manually. */\n"
+"    image: url(:/icons/icons/Checkmark.svg);\n"
 "}")
         self.verticalLayout = QVBoxLayout(Edit_Query_Dialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
@@ -309,19 +343,15 @@ class Ui_Edit_Query_Dialog(object):
 
         self.widget_6 = QWidget(self.widget_4)
         self.widget_6.setObjectName(u"widget_6")
-        self.formLayout = QFormLayout(self.widget_6)
-        self.formLayout.setObjectName(u"formLayout")
-        self.formLayout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
-        self.formLayout.setLabelAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-        self.formLayout.setFormAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-        self.formLayout.setHorizontalSpacing(8)
-        self.formLayout.setVerticalSpacing(8)
+        self.widget_6.setMinimumSize(QSize(0, 0))
+        self.gridLayout_2 = QGridLayout(self.widget_6)
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.label_14 = QLabel(self.widget_6)
         self.label_14.setObjectName(u"label_14")
         self.label_14.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
         self.label_14.setMargin(0)
 
-        self.formLayout.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_14)
+        self.gridLayout_2.addWidget(self.label_14, 0, 0, 1, 1)
 
         self.d_car = QComboBox(self.widget_6)
         self.d_car.setObjectName(u"d_car")
@@ -329,21 +359,38 @@ class Ui_Edit_Query_Dialog(object):
         self.d_car.setMaximumSize(QSize(16777215, 24))
         self.d_car.setFrame(False)
 
-        self.formLayout.setWidget(0, QFormLayout.ItemRole.FieldRole, self.d_car)
+        self.gridLayout_2.addWidget(self.d_car, 0, 1, 1, 2)
+
+        self.label_9 = QLabel(self.widget_6)
+        self.label_9.setObjectName(u"label_9")
+        self.label_9.setMinimumSize(QSize(75, 0))
+
+        self.gridLayout_2.addWidget(self.label_9, 1, 0, 1, 2)
+
+        self.c_coordinate_system = QCheckBox(self.widget_6)
+        self.c_coordinate_system.setObjectName(u"c_coordinate_system")
+        self.c_coordinate_system.setEnabled(True)
+        self.c_coordinate_system.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+        self.c_coordinate_system.setText(u"")
+        self.c_coordinate_system.setChecked(False)
+        self.c_coordinate_system.setAutoRepeat(False)
+        self.c_coordinate_system.setTristate(False)
+
+        self.gridLayout_2.addWidget(self.c_coordinate_system, 1, 2, 1, 1)
 
         self.label_32 = QLabel(self.widget_6)
         self.label_32.setObjectName(u"label_32")
         self.label_32.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignTop)
         self.label_32.setMargin(0)
 
-        self.formLayout.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_32)
+        self.gridLayout_2.addWidget(self.label_32, 2, 0, 1, 1)
 
         self.t_umlsl = QTextEdit(self.widget_6)
         self.t_umlsl.setObjectName(u"t_umlsl")
         self.t_umlsl.setMinimumSize(QSize(0, 0))
         self.t_umlsl.setMaximumSize(QSize(16777215, 16777215))
 
-        self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.t_umlsl)
+        self.gridLayout_2.addWidget(self.t_umlsl, 2, 1, 1, 2)
 
 
         self.verticalLayout_2.addWidget(self.widget_6)
@@ -397,6 +444,7 @@ class Ui_Edit_Query_Dialog(object):
         self.b_help.setText(QCoreApplication.translate("Edit_Query_Dialog", u"Help", None))
         self.widget_6.setProperty(u"class", QCoreApplication.translate("Edit_Query_Dialog", u"container", None))
         self.label_14.setText(QCoreApplication.translate("Edit_Query_Dialog", u"Ego Car", None))
+        self.label_9.setText(QCoreApplication.translate("Edit_Query_Dialog", u"Evaluate only on one lane", None))
         self.label_32.setText(QCoreApplication.translate("Edit_Query_Dialog", u"UMLSL", None))
         self.b_save.setText(QCoreApplication.translate("Edit_Query_Dialog", u"Save", None))
         self.b_delete.setText(QCoreApplication.translate("Edit_Query_Dialog", u"Delete", None))

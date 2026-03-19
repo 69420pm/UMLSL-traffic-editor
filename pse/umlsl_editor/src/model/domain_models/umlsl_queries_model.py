@@ -76,6 +76,7 @@ class UMLSLQueriesModel(Observable):
             {
                 "uid": query.uid,
                 "latex": query.latex,
+                "should_only_evaluate_on_cars_lane": query.should_only_evaluate_on_cars_lane,
                 "assigned_car_uid": query.assigned_car_uid,
             }
             for query in self.queries.__dict__().values()
@@ -109,6 +110,7 @@ class UMLSLQueriesModel(Observable):
             params = UMLSLQueryParams(
                 latex=entry["latex"],
                 assigned_car_uid=entry["assigned_car_uid"],
+                should_only_evaluate_on_cars_lane=entry["should_only_evaluate_on_cars_lane"],
             )
             query = UMLSLQuery.from_params(params)
             if "uid" in entry:
