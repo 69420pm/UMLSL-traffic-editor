@@ -344,14 +344,18 @@ class Ui_Edit_Query_Dialog(object):
         self.widget_6 = QWidget(self.widget_4)
         self.widget_6.setObjectName(u"widget_6")
         self.widget_6.setMinimumSize(QSize(0, 0))
-        self.gridLayout_2 = QGridLayout(self.widget_6)
-        self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.widget_6.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        self.widget_6.setAutoFillBackground(False)
+        self.verticalLayout_3 = QVBoxLayout(self.widget_6)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.horizontalLayout_4 = QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
         self.label_14 = QLabel(self.widget_6)
         self.label_14.setObjectName(u"label_14")
         self.label_14.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
         self.label_14.setMargin(0)
 
-        self.gridLayout_2.addWidget(self.label_14, 0, 0, 1, 1)
+        self.horizontalLayout_4.addWidget(self.label_14)
 
         self.d_car = QComboBox(self.widget_6)
         self.d_car.setObjectName(u"d_car")
@@ -359,38 +363,57 @@ class Ui_Edit_Query_Dialog(object):
         self.d_car.setMaximumSize(QSize(16777215, 24))
         self.d_car.setFrame(False)
 
-        self.gridLayout_2.addWidget(self.d_car, 0, 1, 1, 2)
+        self.horizontalLayout_4.addWidget(self.d_car)
 
+
+        self.verticalLayout_3.addLayout(self.horizontalLayout_4)
+
+        self.horizontalLayout_3 = QHBoxLayout()
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.horizontalLayout_3.setSizeConstraint(QLayout.SizeConstraint.SetDefaultConstraint)
         self.label_9 = QLabel(self.widget_6)
         self.label_9.setObjectName(u"label_9")
-        self.label_9.setMinimumSize(QSize(75, 0))
+        self.label_9.setMinimumSize(QSize(100, 24))
 
-        self.gridLayout_2.addWidget(self.label_9, 1, 0, 1, 2)
+        self.horizontalLayout_3.addWidget(self.label_9)
 
-        self.c_coordinate_system = QCheckBox(self.widget_6)
-        self.c_coordinate_system.setObjectName(u"c_coordinate_system")
-        self.c_coordinate_system.setEnabled(True)
-        self.c_coordinate_system.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
-        self.c_coordinate_system.setText(u"")
-        self.c_coordinate_system.setChecked(False)
-        self.c_coordinate_system.setAutoRepeat(False)
-        self.c_coordinate_system.setTristate(False)
+        self.c_only_lane = QCheckBox(self.widget_6)
+        self.c_only_lane.setObjectName(u"c_only_lane")
+        self.c_only_lane.setEnabled(True)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.c_only_lane.sizePolicy().hasHeightForWidth())
+        self.c_only_lane.setSizePolicy(sizePolicy2)
+        self.c_only_lane.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+        self.c_only_lane.setText(u"")
+        self.c_only_lane.setChecked(False)
+        self.c_only_lane.setAutoRepeat(False)
+        self.c_only_lane.setTristate(False)
 
-        self.gridLayout_2.addWidget(self.c_coordinate_system, 1, 2, 1, 1)
+        self.horizontalLayout_3.addWidget(self.c_only_lane, 0, Qt.AlignmentFlag.AlignRight)
 
+
+        self.verticalLayout_3.addLayout(self.horizontalLayout_3)
+
+        self.horizontalLayout_5 = QHBoxLayout()
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
         self.label_32 = QLabel(self.widget_6)
         self.label_32.setObjectName(u"label_32")
         self.label_32.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignTop)
         self.label_32.setMargin(0)
 
-        self.gridLayout_2.addWidget(self.label_32, 2, 0, 1, 1)
+        self.horizontalLayout_5.addWidget(self.label_32)
 
         self.t_umlsl = QTextEdit(self.widget_6)
         self.t_umlsl.setObjectName(u"t_umlsl")
         self.t_umlsl.setMinimumSize(QSize(0, 0))
         self.t_umlsl.setMaximumSize(QSize(16777215, 16777215))
 
-        self.gridLayout_2.addWidget(self.t_umlsl, 2, 1, 1, 2)
+        self.horizontalLayout_5.addWidget(self.t_umlsl)
+
+
+        self.verticalLayout_3.addLayout(self.horizontalLayout_5)
 
 
         self.verticalLayout_2.addWidget(self.widget_6)

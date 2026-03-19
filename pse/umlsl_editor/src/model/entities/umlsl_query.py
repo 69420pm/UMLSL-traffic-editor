@@ -91,3 +91,6 @@ class UMLSLQuery(Entity):
 
         if not isinstance(self.validation, bool):
             raise UMLSLQueryValidationError("Validation must be a boolean.")
+
+        if not isinstance(self.should_only_evaluate_on_cars_lane, bool):
+            raise UMLSLQueryValidationError("should_only_evaluate_on_cars_lane must be a boolean.")
