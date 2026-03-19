@@ -71,7 +71,8 @@ class TrafficSnapshotValidator:
         if not self._check_no_tokens_contained(car.name):
             raise CarTrafficSnapshotContextValidationError(
                 content=f"Car '{car.name}' cannot contain any of the umlsl language tokens.")
-        if car.get_braking_dist(self._model.settings_model.braking_acceleration) > self._model.settings_model.braking_distance():
+        if car.get_braking_dist(
+                self._model.settings_model.braking_acceleration) > self._model.settings_model.braking_distance():
             raise CarTrafficSnapshotContextValidationError(
                 content=f"Car '{car.name}' has a braking distance that exceeds the maximum allowed by the settings.")
 
@@ -86,8 +87,9 @@ class TrafficSnapshotValidator:
         Args:
             car: The Car instance to validate.
         """
-        if car.environment.validate_environment(self._model, car=car, settings_model=self._model.settings_model):
-            return False
+        # TODO: Fix that methode
+        # if car.environment.validate_environment(self._model, car=car, settings_model=self._model.settings_model):
+        #   return False
         if not self._check_lane_valid(car.lane):
             return False
         if not self._check_transition_valid(car.transition, car.lane, car.speed < 0):
@@ -116,8 +118,8 @@ class TrafficSnapshotValidator:
             if road_uid is None:
                 raise ValueError('road_uid must be provided for road editing.')
             if any(
-                road.name == road_params.name and road.uid != road_uid
-                for road in self._model.get_roads().values()
+                    road.name == road_params.name and road.uid != road_uid
+                    for road in self._model.get_roads().values()
             ):
                 raise RoadTrafficSnapshotContextValidationError(
                     content=f"Road name '{road_params.name}' is not unique in the traffic snapshot.")
