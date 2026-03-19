@@ -5,6 +5,7 @@ from typing import Optional
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.entity import Entity
+from pse.umlsl_editor.src.model.environment.environment_creation import EnvironmentCreation
 from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
@@ -122,7 +123,7 @@ class Car(Entity):
             )
         """
 
-        car_env = CarEnvironment.create_environment(traffic_snapshot, params, settings_model)
+        car_env = EnvironmentCreation(traffic_snapshot, params, settings_model).build()
         return cls(
             uid=generate_uid(),
             name=params.name,
@@ -215,7 +216,7 @@ class Car(Entity):
 
         """
 
-        self.environment = CarEnvironment.create_environment(traffic_snapshot, params, settings_model)
+        self.environment = EnvironmentCreation(traffic_snapshot, params, settings_model).build()
         self._should_validate = False
         self.name = params.name
         self.lane = params.lane

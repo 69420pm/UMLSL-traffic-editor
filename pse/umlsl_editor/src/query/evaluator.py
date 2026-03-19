@@ -30,7 +30,7 @@ class UMLSLEvaluator:
 
     def evaluate_query(self, query_text: str, car: Car, ts: TrafficSnapshotModel) -> QueryResult:
         ast = self._parse_ast(query_text)
-        horizontal_horizon = car.environment.horizontal_horizon
+        horizontal_horizon = car.environment.horizon
 
         for virtual_lanes in car.environment.parallel_virtual_lanes:
             def translate_coordinate_system(func) -> dict[str, dict[Segment, Interval]]:

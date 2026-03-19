@@ -2,7 +2,7 @@ from typing import TypeVar, Generic, Callable
 
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.virtual_lane import VirtualLaneNew
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.virtual_lane import VirtualLane
 
 T = TypeVar('T')
 
@@ -21,7 +21,7 @@ class LazyEvaluator(Generic[T]):
 
 
 class View:
-    def __init__(self, virtual_lanes: list[VirtualLaneNew], segments_in_view: list[Segment],
+    def __init__(self, virtual_lanes: list[VirtualLane], segments_in_view: list[Segment],
                  horizon: Interval, ego: 'Car',
                  visible_cars: dict[str, dict[Segment, Interval]],
                  reserved_segments: dict[str, dict[Segment, Interval]],
@@ -63,9 +63,9 @@ class View:
 
         return lower_view, upper_view
 
-    def _construct_view(self, horizon: Interval, lanes: list[VirtualLaneNew]) -> 'View':
+    def _construct_view(self, horizon: Interval, lanes: list[VirtualLane]) -> 'View':
         segments_in_view: list[Segment] = []
-        new_virtual_lanes: list[VirtualLaneNew] = []
+        new_virtual_lanes: list[VirtualLane] = []
 
         for virtual_lane in lanes:
             new_virtual_lane = []
@@ -77,7 +77,7 @@ class View:
                     new_virtual_lane.append(segment_interval)
 
             if len(new_virtual_lane) > 0:
-                new_virtual_lanes.append(VirtualLaneNew(new_virtual_lane, []))
+                new_virtual_lanes.append(VirtualLane(new_virtual_lane))
 
         return View(
             new_virtual_lanes,
