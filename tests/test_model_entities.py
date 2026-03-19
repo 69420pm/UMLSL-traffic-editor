@@ -3,6 +3,7 @@ import unittest
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation, RoadParams
 from pse.umlsl_editor.src.model.errors.road_errors import RoadValidationError
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane, LaneDirection
+from pse.umlsl_editor.src.model.entities.car import CarParams
 
 
 class DummyTrafficSnapshotReader:
@@ -184,6 +185,24 @@ class TestRoad(unittest.TestCase):
         lower, upper = road.get_bounds()
 
         self.assertLess(lower, upper)
+
+
+class TestCarParams(unittest.TestCase):
+    def test_get_braking_dist(self):
+        params = CarParams(
+            name="Car1",
+            lane=None,
+            color="#ff0000",
+            position_on_lane=10.0,
+            transition=0.0,
+            speed=10.0,
+            length=4.0,
+            next_turn=None,
+            acceleration=0.0,
+        )
+        dist = params.get_braking_dist(8.0)
+        expected = (10.0 * 10.0) / (2.0 * 8.0) + 4.0
+        self.assertEqual(dist, expected)
 
 
 if __name__ == "__main__":

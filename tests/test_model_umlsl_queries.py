@@ -18,7 +18,7 @@ class TestUMLSLQueriesModel(unittest.TestCase):
         self.assertEqual(fetched.latex, "\\phi")
 
         updated_params = UMLSLQueryParams(latex="\\psi", assigned_car_uid="car-2",
-                                          should_only_evaluate_on_cars_lane=True)
+                                          should_only_evaluate_on_cars_lane=True, holding=True)
         model.update_umlsl_query(fetched, updated_params)
 
         updated = model.get_query_by_id(query.uid)
@@ -62,8 +62,8 @@ class TestUMLSLQueriesModel(unittest.TestCase):
     def test_from_dict_loads_queries_and_preserves_uid(self):
         model = UMLSLQueriesModel()
         payload = [
-            {"uid": "q-1", "latex": "x", "assigned_car_uid": "car-1"},
-            {"uid": "q-2", "latex": "y", "assigned_car_uid": "car-2"},
+            {"uid": "q-1", "latex": "x", "assigned_car_uid": "car-1", "should_only_evaluate_on_cars_lane": True},
+            {"uid": "q-2", "latex": "y", "assigned_car_uid": "car-2", "should_only_evaluate_on_cars_lane": False},
         ]
 
         model.from_dict(payload)
@@ -82,7 +82,7 @@ class TestUMLSLQueriesModel(unittest.TestCase):
     def test_from_json_loads(self):
         model = UMLSLQueriesModel()
         data = [
-            {"uid": "q-1", "latex": "x", "assigned_car_uid": "car-1"},
+            {"uid": "q-1", "latex": "x", "assigned_car_uid": "car-1", "should_only_evaluate_on_cars_lane": True},
         ]
         model.from_json(json.dumps(data))
 
@@ -90,7 +90,7 @@ class TestUMLSLQueriesModel(unittest.TestCase):
 
     def test_to_json_round_trip(self):
         model = UMLSLQueriesModel()
-        query = UMLSLQuery.from_params(UMLSLQueryParams(latex="q", assigned_car_uid="car-1"))
+        query = UMLSLQuery.from_params(UMLSLQueryParams(latex="q", assigned_car_uid="car-1", should_only_evaluate_on_cars_lane=True))
         model.add_umlsl_query(query)
 
         json_payload = model.to_json()

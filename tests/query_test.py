@@ -15,3 +15,11 @@ class TestQuery(unittest.TestCase):
         ast = ASTParser(tokens).parse_ast()
 
         assert True
+
+    def test_compute_latex_invalid(self):
+        from unittest.mock import Mock
+        from pse.umlsl_editor.src.query.evaluator import UMLSLEvaluator, ParserError
+
+        evaluator = UMLSLEvaluator(Mock())
+        with self.assertRaises(ParserError):
+            evaluator.compute_latex("invalid")

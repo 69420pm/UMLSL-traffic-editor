@@ -32,27 +32,24 @@ class TestChangeBrakingAccelerationCommand(unittest.TestCase):
 
 
 class TestAddUMLSLQueryCommand(unittest.TestCase):
-    def test_execute_adds_query_for_existing_car(self):
+    @patch(
+        "pse.umlsl_editor.src.commands.umlsl.add_umlsl_query.UMLSLQuery.from_params",
+        autospec=True,
+    )
+    def test_execute_adds_query_for_existing_car(self, from_params):
         reader = MagicMock()
         model = MagicMock()
         reader.is_car_existing.return_value = True
         params = UMLSLQueryParams(latex="\\phi", assigned_car_uid="car-1", holding=True,
                                   should_only_evaluate_on_cars_lane=True)
         cmd = AddUMLSLQuery(params, model, reader)
+        query_instance = MagicMock()
+        from_params.return_value = query_instance
+
         cmd.execute()
 
-        with patch(
-                "pse.umlsl_editor.src.commands.umlsl.add_umlsl_query.UMLSLQuery.from_params",
-                autospec=True,
-        ) as from_params:
-            query_instance = MagicMock()
-            from_params.return_value = query_instance
-
-            cmd = AddUMLSLQuery(params, model, reader)
-            cmd.execute()
-
-            from_params.assert_called_once_with(params)
-            model.add_umlsl_query.assert_called_once_with(query_instance)
+        from_params.assert_called_once_with(params)
+        model.add_umlsl_query.assert_called_once_with(query_instance)
 
     def test_execute_rejects_missing_assigned_car(self):
         reader = MagicMock()

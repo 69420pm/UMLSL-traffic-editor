@@ -64,7 +64,7 @@ class TestEditCarCommand(unittest.TestCase):
         cmd = EditCarCommand(reader, writer, car_params, uid="car-1")
         cmd.execute()
 
-        reader.validate_car_params.assert_called_once_with(car_params, False)
+        reader.validate_car_params.assert_called_once_with(car_params, False, "car-1")
         writer.update_car_with_params.assert_called_once_with("car-1", car_params)
 
 
