@@ -8,7 +8,7 @@ A visual editor for building traffic snapshots (cars, roads, and intersections) 
 
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/69420pm/UMLSL-traffic-editor.git](https://github.com/69420pm/UMLSL-traffic-editor.git)
+   git clone https://github.com/69420pm/UMLSL-traffic-editor.git
    cd UMLSL-traffic-editor
    ```
 2. *(Recommended)* Create and activate a virtual environment.
