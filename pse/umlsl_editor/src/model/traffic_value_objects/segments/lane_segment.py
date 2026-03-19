@@ -1,14 +1,11 @@
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
 
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation
+from pse.umlsl_editor.src.model.helper.direction import Direction
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
-
-if TYPE_CHECKING:
-    from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import Direction
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -25,7 +22,6 @@ class LaneSegment(Segment):
     def get_position(self, traffic_snapshot_reader: TrafficSnapshotReader) -> tuple[float, float]:
         """Return position of the top left corner of the lane segment.
         It gets calculated from the position of the lane and adjacent crossings."""
-        from pse.umlsl_editor.src.model.helper.directional_graph import Direction
         from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 
         road = traffic_snapshot_reader.get_road_by_uid(self.lane.road_uid)
@@ -60,7 +56,6 @@ class LaneSegment(Segment):
     def get_size(self, traffic_snapshot_reader: TrafficSnapshotReader) -> tuple[float, float]:
         """Return size (width, height) of the lane segment.
         It gets calculated from the road width and lane width."""
-        from pse.umlsl_editor.src.model.helper.directional_graph import Direction
         from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
 
         road = traffic_snapshot_reader.get_road_by_uid(self.lane.road_uid)

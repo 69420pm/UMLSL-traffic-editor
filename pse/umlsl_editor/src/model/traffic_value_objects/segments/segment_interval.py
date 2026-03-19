@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation
-from pse.umlsl_editor.src.model.helper.directional_graph import Direction
+from pse.umlsl_editor.src.model.helper.direction import Direction
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
@@ -45,7 +45,7 @@ class SegmentInterval:
             lane: Lane = self.segment.lane
             if should_ignore_lane_direction:
                 lane = car.lane
-                
+
             if not lane.is_forward():
                 car_direction = car_direction.opposite
 

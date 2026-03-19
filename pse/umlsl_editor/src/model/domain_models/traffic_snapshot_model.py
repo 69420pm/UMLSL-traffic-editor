@@ -22,7 +22,7 @@ from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQueryParams
 from pse.umlsl_editor.src.model.errors.car_errors import (
     CarTrafficSnapshotContextValidationError,
 )
-from pse.umlsl_editor.src.model.helper.directional_graph import Direction
+from pse.umlsl_editor.src.model.helper.direction import Direction
 from pse.umlsl_editor.src.model.helper.event_types import (
     SettingsEventType,
     TrafficSnapshotEventType,

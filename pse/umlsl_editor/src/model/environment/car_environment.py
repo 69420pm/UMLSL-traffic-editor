@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.helper.directional_graph import Direction
+from pse.umlsl_editor.src.model.helper.direction import Direction
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
@@ -30,7 +30,8 @@ class CarEnvironment:
         print("path is ", list(map(lambda seg: ts.get_segment_info(seg.uid), self.path)))
 
         def format_seg_intervals(segment_intervals: list[SegmentInterval]) -> str:
-            return " ".join(map(lambda seg: ts.get_segment_info(seg.segment.uid) + " " + str(seg.interval), segment_intervals))
+            return " ".join(
+                map(lambda seg: ts.get_segment_info(seg.segment.uid) + " " + str(seg.interval), segment_intervals))
 
         print("horizon is ", self.horizon)
         print("path seg-intervals is ", format_seg_intervals(self.path_segment_intervals))

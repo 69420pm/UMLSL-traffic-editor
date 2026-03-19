@@ -9,7 +9,7 @@ from pse.umlsl_editor.src.model.environment.helper.segment_intervals_helper impo
 from pse.umlsl_editor.src.model.environment.helper.segment_topology_helper import compute_path_through_crossing, \
     compute_parallel_lane_segments
 from pse.umlsl_editor.src.model.environment.helper.turn_intent_helper import find_turn_intent_segment
-from pse.umlsl_editor.src.model.helper.directional_graph import Direction
+from pse.umlsl_editor.src.model.helper.direction import Direction
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
