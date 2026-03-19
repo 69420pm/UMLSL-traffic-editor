@@ -490,7 +490,7 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
                 )
             else:
                 self._application_controller.command_controller.add_umlsl_query(
-                    assigned_car_name=selected_car.uid,
+                    assigned_car_uid=selected_car.uid,
                     should_only_evaluate_on_cars_lane=should_only_evaluate_on_cars_lane,
                     latex=latex,
                 )

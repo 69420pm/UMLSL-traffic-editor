@@ -314,7 +314,7 @@ class CommandController:
 
     def add_umlsl_query(
             self,
-            assigned_car_name: str,
+            assigned_car_uid: str,
             should_only_evaluate_on_cars_lane: bool,
             latex: str
     ) -> None:
@@ -322,10 +322,10 @@ class CommandController:
         Adds a UMLSL query associated with a car.
 
         Args:
-            assigned_car_name: The car this query is assigned to.
+            assigned_car_uid: The car this query is assigned to.
             latex: The LaTeX representation of the query.
         """
-        umlsl_query_params = UMLSLQueryParams(latex, assigned_car_name, should_only_evaluate_on_cars_lane)
+        umlsl_query_params = UMLSLQueryParams(latex, assigned_car_uid, should_only_evaluate_on_cars_lane)
         add_umlsl_query_command = add_umlsl_query.AddUMLSLQuery(umlsl_query_params, self.umlsl_queries_model,
                                                                 self.traffic_snapshot_reader)
         self._execute_command(add_umlsl_query_command)
