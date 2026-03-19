@@ -101,6 +101,8 @@ class SegmentIntervalItem(QGraphicsItem):
         self._path.setFillRule(Qt.WindingFill)
 
         if is_corner:
+            # Corner calculations dynamically merge the horizontal and vertical rects
+            # while carving out the interior to render corner transitions properly
             hx, hy = x_seg, y_seg - height_seg
             hw, hh = width_seg, height_seg
             if self.should_extend_car:
@@ -153,6 +155,7 @@ class SegmentIntervalItem(QGraphicsItem):
             self._rect = self._path.boundingRect()
 
         else:
+            # Base Interval positioning mapping
             if is_horizontal:
                 x = x_seg + global_interval.start
                 width = global_interval.length()
@@ -173,44 +176,53 @@ class SegmentIntervalItem(QGraphicsItem):
             if self.is_last_interval and self.should_extend_car:
                 lane_idx = self.lane_end.lane_index
                 is_backward = (lane_idx < 0) != (self.car.speed < 0)
+
+                # We carve the tip OUT of the interval width/height.
+                # The total span strictly remains within [x, x+width] or [y, y+height].
                 t = DIMENSION.CAR_TRIANGLE_LENGTH
 
                 if is_horizontal:
-                    t = min(t, width)
                     if not is_backward:
+                        # Moving Right (->)
+                        # Flat corners are pushed back by `t`. The tip extends exactly to `x + width`.
                         poly = QPolygonF([
-                            QPointF(x, y),
-                            QPointF(x + width - t, y),
-                            QPointF(x + width, y + height / 2.0),
-                            QPointF(x + width - t, y + height),
-                            QPointF(x, y + height)
+                            QPointF(x, y),  # Top-left
+                            QPointF(x + width - t, y),  # Top-right (carved)
+                            QPointF(x + width, y + height / 2.0),  # Tip point (max bounds)
+                            QPointF(x + width - t, y + height),  # Bottom-right (carved)
+                            QPointF(x, y + height)  # Bottom-left
                         ])
                     else:
+                        # Moving Left (<-)
+                        # Flat corners start at `x + t`. The tip extends exactly to `x`.
                         poly = QPolygonF([
-                            QPointF(x + width, y),
-                            QPointF(x + width, y + height),
-                            QPointF(x + t, y + height),
-                            QPointF(x, y + height / 2.0),
-                            QPointF(x + t, y)
+                            QPointF(x + width, y),  # Top-right
+                            QPointF(x + width, y + height),  # Bottom-right
+                            QPointF(x + t, y + height),  # Bottom-left (carved)
+                            QPointF(x, y + height / 2.0),  # Tip point (min bounds)
+                            QPointF(x + t, y)  # Top-left (carved)
                         ])
                     self._path.addPolygon(poly)
                 else:
-                    t = min(t, height)
                     if not is_backward:
+                        # Moving Down (v)
+                        # Flat corners pushed up by `t`. The tip extends exactly to `y + height`.
                         poly = QPolygonF([
-                            QPointF(x, y),
-                            QPointF(x + width, y),
-                            QPointF(x + width, y + height - t),
-                            QPointF(x + width / 2.0, y + height),
-                            QPointF(x, y + height - t)
+                            QPointF(x, y),  # Top-left
+                            QPointF(x + width, y),  # Top-right
+                            QPointF(x + width, y + height - t),  # Bottom-right (carved)
+                            QPointF(x + width / 2.0, y + height),  # Tip point (max bounds)
+                            QPointF(x, y + height - t)  # Bottom-left (carved)
                         ])
                     else:
+                        # Moving Up (^)
+                        # Flat corners start at `y + t`. The tip extends exactly to `y`.
                         poly = QPolygonF([
-                            QPointF(x, y + height),
-                            QPointF(x + width, y + height),
-                            QPointF(x + width, y + t),
-                            QPointF(x + width / 2.0, y),
-                            QPointF(x, y + t)
+                            QPointF(x, y + height),  # Bottom-left
+                            QPointF(x + width, y + height),  # Bottom-right
+                            QPointF(x + width, y + t),  # Top-right (carved)
+                            QPointF(x + width / 2.0, y),  # Tip point (min bounds)
+                            QPointF(x, y + t)  # Top-left (carved)
                         ])
                     self._path.addPolygon(poly)
 
@@ -226,8 +238,6 @@ class PathSegmentItem(SegmentIntervalItem):
 
     def _setup_style(self) -> None:
         self.pen = QPen(COLORS.TEXT, .04)
-        # self.pen.setStyle(Qt.DashLine)
-        # self.pen.setDashPattern([2, 2])
         self.pen.setCosmetic(False)
         self.color = QColor(COLORS.TEXT)
         self.color.setAlphaF(0.2)
