@@ -467,7 +467,7 @@ class Ui_Edit_Query_Dialog(object):
         self.b_help.setText(QCoreApplication.translate("Edit_Query_Dialog", u"Help", None))
         self.widget_6.setProperty(u"class", QCoreApplication.translate("Edit_Query_Dialog", u"container", None))
         self.label_14.setText(QCoreApplication.translate("Edit_Query_Dialog", u"Ego Car", None))
-        self.label_9.setText(QCoreApplication.translate("Edit_Query_Dialog", u"Evaluate only on one lane", None))
+        self.label_9.setText(QCoreApplication.translate("Edit_Query_Dialog", u"Evaluate only on ego's lane", None))
         self.label_32.setText(QCoreApplication.translate("Edit_Query_Dialog", u"UMLSL", None))
         self.b_save.setText(QCoreApplication.translate("Edit_Query_Dialog", u"Save", None))
         self.b_delete.setText(QCoreApplication.translate("Edit_Query_Dialog", u"Delete", None))

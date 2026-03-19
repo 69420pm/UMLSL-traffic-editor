@@ -511,7 +511,7 @@ QCheckBox::indicator:checked {
               </size>
              </property>
              <property name="text">
-              <string>Evaluate only on one lane</string>
+              <string>Evaluate only on ego's lane</string>
              </property>
             </widget>
            </item>
