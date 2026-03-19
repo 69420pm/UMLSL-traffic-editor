@@ -23,7 +23,10 @@ from pse.umlsl_editor.src.model.errors.car_errors import (
     CarTrafficSnapshotContextValidationError,
 )
 from pse.umlsl_editor.src.model.helper.directional_graph import Direction
-from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
+from pse.umlsl_editor.src.model.helper.event_types import (
+    SettingsEventType,
+    TrafficSnapshotEventType,
+)
 from pse.umlsl_editor.src.model.helper.observables import (
     Observable,
     ObservableDict,
@@ -264,6 +267,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self.validator = TrafficSnapshotValidator(self)
         self._queries_model: UMLSLQueriesModel = queries_model
         self.settings_model: SettingsModel = settings_model
+        self.settings_model.attach(self._on_settings_event)
 
     @property
     def cars(self):
@@ -301,6 +305,14 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self._revalidate_cars()
         self.revalidate_queries()
         self.notify(TrafficSnapshotEventType.ROAD_UPDATED, road)
+
+    def _on_settings_event(self, event_type: SettingsEventType, data=None) -> None:
+        if event_type in (
+            SettingsEventType.CHANGE_BRAKING_DECELERATION,
+            SettingsEventType.CHANGE_MAX_SPEED,
+        ):
+            self._revalidate_cars()
+            self.revalidate_queries()
 
     def get_cars_on_road(self, road: Road) -> list[Car]:
         return [car for car in self._cars.values() if car.lane.road_uid == road.uid]
