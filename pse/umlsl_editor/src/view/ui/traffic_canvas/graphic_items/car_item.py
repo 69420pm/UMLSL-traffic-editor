@@ -82,6 +82,11 @@ class CarItem(SelectableGraphicsItem):
         if self.is_selected:
             self._add_segment_items(self._car.environment.path_segment_intervals, PathSegmentItem)
 
+            #for relative_parallel_virtual_lane in self._car.environment.relative_parallel_virtual_lanes:
+                #for virtual_lane in relative_parallel_virtual_lane:
+                    #self._add_segment_items(virtual_lane.segment_intervals, ClaimedSegmentItem)
+
+
         self._add_segment_items(self._car.environment.reserved, ReservedSegmentItem)
         self._add_segment_items(self._car.environment.claimed, ClaimedSegmentItem)
 

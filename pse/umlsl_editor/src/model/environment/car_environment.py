@@ -17,6 +17,7 @@ class CarEnvironment:
     path: list[Segment]
     horizon: Interval
     parallel_virtual_lanes: list[list[VirtualLane]]
+    relative_parallel_virtual_lanes: list[list[VirtualLane]]
 
     path_segment_intervals: list[SegmentInterval]
     physical_segment_intervals: list[SegmentInterval]
