@@ -47,7 +47,7 @@ class TrafficSnapshotValidator:
         for query_id in invalid_query_ids:
             queries_model.remove_umlsl_query(query_id)
 
-    def validate_car_params(self, car: "CarParams", new_instantiation: bool) -> None:
+    def validate_car_params(self, car: "CarParams", new_instantiation: bool, car_uid: str | None = None) -> None:
         """
         Validates a Car instance within the context of the TrafficSnapshot and throw errors if invalid.
 
@@ -58,11 +58,10 @@ class TrafficSnapshotValidator:
         Raises:
             CarTrafficSnapshotContextValidationError: If any validation check fails.
         """
-        if new_instantiation:
-            if not self._check_name_unique(car.name):
-                raise CarTrafficSnapshotContextValidationError(
-                    content=f"Car name '{car.name}' is not unique in the traffic snapshot."
-                )
+        if not self._check_name_unique(car.name, car_uid):
+            raise CarTrafficSnapshotContextValidationError(
+                content=f"Car name '{car.name}' is not unique in the traffic snapshot."
+            )
         if not self._check_lane_valid(car.lane):
             raise CarTrafficSnapshotContextValidationError(
                 content=f"Car '{car.name}' has an invalid lane: {car.lane}."
@@ -136,8 +135,13 @@ class TrafficSnapshotValidator:
                     content=f"Road name '{road_params.name}' is not unique in the traffic snapshot."
                 )
         else:
+
             if road_uid is None:
                 raise ValueError("road_uid must be provided for road editing.")
+            if not self._check_name_unique(road_params.name, road_uid):
+                raise RoadTrafficSnapshotContextValidationError(
+                    content=f"Road name '{road_params.name}' is not unique in the traffic snapshot."
+                )
             if any(
                     road.name == road_params.name and road.uid != road_uid
                     for road in self._model.get_roads().values()
@@ -179,12 +183,12 @@ class TrafficSnapshotValidator:
     def _check_no_tokens_contained(self, text: str) -> bool:
         return not any(token.value in text for token in TokenType)
 
-    def _check_name_unique(self, name: str) -> bool:
+    def _check_name_unique(self, name: str, uid: str | None = None) -> bool:
         for car in self._model.cars.values():
-            if car.name == name:
+            if car.name == name and car.uid != uid:
                 return False
         for road in self._model.roads.values():
-            if road.name == name:
+            if road.name == name and road.uid != uid:
                 return False
         return True
 

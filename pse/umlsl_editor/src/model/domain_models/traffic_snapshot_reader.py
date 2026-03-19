@@ -83,7 +83,6 @@ class TrafficSnapshotReader(ABC):
         """
         pass
 
-
     @abstractmethod
     def get_outgoing_adjacent_segment(self, segment_uid: str, direction: Direction) -> Segment | None:
         """
@@ -108,13 +107,14 @@ class TrafficSnapshotReader(ABC):
         pass
 
     @abstractmethod
-    def validate_car_params(self, car_params: CarParams, new_instantiation: bool) -> None:
+    def validate_car_params(self, car_params: CarParams, new_instantiation: bool, uid: str | None = None) -> None:
         """
         Validates the given car parameters.
 
         Args:
             car_params: The parameters of the car to validate.
             new_instantiation: Whether the car is being newly instantiated.
+            uid: The unique identifier of the car.
 
         Raises:
             ValidationError: If any validation check fails.
