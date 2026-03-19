@@ -28,11 +28,22 @@ class TestLane(unittest.TestCase):
             Lane(lane_index=0, road_uid=123)
 
     def test_lane_name_and_direction(self):
-        lane_forward = Lane(lane_index=0, road_uid="road-1")
-        lane_backward = Lane(lane_index=-1, road_uid="road-1")
+        road = Road.from_params(
+            RoadParams(
+                name="Main",
+                orientation=RoadOrientation.HORIZONTAL,
+                position=0.0,
+                number_of_forward_lanes=1,
+                number_of_backward_lanes=1,
+            )
+        )
+        reader = DummyTrafficSnapshotReader(road)
 
-        self.assertEqual(lane_forward.get_name(), "f1")
-        self.assertEqual(lane_backward.get_name(), "b1")
+        lane_forward = Lane(lane_index=0, road_uid=road.uid)
+        lane_backward = Lane(lane_index=-1, road_uid=road.uid)
+
+        self.assertEqual(lane_forward.get_name(reader), "r1")
+        self.assertEqual(lane_backward.get_name(reader), "l1")
 
         self.assertEqual(lane_forward.get_direction(), LaneDirection.FORWARD)
         self.assertEqual(lane_backward.get_direction(), LaneDirection.BACKWARD)

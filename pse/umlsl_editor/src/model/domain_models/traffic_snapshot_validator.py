@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation, RoadParams
-from pse.umlsl_editor.src.model.environment.environment_creation import EnvironmentCreation
+# from pse.umlsl_editor.src.model.environment.environment_creation import EnvironmentCreation
 from pse.umlsl_editor.src.model.errors.car_errors import (
     CarTrafficSnapshotContextValidationError,
 )
@@ -48,37 +48,43 @@ class TrafficSnapshotValidator:
         for query_id in invalid_query_ids:
             queries_model.remove_umlsl_query(query_id)
 
-    def validate_car_params(self, car: "CarParams", new_instantiation: bool) -> None:
+    def validate_car_params(self, car: "CarParams", new_instantiation: bool, car_uid: str | None = None) -> None:
         """
         Validates a Car instance within the context of the TrafficSnapshot and throw errors if invalid.
 
         Args:
             car: The Car instance to validate.
             new_instantiation: Whether the car is being newly instantiated (True) or updated (False).
+            car_uid: The car uid of the car to validate.
 
         Raises:
             CarTrafficSnapshotContextValidationError: If any validation check fails.
         """
-        if new_instantiation:
-            if not self._check_car_name_unique(car.name):
-                raise CarTrafficSnapshotContextValidationError(
-                    content=f"Car name '{car.name}' is not unique in the traffic snapshot.")
-        if not EnvironmentCreation.validate_environment(self._model, car.position_on_lane, car.lane):
+        if not self._check_name_unique(car.name, car_uid):
             raise CarTrafficSnapshotContextValidationError(
-                content=f"Car '{car.name}' cannot be placed inside a crossing.")
+                content=f"Car name '{car.name}' is not unique in the traffic snapshot.")
+        # if not EnvironmentCreation.validate_environment(self._model, car.position_on_lane, car.lane):
+        #     raise CarTrafficSnapshotContextValidationError(
+        #         content=f"Car '{car.name}' cannot be placed inside a crossing.")
         if not self._check_lane_valid(car.lane):
             raise CarTrafficSnapshotContextValidationError(
-                content=f"Car '{car.name}' has an invalid lane: {car.lane}.")
+                content=f"Car '{car.name}' has an invalid lane: {car.lane}."
+            )
         if not self._check_transition_valid(car.transition, car.lane, car.speed < 0):
             raise CarTrafficSnapshotContextValidationError(
-                content=f"Car '{car.name}' has an invalid transition: {car.transition} from lane {car.lane}.")
+                content=f"Car '{car.name}' has an invalid transition: {car.transition} from lane {car.lane}."
+            )
         if not self._check_no_tokens_contained(car.name):
             raise CarTrafficSnapshotContextValidationError(
-                content=f"Car '{car.name}' cannot contain any of the umlsl language tokens.")
-        if car.get_braking_dist(
-                self._model.settings_model.braking_acceleration) > self._model.settings_model.braking_distance():
+                content=f"Car '{car.name}' cannot contain any of the umlsl language tokens."
+            )
+        if (
+                car.get_braking_dist(self._model.settings_model.braking_acceleration)
+                > self._model.settings_model.braking_distance()
+        ):
             raise CarTrafficSnapshotContextValidationError(
-                content=f"Car '{car.name}' has a braking distance that exceeds the maximum allowed by the settings.")
+                content=f"Car '{car.name}' has a braking distance that exceeds the maximum allowed by the settings."
+            )
 
     def validate_car_and_autocorrect(self, car: "Car") -> bool:
         """
@@ -91,17 +97,30 @@ class TrafficSnapshotValidator:
         Args:
             car: The Car instance to validate.
         """
-        if EnvironmentCreation.validate_environment(self._model, car.position_on_lane, car.lane):
-          return False
+        # if EnvironmentCreation.validate_environment(self._model, car.position_on_lane, car.lane):
+        #     return False
         if not self._check_lane_valid(car.lane):
             return False
         if not self._check_transition_valid(car.transition, car.lane, car.speed < 0):
             car.transition = 0.0
-        if car.next_turn is not None and not self._check_turn_intent_valid(car.next_turn):
-            car.next_turn = None
+        if car.next_turn is not None:
+            if not self._check_turn_intent_valid(car.next_turn):
+                car.next_turn = None
+            else:
+                valid_turn_lanes = self._model.get_valid_turn_intent_lanes(
+                    car.position_on_lane,
+                    car.speed,
+                    car.lane,
+                    car.length,
+                    car.next_turn.direction,
+                )
+                if car.next_turn.target_lane not in valid_turn_lanes:
+                    car.next_turn = None
         return True
 
-    def validate_road_params(self, road_params: RoadParams, new_instantiation: bool, road_uid: str | None) -> None:
+    def validate_road_params(
+            self, road_params: RoadParams, new_instantiation: bool, road_uid: str | None
+    ) -> None:
         """
         Validates a Road instance within the context of the TrafficSnapshot.
 
@@ -114,30 +133,46 @@ class TrafficSnapshotValidator:
             RoadTrafficSnapshotContextValidationError: If any validation check fails.
         """
         if new_instantiation:
-            if not self._check_road_name_unique(road_params.name):
+            if not self._check_name_unique(road_params.name):
                 raise RoadTrafficSnapshotContextValidationError(
-                    content=f"Road name '{road_params.name}' is not unique in the traffic snapshot.")
+                    content=f"Road name '{road_params.name}' is not unique in the traffic snapshot."
+                )
         else:
+
             if road_uid is None:
-                raise ValueError('road_uid must be provided for road editing.')
+                raise ValueError("road_uid must be provided for road editing.")
+            if not self._check_name_unique(road_params.name, road_uid):
+                raise RoadTrafficSnapshotContextValidationError(
+                    content=f"Road name '{road_params.name}' is not unique in the traffic snapshot."
+                )
             if any(
                     road.name == road_params.name and road.uid != road_uid
                     for road in self._model.get_roads().values()
             ):
                 raise RoadTrafficSnapshotContextValidationError(
-                    content=f"Road name '{road_params.name}' is not unique in the traffic snapshot.")
+                    content=f"Road name '{road_params.name}' is not unique in the traffic snapshot."
+                )
 
         if not self._check_no_tokens_contained(road_params.name):
             raise RoadTrafficSnapshotContextValidationError(
-                content=f"Road '{road_params.name}' cannot contain any of the umlsl language tokens.")
+                content=f"Road '{road_params.name}' cannot contain any of the umlsl language tokens."
+            )
 
         roads = self._model.get_roads().values()
         if road_params.orientation == RoadOrientation.HORIZONTAL:
-            bounds: tuple[
-                float, float] = road_params.position - road_params.number_of_forward_lanes * DIMENSION.LANE_WIDTH, road_params.position + road_params.number_of_backward_lanes * DIMENSION.LANE_WIDTH
+            bounds: tuple[float, float] = (
+                road_params.position
+                - road_params.number_of_forward_lanes * DIMENSION.LANE_WIDTH,
+                road_params.position
+                + road_params.number_of_backward_lanes * DIMENSION.LANE_WIDTH,
+            )
         else:
-            bounds: tuple[
-                float, float] = road_params.position - road_params.number_of_backward_lanes * DIMENSION.LANE_WIDTH, road_params.position + road_params.number_of_forward_lanes * DIMENSION.LANE_WIDTH
+            bounds: tuple[float, float] = (
+                road_params.position
+                - road_params.number_of_backward_lanes * DIMENSION.LANE_WIDTH,
+                road_params.position
+                + road_params.number_of_forward_lanes * DIMENSION.LANE_WIDTH,
+            )
         for road in roads:
             if road_uid is not None and road_uid == road.uid:
                 continue
@@ -145,20 +180,18 @@ class TrafficSnapshotValidator:
                 road_bounds = road.get_bounds()
                 if max(bounds[0], road_bounds[0]) < min(bounds[1], road_bounds[1]):
                     raise RoadTrafficSnapshotContextValidationError(
-                        content=f"Roads cannot overlap each other. Please change position or number of forward or backward lanes.")
+                        content=f"Roads cannot overlap each other. Please change position or number of forward or backward lanes."
+                    )
 
     def _check_no_tokens_contained(self, text: str) -> bool:
         return not any(token.value in text for token in TokenType)
 
-    def _check_car_name_unique(self, car_name: str) -> bool:
+    def _check_name_unique(self, name: str, uid: str | None = None) -> bool:
         for car in self._model.cars.values():
-            if car.name == car_name:
+            if car.name == name and car.uid != uid:
                 return False
-        return True
-
-    def _check_road_name_unique(self, road_name: str) -> bool:
         for road in self._model.roads.values():
-            if road.name == road_name:
+            if road.name == name and road.uid != uid:
                 return False
         return True
 
@@ -179,7 +212,9 @@ class TrafficSnapshotValidator:
             return False
         return lane in (road.forward_lanes + road.backward_lanes)
 
-    def _check_transition_valid(self, transition: float, lane: Lane, car_driving_backwards: bool) -> bool:
+    def _check_transition_valid(
+            self, transition: float, lane: Lane, car_driving_backwards: bool
+    ) -> bool:
         """Check if the transition value is valid for the given lane. It is not valid if the car changes out of the road,
         because right or left of the road is no lane. The transition value is aligned with the axes
         (1 means up/right, -1 means down/left)."""

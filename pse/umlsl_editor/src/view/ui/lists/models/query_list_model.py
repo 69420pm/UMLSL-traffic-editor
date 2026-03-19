@@ -44,7 +44,7 @@ class QueryListModel(EntityModel):
         if role == QueryListModel.QueryRole:
             return str(query.latex)
         elif role == QueryListModel.IsValidRole:
-            return bool(query.validation)
+            return bool(query.holding)
         elif role == QueryListModel.EgoCarNameRole:
             return str(ego_car.name) if ego_car else ""
         elif role == QueryListModel.EgoCarColorRole:

@@ -47,6 +47,7 @@ class RoadParams:
         number_of_forward_lanes: Number of lanes in the forward direction
         number_of_backward_lanes: Number of lanes in the backward direction
     """
+
     name: str
     orientation: RoadOrientation
     position: float
@@ -116,6 +117,41 @@ class Road(Entity):
             backward_lanes=backward_lanes,
         )
 
+    @staticmethod
+    def validate_params(params: RoadParams) -> None:
+        if not isinstance(params.name, str):
+            raise RoadValidationError(content="Name must be a string.")
+
+        if params.name.strip() == "":
+            raise RoadValidationError(content="Name cannot be empty.")
+
+        if not isinstance(params.orientation, RoadOrientation):
+            raise RoadValidationError(
+                content="Orientation must be a RoadOrientation enum member."
+            )
+
+        if not isinstance(params.position, (int, float)):
+            raise RoadValidationError(content="Position must be a number.")
+
+        if (
+            not isinstance(params.number_of_forward_lanes, int)
+            or params.number_of_forward_lanes < 0
+        ):
+            raise RoadValidationError(
+                content="Forward lanes must be a non-negative integer."
+            )
+
+        if (
+            not isinstance(params.number_of_backward_lanes, int)
+            or params.number_of_backward_lanes < 0
+        ):
+            raise RoadValidationError(
+                content="Backward lanes must be a non-negative integer."
+            )
+
+        if params.number_of_forward_lanes == 0 and params.number_of_backward_lanes == 0:
+            raise RoadValidationError(content="Road must have at least one lane.")
+
     def update_from_params(self, params: RoadParams) -> None:
         """
         Updates the Road instance's attributes based on a RoadParams object.
@@ -126,30 +162,64 @@ class Road(Entity):
         Raises:
             RoadValidationError: If any validation check fails.
         """
-        self._should_validate = False
-        self.name = params.name
-        self.orientation = params.orientation
-        self.position = params.position
+        self.validate_params(params)
 
-        # THATS WRONG
-        # Update forward lanes
-        if params.number_of_forward_lanes > len(self.forward_lanes):
-            for i in range(len(self.forward_lanes), params.number_of_forward_lanes):
-                self.forward_lanes.append(Lane(lane_index=i, road_uid=self.uid))
-        elif params.number_of_forward_lanes < len(self.forward_lanes):
-            self.forward_lanes = self.forward_lanes[:params.number_of_forward_lanes]
+        old_state = {
+            "name": self.name,
+            "orientation": self.orientation,
+            "position": self.position,
+            "number_of_forward_lanes": self.number_of_forward_lanes,
+            "number_of_backward_lanes": self.number_of_backward_lanes,
+            "forward_lanes": list(self.forward_lanes),
+            "backward_lanes": list(self.backward_lanes),
+            "_should_validate": self._should_validate,
+        }
 
-        # Update backward lanes
-        if params.number_of_backward_lanes > len(self.backward_lanes):
-            for i in range(len(self.backward_lanes), params.number_of_backward_lanes):
-                self.backward_lanes.append(Lane(lane_index=-(i + 1), road_uid=self.uid))
-        elif params.number_of_backward_lanes < len(self.backward_lanes):
-            self.backward_lanes = self.backward_lanes[:params.number_of_backward_lanes]
+        try:
+            self._should_validate = False
+            self.name = params.name
+            self.orientation = params.orientation
+            self.position = params.position
 
-        self.number_of_forward_lanes = params.number_of_forward_lanes
-        self.number_of_backward_lanes = params.number_of_backward_lanes
+            # THATS WRONG
+            # Update forward lanes
+            if params.number_of_forward_lanes > len(self.forward_lanes):
+                for i in range(len(self.forward_lanes), params.number_of_forward_lanes):
+                    self.forward_lanes.append(Lane(lane_index=i, road_uid=self.uid))
+            elif params.number_of_forward_lanes < len(self.forward_lanes):
+                self.forward_lanes = self.forward_lanes[
+                    : params.number_of_forward_lanes
+                ]
 
-        self.__post_init__()
+            # Update backward lanes
+            if params.number_of_backward_lanes > len(self.backward_lanes):
+                for i in range(
+                    len(self.backward_lanes), params.number_of_backward_lanes
+                ):
+                    self.backward_lanes.append(
+                        Lane(lane_index=-(i + 1), road_uid=self.uid)
+                    )
+            elif params.number_of_backward_lanes < len(self.backward_lanes):
+                self.backward_lanes = self.backward_lanes[
+                    : params.number_of_backward_lanes
+                ]
+
+            self.number_of_forward_lanes = params.number_of_forward_lanes
+            self.number_of_backward_lanes = params.number_of_backward_lanes
+
+            self.__post_init__()
+        except Exception:
+            self._should_validate = False
+            self.name = old_state["name"]
+            self.orientation = old_state["orientation"]
+            self.position = old_state["position"]
+            self.number_of_forward_lanes = old_state["number_of_forward_lanes"]
+            self.number_of_backward_lanes = old_state["number_of_backward_lanes"]
+            self.forward_lanes = list(old_state["forward_lanes"])
+            self.backward_lanes = list(old_state["backward_lanes"])
+            self._should_validate = old_state["_should_validate"]
+            self.__post_init__()
+            raise
 
     def __post_init__(self) -> None:
         """
@@ -164,7 +234,9 @@ class Road(Entity):
 
     def __setattr__(self, name: str, value: object) -> None:
         super().__setattr__(name, value)
-        if getattr(self, "_initialized", False) and getattr(self, "_should_validate", True):
+        if getattr(self, "_initialized", False) and getattr(
+            self, "_should_validate", True
+        ):
             self.validate()
 
     def get_bounds(self) -> tuple[float, float]:
@@ -189,16 +261,28 @@ class Road(Entity):
             raise RoadValidationError(content="Name cannot be empty.")
 
         if not isinstance(self.orientation, RoadOrientation):
-            raise RoadValidationError(content="Orientation must be a RoadOrientation enum member.")
+            raise RoadValidationError(
+                content="Orientation must be a RoadOrientation enum member."
+            )
 
         if not isinstance(self.position, (int, float)):
             raise RoadValidationError(content="Position must be a number.")
 
-        if not isinstance(self.number_of_forward_lanes, int) or self.number_of_forward_lanes < 0:
-            raise RoadValidationError(content="Forward lanes must be a non-negative integer.")
+        if (
+            not isinstance(self.number_of_forward_lanes, int)
+            or self.number_of_forward_lanes < 0
+        ):
+            raise RoadValidationError(
+                content="Forward lanes must be a non-negative integer."
+            )
 
-        if not isinstance(self.number_of_backward_lanes, int) or self.number_of_backward_lanes < 0:
-            raise RoadValidationError(content="Backward lanes must be a non-negative integer.")
+        if (
+            not isinstance(self.number_of_backward_lanes, int)
+            or self.number_of_backward_lanes < 0
+        ):
+            raise RoadValidationError(
+                content="Backward lanes must be a non-negative integer."
+            )
 
         if self.number_of_forward_lanes == 0 and self.number_of_backward_lanes == 0:
             raise RoadValidationError(content="Road must have at least one lane.")
