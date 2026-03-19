@@ -16,6 +16,7 @@ class UMLSLQueryParams:
     """
     latex: str
     assigned_car_uid: str
+    should_only_evaluate_on_cars_lane: bool
     validation: bool = False
 
 
@@ -34,6 +35,7 @@ class UMLSLQuery(Entity):
     """
     latex: str
     assigned_car_uid: str
+    should_only_evaluate_on_cars_lane: bool
     validation: bool
 
     @classmethod
@@ -48,6 +50,7 @@ class UMLSLQuery(Entity):
             uid=generate_uid(),
             latex=params.latex,
             assigned_car_uid=params.assigned_car_uid,
+            should_only_evaluate_on_cars_lane=params.should_only_evaluate_on_cars_lane,
             validation=False
         )
 
@@ -60,6 +63,7 @@ class UMLSLQuery(Entity):
         """
         self.latex = params.latex
         self.assigned_car_uid = params.assigned_car_uid
+        self.should_only_evaluate_on_cars_lane = params.should_only_evaluate_on_cars_lane
         self.validation = params.validation
         self.__post_init__()
 
@@ -87,3 +91,6 @@ class UMLSLQuery(Entity):
 
         if not isinstance(self.validation, bool):
             raise UMLSLQueryValidationError("Validation must be a boolean.")
+
+        if not isinstance(self.should_only_evaluate_on_cars_lane, bool):
+            raise UMLSLQueryValidationError("should_only_evaluate_on_cars_lane must be a boolean.")

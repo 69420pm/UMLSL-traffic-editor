@@ -8,7 +8,7 @@ perpendicular roads, including a background and lane grid.
 from typing import Optional, Tuple
 
 from PySide6.QtCore import QPointF, QRectF, Qt
-from PySide6.QtGui import QBrush, QPainter, QPen
+from PySide6.QtGui import QBrush, QPainter, QPen, QColor
 from PySide6.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation
@@ -52,7 +52,10 @@ class CrossingItem(QGraphicsItem):
         self._rect = QRectF()
 
         # Graphic resources
-        self._grid_pen = QPen(COLORS.TEXT, CrossingItemStyle.PEN_WIDTH)
+
+        transparent_white = QColor(255, 255, 255, 127)
+
+        self._grid_pen = QPen(transparent_white, CrossingItemStyle.PEN_WIDTH)
         self._grid_pen.setStyle(Qt.DashLine)
         self._grid_pen.setDashPattern(CrossingItemStyle.DASH_PATTERN)
 

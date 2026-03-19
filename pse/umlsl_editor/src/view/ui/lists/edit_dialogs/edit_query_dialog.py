@@ -211,6 +211,7 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
 
         self._populate_car_dropdown()
         self._populate_umlsl_field()
+        self._populate_only_lane_checkbox()
 
     def _populate_car_dropdown(self) -> None:
         """Populate the car selection dropdown with all available cars."""
@@ -224,6 +225,12 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
                     break
         elif self._cars_list:
             self.d_car.setCurrentIndex(0)
+
+    def _populate_only_lane_checkbox(self) -> None:
+        if self._is_edit and self._query is not None:
+            self.c_only_lane.setChecked(self._query.should_only_evaluate_on_cars_lane)
+        else:
+            self.c_only_lane.setChecked(False)
 
     def _populate_umlsl_field(self) -> None:
         """Populate the UMLSL text field with the current query string."""
@@ -464,6 +471,8 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
 
         selected_car_index = self.d_car.currentIndex()
 
+        should_only_evaluate_on_cars_lane = self.c_only_lane.isChecked()
+
         if selected_car_index < 0 or selected_car_index >= len(self._cars_list):
             super().reject()
             return
@@ -476,11 +485,13 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
                 self._application_controller.command_controller.update_umlsl_query(
                     query=self._query,
                     assigned_car_name=selected_car.uid,
+                    should_only_evaluate_on_cars_lane=should_only_evaluate_on_cars_lane,
                     latex=latex,
                 )
             else:
                 self._application_controller.command_controller.add_umlsl_query(
                     assigned_car_name=selected_car.uid,
+                    should_only_evaluate_on_cars_lane=should_only_evaluate_on_cars_lane,
                     latex=latex,
                 )
         except UMLSLQueryValidationError as e:
