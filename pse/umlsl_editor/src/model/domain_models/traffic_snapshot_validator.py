@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation, RoadParams
+# from pse.umlsl_editor.src.model.environment.environment_creation import EnvironmentCreation
 from pse.umlsl_editor.src.model.errors.car_errors import (
     CarTrafficSnapshotContextValidationError,
 )
