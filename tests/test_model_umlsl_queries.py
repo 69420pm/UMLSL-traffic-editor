@@ -24,7 +24,7 @@ class TestUMLSLQueriesModel(unittest.TestCase):
         updated = model.get_query_by_id(query.uid)
         self.assertEqual(updated.latex, "\\psi")
         self.assertEqual(updated.assigned_car_uid, "car-2")
-        self.assertTrue(updated.validation)
+        self.assertTrue(updated.holding)
 
         model.remove_umlsl_query(query.uid)
         with self.assertRaises(UMLSLQueryValidationError):

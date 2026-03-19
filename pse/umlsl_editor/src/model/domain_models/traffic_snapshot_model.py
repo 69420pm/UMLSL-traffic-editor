@@ -961,20 +961,15 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def revalidate_queries(self):
         from pse.umlsl_editor.src.query.evaluator import UMLSLEvaluator
-
         self.validator.validate_queries(self._queries_model)
         umlsl_evaluator = UMLSLEvaluator(self)
         for query in self._queries_model.queries.values():
             car = self._cars.get(query.assigned_car_uid)
-            holding = umlsl_evaluator.evaluate_query(query.latex, car, self).holds
+            holding = umlsl_evaluator.parse_ast(query.latex).evaluate(car)
             new_query_params = UMLSLQueryParams(latex=query.latex,
                                                 holding=holding,
-                                                should_only_evaluate_on_cars_lane=True,
+                                                should_only_evaluate_on_cars_lane=query.should_only_evaluate_on_cars_lane,
                                                 assigned_car_uid=car.uid)
             # TODO: MAKE BETTER
-            if (
-                    query.validation != new_query_params.holding
-                    or query.latex != new_query_params.latex
-                    or query.assigned_car_uid != new_query_params.assigned_car_uid
-            ):
+            if query.holding != new_query_params.holding or query.latex != new_query_params.latex or query.assigned_car_uid != new_query_params.assigned_car_uid:
                 self._queries_model.update_umlsl_query(query, new_query_params)

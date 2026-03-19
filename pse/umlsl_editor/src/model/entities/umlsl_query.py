@@ -20,6 +20,7 @@ class UMLSLQueryParams:
     should_only_evaluate_on_cars_lane: bool
     holding: bool = False
 
+
 @dataclass()
 class UMLSLQuery(Entity):
     """Dataclass representing a UMLSL query.
@@ -36,7 +37,7 @@ class UMLSLQuery(Entity):
     latex: str
     assigned_car_uid: str
     should_only_evaluate_on_cars_lane: bool
-    validation: bool
+    holding: bool
 
     @classmethod
     def from_params(cls, params: UMLSLQueryParams) -> "UMLSLQuery":
@@ -51,7 +52,7 @@ class UMLSLQuery(Entity):
             latex=params.latex,
             assigned_car_uid=params.assigned_car_uid,
             should_only_evaluate_on_cars_lane=params.should_only_evaluate_on_cars_lane,
-            validation=False
+            holding=False
         )
 
     def update_from_params(self, params: UMLSLQueryParams) -> None:
@@ -64,7 +65,7 @@ class UMLSLQuery(Entity):
         self.latex = params.latex
         self.assigned_car_uid = params.assigned_car_uid
         self.should_only_evaluate_on_cars_lane = params.should_only_evaluate_on_cars_lane
-        self.validation = params.validation
+        self.holding = params.holding
         self.__post_init__()
 
     def __post_init__(self) -> None:
@@ -89,7 +90,7 @@ class UMLSLQuery(Entity):
         if not isinstance(self.assigned_car_uid, str) or not self.assigned_car_uid.strip():
             raise UMLSLQueryValidationError("Assigned car name must be a non-empty string.")
 
-        if not isinstance(self.validation, bool):
+        if not isinstance(self.holding, bool):
             raise UMLSLQueryValidationError("Validation must be a boolean.")
 
         if not isinstance(self.should_only_evaluate_on_cars_lane, bool):
