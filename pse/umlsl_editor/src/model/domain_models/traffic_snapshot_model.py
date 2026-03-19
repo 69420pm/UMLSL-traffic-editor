@@ -69,12 +69,12 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     """
 
     def get_valid_turn_intent_lanes(
-        self,
-        car_position: float,
-        car_speed: float,
-        car_lane: Lane,
-        car_length: float,
-        turn_direction: TurnDirection,
+            self,
+            car_position: float,
+            car_speed: float,
+            car_lane: Lane,
+            car_length: float,
+            turn_direction: TurnDirection,
     ) -> list[Lane]:
         if car_speed < 0 or turn_direction not in [
             TurnDirection.LEFT,
@@ -111,30 +111,30 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                 if turn_direction == TurnDirection.LEFT:
                     # lane indeces must be different
                     if (
-                        car_lane.lane_index >= 0 and lane_to_turn_into.lane_index >= 0
+                            car_lane.lane_index >= 0 and lane_to_turn_into.lane_index >= 0
                     ) or (car_lane.lane_index < 0 and lane_to_turn_into.lane_index < 0):
                         lanes_to_turn_into.append(lane_to_turn_into)
                 elif turn_direction == TurnDirection.RIGHT:
                     # lane indeces must be the same
                     if (
-                        car_lane.lane_index >= 0 and lane_to_turn_into.lane_index < 0
+                            car_lane.lane_index >= 0 and lane_to_turn_into.lane_index < 0
                     ) or (
-                        car_lane.lane_index < 0 and lane_to_turn_into.lane_index >= 0
+                            car_lane.lane_index < 0 and lane_to_turn_into.lane_index >= 0
                     ):
                         lanes_to_turn_into.append(lane_to_turn_into)
             if road_of_lane.orientation == RoadOrientation.VERTICAL:
                 if turn_direction == TurnDirection.LEFT:
                     # lane indeces must be different
                     if (
-                        car_lane.lane_index >= 0 and lane_to_turn_into.lane_index < 0
+                            car_lane.lane_index >= 0 and lane_to_turn_into.lane_index < 0
                     ) or (
-                        car_lane.lane_index < 0 and lane_to_turn_into.lane_index >= 0
+                            car_lane.lane_index < 0 and lane_to_turn_into.lane_index >= 0
                     ):
                         lanes_to_turn_into.append(lane_to_turn_into)
                 elif turn_direction == TurnDirection.RIGHT:
                     # lane indeces must be the same
                     if (
-                        car_lane.lane_index >= 0 and lane_to_turn_into.lane_index >= 0
+                            car_lane.lane_index >= 0 and lane_to_turn_into.lane_index >= 0
                     ) or (car_lane.lane_index < 0 and lane_to_turn_into.lane_index < 0):
                         lanes_to_turn_into.append(lane_to_turn_into)
             adjacent_segment = self.get_adjacent_segment(
@@ -155,27 +155,27 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         return uid in self._cars
 
     def validate_road_params(
-        self,
-        road_params: RoadParams,
-        new_instantiation: bool,
-        road_uid: str | None = None,
+            self,
+            road_params: RoadParams,
+            new_instantiation: bool,
+            road_uid: str | None = None,
     ) -> None:
         if (
-            not new_instantiation
-            and road_uid is None
-            or new_instantiation
-            and road_uid is not None
+                not new_instantiation
+                and road_uid is None
+                or new_instantiation
+                and road_uid is not None
         ):
             raise ValueError("road_uid must be None for new road instantiation.")
         self.validator.validate_road_params(road_params, new_instantiation, road_uid)
 
     def validate_car_params(
-        self, car_params: CarParams, new_instantiation: bool
+            self, car_params: CarParams, new_instantiation: bool, car_uid: str | None = None
     ) -> None:
-        self.validator.validate_car_params(car_params, new_instantiation)
+        self.validator.validate_car_params(car_params, new_instantiation, car_uid)
 
     def get_adjacent_segment(
-        self, segment_uid: str, direction: Direction
+            self, segment_uid: str, direction: Direction
     ) -> Segment | None:
         adjacent_uid = self._get_neighbor_in_direction(segment_uid, direction)
         if adjacent_uid is not None:
@@ -183,7 +183,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         return None
 
     def get_outgoing_adjacent_segment(
-        self, segment_uid: str, direction: Direction
+            self, segment_uid: str, direction: Direction
     ) -> Segment | None:
         adjacent_uid = self._get_neighbor_in_direction_outgoing(segment_uid, direction)
         if adjacent_uid is not None:
@@ -217,10 +217,10 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         raise ValueError(f"Road with uid {uid} not found.")
 
     def __init__(
-        self,
-        queries_model: UMLSLQueriesModel,
-        settings_model: SettingsModel,
-        cars: ObservableDict[str, Car] | None = None,
+            self,
+            queries_model: UMLSLQueriesModel,
+            settings_model: SettingsModel,
+            cars: ObservableDict[str, Car] | None = None,
     ):
 
         super().__init__()
@@ -308,8 +308,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def _on_settings_event(self, event_type: SettingsEventType, data=None) -> None:
         if event_type in (
-            SettingsEventType.CHANGE_BRAKING_DECELERATION,
-            SettingsEventType.CHANGE_MAX_SPEED,
+                SettingsEventType.CHANGE_BRAKING_DECELERATION,
+                SettingsEventType.CHANGE_MAX_SPEED,
         ):
             self._revalidate_cars()
             self.revalidate_queries()
@@ -431,7 +431,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         car = self._cars.get(car_uid)
         if car is None:
             raise ValueError(f"Car with uid {car_uid} not found.")
-        self.validate_car_params(car_params, False)
+        self.validate_car_params(car_params, False, car_uid)
         existing = self.get_car_by_name(car_params.name)
         if existing is not None and existing.uid != car_uid:
             raise CarTrafficSnapshotContextValidationError(
@@ -443,7 +443,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self.revalidate_queries()
 
     def get_segment_from_lane_position(
-        self, lane: Lane, position_on_lane: float
+            self, lane: Lane, position_on_lane: float
     ) -> Segment | None:
         segment_uids = self._segments_by_lane.get(lane)
         if segment_uids is None:
@@ -484,7 +484,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         return segments
 
     def _get_neighbor_in_direction(
-        self, segment_uid: str, direction: Direction
+            self, segment_uid: str, direction: Direction
     ) -> str | None:
         """Get the neighboring segment UID in a given direction from the graph."""
         for _, neighbor, data in self._graph.out_edges(segment_uid, data=True):
@@ -496,7 +496,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         return None
 
     def _get_neighbor_in_direction_outgoing(
-        self, segment_uid: str, direction: Direction
+            self, segment_uid: str, direction: Direction
     ) -> str | None:
         """Get the neighboring segment UID in a given direction from the graph."""
         for _, neighbor, data in self._graph.out_edges(segment_uid, data=True):
@@ -772,10 +772,10 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     @staticmethod
     def from_dict(
-        data: dict[str, Any],
-        writer: TrafficSnapshotWriter,
-        reader: TrafficSnapshotReader,
-        settings_model: SettingsModel,
+            data: dict[str, Any],
+            writer: TrafficSnapshotWriter,
+            reader: TrafficSnapshotReader,
+            settings_model: SettingsModel,
     ) -> "TrafficSnapshotModel":
         """
         Creates a TrafficSnapshot instance from a dictionary.
@@ -870,9 +870,9 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
                 target_lane_data = next_turn_data.get("target_lane", {})
                 if (
-                    isinstance(target_lane_data, dict)
-                    and "road_uid" in target_lane_data
-                    and "lane_index" in target_lane_data
+                        isinstance(target_lane_data, dict)
+                        and "road_uid" in target_lane_data
+                        and "lane_index" in target_lane_data
                 ):
                     target_lane = Lane(
                         road_uid=target_lane_data["road_uid"],
@@ -908,10 +908,10 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     @classmethod
     def from_json(
-        cls,
-        json_string: str,
-        settings_model: SettingsModel,
-        queries_model: UMLSLQueriesModel,
+            cls,
+            json_string: str,
+            settings_model: SettingsModel,
+            queries_model: UMLSLQueriesModel,
     ) -> "TrafficSnapshotModel":
         """
         Creates a TrafficSnapshot instance from a JSON string.
@@ -974,8 +974,8 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             )
             # TODO: MAKE BETTER
             if (
-                query.validation != new_query_params.validation
-                or query.latex != new_query_params.latex
-                or query.assigned_car_uid != new_query_params.assigned_car_uid
+                    query.validation != new_query_params.validation
+                    or query.latex != new_query_params.latex
+                    or query.assigned_car_uid != new_query_params.assigned_car_uid
             ):
                 self._queries_model.update_umlsl_query(query, new_query_params)
