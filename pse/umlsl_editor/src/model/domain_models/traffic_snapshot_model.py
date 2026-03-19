@@ -141,7 +141,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             return self._segments[adjacent_uid]
         return None
 
-
     def get_lane_width(self):
         """Get the width of a single lane in the traffic snapshot.
 
@@ -816,6 +815,11 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         for car in self._cars.values():
             if not self.validator.validate_car_and_autocorrect(car):
                 cars_to_remove.append(car)
+            else:
+                car.recalculate_environment(
+                    self, settings_model=self.settings_model,
+                )
+                self.notify(TrafficSnapshotEventType.CAR_UPDATED, car)
 
         for car in cars_to_remove:
             self.remove_car(car.uid)

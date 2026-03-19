@@ -5,11 +5,11 @@ from typing import Optional
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.entity import Entity
+from pse.umlsl_editor.src.model.environment.car_environment import CarEnvironment
 from pse.umlsl_editor.src.model.environment.environment_creation import EnvironmentCreation
 from pse.umlsl_editor.src.model.errors.car_errors import CarValidationError
 from pse.umlsl_editor.src.model.helper.uid_service import generate_uid
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
-from pse.umlsl_editor.src.model.environment.car_environment import CarEnvironment
 from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnIntent
 
 
@@ -216,7 +216,6 @@ class Car(Entity):
 
         """
 
-        self.environment = EnvironmentCreation(traffic_snapshot, params, settings_model).build()
         self._should_validate = False
         self.name = params.name
         self.lane = params.lane
@@ -228,6 +227,20 @@ class Car(Entity):
         self.next_turn = params.next_turn
         self.acceleration = params.acceleration
         self.__post_init__()
+        self.recalculate_environment(traffic_snapshot, settings_model)
+
+    def recalculate_environment(self, traffic_snapshot: TrafficSnapshotReader, settings_model: SettingsModel) -> None:
+        self.environment = EnvironmentCreation(traffic_snapshot, CarParams(
+            name=self.name,
+            lane=self.lane,
+            color=self.color,
+            position_on_lane=self.position_on_lane,
+            transition=self.transition,
+            speed=self.speed,
+            length=self.length,
+            next_turn=self.next_turn,
+            acceleration=self.acceleration,
+        ), settings_model).build()
 
     def absolute_position(self) -> float:
         raise NotImplementedError
