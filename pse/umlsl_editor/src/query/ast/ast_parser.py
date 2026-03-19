@@ -21,16 +21,17 @@ from pse.umlsl_editor.src.query.view import View
 
 
 class ParsedUMLSLQuery:
-    def __init__(self, traffic_snapshot: TrafficSnapshotModel, ast: ASTNode, car_references: list[Car]):
+    def __init__(self, traffic_snapshot: TrafficSnapshotModel, ego: Car, ast: ASTNode, car_references: list[Car]):
         self._traffic_snapshot = traffic_snapshot
         self._ast = ast
+        self._ego = ego
         self.car_references = car_references
         self.latex_code = ast.to_latex()
 
-    def evaluate(self, ego: Car) -> bool:
-        horizon = ego.environment.horizon
+    def evaluate(self) -> bool:
+        horizon = self._ego.environment.horizon
 
-        for parallel_virtual_lane in ego.environment.parallel_virtual_lanes:
+        for parallel_virtual_lane in self._ego.environment.parallel_virtual_lanes:
             # collect visible segments
             segments_in_view: list[Segment] = []
             for virtual_lane in parallel_virtual_lane:
@@ -40,14 +41,14 @@ class ParsedUMLSLQuery:
 
             # translate environment information into ego's coordinate system
             coordinate_translation = translate_into_ego_coordinates(
-                self._traffic_snapshot, ego, horizon, parallel_virtual_lane
+                self._traffic_snapshot, self._ego, horizon, parallel_virtual_lane
             )
 
             view = View(
                 parallel_virtual_lane,
                 segments_in_view,
                 horizon,
-                ego,
+                self._ego,
                 coordinate_translation.visible,
                 coordinate_translation.reserved,
                 coordinate_translation.claimed,
@@ -64,13 +65,16 @@ class ParsedUMLSLQuery:
 
 
 class ASTParser:
-    def __init__(self, tokens: list[Token], cars: list[Car]):
+    def __init__(self, ts: TrafficSnapshotModel, ego: Car, tokens: list[Token]):
+        self._ts = ts
         self._tokens = tokens
-        self._cars = cars
-        self._car_references: list[Car] = []
+        self._cars = ts.get_car_list()
+        self._ego = ego
+        self._car_references: list[Car] = [ego]
 
-    def parse_query(self, traffic_snapshot: TrafficSnapshotModel) -> ParsedUMLSLQuery:
-        return ParsedUMLSLQuery(traffic_snapshot, self.parse_ast(), self._car_references)
+    def parse_query(self) -> ParsedUMLSLQuery:
+        ast = self.parse_ast()
+        return ParsedUMLSLQuery(self._ts, self._ego, ast, self._car_references)
 
     def parse_ast(self) -> ASTNode:
         if not self._tokens:
@@ -435,6 +439,7 @@ class ASTParser:
         # check if value is a car
         for car in self._cars:
             if car.name == value:
+                self._car_references.append(car)
                 return ConstantCarResolve(car)
 
         # value is not a car, try to resolve it as a variable

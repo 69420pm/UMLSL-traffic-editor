@@ -1,22 +1,17 @@
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.query.ast.ast_parser import ASTParser, ASTParserError, ParsedUMLSLQuery
 from pse.umlsl_editor.src.query.lexer import Lexer, Token
-
-
-class QueryResult:
-    def __init__(self, latex_code: str, holds: bool):
-        self.holds = holds
-        self.latex_code = latex_code
 
 
 class UMLSLEvaluator:
     def __init__(self, traffic_snapshot: TrafficSnapshotReader):
         self._traffic_snapshot = traffic_snapshot
 
-    def parse_ast(self, latex_string: str) -> ParsedUMLSLQuery:
+    def parse_ast(self, latex_string: str, ego: Car) -> ParsedUMLSLQuery:
         tokens = Lexer(latex_string).tokenize()
         try:
-            return ASTParser(tokens, self._traffic_snapshot.get_car_list()).parse_query(self._traffic_snapshot)
+            return ASTParser(self._traffic_snapshot, ego, tokens).parse_query()
         except ASTParserError as e:
             raise ParserError(e, latex_string, tokens, e.scope_start, e.scope_end)
 
