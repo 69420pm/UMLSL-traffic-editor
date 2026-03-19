@@ -969,12 +969,13 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             if car is None:
                 continue
             holding = umlsl_evaluator.evaluate_query(query.latex, car, self).holds
-            new_query_params = UMLSLQueryParams(
-                latex=query.latex, validation=holding, assigned_car_uid=car.uid
-            )
+            new_query_params = UMLSLQueryParams(latex=query.latex,
+                                                holding=holding,
+                                                should_only_evaluate_on_cars_lane=True,
+                                                assigned_car_uid=car.uid)
             # TODO: MAKE BETTER
             if (
-                    query.validation != new_query_params.validation
+                    query.validation != new_query_params.holding
                     or query.latex != new_query_params.latex
                     or query.assigned_car_uid != new_query_params.assigned_car_uid
             ):

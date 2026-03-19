@@ -12,12 +12,12 @@ from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQu
 class PersistenceService:
     """Handles saving/loading JSON payloads for traffic snapshots and UMLSL queries."""
 
-    VERSION = 1
+    VERSION = 2
 
     @staticmethod
     def serialize(
-        snapshot: TrafficSnapshotModel,
-        queries: UMLSLQueriesModel,
+            snapshot: TrafficSnapshotModel,
+            queries: UMLSLQueriesModel,
     ) -> dict[str, Any]:
         """
         Serialize snapshot and queries to a JSON-ready dict.
@@ -46,11 +46,11 @@ class PersistenceService:
 
     @staticmethod
     def deserialize(
-        data: dict[str, Any],
-        traffic_snapshot_writer: TrafficSnapshotWriter,
-        traffic_snapshot_reader: TrafficSnapshotReader,
-        settings_model: SettingsModel,
-        umlsl_queries_model: UMLSLQueriesModel,
+            data: dict[str, Any],
+            traffic_snapshot_writer: TrafficSnapshotWriter,
+            traffic_snapshot_reader: TrafficSnapshotReader,
+            settings_model: SettingsModel,
+            umlsl_queries_model: UMLSLQueriesModel,
     ) -> None:
         """
         Populate snapshot and queries from a JSON-ready dict.
