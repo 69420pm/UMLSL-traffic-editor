@@ -55,7 +55,7 @@ class UMLSLEvaluator:
             )
 
             print("evaluating parallel virtual lane with horizon ", horizontal_horizon.start, horizontal_horizon.end)
-            print("intersecting cars: ")
+            print("visible cars: ")
             for intersecting_car in intersecting_cars:
                 print(">", ts.cars[intersecting_car].name, ":")
                 for segment, interval in intersecting_cars[intersecting_car].items():

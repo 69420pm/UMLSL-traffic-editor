@@ -19,7 +19,7 @@ class FreeNode(AtomNode):
         smaller_end = max(smaller_start, horizon.end - horizon_reduction)
         smaller_horizon = Interval(smaller_start, smaller_end)
 
-        for intersecting_car_uids, segment_intervals in view.get_intersecting_cars().items():
+        for intersecting_car_uids, segment_intervals in view.get_visible_cars().items():
             for segment, interval in segment_intervals.items():
                 if smaller_horizon.intersects(interval):
                     return False

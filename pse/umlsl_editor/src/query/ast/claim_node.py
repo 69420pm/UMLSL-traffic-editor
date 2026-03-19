@@ -33,7 +33,7 @@ class ClaimNode(AtomNode):
 
         single_segment = segments_on_lane[0]
 
-        for physically_occupied_interval in view.get_intersecting_cars().get(car_eval.uid, []):
+        for physically_occupied_interval in view.get_visible_cars().get(car_eval.uid, []):
             if physically_occupied_interval.uid == single_segment.uid \
                     and view.horizon.subset_of(physically_occupied_interval):
                 return True
