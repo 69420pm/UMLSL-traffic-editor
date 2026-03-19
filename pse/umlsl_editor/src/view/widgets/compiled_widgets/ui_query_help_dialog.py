@@ -208,16 +208,16 @@ class Ui_QueryHelpDialog(object):
         self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
         self.label_20 = QLabel(self.widget_3)
         self.label_20.setObjectName(u"label_20")
-        self.label_20.setMinimumSize(QSize(0, 13))
-        self.label_20.setMaximumSize(QSize(16777215, 13))
+        self.label_20.setMinimumSize(QSize(0, 0))
+        self.label_20.setMaximumSize(QSize(16777215, 16777215))
         self.label_20.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_20, 11, 1, 1, 1)
 
         self.label_6 = QLabel(self.widget_3)
         self.label_6.setObjectName(u"label_6")
-        self.label_6.setMinimumSize(QSize(0, 13))
-        self.label_6.setMaximumSize(QSize(16777215, 13))
+        self.label_6.setMinimumSize(QSize(0, 0))
+        self.label_6.setMaximumSize(QSize(16777215, 16777215))
         self.label_6.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_6, 0, 1, 1, 1)
@@ -248,8 +248,8 @@ class Ui_QueryHelpDialog(object):
 
         self.label_24 = QLabel(self.widget_3)
         self.label_24.setObjectName(u"label_24")
-        self.label_24.setMinimumSize(QSize(0, 13))
-        self.label_24.setMaximumSize(QSize(16777215, 13))
+        self.label_24.setMinimumSize(QSize(0, 0))
+        self.label_24.setMaximumSize(QSize(16777215, 16777215))
         self.label_24.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_24, 8, 1, 1, 1)
@@ -264,8 +264,8 @@ class Ui_QueryHelpDialog(object):
 
         self.label_7 = QLabel(self.widget_3)
         self.label_7.setObjectName(u"label_7")
-        self.label_7.setMinimumSize(QSize(0, 13))
-        self.label_7.setMaximumSize(QSize(16777215, 13))
+        self.label_7.setMinimumSize(QSize(0, 0))
+        self.label_7.setMaximumSize(QSize(16777215, 16777215))
         self.label_7.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_7, 2, 1, 1, 1)
@@ -280,16 +280,16 @@ class Ui_QueryHelpDialog(object):
 
         self.label_22 = QLabel(self.widget_3)
         self.label_22.setObjectName(u"label_22")
-        self.label_22.setMinimumSize(QSize(0, 13))
-        self.label_22.setMaximumSize(QSize(16777215, 13))
+        self.label_22.setMinimumSize(QSize(0, 0))
+        self.label_22.setMaximumSize(QSize(16777215, 16777215))
         self.label_22.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_22, 10, 1, 1, 1)
 
         self.label_17 = QLabel(self.widget_3)
         self.label_17.setObjectName(u"label_17")
-        self.label_17.setMinimumSize(QSize(0, 13))
-        self.label_17.setMaximumSize(QSize(16777215, 13))
+        self.label_17.setMinimumSize(QSize(0, 0))
+        self.label_17.setMaximumSize(QSize(16777215, 16777215))
         self.label_17.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_17, 4, 1, 1, 1)
@@ -304,8 +304,8 @@ class Ui_QueryHelpDialog(object):
 
         self.label_26 = QLabel(self.widget_3)
         self.label_26.setObjectName(u"label_26")
-        self.label_26.setMinimumSize(QSize(0, 13))
-        self.label_26.setMaximumSize(QSize(16777215, 13))
+        self.label_26.setMinimumSize(QSize(0, 0))
+        self.label_26.setMaximumSize(QSize(16777215, 16777215))
         self.label_26.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_26, 9, 1, 1, 1)
@@ -320,24 +320,24 @@ class Ui_QueryHelpDialog(object):
 
         self.label_33 = QLabel(self.widget_3)
         self.label_33.setObjectName(u"label_33")
-        self.label_33.setMinimumSize(QSize(0, 13))
-        self.label_33.setMaximumSize(QSize(16777215, 13))
+        self.label_33.setMinimumSize(QSize(0, 0))
+        self.label_33.setMaximumSize(QSize(16777215, 16777215))
         self.label_33.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_33, 12, 1, 1, 1)
 
         self.label_27 = QLabel(self.widget_3)
         self.label_27.setObjectName(u"label_27")
-        self.label_27.setMinimumSize(QSize(0, 13))
-        self.label_27.setMaximumSize(QSize(16777215, 13))
+        self.label_27.setMinimumSize(QSize(0, 0))
+        self.label_27.setMaximumSize(QSize(16777215, 16777215))
         self.label_27.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_27, 6, 1, 1, 1)
 
         self.label_29 = QLabel(self.widget_3)
         self.label_29.setObjectName(u"label_29")
-        self.label_29.setMinimumSize(QSize(0, 13))
-        self.label_29.setMaximumSize(QSize(16777215, 13))
+        self.label_29.setMinimumSize(QSize(0, 0))
+        self.label_29.setMaximumSize(QSize(16777215, 16777215))
         self.label_29.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_29, 5, 1, 1, 1)
@@ -360,8 +360,8 @@ class Ui_QueryHelpDialog(object):
 
         self.label_8 = QLabel(self.widget_3)
         self.label_8.setObjectName(u"label_8")
-        self.label_8.setMinimumSize(QSize(0, 13))
-        self.label_8.setMaximumSize(QSize(16777215, 13))
+        self.label_8.setMinimumSize(QSize(0, 0))
+        self.label_8.setMaximumSize(QSize(16777215, 16777215))
         self.label_8.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_8, 1, 1, 1, 1)
@@ -376,8 +376,8 @@ class Ui_QueryHelpDialog(object):
 
         self.label_9 = QLabel(self.widget_3)
         self.label_9.setObjectName(u"label_9")
-        self.label_9.setMinimumSize(QSize(0, 13))
-        self.label_9.setMaximumSize(QSize(16777215, 13))
+        self.label_9.setMinimumSize(QSize(0, 0))
+        self.label_9.setMaximumSize(QSize(16777215, 16777215))
         self.label_9.setTextFormat(Qt.TextFormat.MarkdownText)
 
         self.gridLayout_2.addWidget(self.label_9, 3, 1, 1, 1)
@@ -400,8 +400,8 @@ class Ui_QueryHelpDialog(object):
 
         self.label_30 = QLabel(self.widget_3)
         self.label_30.setObjectName(u"label_30")
-        self.label_30.setMinimumSize(QSize(0, 13))
-        self.label_30.setMaximumSize(QSize(16777215, 13))
+        self.label_30.setMinimumSize(QSize(0, 0))
+        self.label_30.setMaximumSize(QSize(16777215, 16777215))
 
         self.gridLayout_2.addWidget(self.label_30, 7, 1, 1, 1)
 
