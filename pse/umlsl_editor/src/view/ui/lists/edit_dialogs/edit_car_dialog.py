@@ -325,8 +325,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
                 self.d_lane_turn.model().item(0).setEnabled(False)
 
             for lane in valid_lanes:
-                road_name = self._road_dict[lane.road_uid].name if lane.road_uid in self._road_dict else lane.road_uid
-                label = f"{road_name}: Lane {lane.lane_index}"
+                label = lane.get_name(self._application_controller.get_traffic_snapshot_reader())
                 self.d_lane_turn.addItem(label, userData=lane)
 
             if valid_lanes:
