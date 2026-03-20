@@ -68,6 +68,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._application_controller.view_event_handler.get_on_snapshot_changed_signal().connect(
             self._on_snapshot_changed
         )
+        self._application_controller.view_event_handler.get_on_show_snackbar_message_signal().connect(
+            self.snackbar.show_message
+        )
 
         self.update_main_window_title()
 

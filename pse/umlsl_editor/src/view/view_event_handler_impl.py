@@ -13,6 +13,7 @@ class ViewEventHandlerImplementation(ViewEventHandler):
     toggle_coordinate_system_signal = Signal(bool)
     toggle_grid_signal = Signal(bool)
     toggle_safety_distance_signal = Signal(bool)
+    show_snackbar_message = Signal(str, int)
 
     def get_on_selection_changed_signal(self) -> "SignalInstance":
         return self.selection_changed
@@ -28,6 +29,9 @@ class ViewEventHandlerImplementation(ViewEventHandler):
 
     def get_on_toggle_safety_distance_signal(self) -> "SignalInstance":
         return self.toggle_safety_distance_signal
+
+    def get_on_show_snackbar_message_signal(self) -> "SignalInstance":
+        return self.show_snackbar_message
 
     def __init__(self, view_model: ViewModels):
         super().__init__()
@@ -74,17 +78,23 @@ class ViewEventHandlerImplementation(ViewEventHandler):
         self.view_models.query_list_model.update_entity(query)
 
     def loading_query_view(self, query: UMLSLQuery) -> None:
-        # TODO @matze
-        print('finished loading query')
-        pass
+        if isinstance(query, dict):
+            query_obj = query.get("query")
+            is_loading = bool(query.get("is_loading"))
+        else:
+            query_obj = query
+            is_loading = True
+
+        if query_obj is None:
+            return
+
+        self.view_models.query_list_model.set_query_loading(query_obj.uid, is_loading)
 
     def revalidation_finished(self) -> None:
-        print('finished revalidation')
-        pass
+        self.show_snackbar_message.emit("All queries evaluated", 3000)
 
     def revalidation_started(self) -> None:
-        print('started revalidation')
-        pass
+        self.view_models.query_list_model.set_all_queries_loading()
 
     def loading_query_view(self, query: UMLSLQuery) -> None:
         # TODO @matze
