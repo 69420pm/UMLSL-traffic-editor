@@ -127,7 +127,6 @@ class EventController:
         # Route events to appropriate view methods
         if event_type == UMLSLQueriesEventType.UMLSL_QUERY_ADDED:
             self._view.add_query_view(data)
-            # TODO: Make clean
             self._traffic_snapshot.revalidate_queries()
         elif event_type == UMLSLQueriesEventType.UMLSL_QUERY_REMOVED:
             self._view.remove_query_view(data)
