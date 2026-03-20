@@ -322,7 +322,8 @@ class EnvironmentCreation:
                     if path is not None:
                         path.reverse()
                         paths.append(path)
-                order_lanes.append(paths)
+                if len(paths) > 0:
+                    order_lanes.append(paths)
 
         parallel_lanes: list[list[list[Segment]]] = [list(p) for p in product(*order_lanes)]
 
