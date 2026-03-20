@@ -84,7 +84,7 @@ class CarEnvironment:
         car_dir: Direction = translate_car.environment.car_direction
         swap_alignment = car_dir == self_dir.opposite
 
-        if not swap_alignment and turn_dir != TurnDirection.STRAIGHT:
+        if not swap_alignment and turn_dir != TurnDirection.STRAIGHT and car_dir != self_dir:
             match self_dir:
                 case Direction.RIGHT:
                     swap_alignment = (turn_dir == TurnDirection.LEFT and car_dir == Direction.DOWN

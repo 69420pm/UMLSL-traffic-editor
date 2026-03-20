@@ -259,7 +259,7 @@ class EnvironmentCreation:
 
             current_pos += segment_length
 
-        horizon_of_virtual_lane: Interval = self._compute_horizon(current_pos, segment_intervals)
+        horizon_of_virtual_lane: Interval = self._compute_horizon(horizon_on_lane.start, segment_intervals)
 
         return VirtualLane(segment_intervals), horizon_of_virtual_lane
 
