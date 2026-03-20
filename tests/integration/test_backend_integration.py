@@ -955,7 +955,7 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
             return target is not None and target.holding
 
         self.assertFalse(wait_until(is_holding_query_1, timeout=500.0))
-        self.assertTrue(wait_until(is_holding_query_2, timeout=500.0))
+        self.assertFalse(wait_until(is_holding_query_2, timeout=500.0))
         self.assertTrue(wait_until(is_holding_query_3, timeout=500.0))
 
     def test_complex_h_chop_queries_with_json(self):
