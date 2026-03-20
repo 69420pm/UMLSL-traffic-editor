@@ -52,7 +52,6 @@ class ViewEventHandlerImplementation(ViewEventHandler):
 
     def update_car_view(self, car: Car) -> None:
         self.view_models.car_list_model.update_entity(car)
-        self._select_entity(car.uid)
 
     def add_road_view(self, road: Road) -> None:
         self.view_models.road_list_model.add_entity(road)
@@ -63,7 +62,6 @@ class ViewEventHandlerImplementation(ViewEventHandler):
 
     def update_road_view(self, road: Road) -> None:
         self.view_models.road_list_model.update_entity(road)
-        self._select_entity(road.uid)
 
     def add_query_view(self, query: UMLSLQuery) -> None:
         self.view_models.query_list_model.add_entity(query)
@@ -74,7 +72,6 @@ class ViewEventHandlerImplementation(ViewEventHandler):
 
     def update_query_view(self, query: UMLSLQuery) -> None:
         self.view_models.query_list_model.update_entity(query)
-        self._select_entity(query.uid)
 
     def on_snapshot_reloaded(self, snapshot, queries=None) -> None:
         if queries is None and isinstance(snapshot, dict):
