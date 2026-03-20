@@ -9,10 +9,13 @@ from PySide6.QtCore import QTimer
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
+from pse.umlsl_editor.src.commands.command import CommandValidationError
 from pse.umlsl_editor.src.controllers import ApplicationController
+from pse.umlsl_editor.src.model.errors.errors import BaseError
 from pse.umlsl_editor.src.view.ui.exeption_handling.exeption_handler import (
     ExceptionHandler,
 )
+from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.main_window import MainWindow
 
 
@@ -47,9 +50,17 @@ class Main:
         if len(sys.argv) > 1:
             file_path = sys.argv[1]
             if os.path.exists(file_path):
-                QTimer.singleShot(0, lambda: self.application_controller.command_controller.load_traffic_snapshot(file_path))
+                QTimer.singleShot(0, lambda: self.load_command_line_file(file_path, window))
 
         sys.exit(app.exec())
+
+    def load_command_line_file(self, file_path: str, window) -> None:
+        try:
+            self.application_controller.command_controller.load_traffic_snapshot(file_path)
+        except (BaseError, CommandValidationError) as exc:
+            WarningDialog("Cannot open file", str(exc), window).exec()
+        else:
+            window.snackbar.show_message("File opened successfully.")
 
 
 if __name__ == "__main__":
