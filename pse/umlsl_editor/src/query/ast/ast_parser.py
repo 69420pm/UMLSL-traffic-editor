@@ -26,7 +26,7 @@ if typing.TYPE_CHECKING:
 
 
 class ParsedUMLSLQuery:
-    def __init__(self, traffic_snapshot: TrafficSnapshotModel, ego: Car, ast: ASTNode, car_references: list[Car]):
+    def __init__(self, traffic_snapshot: "TrafficSnapshotModel", ego: Car, ast: ASTNode, car_references: list[Car]):
         self._traffic_snapshot = traffic_snapshot
         self._ast = ast
         self._ego = ego
@@ -78,7 +78,7 @@ class ParsedUMLSLQuery:
 
 
 class ASTParser:
-    def __init__(self, ts: TrafficSnapshotModel, ego: Car, tokens: list[Token]):
+    def __init__(self, ts: "TrafficSnapshotModel", ego: Car, tokens: list[Token]):
         self._ts = ts
         self._tokens = tokens
         self._cars = ts.get_car_list()

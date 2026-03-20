@@ -18,7 +18,7 @@ class CoordinateTranslation:
 
 
 def translate_into_ego_coordinates(
-        ts: TrafficSnapshotModel, ego: Car, horizontal_horizon: Interval, virtual_lanes: list[VirtualLane]
+        ts: "TrafficSnapshotModel", ego: Car, horizontal_horizon: Interval, virtual_lanes: list[VirtualLane]
 ) -> CoordinateTranslation:
     def translate_coordinate_system(func) -> dict[str, dict[Segment, Interval]]:
         translated: dict[str, dict[Segment, Interval]] = {}

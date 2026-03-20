@@ -15,7 +15,7 @@ class HorizonComparisonNode(AtomNode):
         self._length = length
         self._cmp = cmp
 
-    def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
+    def evaluate(self, traffic_snapshot: "TrafficSnapshotModel", view: View, variable_car_map: dict[str, Car]) -> bool:
         return self._cmp(view.horizon.length(), self._length)
 
 
