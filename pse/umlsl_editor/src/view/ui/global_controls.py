@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QDialog, QFileDialog
 from pse.umlsl_editor.src.commands.command import CommandValidationError
 from pse.umlsl_editor.src.controllers import ApplicationController
 from pse.umlsl_editor.src.model.errors.errors import BaseError
-from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+from pse.umlsl_editor.src.view.ui.exception_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.confirm_deletion_dialog import (
     ConfirmDeletionDialog,
 )
@@ -84,16 +84,16 @@ class GlobalControls(QObject):
                 self._window.snackbar.show_message("File saved successfully.")
 
     def _on_save_as(self) -> None:
-        file_name, _ = QFileDialog.getSaveFileName(
+        file_path, _ = QFileDialog.getSaveFileName(
             None,
             "Save current snapshot",
             "",
             "JSON Files (*.json)"
         )
-        if not file_name:
+        if not file_path:
             return
         try:
-            self.application_controller.command_controller.save_as_traffic_snapshot(file_name)
+            self.application_controller.command_controller.save_as_traffic_snapshot(file_path)
         except CommandValidationError as exc:
             WarningDialog("Cannot save file", str(exc), self._window).exec()
         else:
@@ -111,16 +111,16 @@ class GlobalControls(QObject):
             if confirm != QDialog.Accepted:
                 return
 
-        file_name, _ = QFileDialog.getOpenFileName(
+        file_path, _ = QFileDialog.getOpenFileName(
             None,
             "Open new snapshot",
             "",
             "JSON Files (*.json)"
         )
-        if not file_name:
+        if not file_path:
             return
         try:
-            self.application_controller.command_controller.load_traffic_snapshot(file_name)
+            self.application_controller.command_controller.load_traffic_snapshot(file_path)
         except (BaseError, CommandValidationError) as exc:
             WarningDialog("Cannot open file", str(exc), self._window).exec()
         else:

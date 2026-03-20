@@ -5,6 +5,7 @@ Provides a dialog window for creating and editing query entities.
 """
 
 import html
+import logging
 from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QObject, QThread, QTimer, Signal
@@ -17,7 +18,7 @@ from pse.umlsl_editor.src.model.errors.umlsl_query_errors import (
     UMLSLQueryValidationError,
 )
 from pse.umlsl_editor.src.query.evaluator import ParserError, UMLSLEvaluator
-from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+from pse.umlsl_editor.src.view.ui.exception_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.confirm_deletion_dialog import (
     ConfirmDeletionDialog,
 )
@@ -31,6 +32,8 @@ from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_query_help_dialog imp
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
+
+logger = logging.getLogger(__name__)
 
 
 class LatexRenderWorker(QObject):
@@ -403,7 +406,7 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
     def _on_render_error(self, error_message: str) -> None:
         """Handle LaTeX render error."""
         self.l_preview.setText("Error converting LaTeX to image")
-        print(f"LaTeX rendering error: {error_message}")
+        logger.warning("LaTeX rendering error: %s", error_message)
 
     def _display_parser_error(self, user_input: str, error: ParserError) -> None:
         """Display a parser error with syntax highlighting."""
@@ -429,8 +432,8 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
         )
 
         if error.help is not None:
-            help = html.escape(error.help)
-            error_html += f'<span style="color: red;">Help: {help}.</span>'
+            help_text = html.escape(error.help)
+            error_html += f'<span style="color: red;">Help: {help_text}.</span>'
 
         error_html += "</div>"
 
@@ -440,15 +443,14 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
     def _display_generic_error(self, error: Exception) -> None:
         """Display a generic error message."""
         self.l_preview.setText(f"Error: {error}")
-        print(f"LaTeX parsing error: {error}")
-        raise error
+        logger.error("LaTeX parsing error: %s", error, exc_info=True)
 
     def _on_delete_clicked(self) -> None:
         """Handle delete action for existing queries."""
         if not self._is_edit or self._query is None:
             return
 
-        confirm = ConfirmDeletionDialog(
+        dialog_result = ConfirmDeletionDialog(
             "Delete this query?",
             self,
             title="Confirm deletion",
@@ -456,7 +458,7 @@ class EditQueryDialog(QDialog, Ui_Edit_Query_Dialog):
             cancel_text="Cancel",
         ).exec()
 
-        if confirm == 1:
+        if dialog_result == QDialog.DialogCode.Accepted:
             query_uid = self._query.uid
             QTimer.singleShot(
                 0,

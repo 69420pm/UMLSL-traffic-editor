@@ -20,7 +20,7 @@ from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import (
     TurnDirection,
     TurnIntent,
 )
-from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+from pse.umlsl_editor.src.view.ui.exception_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.lists.deletion_checks import (
     get_car_deletion_block_reason,
 )
@@ -373,7 +373,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
             WarningDialog("Cannot delete car", block_reason, self).exec()
             return
 
-        confirm = ConfirmDeletionDialog(
+        dialog_result = ConfirmDeletionDialog(
             f"Delete car '{self._car.name}'?",
             self,
             title="Confirm deletion",
@@ -381,7 +381,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
             cancel_text="Cancel",
         ).exec()
 
-        if confirm == 1:
+        if dialog_result == QDialog.DialogCode.Accepted:
             car_uid = self._car.uid
             QTimer.singleShot(0, lambda: self._application_controller.command_controller.remove_car(car_uid))
 

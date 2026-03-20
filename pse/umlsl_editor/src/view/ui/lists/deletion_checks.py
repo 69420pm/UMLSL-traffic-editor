@@ -97,4 +97,4 @@ def get_road_lane_change_block_reason(
 
 
 def _format_bulleted_list(items: Iterable[str]) -> str:
-    return "\n".join(items)
+    return "\n".join(f"- {item}" for item in items)

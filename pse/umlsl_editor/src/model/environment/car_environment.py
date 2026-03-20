@@ -64,44 +64,28 @@ class CarEnvironment:
                                        to_translate: list[SegmentInterval], translate_car: 'Car',
                                        ts: TrafficSnapshotReader) -> dict[Segment, Interval]:
         """"
-        Translates the segment of the given interval into the coordinates of the "self" car - w.r.t the virtual_lanes.
+        Translates the segment of the given interval into the coordinates of the "self" car on the given virtual lanes
+        (that is an element of ego's parallel virtual lanes).
         """
 
-        # 1) for each element in to_translate, figure out the corresponding virtual lane that includes that segment -> create a map from to_translate to virtual_lane
-        # 2) for each virtual lane, translate the interval into the coordinate system of the "self" car
-        # 3) remove those segment intervals that do not intersect with the horizon of the "self" car
-
-        lane_to_segment_intervals: dict[int, dict[Segment, Interval]] = {}
-        segments_to_virtual_lane: dict[Segment, int] = {}
-        for virtual_lane_index in virtual_lanes:
-            for segment_interval in virtual_lane_index.segment_intervals:
-                lane_index = virtual_lanes.index(virtual_lane_index)
-                segments_to_virtual_lane[segment_interval.segment] = lane_index
-
-        # 2) align intervals of to_translate
-        self_dir: Direction = self.car_direction
-        turn_dir: TurnDirection = self.turn_direction
         car_dir: Direction = translate_car.environment.car_direction
-        swap_alignment = car_dir == self_dir.opposite
+        swap_alignment = self._swap_alignment(car_dir)
 
-        if not swap_alignment and turn_dir != TurnDirection.STRAIGHT and car_dir != self_dir:
-            match self_dir:
-                case Direction.RIGHT:
-                    swap_alignment = (turn_dir == TurnDirection.LEFT and car_dir == Direction.DOWN
-                                      or turn_dir == TurnDirection.RIGHT and car_dir == Direction.UP)
-                case Direction.LEFT:
-                    swap_alignment = (turn_dir == TurnDirection.LEFT and car_dir == Direction.UP
-                                      or turn_dir == TurnDirection.RIGHT and car_dir == Direction.DOWN)
-                case Direction.UP:
-                    swap_alignment = (turn_dir == TurnDirection.LEFT and car_dir == Direction.RIGHT
-                                      or turn_dir == TurnDirection.RIGHT and car_dir == Direction.LEFT)
-                case Direction.DOWN:
-                    swap_alignment = (turn_dir == TurnDirection.LEFT and car_dir == Direction.LEFT
-                                      or turn_dir == TurnDirection.RIGHT and car_dir == Direction.RIGHT)
+        # The logic follows three main steps:
+        # 1. Directional Alignment: If the target car is facing the opposite direction
+        #    of the ego car, we flip the start/end points of the intervals (remember that the interval information
+        #    is relative to the segment's position - so we flip that).
+        # 2. Lane Mapping: We look up which virtual lane each segment belongs to and
+        #    organize the intervals accordingly.
+        # 3. Absolute Projection: Finally, we convert these segment-relative distances
+        #    into a continuous coordinate system along the ego's path (that means we convert the relative
+        #    interval information into absolute intervals that increase along the path).
 
+        # 1. Align intervals
         aligned_to_translate: list[SegmentInterval] = []
         if swap_alignment:
             for translate_segment_interval in to_translate:
+                # swap the start and end of the interval (measure from the opposite site of the segment)
                 segment = translate_segment_interval.segment
                 segment_length = segment.get_size_in_direction(ts)
                 interval = translate_segment_interval.interval
@@ -114,6 +98,15 @@ class CarEnvironment:
         else:
             aligned_to_translate = to_translate
 
+        # 2. Map intervals to virtual lanes
+        segments_to_virtual_lane: dict[Segment, int] = {}
+        for virtual_lane_index in virtual_lanes:
+            for segment_interval in virtual_lane_index.segment_intervals:
+                lane_index = virtual_lanes.index(virtual_lane_index)
+                segments_to_virtual_lane[segment_interval.segment] = lane_index
+
+        # 3. Translate interals to absolute coordinates
+        lane_to_segment_intervals: dict[int, dict[Segment, Interval]] = {}
         for translate_segment_interval in aligned_to_translate:
             lane_index = segments_to_virtual_lane.get(translate_segment_interval.segment)
             if lane_index is not None:
@@ -123,6 +116,13 @@ class CarEnvironment:
                 lane_to_segment_intervals[lane_index][
                     translate_segment_interval.segment] = translate_segment_interval.interval
 
+        translated_segment_intervals = self._translate_to_lane_abs_pos(virtual_lanes, lane_to_segment_intervals, horizon, ts)
+
+        return translated_segment_intervals
+
+    def _translate_to_lane_abs_pos(
+            self, virtual_lanes: list[VirtualLane], lane_to_segment_intervals: dict[int, dict[Segment, Interval]],
+            horizon: Interval, ts: TrafficSnapshotReader) -> dict[Segment, Interval]:
         translated_segment_intervals: dict[Segment, Interval] = {}
         for lane_index, virtual_lane in enumerate(virtual_lanes):
             segment_intervals_on_lane: dict[Segment, Interval] = lane_to_segment_intervals.get(lane_index)
@@ -140,5 +140,28 @@ class CarEnvironment:
                         translated_segment_intervals[lane_segment] = interval_on_lane
 
                 offset += lane_segment.get_size_in_direction(ts)
-
         return translated_segment_intervals
+
+    def _swap_alignment(self, car_dir: Direction) -> bool:
+        self_dir: Direction = self.car_direction
+        self_turn_dir: TurnDirection = self.turn_direction
+
+        if car_dir == self_dir.opposite:
+            return True
+
+        if self_turn_dir != TurnDirection.STRAIGHT and car_dir != self_dir:
+            match self_dir:
+                case Direction.RIGHT:
+                    return (self_turn_dir == TurnDirection.LEFT and car_dir == Direction.DOWN
+                            or self_turn_dir == TurnDirection.RIGHT and car_dir == Direction.UP)
+                case Direction.LEFT:
+                    return (self_turn_dir == TurnDirection.LEFT and car_dir == Direction.UP
+                            or self_turn_dir == TurnDirection.RIGHT and car_dir == Direction.DOWN)
+                case Direction.UP:
+                    return (self_turn_dir == TurnDirection.LEFT and car_dir == Direction.RIGHT
+                            or self_turn_dir == TurnDirection.RIGHT and car_dir == Direction.LEFT)
+                case Direction.DOWN:
+                    return (self_turn_dir == TurnDirection.LEFT and car_dir == Direction.LEFT
+                            or self_turn_dir == TurnDirection.RIGHT and car_dir == Direction.RIGHT)
+
+        return False

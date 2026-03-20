@@ -10,7 +10,7 @@ from typing import Optional
 
 from PySide6.QtWidgets import QMessageBox, QWidget
 
-from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+from pse.umlsl_editor.src.view.ui.exception_handling.warning_dialog import WarningDialog
 
 
 class ExceptionHandler:

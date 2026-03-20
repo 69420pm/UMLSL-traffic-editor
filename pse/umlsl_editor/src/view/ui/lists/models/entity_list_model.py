@@ -178,6 +178,9 @@ class EntityModel(QAbstractListModel):
 
         Returns:
             The entity at the given row.
+
+        Raises:
+            IndexError: If the row is out of bounds.
         """
         return self._data[row]
 
@@ -197,7 +200,7 @@ class EntityModel(QAbstractListModel):
         """
         return len(self._data)
 
-    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole) -> object | None:
         """
         Return data for the specified index and role.
 

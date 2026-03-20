@@ -4,16 +4,17 @@ from PySide6.QtWidgets import QGraphicsOpacityEffect, QHBoxLayout, QLabel, QWidg
 
 
 class GreenSnackbar(QWidget):
-    def __init__(self, parent=None):
+    """Transient snackbar widget for brief status messages."""
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
 
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.SubWindow)
         self.setAttribute(Qt.WA_TranslucentBackground)
 
         # Draw directly on the widget instead of using a QFrame container.
-        self.layout = QHBoxLayout(self)
-        self.layout.setContentsMargins(16, 0, 16, 0)  # Bottom margin increased for shadow space
-        self.layout.setSpacing(20)
+        self._layout = QHBoxLayout(self)
+        self._layout.setContentsMargins(16, 0, 16, 0)  # Bottom margin increased for shadow space
+        self._layout.setSpacing(20)
         self.setMinimumWidth(150)
         self.setMinimumHeight(36)
 
@@ -23,25 +24,25 @@ class GreenSnackbar(QWidget):
         # self.layout.addWidget(self.icon_label)
 
         # Text
-        self.text_label = QLabel("")
-        self.text_label.setStyleSheet("color: #011C27; font-size: 13px; background: transparent;")
-        self.layout.addWidget(self.text_label)
+        self._text_label = QLabel("")
+        self._text_label.setStyleSheet("color: #011C27; font-size: 13px; background: transparent;")
+        self._layout.addWidget(self._text_label)
 
         # Single opacity effect to avoid stacked QGraphicsEffects.
-        self.opacity_effect = QGraphicsOpacityEffect(self)
-        self.setGraphicsEffect(self.opacity_effect)
+        self._opacity_effect = QGraphicsOpacityEffect(self)
+        self.setGraphicsEffect(self._opacity_effect)
 
         # Animation
-        self.anim = QPropertyAnimation(self.opacity_effect, b"opacity")
-        self.anim.finished.connect(self.hide)
+        self._fade_animation = QPropertyAnimation(self._opacity_effect, b"opacity")
+        self._fade_animation.finished.connect(self.hide)
 
-        self.timer = QTimer()
-        self.timer.setSingleShot(True)
-        self.timer.timeout.connect(self.fade_out)
+        self._timer = QTimer()
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._fade_out)
 
         self.hide()
 
-    def paintEvent(self, event):
+    def paintEvent(self, event) -> None:
         """
         Custom paint to keep the pill and shadow consistent with opacity animation.
         """
@@ -56,8 +57,9 @@ class GreenSnackbar(QWidget):
         painter.setPen(Qt.NoPen)
         painter.drawRoundedRect(rect, 18, 18)
 
-    def show_message(self, message: str = "", duration: int | None = 3000):
-        self.text_label.setText(message)
+    def show_message(self, message: str = "", duration: int | None = 3000) -> None:
+        """Show a snackbar message for the specified duration."""
+        self._text_label.setText(message)
         self.adjustSize()
 
         if self.parent():
@@ -66,22 +68,23 @@ class GreenSnackbar(QWidget):
             y = parent_rect.height() - self.height() - 8
             self.move(x, y)
 
-        self.anim.stop()
-        self.opacity_effect.setOpacity(1.0)
+        self._fade_animation.stop()
+        self._opacity_effect.setOpacity(1.0)
         self.raise_()
         self.show()
 
         if duration is None or duration <= 0:
-            self.timer.stop()
+            self._timer.stop()
         else:
-            self.timer.start(duration)
+            self._timer.start(duration)
 
-    def hide_message(self):
-        self.fade_out()
+    def hide_message(self) -> None:
+        """Fade the snackbar out immediately."""
+        self._fade_out()
 
-    def fade_out(self):
-        self.anim.setDuration(500)
-        self.anim.setStartValue(1.0)
-        self.anim.setEndValue(0.0)
-        self.anim.setEasingCurve(QEasingCurve.OutQuad)
-        self.anim.start()
+    def _fade_out(self) -> None:
+        self._fade_animation.setDuration(500)
+        self._fade_animation.setStartValue(1.0)
+        self._fade_animation.setEndValue(0.0)
+        self._fade_animation.setEasingCurve(QEasingCurve.OutQuad)
+        self._fade_animation.start()

@@ -63,7 +63,7 @@ class RoadListModel(EntityModel):
         """
         return len(self._data)
 
-    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole) -> object | None:
         """
         Return the data for a specific row and role.
 
@@ -92,8 +92,8 @@ class RoadListModel(EntityModel):
         elif role == RoadListModel.IconRole:
             return bool(is_vertical)
         elif role == RoadListModel.ValueRole:
-            axis_label = "x" if is_vertical else "y"
-            return f"{axis_label} = {road.position}"
+            axis_name = "x" if is_vertical else "y"
+            return f"{axis_name} = {road.position}"
 
         return None
 
