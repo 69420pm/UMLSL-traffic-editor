@@ -8,12 +8,19 @@ T = TypeVar('T')
 
 
 class LazyEvaluator(Generic[T]):
+    """
+    Lazy evaluates data if acquired. Once the data is acquired, it is cached and reused.
+    """
+
     def __init__(self, data: T, on_update: Callable[[T], T]):
         self.data = data
         self.updated = False
         self.on_update = on_update
 
     def acquire_data(self) -> T:
+        """
+        Acquires the data. Returns the cached data if already acquired. Otherwise, calls the on_update function.
+        """
         if not self.updated:
             self.data = self.on_update(self.data)
             self.updated = True
@@ -21,6 +28,16 @@ class LazyEvaluator(Generic[T]):
 
 
 class View:
+    """
+    The View holds the virtual lanes and segments that are currently visible in the horizon, as well as the ego car.
+    Additionally, we store the visible cars, reserved segments, claimed segments. Note that they are passed through
+    the View and are lazily evaluated (only when needed) and cached for that View. The cache *for another* View is
+    invalidated on chop operations.
+    For example, if there are multiple accesses on the visible cars inside a View, we only compute the visible cars once.
+    If there is a chop operation, only the cache of the *newly created* View is invalidated (since the visibility
+    changes there); and is only recomputed in the newly created View when needed.
+    """
+
     def __init__(self, virtual_lanes: list[VirtualLane], segments_in_view: list[Segment],
                  horizon: Interval, ego: 'Car',
                  visible_cars: dict[str, dict[Segment, Interval]],
@@ -46,6 +63,13 @@ class View:
         )
 
     def chop_horizontally(self, split: float) -> tuple['View', 'View']:
+        """
+        Chops the View horizontally at the given split value. That means the horizon is split into two parts (at the
+        given value) and the two parts are returned as two separate Views.
+
+        Returns:
+            left, right: where left is the left View and right is the right View
+        """
         left_horizon = Interval(self.horizon.start, split)
         left_view = self._construct_view(left_horizon, self.virtual_lanes)
 
@@ -55,6 +79,13 @@ class View:
         return left_view, right_view
 
     def chop_vertically(self, split: int) -> tuple['View', 'View']:
+        """
+        Chops the View vertically at the given split index. That means the virtual lanes are split into two parts (the
+        lower and upper part) and the two parts are returned as two separate Views.
+
+        Returns:
+            lower, upper: where lower is the lower View and upper is the upper View
+        """
         lower_lanes = self.virtual_lanes[:split]  # take all lanes whose index is < split_index
         lower_view = self._construct_view(self.horizon, lower_lanes)
 
@@ -105,37 +136,46 @@ class View:
         return updated_visible_cars
 
     def _compute_reserved_segments_in_view(self, old_reserved_segments: dict[str, dict[Segment, Interval]]):
-        # only consider reserved segments that intersect with the horizon
-        new_reserved_segments: dict[str, dict[Segment, Interval]] = dict()
-        for car, reserved_segments in old_reserved_segments.items():
-            new_reserved_car_segments: dict[Segment, Interval] = dict()
-            for segment, interval in reserved_segments.items():
-                # todo: potentially broken, check again
-                if segment in self.segments_in_view and self.horizon.intersects(interval):
-                    new_reserved_car_segments[segment] = interval
-
-            new_reserved_segments[car] = new_reserved_car_segments
-
-        return new_reserved_segments
+        return self._recompute_segments_in_view(old_reserved_segments)
 
     def _compute_claimed_segments_in_view(self, old_claimed_segments: dict[str, dict[Segment, Interval]]):
-        # only consider claimed segments that intersect with the horizon
-        new_claimed_segments: dict[str, dict[Segment, Interval]] = dict()
-        for car, claimed_segments in old_claimed_segments.items():
-            new_claimed_car_segments: dict[Segment, Interval] = dict()
-            for segment, interval in claimed_segments.items():
+        return self._recompute_segments_in_view(old_claimed_segments)
+
+    def _recompute_segments_in_view(self, old_segments: dict[str, dict[Segment, Interval]]):
+        new_segments: dict[str, dict[Segment, Interval]] = dict()
+        for car, reserved_segments in old_segments.items():
+            new_car_segments: dict[Segment, Interval] = dict()
+            for segment, interval in reserved_segments.items():
                 if segment in self.segments_in_view and self.horizon.intersects(interval):
-                    new_claimed_car_segments[segment] = interval
+                    new_car_segments[segment] = interval
 
-            new_claimed_segments[car] = new_claimed_car_segments
+            new_segments[car] = new_car_segments
 
-        return new_claimed_segments
+        return new_segments
 
     def get_visible_cars(self) -> dict[str, dict[Segment, Interval]]:
+        """
+        Returns the visible cars in the view.
+
+        Returns:
+            the a map that maps each car (uid) to a map that maps each segment (uid) to the interval of that segment
+        """
         return self._lazy_visible_cars.acquire_data()
 
     def get_reserved_segments(self) -> dict[str, dict[Segment, Interval]]:
+        """
+        Returns the reserved cars in the view.
+
+        Returns:
+            the a map that maps each car (uid) to a map that maps each reserved segment (uid) to the interval of that segment
+        """
         return self._lazy_reserved_segments.acquire_data()
 
     def get_claimed_segments(self) -> dict[str, dict[Segment, Interval]]:
+        """
+        Returns the claimed segments in the view.
+
+        Returns:
+            the a map that maps each car (uid) to a map that maps each claimed segment (uid) to the interval of that segment
+        """
         return self._lazy_claimed_segments.acquire_data()

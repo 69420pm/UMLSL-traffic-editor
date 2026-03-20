@@ -4,7 +4,7 @@ from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsMode
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.model.environment.car_environment import CarEnvironment
-from pse.umlsl_editor.src.model.environment.helper.segment_intervals_helper import compute_segment_intervals, \
+from pse.umlsl_editor.src.model.environment.helper.segment_intervals_helper import compute_physical_segment_intervals, \
     compute_segments_safety_envelope
 from pse.umlsl_editor.src.model.environment.helper.segment_topology_helper import compute_path_through_crossing, \
     compute_parallel_lane_segments
@@ -20,6 +20,10 @@ from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnDir
 
 
 class EnvironmentCreation:
+    """"
+    Creates the car_environment.
+    """
+
     def __init__(self, ts: TrafficSnapshotReader, car_params: "CarParams", settings: SettingsModel):
         self.ts = ts
         self.car_params = car_params
@@ -75,6 +79,16 @@ class EnvironmentCreation:
         return isinstance(ts.get_segment_from_lane_position(lane, pos_on_lane), LaneSegment)
 
     def build(self) -> CarEnvironment:
+        """
+        Creates the CarEnvironment.
+
+        Raises:
+            ValueError: If the car's specified turn intent leads to an invalid path.
+            ValueError: If the computed path does not end on a LaneSegment.
+
+        Returns:
+            CarEnvironment: The computed car environment instance
+        """
         turn_segment: LaneSegment = find_turn_intent_segment(self.ts, self.start_segment, self.specified_turn_intent,
                                                              self.car_direction)
 
@@ -97,7 +111,7 @@ class EnvironmentCreation:
             self.car_params.length
         )
         horizon = self._compute_horizon(pos_segment_behind, path_segment_intervals)
-        physical_segment_intervals: list[SegmentInterval] = compute_segment_intervals(
+        physical_segment_intervals: list[SegmentInterval] = compute_physical_segment_intervals(
             self.ts,
             unbounded_path_segments,
             self.pos_on_segment,
@@ -166,9 +180,20 @@ class EnvironmentCreation:
             turn_segment: LaneSegment,
             turn_direction: TurnDirection
     ) -> tuple[list[list[VirtualLane]], VirtualLane]:
+        """
+        Computes the parallel virtual lanes with each segment being equipped with an interval information.
+
+        Args:
+            unbounded_path: the unbounded path pursuit by the car
+            path_segment_intervals: the segment intervals of the pursuit path by the car
+            horizon: the horizon of the car
+            turn_segment: the turn segment of the car
+            turn_direction: the turn direction of the car
+        """
+
         # We first compute the (unbounded) parallel virtual lanes segments (each segment is not yet equipped with its
         # interval information).
-        parallel_segments = self.compute_parallel_virtual_lanes(unbounded_path, turn_segment, turn_direction)
+        parallel_segments = self._compute_parallel_virtual_lanes(unbounded_path, turn_segment, turn_direction)
 
         # We now compute the intervals of the parallel virtual lanes.
         # Naively, one could just compute the intervals of each parallel-virtual-lane segment inside the horizon of ego.
@@ -197,9 +222,9 @@ class EnvironmentCreation:
         path_virtual_lane = self._segments_to_virtual_lane(unbounded_path, horizon, lane_dist_in_path)
         return parallel_virtual_lanes_intervals, path_virtual_lane
 
-    def _segments_to_virtual_lane(self, segments: list[Segment], horizon: Interval,
+    def _segments_to_virtual_lane(self, segments: list[Segment], horizon_on_lane: Interval,
                                   max_dist_on_lanes: float) -> VirtualLane:
-        current_pos = horizon.start
+        current_pos = horizon_on_lane.start
         dist_on_lanes: float = 0.0
 
         segment_intervals: list[SegmentInterval] = []
@@ -225,9 +250,11 @@ class EnvironmentCreation:
 
             current_pos += segment_length
 
+        # horizon_of_virtual_lane: Interval = self._compute_horizon(current_pos, segment_intervals)
+
         return VirtualLane(segment_intervals)
 
-    def compute_parallel_virtual_lanes(
+    def _compute_parallel_virtual_lanes(
             self, path: list[Segment],
             turn_segment: LaneSegment,
             turn_direction: TurnDirection
