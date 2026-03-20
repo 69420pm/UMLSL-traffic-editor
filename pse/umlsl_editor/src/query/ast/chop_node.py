@@ -10,6 +10,10 @@ SMALLEST_STEP_SIZE = 0.4
 
 
 class HorizontalChopNode(BinaryNode):
+    """
+    The HorizontalChopNode is a binary node that evaluates to true if there exists a horizontal split such that the
+    left part evaluates to true and the right part evaluates to true as well.
+    """
     def __init__(self, left: ASTNode, right: ASTNode):
         super().__init__(Precedence.BINARY_CHOP, left, right)
         self.latex_left = left.to_latex()
@@ -96,6 +100,10 @@ class HorizontalChopNode(BinaryNode):
 
 
 class VerticalChopNode(BinaryNode):
+    """
+    The VerticalChopNode is a binary node that evaluates to true if there exists a vertical split such that the
+    upper part evaluates to true and the lower part evaluates to true as well.
+    """
     def __init__(self, left: ASTNode, right: ASTNode):
         super().__init__(Precedence.BINARY_CHOP, left, right)
 

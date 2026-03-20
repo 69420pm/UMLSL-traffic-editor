@@ -8,6 +8,9 @@ if typing.TYPE_CHECKING:
 
 
 class TrueNode(AtomNode):
+    """
+    The TrueNode is a unary node that evaluates to true.
+    """
     def __init__(self):
         super().__init__("true")
 
@@ -16,6 +19,9 @@ class TrueNode(AtomNode):
 
 
 class NegationNode(UnaryNode):
+    """
+    The NegationNode is a unary node that negates its child.
+    """
     def evaluate(self, traffic_snapshot: "TrafficSnapshotModel", view: View, variable_car_map: dict[str, Car]) -> bool:
         return not self._child.evaluate(traffic_snapshot, view, variable_car_map)
 
@@ -24,6 +30,9 @@ class NegationNode(UnaryNode):
 
 
 class ConjunctionNode(BinaryNode):
+    """
+    The ConjunctionNode is a binary node that evaluates to true if both its children evaluate to true.
+    """
     def __init__(self, left: ASTNode, right: ASTNode):
         super().__init__(Precedence.BINARY_CONJUNCTION, left, right)
 
@@ -36,6 +45,9 @@ class ConjunctionNode(BinaryNode):
 
 
 class DisjunctionNode(BinaryNode):
+    """
+    The DisjunctionNode is a binary node that evaluates to true if at least one of its children evaluate to true.
+    """
     def __init__(self, left: ASTNode, right: ASTNode):
         super().__init__(Precedence.BINARY_DISJUNCTION, left, right)
 
@@ -48,6 +60,10 @@ class DisjunctionNode(BinaryNode):
 
 
 class ImpliesNode(BinaryNode):
+    """
+    The ImpliesNode is a binary node that evaluates to true if the left child implies the right child. That means,
+    the left child evaluates to false or the right child evaluates to true.
+    """
     def __init__(self, left: ASTNode, right: ASTNode):
         super().__init__(Precedence.BINARY_DISJUNCTION, left, right)
 

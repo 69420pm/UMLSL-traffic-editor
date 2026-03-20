@@ -9,9 +9,11 @@ if typing.TYPE_CHECKING:
     from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 
 
-# Assigns a value to each AST Node
-# Higher value = binds tighter (evaluated first)
 class Precedence(IntEnum):
+    """
+    Assigns a value to each AST Node.
+    Higher value = binds tighter (evaluated first).
+    """
     ATOM = 50  # Nullary Nodes
     UNARY = 40
     UNARY_EQUALITY = 35
@@ -22,21 +24,36 @@ class Precedence(IntEnum):
 
 
 class ASTNode(ABC):
-    """Abstract Syntax Tree Base Node."""
-
+    """
+    The ASTNode represents a node in the abstract syntax tree (AST) and holds the precedence (see above).
+    """
     def __init__(self, precedence: Precedence):
         self._precedence = precedence
 
     @abstractmethod
     def evaluate(self, traffic_snapshot: "TrafficSnapshotModel", view: View, variable_car_map: dict[str, Car]) -> bool:
+        """
+        Evaluates the ASTNode.
+
+        Args:
+            traffic_snapshot: the traffic snapshot to evaluate the ASTNode on
+            view: the view to evaluate the ASTNode on
+            variable_car_map: a map of variable names to Car objects (initially empty, only set by quantor nodes)
+        """
         pass
 
     @abstractmethod
     def to_latex(self) -> str:
+        """
+        Converts the ASTNode to a (real) LaTeX string.
+        """
         pass
 
 
 class AtomNode(ASTNode, ABC):
+    """
+    The AtomNode represents a leaf node in the AST.
+    """
     def __init__(self, latex_code):
         super().__init__(Precedence.ATOM)
         self._latex_code = latex_code
@@ -47,6 +64,9 @@ class AtomNode(ASTNode, ABC):
 
 
 class UnaryNode(ASTNode, ABC):
+    """
+    The UnaryNode represents a unary node in the AST.
+    """
     def __init__(self, child: ASTNode):
         super().__init__(Precedence.UNARY)
         self._child = child
@@ -66,6 +86,9 @@ class UnaryNode(ASTNode, ABC):
 
 
 class BinaryNode(ASTNode, ABC):
+    """
+    The BinaryNode represents a binary node in the AST.
+    """
     def __init__(self, precedence: Precedence, left: ASTNode, right: ASTNode):
         super().__init__(precedence)
         self._left = left

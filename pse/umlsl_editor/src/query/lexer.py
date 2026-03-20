@@ -4,6 +4,11 @@ from enum import Enum
 
 
 class TokenType(Enum):
+    """
+    Defines all the tokens that are used to parse a UMLSL query. Each token is defined by a regular expression pattern.
+    Note that the definition order matters. For example, the token "=>" defined before ">" tells the Lexer to parse
+    "=>" first and then consider ">".
+    """
     L_PAREN = "\\("
     R_PAREN = "\\)"
     L_CURLY = "\\{"
@@ -114,6 +119,10 @@ _INFIX_BINARY_OPS_PRECEDENCE = {
 
 
 class Token(ABC):
+    """
+    This class represents a token in the UMLSL query and holds information about the starting index and end index
+    in the input string of the user.
+    """
     def __init__(self, type: TokenType, start_index: int, end_index: int):
         self.type = type
         self.start_index = start_index
@@ -121,10 +130,17 @@ class Token(ABC):
 
     @abstractmethod
     def value(self) -> str | None:
+        """
+        Returns the value of the token.
+        For SimpleTokens, this is always None; Literals return their literal value.
+        """
         pass
 
 
 class SimpleToken(Token):
+    """
+    A SimpleToken represents a token that does not have a literal value.
+    """
     def value(self) -> None:
         return None
 
@@ -133,11 +149,17 @@ class SimpleToken(Token):
 
 
 class Literal(Token):
-    def __init__(self, literal_value: str, start_index: int = 0, end_index: int = 0):
+    """
+    A Literal represents a token that has a literal value.
+    """
+    def __init__(self, literal_value: str, start_index: int, end_index: int):
         super().__init__(TokenType.LITERAL, start_index, end_index)
         self._literal_value = literal_value
 
     def value(self) -> str:
+        """
+        Returns the value of this literal.
+        """
         return self._literal_value
 
     def __str__(self):
@@ -149,6 +171,9 @@ class Lexer:
         self._input = text
 
     def tokenize(self) -> list[Token]:
+        """
+        Splits the input string into a list of tokens.
+        """
         query_input = self._input
 
         token_patterns = []

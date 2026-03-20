@@ -10,6 +10,10 @@ if typing.TYPE_CHECKING:
 
 
 class HorizonComparisonNode(AtomNode):
+    """
+    The HorizonComparisonNode is a unary node that evaluates to true if the horizon length satisfies the specified
+    comparison.
+    """
     def __init__(self, latex_symbol: str, cmp: Callable[[float, float], bool], length: float):
         super().__init__(f"\\ell {latex_symbol} {length}")
         self._length = length
@@ -20,20 +24,35 @@ class HorizonComparisonNode(AtomNode):
 
 
 class HorizonCmpGreaterEqualsNode(HorizonComparisonNode):
+    """
+    The HorizonCmpGreaterEqualsNode is a unary node that evaluates to true if the horizon length is greater than or
+    equal to the specified length.
+    """
     def __init__(self, length: float):
         super().__init__("\\geq", lambda x, y: x >= y, length)
 
 
 class HorizonCmpGreaterNode(HorizonComparisonNode):
+    """
+    The HorizonCmpGreaterNode is a unary node that evaluates to true if the horizon length is greater than the specified
+    length.
+    """
     def __init__(self, length: float):
         super().__init__(">", lambda x, y: x > y, length)
 
 
 class HorizonCmpLessNode(HorizonComparisonNode):
+    """
+    The HorizonCmpLessNode is a unary node that evaluates to true if the horizon length is less than the specified length.
+    """
     def __init__(self, length: float):
         super().__init__("<", lambda x, y: x < y, length)
 
 
 class HorizonCmpLessEqualsNode(HorizonComparisonNode):
+    """
+    The HorizonCmpLessEqualsNode is a unary node that evaluates to true if the horizon length is less than or equal to
+    the specified length.
+    """
     def __init__(self, length: float):
         super().__init__("\\leq", lambda x, y: x <= y, length)

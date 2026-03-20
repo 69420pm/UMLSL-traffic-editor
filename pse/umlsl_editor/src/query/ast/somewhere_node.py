@@ -11,6 +11,11 @@ if typing.TYPE_CHECKING:
 
 
 class SomewhereNode(UnaryNode):
+    """
+    A SomewhereNode is a unary node that evaluates to true if the child evaluates to true somewhere in the view. We
+    reconstruct it via vertical and horizontal chops.
+    """
+
     def evaluate(self, traffic_snapshot: "TrafficSnapshotModel", view: View, variable_car_map: dict[str, Car]) -> bool:
         somewhere_node = VerticalChopNode.create_nested_vchop(
             [

@@ -26,6 +26,15 @@ if typing.TYPE_CHECKING:
 
 
 class ParsedUMLSLQuery:
+    """
+    A ParsedUMLSLQuery is a query that has been parsed into an AST. It holds the list of cars being referenced in the
+    query and the latex code of the query.
+    Additionally, a ParsedUMLSLQuery can be evaluated.
+
+    Attributes:
+        car_references: the list of cars that are referenced in the query
+        latex_code: the latex code of the query
+    """
     def __init__(self, traffic_snapshot: "TrafficSnapshotModel", ego: Car, ast: ASTNode, car_references: list[Car]):
         self._traffic_snapshot = traffic_snapshot
         self._ast = ast
@@ -34,6 +43,10 @@ class ParsedUMLSLQuery:
         self.latex_code = ast.to_latex()
 
     def evaluate(self, evaluate_ego_lane_only: bool) -> bool:
+        """
+        Evaluates the query. If evaluate_ego_lane_only is True, the query is evaluated only in the ego lane. Otherwise,
+        on the full view of ego.
+        """
         if evaluate_ego_lane_only:
             return self._evaluate_on_ego_lane()
         else:
@@ -78,6 +91,9 @@ class ParsedUMLSLQuery:
 
 
 class ASTParser:
+    """
+    The ASTParser parses a query into an AST. The AST is a recursive-descent parser that builds an abstract syntax tree.
+    """
     def __init__(self, ts: "TrafficSnapshotModel", ego: Car, tokens: list[Token]):
         self._ts = ts
         self._tokens = tokens
@@ -86,6 +102,9 @@ class ASTParser:
         self._car_references: list[Car] = [ego]
 
     def parse_query(self) -> ParsedUMLSLQuery:
+        """
+        Parses the query into an AST and returns a ParsedUMLSLQuery.
+        """
         ast = self.parse_ast()
         return ParsedUMLSLQuery(self._ts, self._ego, ast, self._car_references)
 
@@ -475,6 +494,15 @@ class ASTParser:
 
 
 class ASTParserError(Exception):
+    """
+    An ASTParserError is raised if the ASTParser fails to parse the list of tokens.
+
+    Attributes:
+        reason: the reason why the parser failed
+        help: the help message to display to the user
+        scope_start: the index of *the first token* where the error starts (inclusive)
+        scope_end: the index of *the last token* where the error starts (inclusive)
+    """
     def __init__(self, reason: str, scope_start: int, scope_end: int, help: str | None = None):
         super().__init__(reason)
         self.reason = reason
