@@ -49,10 +49,10 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
     """
 
     def __init__(
-        self,
-        road: Road | None,
-        application_controller: "ApplicationController",
-        parent=None,
+            self,
+            road: Road | None,
+            application_controller: "ApplicationController",
+            parent=None,
     ) -> None:
         """
         Initialize the road edit dialog.
@@ -128,13 +128,13 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
         }
 
     def _apply_road_values(
-        self,
-        *,
-        name: str,
-        orientation: RoadOrientation,
-        position: float,
-        number_of_forward_lanes: int,
-        number_of_backward_lanes: int,
+            self,
+            *,
+            name: str,
+            orientation: RoadOrientation,
+            position: float,
+            number_of_forward_lanes: int,
+            number_of_backward_lanes: int,
     ) -> None:
         """Apply road values to the dialog widgets."""
         self.t_name.setText(name)
@@ -145,14 +145,17 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
         self.d_orientation.setCurrentIndex(orientation.value)
 
         self.s_position.setValue(position)
+
         self.s_forward.setValue(number_of_forward_lanes)
+
         self.s_backward.setValue(number_of_backward_lanes)
 
     def _update_axis_label(self) -> None:
-        if self.d_orientation.currentIndex() == 0:
-            self.l_axis.setText("y-Axis")
-        else:
-            self.l_axis.setText("x-Axis")
+        is_horizontal = self.d_orientation.currentIndex() == 0
+
+        self.l_axis.setText("y-Axis" if is_horizontal else "x-Axis")
+        self.l_forward.setText("Right" if is_horizontal else "Upward")
+        self.l_backward.setText("Left" if is_horizontal else "Downward")
 
     def _populate_fields(self) -> None:
         """Populate dialog fields with the current road's values."""

@@ -573,7 +573,7 @@ QPushButton#b_delete:pressed {
           <number>8</number>
          </property>
          <item row="2" column="0">
-          <widget class="QLabel" name="label_11">
+          <widget class="QLabel" name="l_backward">
            <property name="minimumSize">
             <size>
              <width>75</width>
@@ -581,7 +581,7 @@ QPushButton#b_delete:pressed {
             </size>
            </property>
            <property name="text">
-            <string>Backward</string>
+            <string>Left</string>
            </property>
           </widget>
          </item>
@@ -618,7 +618,7 @@ QPushButton#b_delete:pressed {
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="QLabel" name="label_10">
+          <widget class="QLabel" name="l_forward">
            <property name="minimumSize">
             <size>
              <width>75</width>
@@ -626,7 +626,7 @@ QPushButton#b_delete:pressed {
             </size>
            </property>
            <property name="text">
-            <string>Forward</string>
+            <string>Right</string>
            </property>
           </widget>
          </item>
