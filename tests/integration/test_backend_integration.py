@@ -565,7 +565,472 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
         self.assertTrue(
             queries_by_latex["forall x: ((x != a) => !<re{a} and re{x}>)"].holding
         )
-        # self.assertFalse(queries_by_latex["a != a"].holding)
+
+    def test_complex_queries_with_json(self):
+        settings = SettingsModel(braking_acceleration=8.0, max_speed=15.0)
+        queries = UMLSLQueriesModel()
+        snapshot = TrafficSnapshotModel(queries, settings)
+
+        payload = {
+            "meta": {"version": PersistenceService.VERSION},
+            "roads": [
+                {
+                    "uid": "05924228-6663-41bf-be34-a6a05b781905",
+                    "name": "R1",
+                    "orientation": "HORIZONTAL",
+                    "position": 0.0,
+                    "number_of_forward_lanes": 1,
+                    "number_of_backward_lanes": 1
+                },
+                {
+                    "uid": "b3a40a27-bf70-40fa-9d74-f241c294b23b",
+                    "name": "R3",
+                    "orientation": "HORIZONTAL",
+                    "position": 8.0,
+                    "number_of_forward_lanes": 1,
+                    "number_of_backward_lanes": 1
+                },
+                {
+                    "uid": "1ceb6d9e-d904-4374-85e9-635a872627a7",
+                    "name": "R2",
+                    "orientation": "VERTICAL",
+                    "position": 4.0,
+                    "number_of_forward_lanes": 1,
+                    "number_of_backward_lanes": 1
+                },
+                {
+                    "uid": "6eef3f21-0458-4ff2-aebe-92dc79515af4",
+                    "name": "R4",
+                    "orientation": "VERTICAL",
+                    "position": 12.0,
+                    "number_of_forward_lanes": 1,
+                    "number_of_backward_lanes": 1
+                }
+            ],
+            "cars": [
+                {
+                    "uid": "a3d7dc53-f686-4c9d-a72e-1a761895c3bd",
+                    "name": "a",
+                    "road_uid": "05924228-6663-41bf-be34-a6a05b781905",
+                    "lane_index": 0,
+                    "position_on_lane": -2.0,
+                    "transition": 0.0,
+                    "speed": 10.0,
+                    "length": 1,
+                    "color": "lightblue",
+                    "acceleration": 1.0,
+                    "next_turn": None
+                },
+                {
+                    "uid": "90fd5982-dfb5-4804-89ff-f246fed5ce9e",
+                    "name": "b",
+                    "road_uid": "05924228-6663-41bf-be34-a6a05b781905",
+                    "lane_index": 0,
+                    "position_on_lane": 0.9894008691374196,
+                    "transition": 0.0,
+                    "speed": 10.0,
+                    "length": 1,
+                    "color": "lightblue",
+                    "acceleration": 1.0,
+                    "next_turn": None
+                }
+            ],
+            "queries": [],
+        }
+        json_string = json.dumps(payload)
+        data = json.loads(json_string)
+
+        PersistenceService.deserialize(data, snapshot, snapshot, settings, queries)
+
+        view = SpyView()
+        EventController(view, snapshot, settings, queries)
+        command_controller = CommandController(snapshot, snapshot, queries, settings)
+
+        car_a = snapshot.get_car_by_name("a")
+        self.assertIsNotNone(car_a)
+
+        # validate queries
+        command_controller.add_umlsl_query(
+            assigned_car_uid=car_a.uid,
+            should_only_evaluate_on_cars_lane=False,
+            latex="<hchop{re{a}}{l > 2 and free and !<cs>}>",
+        )
+        command_controller.add_umlsl_query(
+            assigned_car_uid=car_a.uid,
+            should_only_evaluate_on_cars_lane=False,
+            latex="<re{b}>",
+        )
+        command_controller.add_umlsl_query(
+            assigned_car_uid=car_a.uid,
+            should_only_evaluate_on_cars_lane=False,
+            latex="<re{a} and re{b}>",
+        )
+
+        def is_holding_query_1():
+            queries_by_latex = {q.latex: q for q in queries.get_queries().values()}
+            target = queries_by_latex.get("<hchop{re{a}}{l > 2 and free and !<cs>}>")
+            return target is not None and target.holding
+
+        def is_holding_query_2():
+            queries_by_latex = {q.latex: q for q in queries.get_queries().values()}
+            target = queries_by_latex.get("<re{b}>")
+            return target is not None and target.holding
+
+        def is_holding_query_3():
+            queries_by_latex = {q.latex: q for q in queries.get_queries().values()}
+            target = queries_by_latex.get("<re{a} and re{b}>")
+
+            return target is not None and target.holding
+
+        self.assertFalse(wait_until(is_holding_query_1, timeout=500.0))
+        self.assertTrue(wait_until(is_holding_query_2, timeout=500.0))
+        self.assertTrue(wait_until(is_holding_query_3, timeout=500.0))
+
+    def test_collision_queries_with_json(self):
+        settings = SettingsModel(braking_acceleration=8.0, max_speed=15.0)
+        queries = UMLSLQueriesModel()
+        snapshot = TrafficSnapshotModel(queries, settings)
+
+        payload = {
+            "meta": {"version": PersistenceService.VERSION},
+            "roads": [
+                {
+                    "uid": "7c66b458-6ffd-43df-a19c-251add9c973b",
+                    "name": "1",
+                    "orientation": "HORIZONTAL",
+                    "position": 0.0,
+                    "number_of_forward_lanes": 1,
+                    "number_of_backward_lanes": 1
+                },
+                {
+                    "uid": "8c38244a-f310-4a52-9660-c72d17c089a2",
+                    "name": "2",
+                    "orientation": "VERTICAL",
+                    "position": 0.0,
+                    "number_of_forward_lanes": 1,
+                    "number_of_backward_lanes": 1
+                }
+            ],
+            "cars": [
+                {
+                    "uid": "ccd22c5d-1e7b-43e1-890d-2b7b7c00734d",
+                    "name": "a",
+                    "road_uid": "7c66b458-6ffd-43df-a19c-251add9c973b",
+                    "lane_index": 0,
+                    "position_on_lane": -3.1524314488274943,
+                    "transition": 0.0,
+                    "speed": 10.0,
+                    "length": 1,
+                    "color": "lightblue",
+                    "acceleration": 1.0,
+                    "next_turn": {
+                        "direction": "LEFT",
+                        "target_lane": {
+                            "road_uid": "8c38244a-f310-4a52-9660-c72d17c089a2",
+                            "lane_index": 0
+                        }
+                    }
+                },
+                {
+                    "uid": "92498266-6594-4fa5-8f46-e58779e410ff",
+                    "name": "b",
+                    "road_uid": "8c38244a-f310-4a52-9660-c72d17c089a2",
+                    "lane_index": 0,
+                    "position_on_lane": 2.818842512724892,
+                    "transition": 0.0,
+                    "speed": 10.0,
+                    "length": 1,
+                    "color": "lightblue",
+                    "acceleration": 1.0,
+                    "next_turn": None
+                },
+                {
+                    "uid": "b9d6a69a-f065-412c-af74-1ef215334e4f",
+                    "name": "c",
+                    "road_uid": "7c66b458-6ffd-43df-a19c-251add9c973b",
+                    "lane_index": 0,
+                    "position_on_lane": 1.4234117933103105,
+                    "transition": 0.0,
+                    "speed": 10.0,
+                    "length": 1,
+                    "color": "lightblue",
+                    "acceleration": 1.0,
+                    "next_turn": None
+                },
+                {
+                    "uid": "d941ba14-2a6b-4926-a93b-8da1513eb6f8",
+                    "name": "d",
+                    "road_uid": "7c66b458-6ffd-43df-a19c-251add9c973b",
+                    "lane_index": -1,
+                    "position_on_lane": 3.0,
+                    "transition": 0.0,
+                    "speed": 10.0,
+                    "length": 1,
+                    "color": "lightblue",
+                    "acceleration": 1.0,
+                    "next_turn": None
+                }
+            ],
+            "queries": []
+        }
+        json_string = json.dumps(payload)
+        data = json.loads(json_string)
+
+        PersistenceService.deserialize(data, snapshot, snapshot, settings, queries)
+
+        view = SpyView()
+        EventController(view, snapshot, settings, queries)
+        command_controller = CommandController(snapshot, snapshot, queries, settings)
+
+        car_a = snapshot.get_car_by_name("a")
+        self.assertIsNotNone(car_a)
+
+        # validate queries
+        command_controller.add_umlsl_query(
+            assigned_car_uid=car_a.uid,
+            should_only_evaluate_on_cars_lane=False,
+            latex="<re{a} and re{b}>",
+        )
+        command_controller.add_umlsl_query(
+            assigned_car_uid=car_a.uid,
+            should_only_evaluate_on_cars_lane=False,
+            latex="<re{a} and re{c}>",
+        )
+        command_controller.add_umlsl_query(
+            assigned_car_uid=car_a.uid,
+            should_only_evaluate_on_cars_lane=False,
+            latex="<re{a} and re{d}>",
+        )
+
+        def is_holding_query_1():
+            queries_by_latex = {q.latex: q for q in queries.get_queries().values()}
+            target = queries_by_latex.get("<re{a} and re{b}>")
+            return target is not None and target.holding
+
+        def is_holding_query_2():
+            queries_by_latex = {q.latex: q for q in queries.get_queries().values()}
+            target = queries_by_latex.get("<re{a} and re{c}>")
+            return target is not None and target.holding
+
+        def is_holding_query_3():
+            queries_by_latex = {q.latex: q for q in queries.get_queries().values()}
+            target = queries_by_latex.get("<re{a} and re{d}>")
+
+            return target is not None and target.holding
+
+        self.assertTrue(wait_until(is_holding_query_1, timeout=500.0))
+        self.assertTrue(wait_until(is_holding_query_2, timeout=500.0))
+        self.assertTrue(wait_until(is_holding_query_3, timeout=500.0))
+
+    def test_view_queries_with_json(self):
+        settings = SettingsModel(braking_acceleration=8.0, max_speed=15.0)
+        queries = UMLSLQueriesModel()
+        snapshot = TrafficSnapshotModel(queries, settings)
+
+        payload = {
+            "meta": {"version": PersistenceService.VERSION},
+            "roads": [
+                {
+                    "uid": "7c66b458-6ffd-43df-a19c-251add9c973b",
+                    "name": "1",
+                    "orientation": "HORIZONTAL",
+                    "position": 0.0,
+                    "number_of_forward_lanes": 1,
+                    "number_of_backward_lanes": 1
+                },
+                {
+                    "uid": "8c38244a-f310-4a52-9660-c72d17c089a2",
+                    "name": "2",
+                    "orientation": "VERTICAL",
+                    "position": 0.0,
+                    "number_of_forward_lanes": 1,
+                    "number_of_backward_lanes": 1
+                }
+            ],
+            "cars": [
+                {
+                    "uid": "ccd22c5d-1e7b-43e1-890d-2b7b7c00734d",
+                    "name": "a",
+                    "road_uid": "7c66b458-6ffd-43df-a19c-251add9c973b",
+                    "lane_index": 0,
+                    "position_on_lane": -4.930245086120705,
+                    "transition": 0.0,
+                    "speed": 10.0,
+                    "length": 1,
+                    "color": "lightblue",
+                    "acceleration": 1.0,
+                    "next_turn": {
+                        "direction": "LEFT",
+                        "target_lane": {
+                            "road_uid": "8c38244a-f310-4a52-9660-c72d17c089a2",
+                            "lane_index": 0
+                        }
+                    }
+                },
+                {
+                    "uid": "92498266-6594-4fa5-8f46-e58779e410ff",
+                    "name": "b",
+                    "road_uid": "7c66b458-6ffd-43df-a19c-251add9c973b",
+                    "lane_index": -1,
+                    "position_on_lane": -6.807123091134452,
+                    "transition": 0.0,
+                    "speed": 10.0,
+                    "length": 1,
+                    "color": "lightblue",
+                    "acceleration": 1.0,
+                    "next_turn": None
+                },
+                {
+                    "uid": "de845750-a341-4410-a415-c4e36cd6ce90",
+                    "name": "c",
+                    "road_uid": "8c38244a-f310-4a52-9660-c72d17c089a2",
+                    "lane_index": 0,
+                    "position_on_lane": 5.0,
+                    "transition": 0.0,
+                    "speed": 10.0,
+                    "length": 1,
+                    "color": "lightblue",
+                    "acceleration": 1.0,
+                    "next_turn": None
+                },
+                {
+                    "uid": "930d4a9d-b5b7-45a4-9eab-008eeec3c16e",
+                    "name": "d",
+                    "road_uid": "8c38244a-f310-4a52-9660-c72d17c089a2",
+                    "lane_index": -1,
+                    "position_on_lane": -3.0332390709696364,
+                    "transition": 0.0,
+                    "speed": 10.0,
+                    "length": 1,
+                    "color": "lightblue",
+                    "acceleration": 1.0,
+                    "next_turn": None
+                }
+            ],
+            "queries": []
+        }
+        json_string = json.dumps(payload)
+        data = json.loads(json_string)
+
+        PersistenceService.deserialize(data, snapshot, snapshot, settings, queries)
+
+        view = SpyView()
+        EventController(view, snapshot, settings, queries)
+        command_controller = CommandController(snapshot, snapshot, queries, settings)
+
+        car_a = snapshot.get_car_by_name("a")
+        self.assertIsNotNone(car_a)
+
+        # validate queries
+        command_controller.add_umlsl_query(
+            assigned_car_uid=car_a.uid,
+            should_only_evaluate_on_cars_lane=False,
+            latex="<re{b}>",
+        )
+        command_controller.add_umlsl_query(
+            assigned_car_uid=car_a.uid,
+            should_only_evaluate_on_cars_lane=False,
+            latex="<re{a} and re{c}>",
+        )
+        command_controller.add_umlsl_query(
+            assigned_car_uid=car_a.uid,
+            should_only_evaluate_on_cars_lane=False,
+            latex="<re{a} and re{d}>",
+        )
+
+        def is_holding_query_1():
+            queries_by_latex = {q.latex: q for q in queries.get_queries().values()}
+            target = queries_by_latex.get("<re{b}>>")
+            return target is not None and target.holding
+
+        def is_holding_query_2():
+            queries_by_latex = {q.latex: q for q in queries.get_queries().values()}
+            target = queries_by_latex.get("<re{a} and re{c}>")
+            return target is not None and target.holding
+
+        def is_holding_query_3():
+            queries_by_latex = {q.latex: q for q in queries.get_queries().values()}
+            target = queries_by_latex.get("<re{a} and re{d}>")
+
+            return target is not None and target.holding
+
+        self.assertFalse(wait_until(is_holding_query_1, timeout=500.0))
+        self.assertFalse(wait_until(is_holding_query_2, timeout=500.0))
+        self.assertTrue(wait_until(is_holding_query_3, timeout=500.0))
+
+    def test_complex_h_chop_queries_with_json(self):
+        settings = SettingsModel(braking_acceleration=8.0, max_speed=15.0)
+        queries = UMLSLQueriesModel()
+        snapshot = TrafficSnapshotModel(queries, settings)
+
+        payload = {
+            "meta": {"version": PersistenceService.VERSION},
+            "roads": [
+                {
+                    "uid": "7c66b458-6ffd-43df-a19c-251add9c973b",
+                    "name": "1",
+                    "orientation": "HORIZONTAL",
+                    "position": 0.0,
+                    "number_of_forward_lanes": 1,
+                    "number_of_backward_lanes": 1
+                },
+                {
+                    "uid": "8c38244a-f310-4a52-9660-c72d17c089a2",
+                    "name": "2",
+                    "orientation": "VERTICAL",
+                    "position": 0.0,
+                    "number_of_forward_lanes": 1,
+                    "number_of_backward_lanes": 1
+                }
+            ],
+            "cars": [
+                {
+                    "uid": "ccd22c5d-1e7b-43e1-890d-2b7b7c00734d",
+                    "name": "a",
+                    "road_uid": "7c66b458-6ffd-43df-a19c-251add9c973b",
+                    "lane_index": 0,
+                    "position_on_lane": -4.930245086120705,
+                    "transition": 0.0,
+                    "speed": 10.0,
+                    "length": 1,
+                    "color": "lightblue",
+                    "acceleration": 1.0,
+                    "next_turn": {
+                        "direction": "LEFT",
+                        "target_lane": {
+                            "road_uid": "8c38244a-f310-4a52-9660-c72d17c089a2",
+                            "lane_index": 0
+                        }
+                    }
+                }
+            ],
+            "queries": []
+        }
+        json_string = json.dumps(payload)
+        data = json.loads(json_string)
+
+        PersistenceService.deserialize(data, snapshot, snapshot, settings, queries)
+
+        view = SpyView()
+        EventController(view, snapshot, settings, queries)
+        command_controller = CommandController(snapshot, snapshot, queries, settings)
+
+        car_a = snapshot.get_car_by_name("a")
+        self.assertIsNotNone(car_a)
+
+        # validate queries
+        command_controller.add_umlsl_query(
+            assigned_car_uid=car_a.uid,
+            should_only_evaluate_on_cars_lane=False,
+            latex="<hchop{re{a}}{l>2 and free and !<cs>}>",
+        )
+
+        def is_holding_query_1():
+            queries_by_latex = {q.latex: q for q in queries.get_queries().values()}
+            target = queries_by_latex.get("<hchop{re{a}}{l>2 and free and !<cs>}>")
+            return target is not None and target.holding
+
+        self.assertTrue(wait_until(is_holding_query_1, timeout=500.0))
 
     def test_parser_evaluates_true_and_negation(self):
         _, _, snapshot, command_controller, _, _, _ = create_backend_stack(
