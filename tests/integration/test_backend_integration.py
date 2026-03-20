@@ -1,7 +1,9 @@
 import json
 import os
 import tempfile
+import time
 import unittest
+from threading import Event, Lock
 
 from pse.umlsl_editor.src.commands.persistence.load_traffic_snapshot import (
     LoadTrafficSnapshot,
@@ -65,6 +67,11 @@ class SpyView:
         self.updated_queries = []
         self.warnings = []
         self.snapshot_reloaded = []
+        self.loading_queries = []
+        self.revalidation_started_count = 0
+        self.revalidation_finished_count = 0
+        self._revalidation_event = Event()
+        self._revalidation_lock = Lock()
 
     def add_car_view(self, car):
         self.added_cars.append(car)
@@ -93,11 +100,39 @@ class SpyView:
     def update_query_view(self, query):
         self.updated_queries.append(query)
 
+    def loading_query_view(self, data):
+        self.loading_queries.append(data)
+
+    def revalidation_started(self):
+        with self._revalidation_lock:
+            self.revalidation_started_count += 1
+            self._revalidation_event.clear()
+
+    def revalidation_finished(self):
+        with self._revalidation_lock:
+            self.revalidation_finished_count += 1
+            self._revalidation_event.set()
+
+    def reset_revalidation_event(self):
+        self._revalidation_event.clear()
+
+    def wait_for_revalidation(self, timeout=1.0):
+        return self._revalidation_event.wait(timeout)
+
     def display_warning(self, warning):
         self.warnings.append(warning)
 
     def on_snapshot_reloaded(self, snapshot, queries=None):
         self.snapshot_reloaded.append((snapshot, queries))
+
+
+def wait_until(predicate, timeout=1.0, interval=0.01):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if predicate():
+            return True
+        time.sleep(interval)
+    return predicate()
 
 
 def create_backend_stack(with_event_controller: bool = True):
@@ -412,6 +447,12 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
             latex="true",
         )
 
+        self.assertTrue(
+            wait_until(
+                lambda: any(q.holding for q in queries.get_queries().values()),
+                timeout=1.0,
+            )
+        )
         query = next(iter(queries.get_queries().values()))
         self.assertTrue(query.holding)
         self.assertGreaterEqual(len(view.updated_queries), 1)
@@ -430,7 +471,7 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
                     "orientation": "HORIZONTAL",
                     "position": -0.6616768397300579,
                     "number_of_forward_lanes": 5,
-                    "number_of_backward_lanes": 5
+                    "number_of_backward_lanes": 5,
                 }
             ],
             "cars": [
@@ -445,7 +486,7 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
                     "length": 1,
                     "color": "lightblue",
                     "acceleration": 1.0,
-                    "next_turn": None
+                    "next_turn": None,
                 },
                 {
                     "uid": "ebf71e64-2e83-4676-92aa-fd0f03eea3ea",
@@ -458,7 +499,7 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
                     "length": 1,
                     "color": "lightblue",
                     "acceleration": 1.0,
-                    "next_turn": None
+                    "next_turn": None,
                 },
                 {
                     "uid": "9ff7e9b9-eaa7-40d7-a8d4-1abb44cc90b6",
@@ -471,7 +512,7 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
                     "length": 1,
                     "color": "lightblue",
                     "acceleration": 1.0,
-                    "next_turn": None
+                    "next_turn": None,
                 },
                 {
                     "uid": "86a78d09-091c-429a-b314-5fa5dafd044e",
@@ -484,8 +525,8 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
                     "length": 1,
                     "color": "lightblue",
                     "acceleration": 1.0,
-                    "next_turn": None
-                }
+                    "next_turn": None,
+                },
             ],
             "queries": [],
         }
@@ -507,14 +548,23 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
             should_only_evaluate_on_cars_lane=False,
             latex="forall x: ((x != a) => !<re{a} and re{x}>)",
         )
+
         # command_controller.add_umlsl_query(
         #     assigned_car_uid=car_a.uid,
         #     should_only_evaluate_on_cars_lane=False,
         #     latex="a != a",
         # )
         #
+        def is_holding():
+            queries_by_latex = {q.latex: q for q in queries.get_queries().values()}
+            target = queries_by_latex.get("forall x: ((x != a) => !<re{a} and re{x}>)")
+            return target is not None and target.holding
+
+        self.assertTrue(wait_until(is_holding, timeout=500.0))
         queries_by_latex = {q.latex: q for q in queries.get_queries().values()}
-        self.assertTrue(queries_by_latex["forall x: ((x != a) => !<re{a} and re{x}>)"].holding)
+        self.assertTrue(
+            queries_by_latex["forall x: ((x != a) => !<re{a} and re{x}>)"].holding
+        )
         # self.assertFalse(queries_by_latex["a != a"].holding)
 
     def test_parser_evaluates_true_and_negation(self):
@@ -564,7 +614,14 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
             latex="true",
         )
 
+        self.assertTrue(
+            wait_until(lambda: len(queries.get_queries()) == 1, timeout=1.0)
+        )
         command_controller.remove_road(road.uid)
+        self.assertTrue(
+            wait_until(lambda: len(queries.get_queries()) == 0, timeout=1.0)
+        )
+        self.assertTrue(wait_until(lambda: len(view.removed_queries) == 1, timeout=1.0))
 
         self.assertEqual(len(queries.get_queries()), 0)
         self.assertEqual(len(view.removed_queries), 1)
@@ -581,10 +638,93 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
             latex="true",
         )
 
+        self.assertTrue(
+            wait_until(lambda: len(queries.get_queries()) == 1, timeout=1.0)
+        )
         command_controller.remove_car(car.uid)
+        self.assertTrue(
+            wait_until(lambda: len(queries.get_queries()) == 0, timeout=1.0)
+        )
+        self.assertTrue(wait_until(lambda: len(view.removed_queries) == 1, timeout=1.0))
 
         self.assertEqual(len(queries.get_queries()), 0)
         self.assertEqual(len(view.removed_queries), 1)
+
+    def test_crossing_segment_node_and_claim_node(self):
+        settings, queries, snapshot, command_controller, _, _, view = create_backend_stack(
+            with_event_controller=True
+        )
+
+        # Add two roads that cross
+        command_controller.add_road(
+            name="RoadH",
+            orientation=RoadOrientation.HORIZONTAL,
+            position=0.0,
+            number_of_forward_lanes=1,
+            number_of_backward_lanes=0,
+        )
+        command_controller.add_road(
+            name="RoadV",
+            orientation=RoadOrientation.VERTICAL,
+            position=0.0,
+            number_of_forward_lanes=1,
+            number_of_backward_lanes=0,
+        )
+
+        road_h = next(r for r in snapshot.get_roads().values() if r.name == "RoadH")
+        road_v = next(r for r in snapshot.get_roads().values() if r.name == "RoadV")
+
+        # Add car at crossing
+        command_controller.add_car(
+            name="Car1",
+            assigned_road=road_h,
+            lane_index=0,
+            color="#ff0000",
+            position_on_lane=0.0,  # at crossing
+            transition=0.0,
+            speed=0.0,
+            length=4.0,
+            acceleration=0.0,
+            next_turn=None,
+        )
+
+        car = next(iter(snapshot.get_cars().values()))
+
+        # Query for crossing segment node
+        command_controller.add_umlsl_query(
+            assigned_car_uid=car.uid,
+            should_only_evaluate_on_cars_lane=True,
+            latex="cs",
+        )
+
+        # Wait for queries to be added
+        self.assertTrue(
+            wait_until(
+                lambda: len(queries.get_queries()) == 1,
+                timeout=5.0,
+            )
+        )
+
+        query_cs = next(q for q in queries.get_queries().values() if q.latex == "cs")
+        self.assertFalse(query_cs.holding)  # Horizon includes lane segments
+
+        # Query for claim node - should be false since no claims
+        command_controller.add_umlsl_query(
+            assigned_car_uid=car.uid,
+            should_only_evaluate_on_cars_lane=False,
+            latex="cl\\left(Car1\\right)",
+        )
+
+        # Wait for second query
+        self.assertTrue(
+            wait_until(
+                lambda: len(queries.get_queries()) == 2,
+                timeout=5.0,
+            )
+        )
+
+        query_cl = next(q for q in queries.get_queries().values() if "cl" in q.latex)
+        self.assertFalse(query_cl.holding)  # No claims
 
 
 if __name__ == "__main__":

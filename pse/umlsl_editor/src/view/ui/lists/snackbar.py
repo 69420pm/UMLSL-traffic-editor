@@ -56,7 +56,7 @@ class GreenSnackbar(QWidget):
         painter.setPen(Qt.NoPen)
         painter.drawRoundedRect(rect, 18, 18)
 
-    def show_message(self, message="", duration=3000):
+    def show_message(self, message: str = "", duration: int | None = 3000):
         self.text_label.setText(message)
         self.adjustSize()
 
@@ -70,7 +70,14 @@ class GreenSnackbar(QWidget):
         self.opacity_effect.setOpacity(1.0)
         self.raise_()
         self.show()
-        self.timer.start(duration)
+
+        if duration is None or duration <= 0:
+            self.timer.stop()
+        else:
+            self.timer.start(duration)
+
+    def hide_message(self):
+        self.fade_out()
 
     def fade_out(self):
         self.anim.setDuration(500)

@@ -278,12 +278,15 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def _on_car_added(self, car: Car):
         self.notify(TrafficSnapshotEventType.CAR_ADDED, car)
+        self.revalidate_queries()
 
     def _on_car_removed(self, car: Car):
         self.notify(TrafficSnapshotEventType.CAR_REMOVED, car)
+        self.revalidate_queries()
 
     def _on_car_updated(self, car: Car):
         self.notify(TrafficSnapshotEventType.CAR_UPDATED, car)
+        self.revalidate_queries()
 
     def _on_road_added(self, road: Road):
         self._recalculate_static_segments()
@@ -419,12 +422,10 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             raise ValueError(f"Car with uid {car.uid} already exists.")
         self._cars[car.uid] = car
         self._revalidate_cars()
-        self.revalidate_queries()
 
     def remove_car(self, car_uid: str) -> None:
         self._cars.pop(car_uid)
         self._revalidate_cars()
-        self.revalidate_queries()
 
     def update_car_with_params(self, car_uid: str, car_params: CarParams) -> None:
         car = self._cars.get(car_uid)
@@ -439,7 +440,6 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         car.update_from_params(car_params, self, self.settings_model)
         self._cars[car_uid] = car
         self._revalidate_cars()
-        self.revalidate_queries()
 
     def get_segment_from_lane_position(
             self, lane: Lane, position_on_lane: float
@@ -959,5 +959,4 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             del self._cars[car.uid]
 
     def revalidate_queries(self):
-        print("Revalidating queries...")
         self._queries_model.revalidate_queries(self)

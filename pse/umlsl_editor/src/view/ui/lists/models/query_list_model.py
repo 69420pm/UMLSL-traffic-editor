@@ -6,6 +6,7 @@ from PySide6.QtCore import QModelIndex, Qt
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
 
+from pse.umlsl_editor.src.model.entities.entity import Entity
 from pse.umlsl_editor.src.query.evaluator import ParserError, UMLSLEvaluator
 from pse.umlsl_editor.src.view.ui.lists.models.entity_list_model import EntityModel
 
@@ -16,6 +17,7 @@ class QueryListModel(EntityModel):
     EgoCarNameRole = EntityModel.NextRole + 2
     EgoCarColorRole = EntityModel.NextRole + 3
     LatexImageSourceRole = EntityModel.NextRole + 4
+    LoadingRole = EntityModel.NextRole + 5
 
     def __init__(
             self,
@@ -25,6 +27,7 @@ class QueryListModel(EntityModel):
 
         super().__init__(parent=parent)
         self._application_controller = application_controller
+        self._loading_by_uid: dict[str, bool] = {}
 
     def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
         return len(self._data)
@@ -45,6 +48,9 @@ class QueryListModel(EntityModel):
             return str(query.latex)
         elif role == QueryListModel.IsValidRole:
             return bool(query.holding)
+        elif role == QueryListModel.LoadingRole:
+            return bool(self._loading_by_uid.get(query.uid, False))
+
         elif role == QueryListModel.EgoCarNameRole:
             return str(ego_car.name) if ego_car else ""
         elif role == QueryListModel.EgoCarColorRole:
@@ -65,6 +71,34 @@ class QueryListModel(EntityModel):
 
         return None
 
+    def remove_entity(self, entity: Entity) -> None:
+        self._loading_by_uid.pop(entity.uid, None)
+        super().remove_entity(entity)
+
+    def clear_all(self) -> None:
+        self._loading_by_uid.clear()
+        super().clear_all()
+
+    def set_all_queries_loading(self) -> None:
+        for query in self._data:
+            self._loading_by_uid[query.uid] = True
+
+        if self._data:
+            first_index = self.index(0)
+            last_index = self.index(len(self._data) - 1)
+            self.dataChanged.emit(first_index, last_index, [QueryListModel.LoadingRole])
+
+    def set_query_loading(self, query_uid: str, is_loading: bool) -> None:
+        if is_loading:
+            self._loading_by_uid[query_uid] = True
+        else:
+            self._loading_by_uid.pop(query_uid, None)
+        row = self._get_row_by_uid(query_uid)
+        if row is None:
+            return
+        index = self.index(row)
+        self.dataChanged.emit(index, index, [QueryListModel.LoadingRole])
+
     def roleNames(self) -> dict[int, bytes]:
         """
         Return the mapping of role IDs to QML role names.
@@ -81,5 +115,6 @@ class QueryListModel(EntityModel):
             QueryListModel.EgoCarNameRole: b"role_ego_name",
             QueryListModel.EgoCarColorRole: b"role_ego_color",
             QueryListModel.LatexImageSourceRole: b"role_latex_image",
+            QueryListModel.LoadingRole: b"role_loading",
         })
         return roles
