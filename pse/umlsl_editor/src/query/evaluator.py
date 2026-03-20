@@ -11,15 +11,15 @@ class UMLSLEvaluator:
     def __init__(self, traffic_snapshot: TrafficSnapshotReader):
         self._traffic_snapshot = traffic_snapshot
 
-    def parse_ast(self, latex_string: str, ego: Car) -> ParsedUMLSLQuery:
+    def parse_ast(self, query: str, ego: Car) -> ParsedUMLSLQuery:
         """
         Parses a UMLSL query from a string and returns the ParsedUMLSLQuery.
         """
-        tokens = Lexer(latex_string).tokenize()
+        tokens = Lexer(query).tokenize()
         try:
             return ASTParser(self._traffic_snapshot, ego, tokens).parse_query()
         except ASTParserError as e:
-            raise ParserError(e, latex_string, tokens, e.scope_start, e.scope_end)
+            raise ParserError(e, query, tokens, e.scope_start, e.scope_end)
 
 
 class ParserError(Exception):
