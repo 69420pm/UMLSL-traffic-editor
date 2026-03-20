@@ -8,6 +8,9 @@ if typing.TYPE_CHECKING:
 
 
 class CrossingSegmentNode(AtomNode):
+    """
+    The CrossingSegmentNode is a unary node that evaluates to true if all segments in the View are crossing segments.
+    """
     def __init__(self):
         super().__init__("cs")
 

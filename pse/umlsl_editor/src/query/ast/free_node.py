@@ -9,6 +9,9 @@ if typing.TYPE_CHECKING:
 
 
 class FreeNode(AtomNode):
+    """
+    The FreeNode evaluates to true if the horizon if no car intersects the View.
+    """
     def __init__(self):
         super().__init__("free")
 
@@ -17,6 +20,10 @@ class FreeNode(AtomNode):
             return False
 
         horizon = view.horizon
+        # We shrink the horizon a little bit to avoid conflicts with "{reserve, claim} hchop free" (since on the boundary,
+        # they won't evaluate true). Therefore, hchop would not be able to detect the collision directly (when evaluated
+        # specifically at the boundaries) but only when iterating through the horizon with a certain step size - lowering
+        # the precision to detect such instances.
         horizon_reduction = 0.001
 
         smaller_start = horizon.start + horizon_reduction

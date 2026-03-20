@@ -11,6 +11,10 @@ if typing.TYPE_CHECKING:
 
 
 class ReserveNode(AtomNode):
+    """
+    A ReserveNode is a unary node that evaluates to true if the horizon is fully covered by the reserved segments of the
+    given car.
+    """
     def __init__(self, car_resolve: CarResolve):
         super().__init__(f"re\\left({car_resolve.name}\\right)")
         self._car_resolve = car_resolve

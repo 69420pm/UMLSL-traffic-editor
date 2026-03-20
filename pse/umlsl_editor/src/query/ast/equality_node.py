@@ -10,6 +10,10 @@ if typing.TYPE_CHECKING:
 
 
 class CarEqualityNode(AtomNode):
+    """
+    The CarEqualityNode is a unary node that evaluates to true if the specified cars are equal (in the sense of being
+    the same object).
+    """
     def __init__(self, car_resolve1: CarResolve, car_resolve2: CarResolve):
         super().__init__(f"{car_resolve1.name} = {car_resolve2.name}")
         self._car_resolve1 = car_resolve1
@@ -21,6 +25,10 @@ class CarEqualityNode(AtomNode):
 
 
 class CarNotEqualsNode(AtomNode):
+    """
+    The CarNotEqualsNode is a unary node that evaluates to true if the specified cars are not equal (in the sense of
+    being the same object).
+    """
     def __init__(self, car_resolve1: CarResolve, car_resolve2: CarResolve):
         super().__init__(f"{car_resolve1.name} \\neq {car_resolve2.name}")
         self._car_resolve1 = car_resolve1

@@ -110,7 +110,7 @@ class EnvironmentCreation:
             path_segments_size,
             self.car_params.length
         )
-        horizon = self._compute_horizon(pos_segment_behind, path_segment_intervals)
+        horizon_of_path = self._compute_horizon(pos_segment_behind, path_segment_intervals)
         physical_segment_intervals: list[SegmentInterval] = compute_physical_segment_intervals(
             self.ts,
             unbounded_path_segments,
@@ -129,10 +129,10 @@ class EnvironmentCreation:
             turn_segment = end_lane
             turn_direction = TurnDirection.STRAIGHT
 
-        parallel_virtual_lanes, path_virtual_lane = self.compute_parallel_virtual_lanes_intervals(
+        parallel_virtual_lanes, path_virtual_lane, horizon = self.compute_parallel_virtual_lanes_intervals(
             unbounded_path_segments,
             path_segment_intervals,
-            horizon,
+            horizon_of_path,
             turn_segment,
             turn_direction
         )
@@ -176,19 +176,23 @@ class EnvironmentCreation:
             self,
             unbounded_path: list[Segment],
             path_segment_intervals: list[SegmentInterval],
-            horizon: Interval,
+            horizon_of_path: Interval,
             turn_segment: LaneSegment,
             turn_direction: TurnDirection
-    ) -> tuple[list[list[VirtualLane]], VirtualLane]:
+    ) -> tuple[list[list[VirtualLane]], VirtualLane, Interval]:
         """
         Computes the parallel virtual lanes with each segment being equipped with an interval information.
 
         Args:
             unbounded_path: the unbounded path pursuit by the car
             path_segment_intervals: the segment intervals of the pursuit path by the car
-            horizon: the horizon of the car
+            horizon_of_path: the horizon of the car in its pursuit path
             turn_segment: the turn segment of the car
             turn_direction: the turn direction of the car
+        Returns: parallel_virtual_lanes, path_virtual_lane, horizon
+            parallel_virtual_lanes: the parallel virtual lanes
+            path_virtual_lane: the virtual lane of the path of the car
+            horizon: the horizon of the parallel virtual lanes
         """
 
         # We first compute the (unbounded) parallel virtual lanes segments (each segment is not yet equipped with its
@@ -201,29 +205,34 @@ class EnvironmentCreation:
         # since the *length behind the crossing* of the path of ego [lane1, cs, cs, cs, lane2] will be less than
         # in the virtual lane [other_lane, cs, lane2]. That means ego will see further on lane2 in the second virtual lane
         # than on the first virtual lane.
+        # Most importantly, using ego's horizon may result in ego not seeing over the full crossing on some parallel
+        # virtual lane.
         # To solve this problem, we only measure the distance the car travels on lane segments. Concretely, we compute
-        # the distance on lane segments in ego's path. We then iterate through the other virtual-lanes and cut off the
-        # path segments whenever the distance on lane segments exceeds that of ego's path.
+        # the distance on lane segments in ego's path. We then compute the parallel virtual lanes and take the maximum
+        # horizon, so the car will see the full crossing in all virtual lanes.
         lane_dist_in_path: float = 0.0
         for path_segment_interval in path_segment_intervals:
             if path_segment_interval.segment.is_lane_segment:
                 lane_dist_in_path += path_segment_interval.interval.length()
 
         parallel_virtual_lanes_intervals: list[list[VirtualLane]] = []
+        max_horizon: Interval = horizon_of_path
         for parallel_segment in parallel_segments:
             virtual_lanes: list[VirtualLane] = []
 
             for segment_list in parallel_segment:
-                virtual_lane = self._segments_to_virtual_lane(segment_list, horizon, lane_dist_in_path)
+                virtual_lane, horizon = self._segments_to_virtual_lane(segment_list, horizon_of_path, lane_dist_in_path)
                 virtual_lanes.append(virtual_lane)
+                if max_horizon.length() <= horizon.length():
+                    max_horizon = horizon
 
             parallel_virtual_lanes_intervals.append(virtual_lanes)
 
-        path_virtual_lane = self._segments_to_virtual_lane(unbounded_path, horizon, lane_dist_in_path)
-        return parallel_virtual_lanes_intervals, path_virtual_lane
+        path_virtual_lane, _ = self._segments_to_virtual_lane(unbounded_path, horizon_of_path, lane_dist_in_path)
+        return parallel_virtual_lanes_intervals, path_virtual_lane, max_horizon
 
     def _segments_to_virtual_lane(self, segments: list[Segment], horizon_on_lane: Interval,
-                                  max_dist_on_lanes: float) -> VirtualLane:
+                                  max_dist_on_lanes: float) -> tuple[VirtualLane, Interval]:
         current_pos = horizon_on_lane.start
         dist_on_lanes: float = 0.0
 
@@ -250,9 +259,9 @@ class EnvironmentCreation:
 
             current_pos += segment_length
 
-        # horizon_of_virtual_lane: Interval = self._compute_horizon(current_pos, segment_intervals)
+        horizon_of_virtual_lane: Interval = self._compute_horizon(current_pos, segment_intervals)
 
-        return VirtualLane(segment_intervals)
+        return VirtualLane(segment_intervals), horizon_of_virtual_lane
 
     def _compute_parallel_virtual_lanes(
             self, path: list[Segment],

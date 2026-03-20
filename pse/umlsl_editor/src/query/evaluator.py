@@ -5,10 +5,16 @@ from pse.umlsl_editor.src.query.lexer import Lexer, Token
 
 
 class UMLSLEvaluator:
+    """
+    The UMLSLEvaluator "acts as an API" to evaluate UMLSL queries.
+    """
     def __init__(self, traffic_snapshot: TrafficSnapshotReader):
         self._traffic_snapshot = traffic_snapshot
 
     def parse_ast(self, latex_string: str, ego: Car) -> ParsedUMLSLQuery:
+        """
+        Parses a UMLSL query from a string and returns the ParsedUMLSLQuery.
+        """
         tokens = Lexer(latex_string).tokenize()
         try:
             return ASTParser(self._traffic_snapshot, ego, tokens).parse_query()
@@ -17,6 +23,18 @@ class UMLSLEvaluator:
 
 
 class ParserError(Exception):
+    """
+    A ParserError is raised when the ASTParser fails to parse a UMLSL query.
+    It converts an ASTParserError into a ParserError since the ASTParserError acts on the token level, whereas the
+    ParserError converts the tokens back into information about the input string of the user.
+
+    Attributes:
+        input: the input query of the user
+        reason: the reason the parser failed
+        help: the help message to display to the user
+        scope_start: the index *in the input string of the user* where the error starts (inclusive)
+        scope_end: the index *in the input string of the user* where the error ends (inclusive)
+    """
     def __init__(
             self,
             ast_parser_error: ASTParserError,

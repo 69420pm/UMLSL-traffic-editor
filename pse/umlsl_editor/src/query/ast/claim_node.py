@@ -9,6 +9,10 @@ if typing.TYPE_CHECKING:
 
 
 class ClaimNode(AtomNode):
+    """
+    The ClaimNode is a unary node used to check for the existence of a claimed segments of the specified car in
+    ego's view.
+    """
     def __init__(self, car_resolve: CarResolve):
         super().__init__(f"cl\\left({car_resolve.name}\\right)")
         self._car_resolve = car_resolve

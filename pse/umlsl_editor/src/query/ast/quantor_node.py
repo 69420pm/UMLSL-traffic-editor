@@ -8,6 +8,10 @@ if typing.TYPE_CHECKING:
 
 
 class ExistsNode(UnaryNode):
+    """
+    The ExistsNode is a unary node that evaluates to true if the specified variable holds for at least one car.
+    Note that we only iterate through the visible cars of ego.
+    """
     def __init__(self, variable: str, child: ASTNode):
         super().__init__(child)
         self._variable = variable
@@ -29,6 +33,10 @@ class ExistsNode(UnaryNode):
 
 
 class ForallNode(UnaryNode):
+    """
+    The ForallNode is a unary node that evaluates to true if the specified variable holds for all cars.
+    Note that we only iterate through the visible cars of ego.
+    """
     def __init__(self, variable: str, child: ASTNode):
         super().__init__(child)
         self._variable = variable
