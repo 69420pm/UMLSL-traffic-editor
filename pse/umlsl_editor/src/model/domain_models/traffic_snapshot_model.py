@@ -18,7 +18,6 @@ from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import (
 )
 from pse.umlsl_editor.src.model.entities.car import Car, CarParams
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation, RoadParams
-from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQueryParams
 from pse.umlsl_editor.src.model.errors.car_errors import (
     CarTrafficSnapshotContextValidationError,
 )
@@ -960,19 +959,5 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             del self._cars[car.uid]
 
     def revalidate_queries(self):
-        from pse.umlsl_editor.src.query.evaluator import UMLSLEvaluator
-        self.validator.validate_queries(self._queries_model)
-        umlsl_evaluator = UMLSLEvaluator(self)
-        for query in self._queries_model.queries.values():
-            ego = self._cars.get(query.assigned_car_uid)
-            evaluate_ego_lane_only = query.should_only_evaluate_on_cars_lane
-            holding = umlsl_evaluator.parse_ast(query.latex, ego).evaluate(evaluate_ego_lane_only)
-            new_query_params = UMLSLQueryParams(
-                latex=query.latex,
-                holding=holding,
-                should_only_evaluate_on_cars_lane=evaluate_ego_lane_only,
-                assigned_car_uid=ego.uid
-            )
-            # TODO: MAKE BETTER
-            if query.holding != new_query_params.holding or query.latex != new_query_params.latex or query.assigned_car_uid != new_query_params.assigned_car_uid:
-                self._queries_model.update_umlsl_query(query, new_query_params)
+        print("Revalidating queries...")
+        self._queries_model.revalidate_queries(self)

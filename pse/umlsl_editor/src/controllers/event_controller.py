@@ -112,10 +112,8 @@ class EventController:
         """
         # Route events to appropriate view methods
         if event_type == SettingsEventType.CHANGE_BRAKING_DECELERATION:
-            # TODO: Reevaluate queries, update frontend
             pass
         elif event_type == SettingsEventType.CHANGE_MAX_SPEED:
-            # TODO: Reevaluate queries, update frontend
             pass
 
     def _on_umlsl_query_event(self, event_type: Enum, data) -> None:
@@ -135,6 +133,13 @@ class EventController:
             self._view.remove_query_view(data)
         elif event_type == UMLSLQueriesEventType.UMLSL_QUERY_UPDATED:
             self._view.update_query_view(data)
-           # self._traffic_snapshot.revalidate_queries()
+        # self._traffic_snapshot.revalidate_queries()
         elif event_type == UMLSLQueriesEventType.UMLSL_QUERY_WARNING:
-            self._view.display_warning(data)
+            # Error handling
+            pass
+        elif event_type == UMLSLQueriesEventType.UMLSL_QUERY_LOADING:
+            self._view.loading_query_view(data)
+        elif event_type == UMLSLQueriesEventType.UMLSL_QUERIES_REVALIDATION_STARTED:
+            self._view.revalidation_started()
+        elif event_type == UMLSLQueriesEventType.UMLSL_QUERIES_REVALIDATION_FINISHED:
+            self._view.revalidation_finished()

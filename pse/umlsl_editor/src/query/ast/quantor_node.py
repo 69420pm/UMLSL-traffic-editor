@@ -1,6 +1,10 @@
+import typing
+
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.query.ast.ast import UnaryNode, ASTNode, View, Precedence
+
+if typing.TYPE_CHECKING:
+    from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 
 
 class ExistsNode(UnaryNode):
@@ -22,6 +26,7 @@ class ExistsNode(UnaryNode):
 
     def _format(self, child: str) -> str:
         return f"\\exists {self._variable}: {child}"
+
 
 class ForallNode(UnaryNode):
     def __init__(self, variable: str, child: ASTNode):

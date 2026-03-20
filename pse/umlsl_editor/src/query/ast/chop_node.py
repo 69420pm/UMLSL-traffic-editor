@@ -1,6 +1,10 @@
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
+import typing
+
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.query.ast.ast import View, BinaryNode, Precedence, ASTNode
+
+if typing.TYPE_CHECKING:
+    from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 
 SMALLEST_STEP_SIZE = 0.4
 
@@ -81,7 +85,8 @@ class HorizontalChopNode(BinaryNode):
         if left_eval:
             right_eval = self._right.evaluate(traffic_snapshot, right_view, variable_car_map)
             if right_eval:
-                print(f"hchop: evaluated true on {left_view.horizon} ({self.latex_left}) and {right_view.horizon} ({self.latex_right})")
+                print(
+                    f"hchop: evaluated true on {left_view.horizon} ({self.latex_left}) and {right_view.horizon} ({self.latex_right})")
                 return True
 
         return False

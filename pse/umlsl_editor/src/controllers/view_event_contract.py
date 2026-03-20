@@ -112,6 +112,24 @@ class ViewEventHandler(QObject):
         pass
 
     @abstractmethod
+    def loading_query_view(self, query: UMLSLQuery) -> None:
+        """
+        Handle the loading of a UMLSL query (e.g., when a snapshot is reloaded).
+
+        Args:
+            query: The UMLSL query that is being loaded.
+        """
+        pass
+
+    @abstractmethod
+    def revalidation_started(self) -> None:
+        pass
+
+    @abstractmethod
+    def revalidation_finished(self) -> None:
+        pass
+
+    @abstractmethod
     def on_snapshot_reloaded(self, snapshot: Any, queries: Any) -> None:
         """
         Handle a bulk snapshot reload event.
@@ -167,8 +185,6 @@ class ViewEventHandler(QObject):
         The signal should carry a boolean indicating whether the snapshot has unsaved changes.
         """
         pass
-
-
 
     @abstractmethod
     def get_on_toggle_coordinate_system_signal(self) -> "SignalInstance":

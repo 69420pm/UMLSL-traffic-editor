@@ -1,9 +1,11 @@
 """Event type enums for the observer pattern implementation."""
+
 from enum import Enum, auto
 
 
 class TrafficSnapshotEventType(Enum):
     """Event types emitted by TrafficSnapshot."""
+
     CAR_ADDED = auto()
     CAR_REMOVED = auto()
     CAR_UPDATED = auto()
@@ -21,19 +23,25 @@ class TrafficSnapshotEventType(Enum):
 
 class SettingsEventType(Enum):
     """Event types emitted by Settings."""
+
     CHANGE_BRAKING_DECELERATION = auto()
     CHANGE_MAX_SPEED = auto()
 
 
 class UMLSLQueriesEventType(Enum):
     """Event types emitted by UMLSLQueries."""
+
     UMLSL_QUERY_ADDED = auto()
     UMLSL_QUERY_REMOVED = auto()
     UMLSL_QUERY_UPDATED = auto()
     UMLSL_QUERY_WARNING = auto()
+    UMLSL_QUERY_LOADING = auto()
+    UMLSL_QUERIES_REVALIDATION_STARTED = auto()
+    UMLSL_QUERIES_REVALIDATION_FINISHED = auto()
 
 
 class SelectionEventType(Enum):
     """Event types emitted by SelectionModel."""
+
     ENTITY_SELECTED = auto()
     SELECTION_CLEARED = auto()

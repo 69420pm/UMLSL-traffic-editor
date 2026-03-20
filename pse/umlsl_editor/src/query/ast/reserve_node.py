@@ -1,9 +1,13 @@
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
+import typing
+
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.query.ast.ast import View, AtomNode
 from pse.umlsl_editor.src.query.ast.car_resolve import CarResolve
+
+if typing.TYPE_CHECKING:
+    from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 
 
 class ReserveNode(AtomNode):
