@@ -128,7 +128,7 @@ class EventController:
         if event_type == UMLSLQueriesEventType.UMLSL_QUERY_ADDED:
             self._view.add_query_view(data)
             # TODO: Make clean
-            # self._traffic_snapshot.revalidate_queries()
+            self._traffic_snapshot.revalidate_queries()
         elif event_type == UMLSLQueriesEventType.UMLSL_QUERY_REMOVED:
             self._view.remove_query_view(data)
         elif event_type == UMLSLQueriesEventType.UMLSL_QUERY_UPDATED:
@@ -139,3 +139,7 @@ class EventController:
             pass
         elif event_type == UMLSLQueriesEventType.UMLSL_QUERY_LOADING:
             self._view.loading_query_view(data)
+        elif event_type == UMLSLQueriesEventType.UMLSL_QUERIES_REVALIDATION_STARTED:
+            self._view.revalidation_started()
+        elif event_type == UMLSLQueriesEventType.UMLSL_QUERIES_REVALIDATION_FINISHED:
+            self._view.revalidation_finished()

@@ -78,6 +78,15 @@ class ViewEventHandlerImplementation(ViewEventHandler):
 
     def loading_query_view(self, query: UMLSLQuery) -> None:
         # TODO @matze
+        print('finished loading query')
+        pass
+
+    def revalidation_finished(self) -> None:
+        print('finished revalidation')
+        pass
+
+    def revalidation_started(self) -> None:
+        print('started revalidation')
         pass
 
     def on_snapshot_reloaded(self, snapshot, queries=None) -> None:

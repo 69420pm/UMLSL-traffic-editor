@@ -122,6 +122,14 @@ class ViewEventHandler(QObject):
         pass
 
     @abstractmethod
+    def revalidation_started(self) -> None:
+        pass
+
+    @abstractmethod
+    def revalidation_finished(self) -> None:
+        pass
+
+    @abstractmethod
     def on_snapshot_reloaded(self, snapshot: Any, queries: Any) -> None:
         """
         Handle a bulk snapshot reload event.
