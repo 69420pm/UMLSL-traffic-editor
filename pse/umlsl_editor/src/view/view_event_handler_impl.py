@@ -96,19 +96,6 @@ class ViewEventHandlerImplementation(ViewEventHandler):
     def revalidation_started(self) -> None:
         self.view_models.query_list_model.set_all_queries_loading()
 
-    def loading_query_view(self, query: UMLSLQuery) -> None:
-        # TODO @matze
-        print('finished loading query')
-        pass
-
-    def revalidation_finished(self) -> None:
-        print('finished revalidation')
-        pass
-
-    def revalidation_started(self) -> None:
-        print('started revalidation')
-        pass
-
     def on_snapshot_reloaded(self, snapshot, queries=None) -> None:
         if queries is None and isinstance(snapshot, dict):
             snapshot_model = snapshot.get("snapshot")
