@@ -138,7 +138,7 @@ class EventController:
             pass
         elif event_type == UMLSLQueriesEventType.UMLSL_QUERY_LOADING:
             self._view.loading_query_view(data)
-        elif event_type == UMLSLQueriesEventType.UMLSL_QUERIES_REVALIDATION_STARTED:
-            self._view.revalidation_started()
-        elif event_type == UMLSLQueriesEventType.UMLSL_QUERIES_REVALIDATION_FINISHED:
-            self._view.revalidation_finished()
+        # elif event_type == UMLSLQueriesEventType.UMLSL_QUERIES_REVALIDATION_STARTED:
+        #     self._view.revalidation_started()
+        # elif event_type == UMLSLQueriesEventType.UMLSL_QUERIES_REVALIDATION_FINISHED:
+        #     self._view.revalidation_finished()
