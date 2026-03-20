@@ -8,7 +8,7 @@ perpendicular roads, including a background and lane grid.
 from typing import Optional, Tuple
 
 from PySide6.QtCore import QPointF, QRectF, Qt
-from PySide6.QtGui import QBrush, QPainter, QPen, QColor
+from PySide6.QtGui import QBrush, QColor, QPainter, QPen
 from PySide6.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation
@@ -47,21 +47,21 @@ class CrossingItem(QGraphicsItem):
         """
         super().__init__()
 
-        self.road_1 = road_1
-        self.road_2 = road_2
+        self._road_a = road_1
+        self._road_b = road_2
         self._rect = QRectF()
 
         # Graphic resources
 
-        transparent_white = QColor(255, 255, 255, 127)
+        grid_color = QColor(255, 255, 255, 127)
 
-        self._grid_pen = QPen(transparent_white, CrossingItemStyle.PEN_WIDTH)
+        self._grid_pen = QPen(grid_color, CrossingItemStyle.PEN_WIDTH)
         self._grid_pen.setStyle(Qt.DashLine)
         self._grid_pen.setDashPattern(CrossingItemStyle.DASH_PATTERN)
 
         # Register listeners for road position updates.
-        self.road_1.add_position_listener(self)
-        self.road_2.add_position_listener(self)
+        self._road_a.add_position_listener(self)
+        self._road_b.add_position_listener(self)
 
         # Initial geometry calculation.
         self.refresh_geometry()
@@ -71,10 +71,10 @@ class CrossingItem(QGraphicsItem):
         Disconnects listeners.
         Must be called by the Scene before removing this item.
         """
-        if self.road_1:
-            self.road_1.remove_position_listener(self)
-        if self.road_2:
-            self.road_2.remove_position_listener(self)
+        if self._road_a:
+            self._road_a.remove_position_listener(self)
+        if self._road_b:
+            self._road_b.remove_position_listener(self)
 
     # -------------------------------------------------------------------------
     # Visual State
@@ -82,12 +82,12 @@ class CrossingItem(QGraphicsItem):
 
     def _update_z_value(self) -> None:
         """Update the Z-order based on selection state of connected roads."""
-        is_selected = self.road_1.is_selected or self.road_2.is_selected
+        is_selected = self._road_a.is_selected or self._road_b.is_selected
         self.setZValue(Z_LAYERS.SELECTED_CROSSING if is_selected else Z_LAYERS.CROSSING)
 
     def _get_brush_color(self) -> QBrush:
         """Returns background color based on selection state."""
-        is_selected = self.road_1.is_selected or self.road_2.is_selected
+        is_selected = self._road_a.is_selected or self._road_b.is_selected
         color = COLORS.LAYER.lighter() if is_selected else COLORS.LAYER
         return QBrush(color)
 
@@ -192,9 +192,9 @@ class CrossingItem(QGraphicsItem):
 
     def _identify_road_orientations(self) -> Tuple[RoadItem, RoadItem]:
         """Returns (Horizontal_Item, Vertical_Item)."""
-        if self.road_1.data(0).orientation == RoadOrientation.HORIZONTAL:
-            return self.road_1, self.road_2
-        return self.road_2, self.road_1
+        if self._road_a.data(0).orientation == RoadOrientation.HORIZONTAL:
+            return self._road_a, self._road_b
+        return self._road_b, self._road_a
 
     def _get_road_transverse_bounds(
             self,

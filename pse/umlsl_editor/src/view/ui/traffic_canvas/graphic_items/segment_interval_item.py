@@ -1,16 +1,22 @@
 from typing import Optional
 
-from PySide6.QtCore import QRectF, QPointF
-from PySide6.QtGui import QPainter, Qt, QColor, QPen, QBrush, QPainterPath, QPolygonF
+from PySide6.QtCore import QPointF, QRectF
+from PySide6.QtGui import QBrush, QColor, QPainter, QPainterPath, QPen, QPolygonF, Qt
 from PySide6.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
 from pse.umlsl_editor.src.controllers import ApplicationController
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
-from pse.umlsl_editor.src.view.view_constants import Z_LAYERS, COLORS, DIMENSION
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import (
+    CrossingSegment,
+)
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import (
+    LaneSegment,
+)
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import (
+    SegmentInterval,
+)
+from pse.umlsl_editor.src.view.view_constants import COLORS, DIMENSION, Z_LAYERS
 
 
 class SegmentIntervalItem(QGraphicsItem):
@@ -71,7 +77,7 @@ class SegmentIntervalItem(QGraphicsItem):
         else:
             painter.drawRect(self._rect)
 
-    def refresh_geometry(self):
+    def refresh_geometry(self) -> None:
         self.prepareGeometryChange()
 
         reader = self.application_controller.get_traffic_snapshot_reader()
@@ -90,12 +96,16 @@ class SegmentIntervalItem(QGraphicsItem):
             is_horizontal = road.orientation == RoadOrientation.HORIZONTAL
 
         if isinstance(self.segment_interval.segment, CrossingSegment):
-            cs = self.segment_interval.segment
-            hr, vr = cs.horizontal_lane, cs.vertical_lane
-            if (hr == self.lane_start and vr == self.lane_end) or (hr == self.lane_end and vr == self.lane_start):
+            crossing_segment = self.segment_interval.segment
+            horizontal_lane = crossing_segment.horizontal_lane
+            vertical_lane = crossing_segment.vertical_lane
+            if (
+                (horizontal_lane == self.lane_start and vertical_lane == self.lane_end)
+                or (horizontal_lane == self.lane_end and vertical_lane == self.lane_start)
+            ):
                 is_corner = True
             else:
-                is_horizontal = hr in (self.lane_start, self.lane_end)
+                is_horizontal = horizontal_lane in (self.lane_start, self.lane_end)
 
         self._path = QPainterPath()
         self._path.setFillRule(Qt.WindingFill)
@@ -123,15 +133,15 @@ class SegmentIntervalItem(QGraphicsItem):
             final_hx, final_hy, final_hw, final_hh = hx, hy, hw, hh
             final_vx, final_vy, final_vw, final_vh = vx, vy, vw, vh
 
-            h_is_entry = (self.lane_start == hr)
-            if self.lane_start != hr and self.lane_start != vr:
-                h_is_entry = (self.car.lane.road.orientation == RoadOrientation.HORIZONTAL)
+            horizontal_is_entry = (self.lane_start == horizontal_lane)
+            if self.lane_start != horizontal_lane and self.lane_start != vertical_lane:
+                horizontal_is_entry = (self.car.lane.road.orientation == RoadOrientation.HORIZONTAL)
 
             is_reverse = self.car.speed < 0
-            h_moves_right = (hr.lane_index >= 0) != is_reverse
-            v_moves_down = (vr.lane_index >= 0) != is_reverse
+            h_moves_right = (horizontal_lane.lane_index >= 0) != is_reverse
+            v_moves_down = (vertical_lane.lane_index >= 0) != is_reverse
 
-            if h_is_entry:
+            if horizontal_is_entry:
                 keep_left_arm = h_moves_right
                 keep_top_arm = not v_moves_down
             else:

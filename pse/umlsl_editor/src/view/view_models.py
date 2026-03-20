@@ -1,12 +1,12 @@
 from typing import TYPE_CHECKING
 
+from pse.umlsl_editor.src.view.ui.lists.models.car_list_model import CarModel
 from pse.umlsl_editor.src.view.ui.lists.models.query_list_model import QueryListModel
+from pse.umlsl_editor.src.view.ui.lists.models.road_list_model import RoadListModel
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
-
-from pse.umlsl_editor.src.view.ui.lists.models.car_list_model import CarModel
-from pse.umlsl_editor.src.view.ui.lists.models.road_list_model import RoadListModel
+    from pse.umlsl_editor.src.controllers.view_event_contract import ViewEventHandler
 
 
 class ViewModels:
@@ -15,7 +15,7 @@ class ViewModels:
         self.road_list_model = RoadListModel(application_controller=application_controller)
         self.query_list_model = QueryListModel(application_controller=application_controller)
 
-    def connect_signals(self, view_event_handler) -> None:
+    def connect_signals(self, view_event_handler: "ViewEventHandler") -> None:
         self.car_list_model.connect_signal(view_event_handler)
         self.road_list_model.connect_signal(view_event_handler)
         self.query_list_model.connect_signal(view_event_handler)

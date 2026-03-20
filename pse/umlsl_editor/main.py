@@ -12,10 +12,10 @@ from PySide6.QtWidgets import QApplication
 from pse.umlsl_editor.src.commands.command import CommandValidationError
 from pse.umlsl_editor.src.controllers import ApplicationController
 from pse.umlsl_editor.src.model.errors.errors import BaseError
-from pse.umlsl_editor.src.view.ui.exeption_handling.exeption_handler import (
+from pse.umlsl_editor.src.view.ui.exception_handling.exception_handler import (
     ExceptionHandler,
 )
-from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+from pse.umlsl_editor.src.view.ui.exception_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.main_window import MainWindow
 
 

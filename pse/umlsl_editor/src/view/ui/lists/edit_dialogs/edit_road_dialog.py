@@ -14,7 +14,7 @@ from pse.umlsl_editor.src.model.errors.road_errors import (
     RoadTrafficSnapshotContextValidationError,
     RoadValidationError,
 )
-from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+from pse.umlsl_editor.src.view.ui.exception_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.lists.deletion_checks import (
     get_road_deletion_block_reason,
     get_road_lane_change_block_reason,
@@ -93,7 +93,7 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
             WarningDialog("Cannot delete road", block_reason, self).exec()
             return
         # Confirm deletion with the user
-        confirm = ConfirmDeletionDialog(
+        dialog_result = ConfirmDeletionDialog(
             f"Delete road '{self._road.name}'?",
             self,
             title="Confirm deletion",
@@ -101,7 +101,7 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
             cancel_text="Cancel",
         ).exec()
 
-        if confirm == 1:
+        if dialog_result == QDialog.DialogCode.Accepted:
             # Defer deletion to next event loop iteration to allow QML signal
             # handlers to complete before the underlying data is destroyed.
             road_uid = self._road.uid

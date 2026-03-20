@@ -11,12 +11,19 @@ from pse.umlsl_editor.src.model.errors.car_errors import (
     CarTrafficSnapshotContextValidationError,
     CarValidationError,
 )
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import CrossingSegment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
-from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment import (
+    CrossingSegment,
+)
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import (
+    LaneSegment,
+)
+from pse.umlsl_editor.src.view.ui.exception_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import RoadItem
-from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.segment_interval_item import PathSegmentItem, \
-    ReservedSegmentItem, ClaimedSegmentItem
+from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.segment_interval_item import (
+    ClaimedSegmentItem,
+    PathSegmentItem,
+    ReservedSegmentItem,
+)
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.selectable_graphics_item import (
     SelectableGraphicsItem,
 )
@@ -270,14 +277,12 @@ class CarItem(SelectableGraphicsItem):
 
         # Determine lateral direction/offset logic
         vert_mod = 1 if is_vertical else -1
-        dir_mod = -1 if is_backward else 1
 
-        center_offset = (lane_idx * lane_w * vert_mod) + \
-                        (lane_w / 2.0 * vert_mod) \
- \
-            # If the car has claimed lanes, apply the transition offset to shift towards the claimed lane.
-        if len(car.environment.claimed) > 0:
-            center_offset += (car.transition * lane_w)
+        center_offset = (lane_idx * lane_w * vert_mod) + (lane_w / 2.0 * vert_mod)
+
+        # If the car has claimed lanes, apply the transition offset to shift towards the claimed lane.
+        if car.environment.claimed:
+            center_offset += car.transition * lane_w
 
         road_base = road.position + (self._road_item.x() if is_vertical else self._road_item.y())
         lat_pos = road_base + center_offset

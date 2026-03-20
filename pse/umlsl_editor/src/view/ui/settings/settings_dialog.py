@@ -36,46 +36,59 @@ class SettingsDialog(QDialog, Ui_Settings_Dialog):
         self._application_controller = application_controller
         self.setupUi(self)
 
-        self.c_coordinate_system.clicked.connect(self._on_toggle_coordinate_system)
-        self.c_coordinate_system.setChecked(
-            self._application_controller.view_event_handler.should_render_coordinate_system)
+        self._coordinate_system_checkbox = self.c_coordinate_system
+        self._grid_checkbox = self.c_grid
+        self._safety_distance_checkbox = self.c_savty_space
+        self._braking_spinbox = self.s_braking
+        self._max_speed_spinbox = self.s_accerleration
 
-        self.c_grid.clicked.connect(self._on_toggle_grid)
-        self.c_grid.setChecked(self._application_controller.view_event_handler.should_render_grid)
+        self._coordinate_system_checkbox.clicked.connect(self._on_toggle_coordinate_system)
+        self._coordinate_system_checkbox.setChecked(
+            self._application_controller.view_event_handler.should_render_coordinate_system
+        )
 
-        self.c_savty_space.clicked.connect(self._on_toggle_safety_distance)
-        self.c_savty_space.setChecked(self._application_controller.view_event_handler.should_render_safety_distance)
+        self._grid_checkbox.clicked.connect(self._on_toggle_grid)
+        self._grid_checkbox.setChecked(self._application_controller.view_event_handler.should_render_grid)
 
-        self.s_braking.setValue(self._application_controller.command_controller.settings_model.braking_acceleration)
-        self.s_braking.valueChanged.connect(self._on_braking_changed)
-        self.s_accerleration.setValue(self._application_controller.command_controller.settings_model.max_speed)
-        self.s_accerleration.valueChanged.connect(self._on_max_speed_changed)
+        self._safety_distance_checkbox.clicked.connect(self._on_toggle_safety_distance)
+        self._safety_distance_checkbox.setChecked(
+            self._application_controller.view_event_handler.should_render_safety_distance
+        )
 
-        # TODO in Testingphase: Implement toggle
+        self._braking_spinbox.setValue(
+            self._application_controller.command_controller.settings_model.braking_acceleration
+        )
+        self._braking_spinbox.valueChanged.connect(self._on_braking_changed)
+        self._max_speed_spinbox.setValue(
+            self._application_controller.command_controller.settings_model.max_speed
+        )
+        self._max_speed_spinbox.valueChanged.connect(self._on_max_speed_changed)
+
+        # TODO: Enable this once the safety-distance overlay is implemented.
         self.l_reserved.hide()
-        self.c_savty_space.hide()
+        self._safety_distance_checkbox.hide()
 
-    def _on_braking_changed(self):
+    def _on_braking_changed(self) -> None:
         self._application_controller.command_controller.settings_model.set_braking_acceleration(
-            self.s_braking.value()
+            self._braking_spinbox.value()
         )
 
-    def _on_max_speed_changed(self):
+    def _on_max_speed_changed(self) -> None:
         self._application_controller.command_controller.settings_model.set_max_speed(
-            self.s_accerleration.value()
+            self._max_speed_spinbox.value()
         )
 
-    def _on_toggle_coordinate_system(self):
+    def _on_toggle_coordinate_system(self) -> None:
         """Toggle coordinate system overlay rendering."""
-        is_checked = self.c_coordinate_system.isChecked()
+        is_checked = self._coordinate_system_checkbox.isChecked()
         self._application_controller.view_event_handler.set_coordinate_system(is_checked)
 
-    def _on_toggle_grid(self):
+    def _on_toggle_grid(self) -> None:
         """Toggle grid overlay rendering."""
-        is_checked = self.c_grid.isChecked()
+        is_checked = self._grid_checkbox.isChecked()
         self._application_controller.view_event_handler.set_grid(is_checked)
 
-    def _on_toggle_safety_distance(self):
+    def _on_toggle_safety_distance(self) -> None:
         """Toggle safety distance overlay rendering."""
-        is_checked = self.c_savty_space.isChecked()
+        is_checked = self._safety_distance_checkbox.isChecked()
         self._application_controller.view_event_handler.set_safety_distance(is_checked)

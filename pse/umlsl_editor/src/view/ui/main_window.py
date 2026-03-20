@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
 )
 
 from pse.umlsl_editor.src.controllers import ApplicationController
-from pse.umlsl_editor.src.view.ui.global_controlls import GlobalControls
+from pse.umlsl_editor.src.view.ui.global_controls import GlobalControls
 from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.confirm_deletion_dialog import (
     ConfirmDeletionDialog,
 )
@@ -152,7 +152,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 confirm_text="Discard changes",
                 cancel_text="Keep editing",
             ).exec()
-            if confirm != QDialog.Accepted:
+            if confirm != QDialog.DialogCode.Accepted:
                 event.ignore()
                 return
 

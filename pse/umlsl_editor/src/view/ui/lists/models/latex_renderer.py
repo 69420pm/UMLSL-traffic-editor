@@ -5,6 +5,7 @@ Provides thread-safe LaTeX to image rendering using the Agg backend.
 """
 
 import io
+import logging
 
 import matplotlib
 
@@ -15,6 +16,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
+
+logger = logging.getLogger(__name__)
 
 
 def latex_to_bytes(
@@ -64,5 +67,5 @@ def latex_to_bytes(
         return buf.getvalue()
 
     except Exception as e:
-        print(f"Error rendering LaTeX: {e}")
+        logger.warning("Error rendering LaTeX: %s", e, exc_info=True)
         return b""

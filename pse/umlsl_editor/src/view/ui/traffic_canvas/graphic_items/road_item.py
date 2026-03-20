@@ -21,7 +21,7 @@ from pse.umlsl_editor.src.model.errors.road_errors import (
     RoadTrafficSnapshotContextValidationError,
     RoadValidationError,
 )
-from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+from pse.umlsl_editor.src.view.ui.exception_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.selectable_graphics_item import (
     SelectableGraphicsItem,
 )
@@ -94,7 +94,7 @@ class RoadItem(SelectableGraphicsItem):
         self.update_data(road)
 
     @property
-    def orientation(self):
+    def orientation(self) -> RoadOrientation:
         return self._orientation
 
     def update_data(self, road: Road) -> None:
@@ -316,7 +316,10 @@ class RoadItem(SelectableGraphicsItem):
         lane_width = DIMENSION.LANE_WIDTH
         is_horizontal = road.orientation == RoadOrientation.HORIZONTAL
         arrow_dist = (
-                         RoadItemStyle.LABEL_ARROW_SPACING_H if is_horizontal else RoadItemStyle.LABEL_ARROW_SPACING_V) * scale
+            RoadItemStyle.LABEL_ARROW_SPACING_H
+            if is_horizontal
+            else RoadItemStyle.LABEL_ARROW_SPACING_V
+        ) * scale
 
         def draw_lane_set(count: int, is_forward: bool):
             for i in range(count):
@@ -492,5 +495,5 @@ class RoadItem(SelectableGraphicsItem):
                 self._dashed_lines.lineTo(pos_offset, scene_size / 2)
 
     @property
-    def position_listeners(self):
+    def position_listeners(self) -> list[GeometryListener]:
         return self._position_listeners

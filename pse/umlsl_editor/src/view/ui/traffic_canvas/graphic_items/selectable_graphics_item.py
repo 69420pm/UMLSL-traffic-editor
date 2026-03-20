@@ -6,8 +6,13 @@ and view panning behavior. Items can be clicked to toggle selection and
 dragged when selected.
 """
 
-from PySide6.QtCore import Qt, Slot
-from PySide6.QtWidgets import QGraphicsItem, QGraphicsView
+from PySide6.QtCore import QPointF, Qt, Slot
+from PySide6.QtWidgets import (
+    QGraphicsItem,
+    QGraphicsSceneHoverEvent,
+    QGraphicsSceneMouseEvent,
+    QGraphicsView,
+)
 
 from pse.umlsl_editor.src.controllers import ApplicationController
 
@@ -52,8 +57,8 @@ class SelectableGraphicsItem(QGraphicsItem):
         self.is_selected = False
 
         self._movement_constraint = self.AXIS_FREE
-        self._drag_start_pos = None
-        self._pan_start_screen_pos = None
+        self._drag_start_pos: QPointF | None = None
+        self._pan_start_screen_pos: QPointF | None = None
         self._is_panning = False
 
         self._configure_item_flags()
@@ -117,7 +122,7 @@ class SelectableGraphicsItem(QGraphicsItem):
     # Hover Events
     # -------------------------------------------------------------------------
 
-    def hoverEnterEvent(self, event) -> None:
+    def hoverEnterEvent(self, event: QGraphicsSceneHoverEvent) -> None:
         """
         Handle mouse entering the item area.
 
@@ -131,7 +136,7 @@ class SelectableGraphicsItem(QGraphicsItem):
         self.on_hover_changed(True)
         super().hoverEnterEvent(event)
 
-    def hoverLeaveEvent(self, event) -> None:
+    def hoverLeaveEvent(self, event: QGraphicsSceneHoverEvent) -> None:
         """
         Handle mouse leaving the item area.
 
@@ -156,7 +161,7 @@ class SelectableGraphicsItem(QGraphicsItem):
     # Mouse Events
     # -------------------------------------------------------------------------
 
-    def mousePressEvent(self, event) -> None:
+    def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         """
         Handle mouse press to initiate drag or pan.
 
@@ -173,7 +178,7 @@ class SelectableGraphicsItem(QGraphicsItem):
         super().mousePressEvent(event)
         event.accept()
 
-    def mouseReleaseEvent(self, event) -> None:
+    def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         """
         Handle mouse release to complete drag, pan, or click.
 
@@ -188,7 +193,7 @@ class SelectableGraphicsItem(QGraphicsItem):
         self._update_cursor_for_state()
         super().mouseReleaseEvent(event)
 
-    def mouseMoveEvent(self, event) -> None:
+    def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         """
         Handle mouse movement for dragging or panning.
 
@@ -206,7 +211,7 @@ class SelectableGraphicsItem(QGraphicsItem):
     # Panning Logic
     # -------------------------------------------------------------------------
 
-    def _handle_view_panning(self, event) -> None:
+    def _handle_view_panning(self, event: QGraphicsSceneMouseEvent) -> None:
         """
         Pan the view when dragging an unselected item.
 
@@ -250,7 +255,7 @@ class SelectableGraphicsItem(QGraphicsItem):
     # Drag and Click Logic
     # -------------------------------------------------------------------------
 
-    def _handle_drag_or_click(self, event) -> None:
+    def _handle_drag_or_click(self, event: QGraphicsSceneMouseEvent) -> None:
         """
         Distinguish between a drag and a click, then handle appropriately.
 

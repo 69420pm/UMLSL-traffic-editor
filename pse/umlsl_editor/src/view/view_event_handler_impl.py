@@ -33,13 +33,13 @@ class ViewEventHandlerImplementation(ViewEventHandler):
     def get_on_show_snackbar_message_signal(self) -> "SignalInstance":
         return self.show_snackbar_message
 
-    def __init__(self, view_model: ViewModels):
+    def __init__(self, view_models: ViewModels) -> None:
         super().__init__()
-        self.view_models = view_model
-        self.current_selected_uid: str = ""
-        self.should_render_coordinate_system: bool = True
-        self.should_render_grid: bool = True
-        self.should_render_safety_distance: bool = True
+        self.view_models: ViewModels = view_models
+        self.current_selected_uid = ""
+        self.should_render_coordinate_system = True
+        self.should_render_grid = True
+        self.should_render_safety_distance = True
 
     def _select_entity(self, uid: str) -> None:
         if uid == self.current_selected_uid:
@@ -77,12 +77,12 @@ class ViewEventHandlerImplementation(ViewEventHandler):
     def update_query_view(self, query: UMLSLQuery) -> None:
         self.view_models.query_list_model.update_entity(query)
 
-    def loading_query_view(self, query: UMLSLQuery) -> None:
-        if isinstance(query, dict):
-            query_obj = query.get("query")
-            is_loading = bool(query.get("is_loading"))
+    def loading_query_view(self, query_payload: UMLSLQuery | dict) -> None:
+        if isinstance(query_payload, dict):
+            query_obj = query_payload.get("query")
+            is_loading = bool(query_payload.get("is_loading"))
         else:
-            query_obj = query
+            query_obj = query_payload
             is_loading = True
 
         if query_obj is None:
