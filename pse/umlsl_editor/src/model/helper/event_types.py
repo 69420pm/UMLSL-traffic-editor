@@ -36,6 +36,8 @@ class UMLSLQueriesEventType(Enum):
     UMLSL_QUERY_UPDATED = auto()
     UMLSL_QUERY_WARNING = auto()
     UMLSL_QUERY_LOADING = auto()
+    UMLSL_QUERIES_REVALIDATION_STARTED = auto()
+    UMLSL_QUERIES_REVALIDATION_FINISHED = auto()
 
 
 class SelectionEventType(Enum):
