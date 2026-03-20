@@ -24,7 +24,7 @@ class HorizontalChopNode(BinaryNode):
         else:
             return cls(operands[0], cls.create_nested_hchop(operands[1:]))
 
-    def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
+    def evaluate(self, traffic_snapshot: "TrafficSnapshotModel", view: View, variable_car_map: dict[str, Car]) -> bool:
         horizon = view.horizon
         horizon_length = horizon.length()
 
@@ -59,7 +59,7 @@ class HorizontalChopNode(BinaryNode):
 
             level += 1
 
-    def evaluate_with_step_size(self, view: View, traffic_snapshot: TrafficSnapshotModel,
+    def evaluate_with_step_size(self, view: View, traffic_snapshot: "TrafficSnapshotModel",
                                 variable_car_map: dict[str, Car], step_size: float):
         horizon = view.horizon
         split_value = view.horizon.start
@@ -71,7 +71,7 @@ class HorizontalChopNode(BinaryNode):
 
         return False
 
-    def evaluate_at_split(self, view: View, traffic_snapshot: TrafficSnapshotModel, variable_car_map: dict[str, Car],
+    def evaluate_at_split(self, view: View, traffic_snapshot: "TrafficSnapshotModel", variable_car_map: dict[str, Car],
                           split_value: float):
         horizon = view.horizon
 
@@ -108,7 +108,7 @@ class VerticalChopNode(BinaryNode):
         else:
             return cls(cls.create_nested_vchop(operands[0:-1]), operands[-1])
 
-    def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
+    def evaluate(self, traffic_snapshot: "TrafficSnapshotModel", view: View, variable_car_map: dict[str, Car]) -> bool:
         seq_lanes = view.virtual_lanes
 
         for split_index in range(0, len(seq_lanes) + 1):

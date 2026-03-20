@@ -11,7 +11,7 @@ class CrossingSegmentNode(AtomNode):
     def __init__(self):
         super().__init__("cs")
 
-    def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
+    def evaluate(self, traffic_snapshot: "TrafficSnapshotModel", view: View, variable_car_map: dict[str, Car]) -> bool:
         if len(view.virtual_lanes) != 1 or view.horizon.length() <= 0:
             return False
 

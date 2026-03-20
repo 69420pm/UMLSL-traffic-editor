@@ -52,7 +52,6 @@ class ViewEventHandlerImplementation(ViewEventHandler):
 
     def update_car_view(self, car: Car) -> None:
         self.view_models.car_list_model.update_entity(car)
-        self._select_entity(car.uid)
 
     def add_road_view(self, road: Road) -> None:
         self.view_models.road_list_model.add_entity(road)
@@ -63,7 +62,6 @@ class ViewEventHandlerImplementation(ViewEventHandler):
 
     def update_road_view(self, road: Road) -> None:
         self.view_models.road_list_model.update_entity(road)
-        self._select_entity(road.uid)
 
     def add_query_view(self, query: UMLSLQuery) -> None:
         self.view_models.query_list_model.add_entity(query)
@@ -74,7 +72,19 @@ class ViewEventHandlerImplementation(ViewEventHandler):
 
     def update_query_view(self, query: UMLSLQuery) -> None:
         self.view_models.query_list_model.update_entity(query)
-        self._select_entity(query.uid)
+
+    def loading_query_view(self, query: UMLSLQuery) -> None:
+        # TODO @matze
+        print('finished loading query')
+        pass
+
+    def revalidation_finished(self) -> None:
+        print('finished revalidation')
+        pass
+
+    def revalidation_started(self) -> None:
+        print('started revalidation')
+        pass
 
     def loading_query_view(self, query: UMLSLQuery) -> None:
         # TODO @matze

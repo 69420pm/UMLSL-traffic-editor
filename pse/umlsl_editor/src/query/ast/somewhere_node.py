@@ -11,7 +11,7 @@ if typing.TYPE_CHECKING:
 
 
 class SomewhereNode(UnaryNode):
-    def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
+    def evaluate(self, traffic_snapshot: "TrafficSnapshotModel", view: View, variable_car_map: dict[str, Car]) -> bool:
         somewhere_node = VerticalChopNode.create_nested_vchop(
             [
                 TrueNode(),

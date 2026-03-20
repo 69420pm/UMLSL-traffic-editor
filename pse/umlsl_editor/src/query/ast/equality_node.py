@@ -16,7 +16,7 @@ class CarEqualityNode(AtomNode):
         self._car_resolve2 = car_resolve2
         self._precedence = Precedence.UNARY_EQUALITY
 
-    def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
+    def evaluate(self, traffic_snapshot: "TrafficSnapshotModel", view: View, variable_car_map: dict[str, Car]) -> bool:
         return self._car_resolve1.resolve(variable_car_map) is self._car_resolve2.resolve(variable_car_map)
 
 
@@ -27,5 +27,5 @@ class CarNotEqualsNode(AtomNode):
         self._car_resolve2 = car_resolve2
         self._precedence = Precedence.UNARY_EQUALITY
 
-    def evaluate(self, traffic_snapshot: TrafficSnapshotModel, view: View, variable_car_map: dict[str, Car]) -> bool:
+    def evaluate(self, traffic_snapshot: "TrafficSnapshotModel", view: View, variable_car_map: dict[str, Car]) -> bool:
         return not (self._car_resolve1.resolve(variable_car_map) is self._car_resolve2.resolve(variable_car_map))
