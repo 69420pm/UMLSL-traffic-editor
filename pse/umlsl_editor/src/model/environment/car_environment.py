@@ -69,8 +69,19 @@ class CarEnvironment:
         swap_alignment = car_dir == self_dir.opposite
 
         if not swap_alignment and turn_dir != TurnDirection.STRAIGHT:
-            # we have to be careful on turns
-            swap_alignment = turn_dir == TurnDirection.LEFT and car_dir == Direction.DOWN or turn_dir == TurnDirection.RIGHT and car_dir == Direction.UP
+            match self_dir:
+                case Direction.RIGHT:
+                    swap_alignment = (turn_dir == TurnDirection.LEFT and car_dir == Direction.DOWN
+                                      or turn_dir == TurnDirection.RIGHT and car_dir == Direction.UP)
+                case Direction.LEFT:
+                    swap_alignment = (turn_dir == TurnDirection.LEFT and car_dir == Direction.UP
+                                      or turn_dir == TurnDirection.RIGHT and car_dir == Direction.DOWN)
+                case Direction.UP:
+                    swap_alignment = (turn_dir == TurnDirection.LEFT and car_dir == Direction.RIGHT
+                                      or turn_dir == TurnDirection.RIGHT and car_dir == Direction.LEFT)
+                case Direction.DOWN:
+                    swap_alignment = (turn_dir == TurnDirection.LEFT and car_dir == Direction.LEFT
+                                      or turn_dir == TurnDirection.RIGHT and car_dir == Direction.RIGHT)
 
         aligned_to_translate: list[SegmentInterval] = []
         if swap_alignment:
