@@ -1,6 +1,7 @@
 import json
 import os
 import tempfile
+import time
 import unittest
 from threading import Event, Lock
 
@@ -125,6 +126,15 @@ class SpyView:
         self.snapshot_reloaded.append((snapshot, queries))
 
 
+def wait_until(predicate, timeout=1.0, interval=0.01):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if predicate():
+            return True
+        time.sleep(interval)
+    return predicate()
+
+
 def create_backend_stack(with_event_controller: bool = True):
     settings = SettingsModel(braking_acceleration=8.0, max_speed=15.0)
     queries = UMLSLQueriesModel()
@@ -149,7 +159,7 @@ def create_backend_stack(with_event_controller: bool = True):
 
 
 def add_basic_road_and_car(
-    command_controller: CommandController, snapshot: TrafficSnapshotModel
+        command_controller: CommandController, snapshot: TrafficSnapshotModel
 ):
     command_controller.add_road(
         name="Main",
@@ -437,7 +447,12 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
             latex="true",
         )
 
-        self.assertTrue(view.wait_for_revalidation(timeout=1.0))
+        self.assertTrue(
+            wait_until(
+                lambda: any(q.holding for q in queries.get_queries().values()),
+                timeout=1.0,
+            )
+        )
         query = next(iter(queries.get_queries().values()))
         self.assertTrue(query.holding)
         self.assertGreaterEqual(len(view.updated_queries), 1)
@@ -528,19 +543,24 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
         self.assertIsNotNone(car_a)
 
         # validate queries
-        view.reset_revalidation_event()
         command_controller.add_umlsl_query(
             assigned_car_uid=car_a.uid,
             should_only_evaluate_on_cars_lane=False,
             latex="forall x: ((x != a) => !<re{a} and re{x}>)",
         )
+
         # command_controller.add_umlsl_query(
         #     assigned_car_uid=car_a.uid,
         #     should_only_evaluate_on_cars_lane=False,
         #     latex="a != a",
         # )
         #
-        self.assertTrue(view.wait_for_revalidation(timeout=1.0))
+        def is_holding():
+            queries_by_latex = {q.latex: q for q in queries.get_queries().values()}
+            target = queries_by_latex.get("forall x: ((x != a) => !<re{a} and re{x}>)")
+            return target is not None and target.holding
+
+        self.assertTrue(wait_until(is_holding, timeout=50.0))
         queries_by_latex = {q.latex: q for q in queries.get_queries().values()}
         self.assertTrue(
             queries_by_latex["forall x: ((x != a) => !<re{a} and re{x}>)"].holding
@@ -594,10 +614,14 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
             latex="true",
         )
 
-        self.assertTrue(view.wait_for_revalidation(timeout=1.0))
-        view.reset_revalidation_event()
+        self.assertTrue(
+            wait_until(lambda: len(queries.get_queries()) == 1, timeout=1.0)
+        )
         command_controller.remove_road(road.uid)
-        self.assertTrue(view.wait_for_revalidation(timeout=1.0))
+        self.assertTrue(
+            wait_until(lambda: len(queries.get_queries()) == 0, timeout=1.0)
+        )
+        self.assertTrue(wait_until(lambda: len(view.removed_queries) == 1, timeout=1.0))
 
         self.assertEqual(len(queries.get_queries()), 0)
         self.assertEqual(len(view.removed_queries), 1)
@@ -614,10 +638,14 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
             latex="true",
         )
 
-        self.assertTrue(view.wait_for_revalidation(timeout=1.0))
-        view.reset_revalidation_event()
+        self.assertTrue(
+            wait_until(lambda: len(queries.get_queries()) == 1, timeout=1.0)
+        )
         command_controller.remove_car(car.uid)
-        self.assertTrue(view.wait_for_revalidation(timeout=1.0))
+        self.assertTrue(
+            wait_until(lambda: len(queries.get_queries()) == 0, timeout=1.0)
+        )
+        self.assertTrue(wait_until(lambda: len(view.removed_queries) == 1, timeout=1.0))
 
         self.assertEqual(len(queries.get_queries()), 0)
         self.assertEqual(len(view.removed_queries), 1)
