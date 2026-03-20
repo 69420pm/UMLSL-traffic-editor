@@ -1,6 +1,10 @@
+import typing
+
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.query.ast.ast import View, UnaryNode, BinaryNode, AtomNode, ASTNode, Precedence
+
+if typing.TYPE_CHECKING:
+    from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 
 
 class TrueNode(AtomNode):
@@ -41,6 +45,7 @@ class DisjunctionNode(BinaryNode):
 
     def _format(self, left: str, right: str) -> str:
         return f"{left} \\vee {right}"
+
 
 class ImpliesNode(BinaryNode):
     def __init__(self, left: ASTNode, right: ASTNode):
