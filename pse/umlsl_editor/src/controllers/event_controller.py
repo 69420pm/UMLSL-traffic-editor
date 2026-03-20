@@ -133,7 +133,7 @@ class EventController:
             self._view.remove_query_view(data)
         elif event_type == UMLSLQueriesEventType.UMLSL_QUERY_UPDATED:
             self._view.update_query_view(data)
-        # self._traffic_snapshot.revalidate_queries()
+            self._traffic_snapshot.revalidate_queries()
         elif event_type == UMLSLQueriesEventType.UMLSL_QUERY_WARNING:
             # Error handling
             pass
