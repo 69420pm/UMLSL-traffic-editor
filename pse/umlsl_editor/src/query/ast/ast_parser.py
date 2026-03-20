@@ -2,6 +2,7 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import Traf
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.environment.view_coordinate_translation import translate_into_ego_coordinates
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.virtual_lane import VirtualLane
 from pse.umlsl_editor.src.query.ast.ast import ASTNode
 from pse.umlsl_editor.src.query.ast.car_resolve import ConstantCarResolve, VariableCarResolve, CarResolve
 from pse.umlsl_editor.src.query.ast.chop_node import HorizontalChopNode, VerticalChopNode
@@ -28,40 +29,48 @@ class ParsedUMLSLQuery:
         self.car_references = car_references
         self.latex_code = ast.to_latex()
 
-    def evaluate(self) -> bool:
-        horizon = self._ego.environment.horizon
+    def evaluate(self, evaluate_ego_lane_only: bool) -> bool:
+        if evaluate_ego_lane_only:
+            return self._evaluate_on_ego_lane()
+        else:
+            return self._evaluate_in_view()
 
+    def _evaluate_on_ego_lane(self) -> bool:
+        return self._evaluate_parallel_virtual_lane([self._ego.environment.path_virtual_lane])
+
+    def _evaluate_in_view(self) -> bool:
         for parallel_virtual_lane in self._ego.environment.parallel_virtual_lanes:
-            # collect visible segments
-            segments_in_view: list[Segment] = []
-            for virtual_lane in parallel_virtual_lane:
-                for segment_interval in virtual_lane.segment_intervals:
-                    if segment_interval.interval.intersects(horizon):
-                        segments_in_view.append(segment_interval.segment)
-
-            # translate environment information into ego's coordinate system
-            coordinate_translation = translate_into_ego_coordinates(
-                self._traffic_snapshot, self._ego, horizon, parallel_virtual_lane
-            )
-
-            view = View(
-                parallel_virtual_lane,
-                segments_in_view,
-                horizon,
-                self._ego,
-                coordinate_translation.visible,
-                coordinate_translation.reserved,
-                coordinate_translation.claimed,
-            )
-
-            # the query evaluates true if it holds in (at least) one of the views
-            if self._evaluate_in_view(self._traffic_snapshot, view):
+            if self._evaluate_parallel_virtual_lane(parallel_virtual_lane):
                 return True
 
         return False
 
-    def _evaluate_in_view(self, traffic_snapshot: TrafficSnapshotModel, view: View) -> bool:
-        return self._ast.evaluate(traffic_snapshot, view, {})
+    def _evaluate_parallel_virtual_lane(self, parallel_virtual_lane: list[VirtualLane]) -> bool:
+        horizon = self._ego.environment.horizon
+
+        # collect visible segments
+        segments_in_view: list[Segment] = []
+        for virtual_lane in parallel_virtual_lane:
+            for segment_interval in virtual_lane.segment_intervals:
+                if segment_interval.interval.intersects(horizon):
+                    segments_in_view.append(segment_interval.segment)
+
+        # translate environment information into ego's coordinate system
+        coordinate_translation = translate_into_ego_coordinates(
+            self._traffic_snapshot, self._ego, horizon, parallel_virtual_lane
+        )
+
+        view = View(
+            parallel_virtual_lane,
+            segments_in_view,
+            horizon,
+            self._ego,
+            coordinate_translation.visible,
+            coordinate_translation.reserved,
+            coordinate_translation.claimed,
+        )
+
+        return self._ast.evaluate(self._traffic_snapshot, view, {})
 
 
 class ASTParser:

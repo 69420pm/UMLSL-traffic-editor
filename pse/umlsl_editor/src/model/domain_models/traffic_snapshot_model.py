@@ -965,11 +965,14 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         umlsl_evaluator = UMLSLEvaluator(self)
         for query in self._queries_model.queries.values():
             ego = self._cars.get(query.assigned_car_uid)
-            holding = umlsl_evaluator.parse_ast(query.latex, ego).evaluate()
-            new_query_params = UMLSLQueryParams(latex=query.latex,
-                                                holding=holding,
-                                                should_only_evaluate_on_cars_lane=query.should_only_evaluate_on_cars_lane,
-                                                assigned_car_uid=ego.uid)
+            evaluate_ego_lane_only = query.should_only_evaluate_on_cars_lane
+            holding = umlsl_evaluator.parse_ast(query.latex, ego).evaluate(evaluate_ego_lane_only)
+            new_query_params = UMLSLQueryParams(
+                latex=query.latex,
+                holding=holding,
+                should_only_evaluate_on_cars_lane=evaluate_ego_lane_only,
+                assigned_car_uid=ego.uid
+            )
             # TODO: MAKE BETTER
             if query.holding != new_query_params.holding or query.latex != new_query_params.latex or query.assigned_car_uid != new_query_params.assigned_car_uid:
                 self._queries_model.update_umlsl_query(query, new_query_params)

@@ -84,18 +84,24 @@ class EnvironmentCreation:
                                                                                       turn_segment)
         if unbounded_path_segments is None:
             raise ValueError("Car specified a turn intent with invalid path.")
-        horizon = self._compute_horizon(unbounded_path_segments)
+
+        braking_dist: float = self.settings.braking_distance()
+        pos_segment_behind: float = max(0.0, self.pos_on_segment - braking_dist)
+
+        path_segments_size = braking_dist + self.pos_on_segment - pos_segment_behind
+        path_segment_intervals = compute_segments_safety_envelope(
+            self.ts,
+            unbounded_path_segments,
+            pos_segment_behind,
+            path_segments_size,
+            self.car_params.length
+        )
+        horizon = self._compute_horizon(pos_segment_behind, path_segment_intervals)
         physical_segment_intervals: list[SegmentInterval] = compute_segment_intervals(
             self.ts,
             unbounded_path_segments,
             self.pos_on_segment,
             self.car_params.get_braking_dist(self.settings.braking_acceleration)
-        )
-        path_segment_intervals: list[SegmentInterval] = compute_segment_intervals(
-            self.ts,
-            unbounded_path_segments,
-            horizon.start,
-            horizon.length(),
         )
 
         # We update the turn_segment if the next crossing is not in the view of the car.
@@ -109,8 +115,9 @@ class EnvironmentCreation:
             turn_segment = end_lane
             turn_direction = TurnDirection.STRAIGHT
 
-        parallel_virtual_lanes, relative_parallel_virtual_lanes = self.compute_parallel_virtual_lanes_intervals(
+        parallel_virtual_lanes, path_virtual_lane = self.compute_parallel_virtual_lanes_intervals(
             unbounded_path_segments,
+            path_segment_intervals,
             horizon,
             turn_segment,
             turn_direction
@@ -134,7 +141,7 @@ class EnvironmentCreation:
             unbounded_path_segments,
             horizon,
             parallel_virtual_lanes,
-            relative_parallel_virtual_lanes,
+            path_virtual_lane,
             path_segment_intervals,
             physical_segment_intervals,
             reserved_segment_intervals,
@@ -143,80 +150,78 @@ class EnvironmentCreation:
         car_environment.print_debug(self.ts, self.car_params.name)
         return car_environment
 
-    def _compute_horizon(self, unbounded_path_segments: list[Segment]) -> Interval:
-        braking_dist: float = self.settings.braking_distance()
+    def _compute_horizon(self, backward_length: float, segment_intervals: list[SegmentInterval]) -> Interval:
+        forward_length: float = backward_length
 
-        backward_length: float = max(0.0, self.pos_on_segment - braking_dist)
-        forward_length: float = 0.0
-
-        remaining_forward_length: float = self.pos_on_segment + braking_dist
-        for segment in unbounded_path_segments:
-            if remaining_forward_length <= 0:
-                break
-
-            if segment.is_lane_segment:
-                segment_size = segment.get_size_in_direction(self.ts)
-                segment_occupation_size = min(remaining_forward_length, segment_size)
-                remaining_forward_length -= segment_occupation_size
-                forward_length += segment_occupation_size
-            else:
-                forward_length += segment.get_size_in_direction(self.ts)
+        for segment_interval in segment_intervals:
+            forward_length += segment_interval.interval.length()
 
         return Interval(backward_length, forward_length)
 
     def compute_parallel_virtual_lanes_intervals(
             self,
             unbounded_path: list[Segment],
+            path_segment_intervals: list[SegmentInterval],
             horizon: Interval,
             turn_segment: LaneSegment,
             turn_direction: TurnDirection
-    ) -> tuple[list[list[VirtualLane]], list[list[VirtualLane]]]:
+    ) -> tuple[list[list[VirtualLane]], VirtualLane]:
         # We first compute the (unbounded) parallel virtual lanes segments (each segment is not yet equipped with its
         # interval information).
         parallel_segments = self.compute_parallel_virtual_lanes(unbounded_path, turn_segment, turn_direction)
 
-        parallel_virtual_lanes_intervals: list[list[VirtualLane]] = []
-        # Relative in the sense of the segment position.
-        # For example ([car_pos_on_seg_1, seg_1_end], [0, seg_2_end], [0, seg_3_end], [0, horizon_end_on_seg_4]).
-        parallel_virtual_lanes_relative_intervals: list[list[VirtualLane]] = []
-
+        # We now compute the intervals of the parallel virtual lanes.
         # Naively, one could just compute the intervals of each parallel-virtual-lane segment inside the horizon of ego.
         # However, on turns at crossings, this would result in ego seeing varying distances *behind* the crossing,
         # since the *length behind the crossing* of the path of ego [lane1, cs, cs, cs, lane2] will be less than
-        # in the virtual lane [other_lane, cs, lane2].
-        # To solve this problem, we only measure the distance the car travels on lane segments.
+        # in the virtual lane [other_lane, cs, lane2]. That means ego will see further on lane2 in the second virtual lane
+        # than on the first virtual lane.
+        # To solve this problem, we only measure the distance the car travels on lane segments. Concretely, we compute
+        # the distance on lane segments in ego's path. We then iterate through the other virtual-lanes and cut off the
+        # path segments whenever the distance on lane segments exceeds that of ego's path.
+        lane_dist_in_path: float = 0.0
+        for path_segment_interval in path_segment_intervals:
+            if path_segment_interval.segment.is_lane_segment:
+                lane_dist_in_path += path_segment_interval.interval.length()
+
+        parallel_virtual_lanes_intervals: list[list[VirtualLane]] = []
         for parallel_segment in parallel_segments:
             virtual_lanes: list[VirtualLane] = []
-            relative_virtual_lanes: list[VirtualLane] = []
 
             for segment_list in parallel_segment:
-                virtual_lanes.append(self._segments_to_virtual_lane(segment_list, horizon))
-                relative_virtual_lanes.append(
-                    VirtualLane(compute_segment_intervals(self.ts, segment_list, horizon.start, horizon.length()))
-                )
+                virtual_lane = self._segments_to_virtual_lane(segment_list, horizon, lane_dist_in_path)
+                virtual_lanes.append(virtual_lane)
 
             parallel_virtual_lanes_intervals.append(virtual_lanes)
-            parallel_virtual_lanes_relative_intervals.append(relative_virtual_lanes)
 
-        return parallel_virtual_lanes_intervals, parallel_virtual_lanes_relative_intervals
+        path_virtual_lane = self._segments_to_virtual_lane(unbounded_path, horizon, lane_dist_in_path)
+        return parallel_virtual_lanes_intervals, path_virtual_lane
 
-    def _segments_to_virtual_lane(self, segments: list[Segment], horizon: Interval) -> VirtualLane:
+    def _segments_to_virtual_lane(self, segments: list[Segment], horizon: Interval,
+                                  max_dist_on_lanes: float) -> VirtualLane:
         current_pos = horizon.start
-        segment_intervals: list[SegmentInterval] = []
+        dist_on_lanes: float = 0.0
 
+        segment_intervals: list[SegmentInterval] = []
         for i, segment in enumerate(segments):
             # in the first iteration, we need to add the remaining length of the segment to the current position
             segment_size = segment.get_size_in_direction(self.ts)
             segment_length = (segment_size - current_pos) if i == 0 else segment_size
 
-            physical_end = current_pos + segment_length
-            view_end = min(physical_end, horizon.end)
-
-            interval = Interval(current_pos, view_end)
-            segment_intervals.append(SegmentInterval(segment, interval))
-
-            if view_end < physical_end:
-                break
+            if segment.is_lane_segment:
+                new_dist_on_lanes = dist_on_lanes + segment_length
+                if new_dist_on_lanes > max_dist_on_lanes:
+                    remaining_size = max(0.0, max_dist_on_lanes - dist_on_lanes)
+                    segment_intervals.append(
+                        SegmentInterval(segment, Interval(current_pos, current_pos + remaining_size))
+                    )
+                    break
+                else:
+                    segment_intervals.append(
+                        SegmentInterval(segment, Interval(current_pos, current_pos + segment_length)))
+                    dist_on_lanes = new_dist_on_lanes
+            else:
+                segment_intervals.append(SegmentInterval(segment, Interval(current_pos, current_pos + segment_length)))
 
             current_pos += segment_length
 

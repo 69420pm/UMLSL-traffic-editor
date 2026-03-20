@@ -40,8 +40,7 @@ def compute_segment_intervals(
         interval = Interval(interval_start_offset, b_i)
         next_size = current_size - interval.length()
 
-        if next_size > 0:
-            interval_start_offset = 0
+        interval_start_offset = 0
 
         result.append(SegmentInterval(seg_i, interval))
         i += 1
@@ -69,12 +68,7 @@ def compute_segments_safety_envelope(
     size = horizon_size
 
     i = 0
-    while size > 0:
-        # since the input size can be arbitrarily large, we need to check if we reached the end of the path
-        # unlike in the segment_intervals method, it is not guaranteed that the car reaches the end of the path
-        if i >= len(path):
-            return result
-
+    while size > 0 and i < len(path):
         seg_i = path[i]
         seg_size = seg_i.get_size_in_direction(ts)
 
@@ -91,8 +85,7 @@ def compute_segments_safety_envelope(
 
         interval = Interval(interval_start_offset, b_i)
 
-        if size > 0:
-            interval_start_offset = 0
+        interval_start_offset = 0
 
         result.append(SegmentInterval(seg_i, interval))
         i += 1
