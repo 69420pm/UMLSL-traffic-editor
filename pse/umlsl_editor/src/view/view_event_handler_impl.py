@@ -74,17 +74,23 @@ class ViewEventHandlerImplementation(ViewEventHandler):
         self.view_models.query_list_model.update_entity(query)
 
     def loading_query_view(self, query: UMLSLQuery) -> None:
-        # TODO @matze
-        print('finished loading query')
-        pass
+        if isinstance(query, dict):
+            query_obj = query.get("query")
+            is_loading = bool(query.get("is_loading"))
+        else:
+            query_obj = query
+            is_loading = True
+
+        if query_obj is None:
+            return
+
+        self.view_models.query_list_model.set_query_loading(query_obj.uid, is_loading)
 
     def revalidation_finished(self) -> None:
-        print('finished revalidation')
-        pass
+        print("revalidation_finished")
 
     def revalidation_started(self) -> None:
-        print('started revalidation')
-        pass
+        print("revalidation_started")
 
     def loading_query_view(self, query: UMLSLQuery) -> None:
         # TODO @matze

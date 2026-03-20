@@ -9,7 +9,7 @@ ListView {
 
     delegate: ListRowDelegate {
         onEditClicked: data_model.handle_button_click(index)
-        border_color: model.role_valid ? "#799582" : "#D97855"
+        border_color: model.role_loading ? "#8F8F8F" : (model.role_valid ? "#799582" : "#D97855")
 
         Item {
             id: latexContainer
@@ -59,6 +59,41 @@ ListView {
             Layout.alignment: Qt.AlignVCenter
             elide: Text.ElideRight
             verticalAlignment: Text.AlignVCenter
+        }
+
+        Rectangle {
+            width: 28; height: 28
+            color: "transparent"
+
+            Canvas {
+                id: canvas
+                anchors.fill: parent
+                antialiasing: true
+
+                visible: model.role_loading
+
+                property real angle: 0
+                RotationAnimation on angle {
+                    from: 0;
+                    to: 360
+                    duration: 1000
+                    loops: Animation.Infinite
+                    running: true
+                }
+
+                onPaint: {
+                    var ctx = getContext("2d");
+                    ctx.reset();
+                    ctx.beginPath();
+                    ctx.strokeStyle = "#8F8F8F";
+                    ctx.lineWidth = 2;
+                    // Draw a 270-degree arc
+                    ctx.arc(width / 2, height / 2, width / 2 - 5, 0, Math.PI * 1.5);
+                    ctx.stroke();
+                }
+
+                rotation: angle
+            }
         }
     }
 }
