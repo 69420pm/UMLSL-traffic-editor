@@ -3,11 +3,14 @@ UI utility functions for the UMLSL Traffic Editor.
 
 Provides helper functions for loading Qt Designer UI files.
 """
+import logging
 from typing import Optional
 
 from PySide6.QtCore import QFile
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QWidget
+
+logger = logging.getLogger(__name__)
 
 
 def load_ui(path: str, parent: Optional[QWidget] = None) -> Optional[QWidget]:
@@ -25,7 +28,7 @@ def load_ui(path: str, parent: Optional[QWidget] = None) -> Optional[QWidget]:
     file = QFile(path)
 
     if not file.open(QFile.ReadOnly):
-        print(f"CRITICAL ERROR: Could not open {path}")
+        logger.error("Could not open UI file: %s", path)
         return None
 
     widget = loader.load(file, parent)

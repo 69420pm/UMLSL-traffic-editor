@@ -8,10 +8,11 @@ their associated QML views and add buttons.
 import os
 
 from PySide6.QtCore import QObject, Qt, QTimer, QUrl
+from PySide6.QtWidgets import QDialog
 
 from pse.umlsl_editor.src.controllers import ApplicationController
 from pse.umlsl_editor.src.model.entities.entity import Entity
-from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
+from pse.umlsl_editor.src.view.ui.exception_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.lists.deletion_checks import (
     get_car_deletion_block_reason,
     get_road_deletion_block_reason,
@@ -214,7 +215,7 @@ class SidebarController(QObject):
             label = "this query"
             delete_action = lambda: self._application_controller.command_controller.remove_umlsl_query(entity.uid)
 
-        confirm = ConfirmDeletionDialog(
+        dialog_result = ConfirmDeletionDialog(
             f"Delete {label}?",
             self._window,
             title="Confirm deletion",
@@ -222,7 +223,7 @@ class SidebarController(QObject):
             cancel_text="Cancel",
         ).exec()
 
-        if confirm == 1:
+        if dialog_result == QDialog.DialogCode.Accepted:
             QTimer.singleShot(0, delete_action)
             if entity_type == "car":
                 self._window.snackbar.show_message(f"Car '{entity.name}' deleted successfully.")

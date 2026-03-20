@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog
+from PySide6.QtWidgets import QDialog, QWidget
 
 from pse.umlsl_editor.src.view.widgets.compiled_widgets.ui_error_dialog import (
     Ui_Error_Dialog,
@@ -17,7 +17,7 @@ class WarningDialog(QDialog, Ui_Error_Dialog):
         Inherits all attributes from QDialog and Ui_Error_Dialog.
     """
 
-    def __init__(self, title: str, message: str, parent=None):
+    def __init__(self, title: str, message: str, parent: QWidget | None = None) -> None:
         """
         Initialize the warning dialog.
 
@@ -28,5 +28,7 @@ class WarningDialog(QDialog, Ui_Error_Dialog):
         """
         super().__init__(parent)
         self.setupUi(self)
-        self.l_titel.setText(title)
-        self.l_content.setText(message)
+        self._title_label = self.l_titel
+        self._message_label = self.l_content
+        self._title_label.setText(title)
+        self._message_label.setText(message)

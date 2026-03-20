@@ -81,7 +81,6 @@ class TrafficScene(QGraphicsScene):
                         self._remove_crossing(listener)
         self.clear()
         self._item_registry.clear()
-        # self._debug_registry.clear()
         self._refresh_segments()
 
     # -------------------------------------------------------------------------
@@ -96,7 +95,11 @@ class TrafficScene(QGraphicsScene):
             # Find the road item this car belongs to
             road_item = self._item_registry.get(car.lane.road_uid)
             if not isinstance(road_item, RoadItem):
-                logger.warning(f"Skipping car {car.uid}: Assigned road {car.lane.road_uid} not found.")
+                logger.warning(
+                    "Skipping car %s: assigned road %s not found.",
+                    car.uid,
+                    car.lane.road_uid,
+                )
                 continue
 
             graphics_item = CarItem(car, road_item, self._app_controller)

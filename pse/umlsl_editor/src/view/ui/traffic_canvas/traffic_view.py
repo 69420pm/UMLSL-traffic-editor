@@ -43,8 +43,10 @@ class TrafficView(QGraphicsView):
         super().__init__(scene, parent)
         self.application_controller = application_controller
 
-        self.should_render_coordinate_system = self.application_controller.view_event_handler.should_render_coordinate_system
-        self.should_render_grid = self.application_controller.view_event_handler.should_render_grid
+        self._should_render_coordinate_system = (
+            self.application_controller.view_event_handler.should_render_coordinate_system
+        )
+        self._should_render_grid = self.application_controller.view_event_handler.should_render_grid
 
         self.application_controller.view_event_handler.get_on_toggle_coordinate_system_signal().connect(
             self._on_toggle_coordinate_system
@@ -58,12 +60,12 @@ class TrafficView(QGraphicsView):
 
     @Slot(bool)
     def _on_toggle_coordinate_system(self, enabled: bool) -> None:
-        self.should_render_coordinate_system = enabled
+        self._should_render_coordinate_system = enabled
         self.viewport().update()
 
     @Slot(bool)
     def _on_toggle_grid(self, enabled: bool) -> None:
-        self.should_render_grid = enabled
+        self._should_render_grid = enabled
         self.viewport().update()
 
     def _configure_view(self) -> None:
@@ -282,7 +284,7 @@ class TrafficView(QGraphicsView):
         """
         super().drawBackground(painter, rect)
 
-        if self.should_render_grid:
+        if self._should_render_grid:
             grid_pen = QPen(COLORS.LAYER, DIMENSION.LANE_WIDTH)
             self._draw_grid(painter, grid_pen)
 
@@ -343,7 +345,7 @@ class TrafficView(QGraphicsView):
         painter.resetTransform()
         painter.setRenderHint(QPainter.Antialiasing)
 
-        if self.should_render_coordinate_system:
+        if self._should_render_coordinate_system:
             painter.setPen(QPen(COLORS.TEXT))
             self._draw_coordinate_labels(painter)
 

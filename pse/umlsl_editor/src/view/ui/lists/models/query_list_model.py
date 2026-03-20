@@ -1,7 +1,10 @@
+import logging
 from typing import TYPE_CHECKING
 from urllib.parse import quote
 
 from PySide6.QtCore import QModelIndex, Qt
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
@@ -65,7 +68,13 @@ class QueryListModel(EntityModel):
                 # URL-encode the latex string to safely pass it to the image provider
                 encoded_latex = quote(latex_code, safe='')
                 return f"image://latex/{encoded_latex}"
-            except (ParserError, Exception):
+            except (ParserError, Exception) as exc:
+                logger.warning(
+                    "Failed to render LaTeX preview for query %s: %s",
+                    query.uid,
+                    exc,
+                    exc_info=True,
+                )
                 # If parsing fails, return empty string (no image)
                 return ""
 

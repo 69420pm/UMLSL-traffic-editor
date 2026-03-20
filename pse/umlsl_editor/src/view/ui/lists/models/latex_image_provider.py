@@ -5,6 +5,7 @@ Provides a QQuickImageProvider that renders LaTeX strings to images
 for display in QML list views.
 """
 
+import logging
 from collections import OrderedDict
 from urllib.parse import unquote
 
@@ -13,6 +14,8 @@ from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtQuick import QQuickImageProvider
 
 from pse.umlsl_editor.src.view.ui.lists.models.latex_renderer import latex_to_bytes
+
+logger = logging.getLogger(__name__)
 
 
 class LatexImageProvider(QQuickImageProvider):
@@ -51,7 +54,8 @@ class LatexImageProvider(QQuickImageProvider):
             The rendered pixmap.
         """
         # URL-decode the LaTeX string (Qt does not auto-decode image provider IDs)
-        latex_string = unquote(id)
+        request_id = id
+        latex_string = unquote(request_id)
 
         # Use requested size as max dimensions, or default to 200x36
         max_width = requestedSize.width() if requestedSize.width() > 0 else 200
@@ -74,7 +78,8 @@ class LatexImageProvider(QQuickImageProvider):
                 color="#FFFFFF",
             )
             pixmap = self._bytes_to_pixmap(image_bytes, max_width, max_height)
-        except Exception:
+        except Exception as exc:
+            logger.warning("Failed to render LaTeX image for '%s': %s", latex_string, exc, exc_info=True)
             pixmap = QPixmap()
 
         if pixmap.isNull():
