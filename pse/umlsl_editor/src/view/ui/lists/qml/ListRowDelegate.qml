@@ -52,6 +52,7 @@ Rectangle {
 
             // Button visual states
             color: editMouseArea.pressed ? "transparent" : (editMouseArea.containsMouse ? "#084D68" : "transparent")
+            opacity: editMouseArea.enabled ? 1.0 : 0.4
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
             Image {
@@ -63,8 +64,9 @@ Rectangle {
             MouseArea {
                 id: editMouseArea
                 anchors.fill: parent
-                cursorShape: Qt.PointingHandCursor
-                hoverEnabled: true
+                enabled: !role_loading
+                cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                hoverEnabled: enabled
                 onClicked: root.editClicked()
             }
         }
