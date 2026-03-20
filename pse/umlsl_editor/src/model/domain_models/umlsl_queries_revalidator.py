@@ -90,11 +90,11 @@ class UMLSLQueriesRevalidator:
                             or query.assigned_car_uid != new_query_params.assigned_car_uid
                     ):
                         self._queries_model.update_umlsl_query(query, new_query_params)
-                except Exception as exc:
-                    self._queries_model.notify(
-                        UMLSLQueriesEventType.UMLSL_QUERY_WARNING,
-                        {"query": query, "error": exc},
-                    )
+                # except Exception as exc:
+                #     self._queries_model.notify(
+                #         UMLSLQueriesEventType.UMLSL_QUERY_WARNING,
+                #         {"query": query, "error": exc},
+                #     )
                 finally:
                     self._set_loading(query, False, generation)
         finally:

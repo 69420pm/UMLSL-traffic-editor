@@ -565,7 +565,126 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
         self.assertTrue(
             queries_by_latex["forall x: ((x != a) => !<re{a} and re{x}>)"].holding
         )
-        # self.assertFalse(queries_by_latex["a != a"].holding)
+
+    def test_complex_queries_with_json(self):
+        settings = SettingsModel(braking_acceleration=8.0, max_speed=15.0)
+        queries = UMLSLQueriesModel()
+        snapshot = TrafficSnapshotModel(queries, settings)
+
+        payload = {
+            "meta": {"version": PersistenceService.VERSION},
+            "roads": [
+                {
+                    "uid": "05924228-6663-41bf-be34-a6a05b781905",
+                    "name": "R1",
+                    "orientation": "HORIZONTAL",
+                    "position": 0.0,
+                    "number_of_forward_lanes": 1,
+                    "number_of_backward_lanes": 1
+                },
+                {
+                    "uid": "b3a40a27-bf70-40fa-9d74-f241c294b23b",
+                    "name": "R3",
+                    "orientation": "HORIZONTAL",
+                    "position": 8.0,
+                    "number_of_forward_lanes": 1,
+                    "number_of_backward_lanes": 1
+                },
+                {
+                    "uid": "1ceb6d9e-d904-4374-85e9-635a872627a7",
+                    "name": "R2",
+                    "orientation": "VERTICAL",
+                    "position": 4.0,
+                    "number_of_forward_lanes": 1,
+                    "number_of_backward_lanes": 1
+                },
+                {
+                    "uid": "6eef3f21-0458-4ff2-aebe-92dc79515af4",
+                    "name": "R4",
+                    "orientation": "VERTICAL",
+                    "position": 12.0,
+                    "number_of_forward_lanes": 1,
+                    "number_of_backward_lanes": 1
+                }
+            ],
+            "cars": [
+                {
+                    "uid": "a3d7dc53-f686-4c9d-a72e-1a761895c3bd",
+                    "name": "a",
+                    "road_uid": "05924228-6663-41bf-be34-a6a05b781905",
+                    "lane_index": 0,
+                    "position_on_lane": -2.0,
+                    "transition": 0.0,
+                    "speed": 10.0,
+                    "length": 1,
+                    "color": "lightblue",
+                    "acceleration": 1.0,
+                    "next_turn": None
+                },
+                {
+                    "uid": "90fd5982-dfb5-4804-89ff-f246fed5ce9e",
+                    "name": "b",
+                    "road_uid": "05924228-6663-41bf-be34-a6a05b781905",
+                    "lane_index": 0,
+                    "position_on_lane": 0.9894008691374196,
+                    "transition": 0.0,
+                    "speed": 10.0,
+                    "length": 1,
+                    "color": "lightblue",
+                    "acceleration": 1.0,
+                    "next_turn": None
+                }
+            ],
+            "queries": [],
+        }
+        json_string = json.dumps(payload)
+        data = json.loads(json_string)
+
+        PersistenceService.deserialize(data, snapshot, snapshot, settings, queries)
+
+        view = SpyView()
+        EventController(view, snapshot, settings, queries)
+        command_controller = CommandController(snapshot, snapshot, queries, settings)
+
+        car_a = snapshot.get_car_by_name("a")
+        self.assertIsNotNone(car_a)
+
+        # validate queries
+        command_controller.add_umlsl_query(
+            assigned_car_uid=car_a.uid,
+            should_only_evaluate_on_cars_lane=False,
+            latex="<hchop{re{a}}{l > 2 and free and !<cs>}>",
+        )
+        command_controller.add_umlsl_query(
+            assigned_car_uid=car_a.uid,
+            should_only_evaluate_on_cars_lane=False,
+            latex="<re{b}>",
+        )
+        command_controller.add_umlsl_query(
+            assigned_car_uid=car_a.uid,
+            should_only_evaluate_on_cars_lane=False,
+            latex="<re{a} and re{b}>",
+        )
+
+        def is_holding_query_1():
+            queries_by_latex = {q.latex: q for q in queries.get_queries().values()}
+            target = queries_by_latex.get("<hchop{re{a}}{l > 2 and free and !<cs>}>")
+            return target is not None and target.holding
+
+        def is_holding_query_2():
+            queries_by_latex = {q.latex: q for q in queries.get_queries().values()}
+            target = queries_by_latex.get("<re{b}>")
+            return target is not None and target.holding
+
+        def is_holding_query_3():
+            queries_by_latex = {q.latex: q for q in queries.get_queries().values()}
+            target = queries_by_latex.get("<re{a} and re{b}>")
+
+            return target is not None and target.holding
+
+        self.assertFalse(wait_until(is_holding_query_1, timeout=500.0))
+        self.assertTrue(wait_until(is_holding_query_2, timeout=500.0))
+        self.assertTrue(wait_until(is_holding_query_3, timeout=500.0))
 
     def test_parser_evaluates_true_and_negation(self):
         _, _, snapshot, command_controller, _, _, _ = create_backend_stack(
