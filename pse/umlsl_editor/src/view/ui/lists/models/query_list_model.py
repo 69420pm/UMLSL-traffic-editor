@@ -79,6 +79,15 @@ class QueryListModel(EntityModel):
         self._loading_by_uid.clear()
         super().clear_all()
 
+    def set_all_queries_loading(self) -> None:
+        for query in self._data:
+            self._loading_by_uid[query.uid] = True
+
+        if self._data:
+            first_index = self.index(0)
+            last_index = self.index(len(self._data) - 1)
+            self.dataChanged.emit(first_index, last_index, [QueryListModel.LoadingRole])
+
     def set_query_loading(self, query_uid: str, is_loading: bool) -> None:
         if is_loading:
             self._loading_by_uid[query_uid] = True
