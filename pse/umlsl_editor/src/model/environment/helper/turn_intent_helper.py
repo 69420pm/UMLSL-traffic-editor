@@ -14,10 +14,10 @@ def find_turn_intent_segment(
 ) -> LaneSegment:
     """"
     We need to find the target lane segment based on the turn intent and the car's current position.
-    Since we know the target lane, we can collect all lane(!) segments of the target lane first.
-    Each segment has a two-dimensional position, but to find the target segment, it is enough to compare only 1 coordinate:
-    For example, if the car is driving straight, we only need to compare the x coordinate to find the segment and find
-    the first segment with a larger x coordinate than the starting segment.
+
+    This algorithm works as follows: Since we know the target lane (this is not a segment - but a lane associated with
+    a road), we collect all lane *segments* of that lane. Depending on the car's direction, we iterate through the
+    lane segments and take the one corresponding to the turn.
     """
     start_coords = start.get_position(ts)
     # we need to find the target lane segment based on the turn intent
@@ -52,6 +52,8 @@ def find_turn_intent_segment(
     segment_position_index: int = 1 if start_road_direction == RoadOrientation.HORIZONTAL else 0
     segments_of_target_lane.sort(key=lambda x: x.get_position(ts)[segment_position_index])
 
+    # we got a list of target lane segments (our candidates) and the information of the car
+    # we need to find the one that is next to the car's position' depending on the turn direction
     if car_direction in {Direction.LEFT, Direction.UP}:
         if turn_direction == TurnDirection.LEFT:
             segments_of_target_lane.reverse()

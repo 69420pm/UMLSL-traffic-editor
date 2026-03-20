@@ -11,6 +11,22 @@ from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnDir
 
 @dataclass(frozen=True)
 class CarEnvironment:
+    """
+    The car environment holds all information about how a car perceives its environment.
+
+    Attributes:
+        car_direction: the driving direction of the car
+        turn_direction: the turn direction of the car
+        path: the pursuit path of
+        horizon: the horizon (relative to the segment the car is standing on)
+        parallel_virtual_lanes: the list of parallel virtual lanes according to UMLSL logic
+        path_virtual_lane: the virtual lane corresponding to the car's path
+        path_segment_intervals: the segment intervals of the car's path
+        physical_segment_intervals: the segment intervals of the car's physically occupied segments
+        reserved: the list of reserved segments (each interval information is measured relative to the segment's position)
+        claimed: the list of claimed segments (each interval information is measured relative to the segment's position)
+    """
+
     car_direction: Direction
     turn_direction: TurnDirection
 
