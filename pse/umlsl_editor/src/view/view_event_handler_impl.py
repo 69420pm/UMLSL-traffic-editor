@@ -91,7 +91,8 @@ class ViewEventHandlerImplementation(ViewEventHandler):
         self.view_models.query_list_model.set_query_loading(query_obj.uid, is_loading)
 
     def revalidation_finished(self) -> None:
-        self.show_snackbar_message.emit("All queries evaluated", 3000)
+        # self.show_snackbar_message.emit("All queries evaluated", 3000)
+        pass
 
     def revalidation_started(self) -> None:
         self.view_models.query_list_model.set_all_queries_loading()
