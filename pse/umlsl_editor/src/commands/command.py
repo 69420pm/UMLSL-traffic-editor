@@ -13,5 +13,3 @@ class Command(ABC, Generic[ReturnValue]):
     def execute(self) -> ReturnValue:
         """Executes the command and returns a value of type ReturnValue assuming the state of the command is validated
         and executes successfully."""
-        raise NotImplementedError()
-
