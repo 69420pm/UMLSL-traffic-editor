@@ -363,11 +363,11 @@ class Ui_Edit_Road_Dialog(object):
         self.gridLayout_2.setHorizontalSpacing(4)
         self.gridLayout_2.setVerticalSpacing(8)
         self.gridLayout_2.setContentsMargins(8, 4, 4, 4)
-        self.label_11 = QLabel(self.widget_2)
-        self.label_11.setObjectName(u"label_11")
-        self.label_11.setMinimumSize(QSize(75, 0))
+        self.l_backward = QLabel(self.widget_2)
+        self.l_backward.setObjectName(u"l_backward")
+        self.l_backward.setMinimumSize(QSize(75, 0))
 
-        self.gridLayout_2.addWidget(self.label_11, 2, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.l_backward, 2, 0, 1, 1)
 
         self.s_forward = QSpinBox(self.widget_2)
         self.s_forward.setObjectName(u"s_forward")
@@ -383,11 +383,11 @@ class Ui_Edit_Road_Dialog(object):
 
         self.gridLayout_2.addWidget(self.s_backward, 2, 2, 1, 1)
 
-        self.label_10 = QLabel(self.widget_2)
-        self.label_10.setObjectName(u"label_10")
-        self.label_10.setMinimumSize(QSize(75, 0))
+        self.l_forward = QLabel(self.widget_2)
+        self.l_forward.setObjectName(u"l_forward")
+        self.l_forward.setMinimumSize(QSize(75, 0))
 
-        self.gridLayout_2.addWidget(self.label_10, 0, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.l_forward, 0, 0, 1, 1)
 
         self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
@@ -461,8 +461,8 @@ class Ui_Edit_Road_Dialog(object):
         self.label_4.setText(QCoreApplication.translate("Edit_Road_Dialog", u">= 1", None))
         self.label_4.setProperty(u"class", QCoreApplication.translate("Edit_Road_Dialog", u"label", None))
         self.widget_2.setProperty(u"class", QCoreApplication.translate("Edit_Road_Dialog", u"container", None))
-        self.label_11.setText(QCoreApplication.translate("Edit_Road_Dialog", u"Backward", None))
-        self.label_10.setText(QCoreApplication.translate("Edit_Road_Dialog", u"Forward", None))
+        self.l_backward.setText(QCoreApplication.translate("Edit_Road_Dialog", u"Left", None))
+        self.l_forward.setText(QCoreApplication.translate("Edit_Road_Dialog", u"Right", None))
         self.b_save.setText(QCoreApplication.translate("Edit_Road_Dialog", u"Save", None))
         self.b_delete.setText(QCoreApplication.translate("Edit_Road_Dialog", u"Delete", None))
     # retranslateUi
