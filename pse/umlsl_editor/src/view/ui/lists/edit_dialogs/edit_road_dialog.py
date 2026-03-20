@@ -17,6 +17,7 @@ from pse.umlsl_editor.src.model.errors.road_errors import (
 from pse.umlsl_editor.src.view.ui.exeption_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.lists.deletion_checks import (
     get_road_deletion_block_reason,
+    get_road_lane_change_block_reason,
 )
 from pse.umlsl_editor.src.view.ui.lists.edit_dialogs.confirm_deletion_dialog import (
     ConfirmDeletionDialog,
@@ -48,10 +49,10 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
     """
 
     def __init__(
-            self,
-            road: Road | None,
-            application_controller: "ApplicationController",
-            parent=None,
+        self,
+        road: Road | None,
+        application_controller: "ApplicationController",
+        parent=None,
     ) -> None:
         """
         Initialize the road edit dialog.
@@ -85,7 +86,9 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
         if not self._is_edit:
             return
 
-        block_reason = get_road_deletion_block_reason(self._application_controller, self._road)
+        block_reason = get_road_deletion_block_reason(
+            self._application_controller, self._road
+        )
         if block_reason:
             WarningDialog("Cannot delete road", block_reason, self).exec()
             return
@@ -102,8 +105,15 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
             # Defer deletion to next event loop iteration to allow QML signal
             # handlers to complete before the underlying data is destroyed.
             road_uid = self._road.uid
-            QTimer.singleShot(0, lambda: self._application_controller.command_controller.remove_road(road_uid))
-            self.parent().snackbar.show_message(f"Road '{self._road.name}' deleted successfully.")
+            QTimer.singleShot(
+                0,
+                lambda: self._application_controller.command_controller.remove_road(
+                    road_uid
+                ),
+            )
+            self.parent().snackbar.show_message(
+                f"Road '{self._road.name}' deleted successfully."
+            )
             self.accept()
 
     def _get_default_road_values(self) -> dict:
@@ -118,13 +128,13 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
         }
 
     def _apply_road_values(
-            self,
-            *,
-            name: str,
-            orientation: RoadOrientation,
-            position: float,
-            number_of_forward_lanes: int,
-            number_of_backward_lanes: int,
+        self,
+        *,
+        name: str,
+        orientation: RoadOrientation,
+        position: float,
+        number_of_forward_lanes: int,
+        number_of_backward_lanes: int,
     ) -> None:
         """Apply road values to the dialog widgets."""
         self.t_name.setText(name)
@@ -176,6 +186,17 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
         forward_lanes = self.s_forward.value()
         backward_lanes = self.s_backward.value()
 
+        if self._is_edit:
+            block_reason = get_road_lane_change_block_reason(
+                self._application_controller,
+                self._road,
+                forward_lanes,
+                backward_lanes,
+            )
+            if block_reason:
+                WarningDialog("Cannot update road", block_reason, self).exec()
+                return
+
         try:
             if self._is_edit:
                 self._application_controller.command_controller.update_road(
@@ -204,6 +225,9 @@ class EditRoadDialog(QDialog, Ui_Edit_Road_Dialog):
             return
         else:
             self.parent().snackbar.show_message(
-                f"Road '{name}' updated successfully." if self._is_edit else f"Road '{name}' created successfully.")
+                f"Road '{name}' updated successfully."
+                if self._is_edit
+                else f"Road '{name}' created successfully."
+            )
 
             super().accept()
