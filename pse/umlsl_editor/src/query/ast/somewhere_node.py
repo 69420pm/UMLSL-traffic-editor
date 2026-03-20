@@ -1,9 +1,13 @@
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
+import typing
+
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.query.ast.ast import UnaryNode
 from pse.umlsl_editor.src.query.ast.chop_node import VerticalChopNode, HorizontalChopNode
 from pse.umlsl_editor.src.query.ast.logic_node import TrueNode
 from pse.umlsl_editor.src.query.view import View
+
+if typing.TYPE_CHECKING:
+    from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 
 
 class SomewhereNode(UnaryNode):

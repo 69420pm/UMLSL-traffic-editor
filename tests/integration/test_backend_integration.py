@@ -525,10 +525,10 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
 
         evaluator = UMLSLEvaluator(snapshot)
         parsed_true = evaluator.parse_ast("true", car)
-        self.assertTrue(parsed_true.evaluate())
+        self.assertTrue(parsed_true.evaluate(evaluate_ego_lane_only=False))
 
         parsed_neg_true = evaluator.parse_ast("neg true", car)
-        self.assertFalse(parsed_neg_true.evaluate())
+        self.assertFalse(parsed_neg_true.evaluate(evaluate_ego_lane_only=False))
 
     def test_parser_evaluates_basic_logical_conditions(self):
         _, _, snapshot, command_controller, _, _, _ = create_backend_stack(
@@ -538,19 +538,19 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
 
         evaluator = UMLSLEvaluator(snapshot)
         parsed_true = evaluator.parse_ast("!true", car)
-        self.assertFalse(parsed_true.evaluate())
+        self.assertFalse(parsed_true.evaluate(evaluate_ego_lane_only=False))
 
         parsed_neg_true = evaluator.parse_ast("(true or !true)", car)
-        self.assertTrue(parsed_neg_true.evaluate())
+        self.assertTrue(parsed_neg_true.evaluate(evaluate_ego_lane_only=False))
 
         parsed_neg_true = evaluator.parse_ast("(true => !true)", car)
-        self.assertFalse(parsed_neg_true.evaluate())
+        self.assertFalse(parsed_neg_true.evaluate(evaluate_ego_lane_only=False))
 
         parsed_neg_true = evaluator.parse_ast("(!true => true)", car)
-        self.assertTrue(parsed_neg_true.evaluate())
+        self.assertTrue(parsed_neg_true.evaluate(evaluate_ego_lane_only=False))
 
         parsed_neg_true = evaluator.parse_ast("!(true and !true)", car)
-        self.assertTrue(parsed_neg_true.evaluate())
+        self.assertTrue(parsed_neg_true.evaluate(evaluate_ego_lane_only=False))
 
     def test_query_removed_when_assigned_car_removed(self):
         _, queries, snapshot, command_controller, _, _, view = create_backend_stack(

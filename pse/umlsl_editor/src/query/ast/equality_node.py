@@ -1,8 +1,12 @@
+import typing
+
 from pse.umlsl_editor.src.model.entities.car import Car
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.query.ast.ast import AtomNode, Precedence
 from pse.umlsl_editor.src.query.ast.car_resolve import CarResolve
 from pse.umlsl_editor.src.query.view import View
+
+if typing.TYPE_CHECKING:
+    from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 
 
 class CarEqualityNode(AtomNode):

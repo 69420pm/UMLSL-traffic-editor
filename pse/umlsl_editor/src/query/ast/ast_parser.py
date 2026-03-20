@@ -1,4 +1,5 @@
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
+import typing
+
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.environment.view_coordinate_translation import translate_into_ego_coordinates
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
@@ -19,6 +20,9 @@ from pse.umlsl_editor.src.query.ast.reserve_node import ReserveNode
 from pse.umlsl_editor.src.query.ast.somewhere_node import SomewhereNode
 from pse.umlsl_editor.src.query.lexer import Token, TokenType
 from pse.umlsl_editor.src.query.view import View
+
+if typing.TYPE_CHECKING:
+    from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 
 
 class ParsedUMLSLQuery:

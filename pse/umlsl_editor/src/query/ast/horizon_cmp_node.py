@@ -1,9 +1,12 @@
+import typing
 from typing import Callable
 
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.query.ast.ast import AtomNode
 from pse.umlsl_editor.src.query.view import View
+
+if typing.TYPE_CHECKING:
+    from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 
 
 class HorizonComparisonNode(AtomNode):

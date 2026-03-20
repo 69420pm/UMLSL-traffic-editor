@@ -1,10 +1,14 @@
+import typing
 from dataclasses import dataclass
 
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
 from pse.umlsl_editor.src.model.entities.car import Car
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.virtual_lane import VirtualLane
+
+if typing.TYPE_CHECKING:
+    from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
+
 
 @dataclass(frozen=True)
 class CoordinateTranslation:
@@ -12,9 +16,10 @@ class CoordinateTranslation:
     reserved: dict[str, dict[Segment, Interval]]
     claimed: dict[str, dict[Segment, Interval]]
 
+
 def translate_into_ego_coordinates(
         ts: TrafficSnapshotModel, ego: Car, horizontal_horizon: Interval, virtual_lanes: list[VirtualLane]
-) -> CoordinateTranslation :
+) -> CoordinateTranslation:
     def translate_coordinate_system(func) -> dict[str, dict[Segment, Interval]]:
         translated: dict[str, dict[Segment, Interval]] = {}
         for traffic_snapshot_car in ts.get_car_list():
