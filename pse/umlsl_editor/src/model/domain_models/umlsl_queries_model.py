@@ -3,12 +3,17 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import (
+    TrafficSnapshotModel,
+)
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery, UMLSLQueryParams
 from pse.umlsl_editor.src.model.errors.umlsl_query_errors import (
     UMLSLQueryValidationError,
 )
-from pse.umlsl_editor.src.model.helper.event_types import UMLSLQueriesEventType, TrafficSnapshotEventType
+from pse.umlsl_editor.src.model.helper.event_types import (
+    TrafficSnapshotEventType,
+    UMLSLQueriesEventType,
+)
 from pse.umlsl_editor.src.model.helper.observables import Observable, ObservableDict
 
 
@@ -29,7 +34,11 @@ class UMLSLQueriesModel(Observable):
         - UMLSLQueriesEventType.UMLSL_QUERY_UPDATED: Fired when a query is updated (data: UMLSLQuery)
     """
 
-    def __init__(self, traffic_snapshot: TrafficSnapshotModel, queries: dict[str, UMLSLQuery] = None) -> None:
+    def __init__(
+            self,
+            traffic_snapshot: TrafficSnapshotModel,
+            queries: dict[str, UMLSLQuery] = None,
+    ) -> None:
         self.queries = ObservableDict(
             on_add=lambda query: self.notify(
                 UMLSLQueriesEventType.UMLSL_QUERY_ADDED, query
@@ -46,10 +55,19 @@ class UMLSLQueriesModel(Observable):
 
         self._traffic_snapshot.attach(self._on_traffic_snapshot_event)
         super().__init__()
+        self._active_futures = {}
         # self._revalidator = UMLSLQueriesRevalidator(self)
 
     def _on_traffic_snapshot_event(self, event_type: Enum, data) -> None:
-        if event_type == TrafficSnapshotEventType.CAR_ADDED or event_type == TrafficSnapshotEventType.CAR_UPDATED or event_type == TrafficSnapshotEventType.CAR_REMOVED or event_type == TrafficSnapshotEventType.ROAD_ADDED or event_type == TrafficSnapshotEventType.ROAD_REMOVED or event_type == TrafficSnapshotEventType.ROAD_UPDATED or event_type == TrafficSnapshotEventType.SNAPSHOT_RELOADED:
+        if (
+                event_type == TrafficSnapshotEventType.CAR_ADDED
+                or event_type == TrafficSnapshotEventType.CAR_UPDATED
+                or event_type == TrafficSnapshotEventType.CAR_REMOVED
+                or event_type == TrafficSnapshotEventType.ROAD_ADDED
+                or event_type == TrafficSnapshotEventType.ROAD_REMOVED
+                or event_type == TrafficSnapshotEventType.ROAD_UPDATED
+                or event_type == TrafficSnapshotEventType.SNAPSHOT_RELOADED
+        ):
             self.revalidate_queries()
 
     def __post_init__(self):
@@ -84,7 +102,10 @@ class UMLSLQueriesModel(Observable):
         self.revalidate_queries()
 
     def update_umlsl_query(
-            self, umlsl_query_data: UMLSLQuery, query_params: UMLSLQueryParams, revalidate_queries: bool = True
+            self,
+            umlsl_query_data: UMLSLQuery,
+            query_params: UMLSLQueryParams,
+            revalidate_queries: bool = True,
     ) -> None:
         """
         Updates an existing UMLSL query in the snapshot and validates all attributes in the context of the snapshot.
@@ -121,10 +142,19 @@ class UMLSLQueriesModel(Observable):
             if ego is None:
                 continue
 
+            if query.uid in self._active_futures:
+                self._active_futures[query.uid].cancel()
+
+            # self.mark_umlsl_query_as_loading(query)
+
             evaluate_ego_lane_only = query.should_only_evaluate_on_cars_lane
 
             def on_evaluation_done(fut, q=query, v=current_version):
+                if q.uid in self._active_futures and self._active_futures[q.uid] == fut:
+                    del self._active_futures[q.uid]
                 if v != self._traffic_snapshot.evaluation_version:
+                    return
+                if fut.cancelled():
                     return
                 try:
                     holding = fut.result()
@@ -140,7 +170,9 @@ class UMLSLQueriesModel(Observable):
                     #         or q.latex != new_query_params.latex
                     #         or q.assigned_car_uid != new_query_params.assigned_car_uid
                     # ):
-                    self.update_umlsl_query(q, new_query_params, revalidate_queries=False)
+                    self.update_umlsl_query(
+                        q, new_query_params, revalidate_queries=False
+                    )
                 except Exception as e:
                     print(f"Evaluation failed: {e}")
 
@@ -156,6 +188,7 @@ class UMLSLQueriesModel(Observable):
                     self._traffic_snapshot.settings_model.braking_acceleration,
                     self._traffic_snapshot.settings_model.max_speed,
                 )
+                self._active_futures[query.uid] = future
                 future.add_done_callback(on_evaluation_done)
             else:
                 future = self._traffic_snapshot.process_pool.submit(
@@ -167,6 +200,7 @@ class UMLSLQueriesModel(Observable):
                     self._traffic_snapshot.settings_model.braking_acceleration,
                     self._traffic_snapshot.settings_model.max_speed,
                 )
+                self._active_futures[query.uid] = future
                 future.add_done_callback(on_evaluation_done)
 
     def to_dict(self) -> list[dict[str, Any]]:
