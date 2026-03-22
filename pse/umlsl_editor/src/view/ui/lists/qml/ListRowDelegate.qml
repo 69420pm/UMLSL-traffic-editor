@@ -13,7 +13,7 @@ Rectangle {
     width: ListView.view.width
     height: 44
 
-    color: role_is_selected ? "#032F40" : "#011C26"
+    color: model.role_is_selected ? "#032F40" : "#011C26"
 
     border.color: border_color
     border.width: 2
@@ -64,7 +64,7 @@ Rectangle {
             MouseArea {
                 id: editMouseArea
                 anchors.fill: parent
-                enabled: !role_loading
+                enabled: !model.role_loading
                 cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
                 hoverEnabled: enabled
                 onClicked: root.editClicked()
