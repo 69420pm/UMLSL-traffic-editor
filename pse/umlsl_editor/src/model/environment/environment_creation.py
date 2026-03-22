@@ -1,22 +1,39 @@
 from itertools import product
 
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import (
+    TrafficSnapshotReader,
+)
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.model.environment.car_environment import CarEnvironment
-from pse.umlsl_editor.src.model.environment.helper.segment_intervals_helper import compute_physical_segment_intervals, \
-    compute_segments_safety_envelope
-from pse.umlsl_editor.src.model.environment.helper.segment_topology_helper import compute_path_through_crossing, \
-    compute_parallel_lane_segments
-from pse.umlsl_editor.src.model.environment.helper.turn_intent_helper import find_turn_intent_segment
+from pse.umlsl_editor.src.model.environment.helper.segment_intervals_helper import (
+    compute_physical_segment_intervals,
+    compute_segments_safety_envelope,
+)
+from pse.umlsl_editor.src.model.environment.helper.segment_topology_helper import (
+    compute_parallel_lane_segments,
+    compute_path_through_crossing,
+)
+from pse.umlsl_editor.src.model.environment.helper.turn_intent_helper import (
+    find_turn_intent_segment,
+)
 from pse.umlsl_editor.src.model.helper.direction import Direction
 from pse.umlsl_editor.src.model.interval import Interval
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import LaneSegment
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import (
+    LaneSegment,
+)
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import SegmentInterval
-from pse.umlsl_editor.src.model.traffic_value_objects.segments.virtual_lane import VirtualLane
-from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnDirection, TurnIntent
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import (
+    SegmentInterval,
+)
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.virtual_lane import (
+    VirtualLane,
+)
+from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import (
+    TurnDirection,
+    TurnIntent,
+)
 
 
 class EnvironmentCreation:
@@ -294,35 +311,27 @@ class EnvironmentCreation:
 
         target_segments: list[LaneSegment] = compute_parallel_lane_segments(self.ts, turn_segment)
 
-        def goes_into_crossing(segment: LaneSegment) -> bool:
-            return compute_path_through_crossing(self.ts, self.start_segment, segment) is not None
-
         order_lanes: list[list[list[Segment]]] = []
         for src_seg in src_segments:
-            if goes_into_crossing(src_seg):
-                if src_seg == self.start_segment:
-                    path: list[Segment] = compute_path_through_crossing(self.ts, self.start_segment, turn_segment)
-                    if path is not None:
-                        order_lanes.append([path])
+            paths = []
+            for target_segment in target_segments:
+                path: list[Segment] | None = compute_path_through_crossing(self.ts, src_seg, target_segment)
+                if path is not None:
+                    paths.append(path)
                 else:
-                    paths = []
-                    for target_segment in target_segments:
-                        if not goes_into_crossing(target_segment):
-                            continue
-                        path: list[Segment] = compute_path_through_crossing(self.ts, src_seg, target_segment)
-                        if path is not None:
-                            paths.append(path)
-                    order_lanes.append(paths)
-            else:
-                paths = []
-                for target_segment in target_segments:
-                    if goes_into_crossing(target_segment):
-                        continue
-                    path: list[Segment] = compute_path_through_crossing(self.ts, target_segment, src_seg)
+                    path = compute_path_through_crossing(self.ts, target_segment, src_seg)
                     if path is not None:
                         path.reverse()
                         paths.append(path)
-                if len(paths) > 0:
+
+            if len(paths) > 0:
+                if src_seg == self.start_segment:
+                    main_path = compute_path_through_crossing(self.ts, self.start_segment, turn_segment)
+                    if main_path in paths:
+                        order_lanes.append([main_path])
+                    else:
+                        order_lanes.append(paths)
+                else:
                     order_lanes.append(paths)
 
         parallel_lanes: list[list[list[Segment]]] = [list(p) for p in product(*order_lanes)]
