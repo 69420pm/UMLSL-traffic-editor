@@ -180,7 +180,8 @@ class CarItem(SelectableGraphicsItem):
                 lane_end=exit_lane,
                 application_controller=self.application_controller,
                 car=self._car,
-                is_last_interval=(i == len(segments) - 1)
+                is_last_interval=(i == len(segments) - 1),
+                is_car_selected=self.is_selected,
             )
             scene.addItem(seg_item)
             self._segments.append(seg_item)

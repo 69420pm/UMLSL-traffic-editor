@@ -34,11 +34,13 @@ class SegmentIntervalItem(QGraphicsItem):
             is_last_interval: bool,
             car: Car,
             application_controller: "ApplicationController",
+            is_car_selected: bool = False,
     ) -> None:
         super().__init__()
         self.segment_interval = segment_interval
         self.is_last_interval = is_last_interval
         self.car = car
+        self.is_car_selected = bool(is_car_selected)
         self.application_controller = application_controller
         self.lane_start = lane_start
         self.lane_end = lane_end
@@ -67,6 +69,8 @@ class SegmentIntervalItem(QGraphicsItem):
     def _setup_style(self) -> None:
         """Hook for subclasses to override visual styles."""
         pass
+
+
 
     def _update_z_value(self) -> None:
         """Updates the z-value of the item to ensure correct rendering order."""
@@ -299,6 +303,13 @@ class ViewSegmentItem(SegmentIntervalItem):
 
 class ReservedSegmentItem(SegmentIntervalItem):
     """Visualizes reserved segments, adjusting for car width."""
+
+    def _setup_style(self) -> None:
+        if self.is_car_selected:
+            self.color.setAlphaF(1.0)
+        else:
+            self.color.setAlphaF(0.5)
+        self.brush.setColor(self.color)
 
     @property
     def should_extend_car(self) -> bool:
