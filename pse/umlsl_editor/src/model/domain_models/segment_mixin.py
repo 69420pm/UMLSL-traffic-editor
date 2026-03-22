@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+
 from pse.umlsl_editor.src.model.entities.road import RoadOrientation
 from pse.umlsl_editor.src.model.helper.direction import Direction
 from pse.umlsl_editor.src.model.traffic_value_objects.lane import Lane
@@ -9,6 +10,7 @@ from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnDir
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
+
 
 class SegmentMixin:
     def get_valid_turn_intent_lanes(
@@ -189,8 +191,6 @@ class SegmentMixin:
         )
         vertical_roads = sorted(self._vertical_roads.values(), key=lambda r: r.position)
 
-        # 1. Create all CrossingSegments
-        # Key: (horizontal_lane, vertical_lane) -> CrossingSegment
         crossing_map: dict[tuple[Lane, Lane], CrossingSegment] = {}
 
         for h_road in horizontal_roads:
@@ -205,17 +205,14 @@ class SegmentMixin:
                         self._segments[cs.uid] = cs
                         crossing_map[(h_lane, v_lane)] = cs
 
-        # 2. Process Horizontal Roads
         for h_road in horizontal_roads:
             h_lanes = h_road.forward_lanes + h_road.backward_lanes
-            # Sort Bottom to Top (low y to high y) based on physical lane position
             h_lanes.sort(key=lambda l: l.get_one_dimensional_position(self))
 
             lane_physical_segments: dict[Lane, list[Segment]] = {}
 
             for lane in h_lanes:
                 segments = []
-                # Left Inf
                 left_inf = LaneSegment(lane=lane)
                 self._segments[left_inf.uid] = left_inf
                 segments.append(left_inf)
@@ -234,11 +231,9 @@ class SegmentMixin:
 
                 lane_physical_segments[lane] = segments
 
-                # Store spatial order (low x to high x)
                 segments_uids = [s.uid for s in segments]
                 self._segments_by_lane[lane] = segments_uids
 
-                # Flow Direction Setup
                 if lane.lane_index >= 0:
                     flow_uids = segments_uids
                     flow_dir = Direction.RIGHT
@@ -246,13 +241,11 @@ class SegmentMixin:
                     flow_uids = list(reversed(segments_uids))
                     flow_dir = Direction.LEFT
 
-                # Connect Flow
                 for i in range(len(flow_uids) - 1):
                     self._graph.add_edge(
                         flow_uids[i], flow_uids[i + 1], direction=flow_dir
                     )
 
-            # Connect Lateral
             for i in range(len(h_lanes) - 1):
                 top_lane = h_lanes[i]
                 bottom_lane = h_lanes[i + 1]
@@ -261,22 +254,18 @@ class SegmentMixin:
                 segs_bottom = lane_physical_segments[bottom_lane]
 
                 for s_t, s_b in zip(segs_top, segs_bottom):
-                    # Only connect LaneSegments laterally, not CrossingSegments
                     if isinstance(s_t, LaneSegment) and isinstance(s_b, LaneSegment):
                         self._graph.add_edge(s_t.uid, s_b.uid, direction=Direction.UP)
                         self._graph.add_edge(s_b.uid, s_t.uid, direction=Direction.DOWN)
 
-        # 3. Process Vertical Roads
         for v_road in vertical_roads:
             v_lanes = v_road.forward_lanes + v_road.backward_lanes
-            # Sort Left to Right (low x to high x) based on physical lane position
             v_lanes.sort(key=lambda l: l.get_one_dimensional_position(self))
 
             lane_physical_segments: dict[Lane, list[Segment]] = {}
 
             for lane in v_lanes:
                 segments = []
-                # Bottom Inf
                 top_inf = LaneSegment(lane=lane)
                 self._segments[top_inf.uid] = top_inf
                 segments.append(top_inf)
@@ -295,11 +284,9 @@ class SegmentMixin:
 
                 lane_physical_segments[lane] = segments
 
-                # Store spatial order (low y to high y)
                 segments_uids = [s.uid for s in segments]
                 self._segments_by_lane[lane] = segments_uids
 
-                # Flow Direction Setup
                 if lane.lane_index >= 0:
                     flow_uids = segments_uids
                     flow_dir = Direction.UP
@@ -307,13 +294,11 @@ class SegmentMixin:
                     flow_uids = list(reversed(segments_uids))
                     flow_dir = Direction.DOWN
 
-                # Connect Flow
                 for i in range(len(flow_uids) - 1):
                     self._graph.add_edge(
                         flow_uids[i], flow_uids[i + 1], direction=flow_dir
                     )
 
-            # Connect Lateral
             for i in range(len(v_lanes) - 1):
                 left_lane = v_lanes[i]
                 right_lane = v_lanes[i + 1]
@@ -322,7 +307,6 @@ class SegmentMixin:
                 segs_right = lane_physical_segments[right_lane]
 
                 for s_l, s_r in zip(segs_left, segs_right):
-                    # Only connect LaneSegments laterally, not CrossingSegments
                     if isinstance(s_l, LaneSegment) and isinstance(s_r, LaneSegment):
                         self._graph.add_edge(
                             s_l.uid, s_r.uid, direction=Direction.RIGHT
@@ -331,8 +315,7 @@ class SegmentMixin:
 
     def print_graph(self: "TrafficSnapshotModel") -> None:
         """
-        Prints the graph structure to stdout for debugging purposes.
-        Shows segments and their outgoing connections with directions.
+        Prints the graph structure for debugging.
         """
         print("=== Traffic Graph Structure ===")
         for segment_uid in self._graph.nodes:
@@ -352,7 +335,7 @@ class SegmentMixin:
         print("===============================")
 
     def get_segment_info(self: "TrafficSnapshotModel", segment_uid: str, include_uid: bool = False) -> str:
-        # todo: use polymorphism to remove instance checks
+        # maybe use polymorphism in the future to remove instance checks
         segment = self._segments.get(segment_uid)
         if segment is None:
             return f"unknown segment with uid {segment_uid}"
