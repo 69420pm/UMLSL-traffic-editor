@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Tuple
 
 from PySide6.QtCore import QPointF, QRectF
 from PySide6.QtGui import QBrush, QColor, QPainter, QPen, QPolygonF
@@ -35,17 +35,24 @@ from pse.umlsl_editor.src.view.view_constants import COLORS, DIMENSION, Z_LAYERS
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
+    from pse.umlsl_editor.src.model.entities.lane import Lane
 
 logger = logging.getLogger(__name__)
 
 
 class CarItemStyle:
+    """Contains styling constants for the CarItem."""
     PEN_WIDTH = 0.07
     HOVER_LIGHTNESS = 110
     LABEL_SCALE_THRESHOLD = DIMENSION.GRID_FINE_THRESHOLD
 
 
 class CarItem(SelectableGraphicsItem):
+    """
+    Represents a car entity on the traffic canvas.
+    Handles the visualization of the car, its movement, and its associated segment intervals (claimed, reserved, view).
+    """
+
     def __init__(
             self,
             car: Car,
@@ -68,11 +75,13 @@ class CarItem(SelectableGraphicsItem):
         self.update_data(car)
 
     def cleanup(self) -> None:
+        """Cleans up listeners and removes segments from the scene before deletion."""
         if self._road_item:
             self._road_item.remove_position_listener(self)
         self._clear_segments()
 
     def update_data(self, car: Car, road_item: Optional[RoadItem] = None) -> None:
+        """Updates the internal data of the car, potentially swapping to a new road item."""
         self._car = car
         self.setData(0, car)
 
@@ -88,6 +97,7 @@ class CarItem(SelectableGraphicsItem):
         self.refresh_geometry()
 
     def update_segments(self) -> None:
+        """Refreshes the visualization of claimed, reserved, and view segments."""
         self._clear_segments()
 
         if self.is_selected:
@@ -97,6 +107,7 @@ class CarItem(SelectableGraphicsItem):
         self._add_segment_items(self._car.environment.claimed, ClaimedSegmentItem)
 
     def _add_view_segment_items(self) -> None:
+        """Adds graphical items representing the car's view segments (virtual lanes)."""
         parallel_virtual_lanes = self._car.environment.parallel_virtual_lanes
         if not parallel_virtual_lanes:
             return
@@ -106,7 +117,8 @@ class CarItem(SelectableGraphicsItem):
                 view_intervals = self._to_view_segment_intervals(virtual_lane.segment_intervals)
                 self._add_segment_items(view_intervals, ViewSegmentItem)
 
-    def _to_view_segment_intervals(self, segment_intervals):
+    def _to_view_segment_intervals(self, segment_intervals) -> list[ViewSegmentIntervall]:
+        """Converts standard segment intervals to ViewSegmentIntervall objects with offsets."""
         view_intervals = []
         offset = 0.0
         path_segments = tuple(seg_interval.segment for seg_interval in segment_intervals)
@@ -118,6 +130,7 @@ class CarItem(SelectableGraphicsItem):
         return view_intervals
 
     def _clear_segments(self) -> None:
+        """Removes all currently displayed segment items associated with this car."""
         scene = self._get_scene()
         if scene is None:
             self._segments.clear()
@@ -127,48 +140,21 @@ class CarItem(SelectableGraphicsItem):
         self._segments.clear()
 
     def _add_segment_items(self, segments, segment_class) -> None:
+        """
+        Instantiates and adds segment items to the scene.
+
+        Args:
+            segments: List of segment data objects.
+            segment_class: The class to instantiate for each segment.
+        """
         scene = self._get_scene()
         if scene is None or not segments:
             return
 
         for i, seg_data in enumerate(segments):
-            entry_lane = None
-            exit_lane = None
+            entry_lane, exit_lane = self._determine_entry_and_exit_lanes(segments, i)
 
-            # Find the closest preceding lane for entry
-            for j in range(i, -1, -1):
-                if hasattr(segments[j].segment, 'lane'):
-                    entry_lane = segments[j].segment.lane
-                    break
-
-            # Find the closest succeeding lane for exit
-            for j in range(i, len(segments)):
-                if hasattr(segments[j].segment, 'lane'):
-                    exit_lane = segments[j].segment.lane
-                    break
-
-            if entry_lane is None:
-                entry_lane = self._car.lane
-            if exit_lane is None:
-                exit_lane = entry_lane
-
-            road_uid = ""
-            try:
-                segment = seg_data.segment
-
-                if isinstance(segment, LaneSegment):
-                    road_uid = segment.lane.road_uid
-                    self.application_controller.get_traffic_snapshot_reader().get_road_by_uid(road_uid)
-                elif isinstance(segment, CrossingSegment):
-                    road_uid = segment.vertical_lane.road_uid
-                    self.application_controller.get_traffic_snapshot_reader().get_road_by_uid(
-                        road_uid)
-
-                    road_uid = segment.horizontal_lane.road_uid
-                    self.application_controller.get_traffic_snapshot_reader().get_road_by_uid(
-                        road_uid)
-            except ValueError:
-                logger.warning(f"Skipping segment interval for non-existent road uid: {road_uid}")
+            if not self._validate_segment_road(seg_data.segment):
                 continue
 
             seg_item = segment_class(
@@ -182,15 +168,59 @@ class CarItem(SelectableGraphicsItem):
             scene.addItem(seg_item)
             self._segments.append(seg_item)
 
+    def _determine_entry_and_exit_lanes(self, segments, current_index: int) -> Tuple["Lane", "Lane"]:
+        """Finds the closest preceding lane for entry and closest succeeding lane for exit."""
+        entry_lane = None
+        exit_lane = None
+
+        # Find the closest preceding lane for entry
+        for j in range(current_index, -1, -1):
+            if hasattr(segments[j].segment, 'lane'):
+                entry_lane = segments[j].segment.lane
+                break
+
+        # Find the closest succeeding lane for exit
+        for j in range(current_index, len(segments)):
+            if hasattr(segments[j].segment, 'lane'):
+                exit_lane = segments[j].segment.lane
+                break
+
+        if entry_lane is None:
+            entry_lane = self._car.lane
+        if exit_lane is None:
+            exit_lane = entry_lane
+
+        return entry_lane, exit_lane
+
+    def _validate_segment_road(self, segment) -> bool:
+        """Checks if the road associated with the segment exists in the traffic snapshot."""
+        road_uid = ""
+        try:
+            reader = self.application_controller.get_traffic_snapshot_reader()
+            if isinstance(segment, LaneSegment):
+                road_uid = segment.lane.road_uid
+                reader.get_road_by_uid(road_uid)
+            elif isinstance(segment, CrossingSegment):
+                road_uid = segment.vertical_lane.road_uid
+                reader.get_road_by_uid(road_uid)
+                road_uid = segment.horizontal_lane.road_uid
+                reader.get_road_by_uid(road_uid)
+            return True
+        except ValueError:
+            logger.warning(f"Skipping segment interval for non-existent road uid: {road_uid}")
+            return False
+
     def _get_scene(self) -> QGraphicsScene | None:
         return self.scene()
 
     def _get_constraint_for_orientation(self, orientation: RoadOrientation) -> int:
+        """Returns the movement constraint (X or Y only) based on road orientation."""
         if orientation == RoadOrientation.HORIZONTAL:
             return SelectableGraphicsItem.AXIS_X_ONLY
         return SelectableGraphicsItem.AXIS_Y_ONLY
 
     def _update_styles(self) -> None:
+        """Updates the visual styling of the car (z-value, colors, pens)."""
         self.setZValue(Z_LAYERS.SELECTED_CAR if self.is_selected else Z_LAYERS.CAR)
 
         constraint = self._get_constraint_for_orientation(self._road.orientation)
@@ -214,6 +244,7 @@ class CarItem(SelectableGraphicsItem):
         self.update()
 
     def on_move_committed(self, delta_x: float, delta_y: float) -> None:
+        """Handles committing the car's movement to the application controller."""
         is_horiz = self._road.orientation == RoadOrientation.HORIZONTAL
         delta = delta_x if is_horiz else delta_y
         new_position = self._car.position_on_lane + delta
@@ -242,6 +273,7 @@ class CarItem(SelectableGraphicsItem):
         self._paint_label(painter, option)
 
     def _paint_label(self, painter: QPainter, option: QStyleOptionGraphicsItem) -> None:
+        """Paints the car's name label centered on the car polygon if zoomed in enough."""
         transform = painter.worldTransform()
         lod = option.levelOfDetailFromTransform(transform)
 
@@ -279,33 +311,43 @@ class CarItem(SelectableGraphicsItem):
         self._update_styles()
         self.prepareGeometryChange()
 
+        # Extract basic values
         car = self._car
         road = self._road
-        lane_idx = car.lane.lane_index
         is_vertical = road.orientation == RoadOrientation.VERTICAL
-        is_backward = (lane_idx < 0) != (car.speed < 0)
 
-        # Define the local car shape with the rear anchored at (0, 0).
-        # The polygon is defined facing positive X; direction is adjusted later.
-        l, w, t = car.length, DIMENSION.CAR_WIDTH / 2.0, DIMENSION.CAR_TRIANGLE_LENGTH
+        # Calculate polygon points
+        points = self._calculate_local_points()
+        poly_points = self._transform_points_to_world(points, car, road, is_vertical)
 
-        points = [
-            QPointF(0, -w),  # Back-Right
+        self._polygon = QPolygonF(poly_points)
+        self.update()
+
+    def _calculate_local_points(self) -> list[QPointF]:
+        """Defines the local car shape with the rear anchored at (0, 0)."""
+        l = self._car.length
+        w = DIMENSION.CAR_WIDTH / 2.0
+        t = DIMENSION.CAR_TRIANGLE_LENGTH
+
+        return [
+            QPointF(0, -w),      # Back-Right
             QPointF(l - t, -w),  # Shoulder-Right
-            QPointF(l, 0),  # Tip
-            QPointF(l - t, w),  # Shoulder-Left
-            QPointF(0, w)  # Back-Left
+            QPointF(l, 0),       # Tip
+            QPointF(l - t, w),   # Shoulder-Left
+            QPointF(0, w)        # Back-Left
         ]
 
-        # Calculate world-space offsets for lane center and transition.
+    def _transform_points_to_world(self, points: list[QPointF], car: Car, road, is_vertical: bool) -> list[QPointF]:
+        """Transforms local car points into world coordinates based on lane and position."""
+        lane_idx = car.lane.lane_index
+        is_backward = (lane_idx < 0) != (car.speed < 0)
         lane_w = DIMENSION.LANE_WIDTH
 
         # Determine lateral direction/offset logic
         vert_mod = 1 if is_vertical else -1
-
         center_offset = (lane_idx * lane_w * vert_mod) + (lane_w / 2.0 * vert_mod)
 
-        # If the car has claimed lanes, apply the transition offset to shift towards the claimed lane.
+        # Apply transition offset if changing lanes
         if car.environment.claimed:
             center_offset += car.transition * lane_w
 
@@ -313,7 +355,7 @@ class CarItem(SelectableGraphicsItem):
         lat_pos = road_base + center_offset
         long_pos = car.position_on_lane
 
-        # Transform local points into world coordinates.
+        # Transform local points
         poly_points = []
         for p in points:
             # If backward lane, flip longitudinal direction (face negative)
@@ -321,11 +363,8 @@ class CarItem(SelectableGraphicsItem):
             ly = p.y()
 
             if is_vertical:
-                # Vertical: Long=Y, Lat=X
                 poly_points.append(QPointF(lat_pos + ly, long_pos + lx))
             else:
-                # Horizontal: Long=X, Lat=Y
                 poly_points.append(QPointF(long_pos + lx, lat_pos + ly))
 
-        self._polygon = QPolygonF(poly_points)
-        self.update()
+        return poly_points
