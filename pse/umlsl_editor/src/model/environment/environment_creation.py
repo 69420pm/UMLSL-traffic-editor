@@ -12,7 +12,7 @@ from pse.umlsl_editor.src.model.environment.helper.segment_intervals_helper impo
 )
 from pse.umlsl_editor.src.model.environment.helper.segment_topology_helper import (
     compute_parallel_lane_segments,
-    compute_path,
+    compute_path_through_crossing,
 )
 from pse.umlsl_editor.src.model.environment.helper.turn_intent_helper import (
     find_turn_intent_segment,
@@ -111,8 +111,8 @@ class EnvironmentCreation:
 
         # We first compute the unbounded path segments (we suppose the car has an infinite horizon).
         # We then compute the horizon and cut off the unbounded path segments.
-        unbounded_path_segments: list[Segment] | None = compute_path(self.ts, self.start_segment,
-                                                                     turn_segment)
+        unbounded_path_segments: list[Segment] | None = compute_path_through_crossing(self.ts, self.start_segment,
+                                                                                      turn_segment)
         if unbounded_path_segments is None:
             raise ValueError("Car specified a turn intent with invalid path.")
 
@@ -295,11 +295,11 @@ class EnvironmentCreation:
         for src_seg in src_segments:
             paths = []
             for target_segment in target_segments:
-                path: list[Segment] | None = compute_path(self.ts, src_seg, target_segment)
+                path: list[Segment] | None = compute_path_through_crossing(self.ts, src_seg, target_segment)
                 if path is not None:
                     paths.append(path)
                 else:
-                    path = compute_path(self.ts, target_segment, src_seg)
+                    path = compute_path_through_crossing(self.ts, target_segment, src_seg)
                     if path is not None:
                         path.reverse()
                         paths.append(path)

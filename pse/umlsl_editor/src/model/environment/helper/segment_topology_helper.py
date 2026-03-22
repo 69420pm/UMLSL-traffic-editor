@@ -5,7 +5,7 @@ from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment impo
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 
 
-def compute_path(
+def compute_path_through_crossing(
         ts: TrafficSnapshotReader,
         start: LaneSegment,
         end: LaneSegment
@@ -20,46 +20,9 @@ def compute_path(
     Returns:
         the list of segments through the crossing
     """
-    if start.lane.road_uid == end.lane.road_uid:
-        return _continue_path_straight(ts, start, end)
+    if start == end:
+        return [start]
 
-    path_through_crossing: list[Segment] = _compute_path_through_crossing(ts, start, end)
-    if path_through_crossing is None:
-        return None
-
-    # after the turn, we continue straight in the direction of the last segment
-    lane_segment_after_crossing: Segment = path_through_crossing[-1]
-    if not isinstance(lane_segment_after_crossing, LaneSegment):
-        raise ValueError(
-            f"The last segment of the path through the crossing must be a lane segment."
-        )
-    remaining_path: list[Segment] = _continue_path_straight(ts, lane_segment_after_crossing, end)
-    return path_through_crossing[:-1] + remaining_path
-
-
-def _continue_path_straight(ts: TrafficSnapshotReader, start: LaneSegment, end: LaneSegment) -> list[Segment]:
-    # we first have to figure out the direction of the path
-    direction: Direction
-    orientation_start: RoadOrientation = ts.get_road_by_uid(start.lane.road_uid).orientation
-    orientation_end: RoadOrientation = ts.get_road_by_uid(end.lane.road_uid).orientation
-    if orientation_start == RoadOrientation.HORIZONTAL and orientation_end == RoadOrientation.HORIZONTAL:
-        direction = Direction.RIGHT if start.get_position(ts)[0] < end.get_position(ts)[0] else Direction.LEFT
-    elif orientation_start == RoadOrientation.VERTICAL and orientation_end == RoadOrientation.VERTICAL:
-        direction = Direction.UP if start.get_position(ts)[1] < end.get_position(ts)[1] else Direction.DOWN
-    else:
-        raise ValueError("Cannot compute straight path between segments of different orientations.")
-
-    # we continue straight along that direction
-    path: list[Segment] = [start]
-    next_segment = ts.get_adjacent_segment(start.uid, direction)
-    while next_segment is not None:
-        path.append(next_segment)
-        next_segment = ts.get_adjacent_segment(next_segment.uid, direction)
-
-    return path
-
-
-def _compute_path_through_crossing(ts: TrafficSnapshotReader, start: LaneSegment, end: LaneSegment) -> list[Segment] | None:
     relative_start_to_end = _compute_relative_direction(ts, start, end)
     relative_end_to_start = _compute_relative_direction(ts, end, start)
 
