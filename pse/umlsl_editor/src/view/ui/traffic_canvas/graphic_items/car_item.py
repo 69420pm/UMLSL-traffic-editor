@@ -158,10 +158,10 @@ class CarItem(SelectableGraphicsItem):
         for i, seg_data in enumerate(segments):
             segment = seg_data.segment
             if isinstance(segment, LaneSegment):
-                seg_id = (segment.lane.lane_index, segment.lane.road_uid)
+                seg_id = (segment.lane.lane_index, segment.lane.road_uid, seg_data.interval.start)
             elif isinstance(segment, CrossingSegment):
                 seg_id = (segment.horizontal_lane.road_uid, segment.vertical_lane.road_uid,
-                          segment.vertical_lane.lane_index, segment.horizontal_lane.lane_index)
+                          segment.vertical_lane.lane_index, segment.horizontal_lane.lane_index, seg_data.interval.start)
             else:
                 seg_id = id(segment)
 
