@@ -20,6 +20,7 @@ from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment impo
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import (
     ViewSegmentIntervall,
 )
+from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import TurnDirection
 from pse.umlsl_editor.src.view.ui.exception_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import RoadItem
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.segment_interval_item import (
@@ -157,13 +158,15 @@ class CarItem(SelectableGraphicsItem):
 
         for i, seg_data in enumerate(segments):
             segment = seg_data.segment
+            start = seg_data.interval.start if self._car.next_turn is None or self._car.next_turn.direction == TurnDirection.STRAIGHT else 0
+
             if isinstance(segment, LaneSegment):
-                seg_id = (segment.lane.lane_index, segment.lane.road_uid, seg_data.interval.start)
+                seg_id = (segment.lane.lane_index, segment.lane.road_uid, start
+                          )
             elif isinstance(segment, CrossingSegment):
                 seg_id = (segment.horizontal_lane.road_uid, segment.vertical_lane.road_uid,
-                          segment.vertical_lane.lane_index, segment.horizontal_lane.lane_index, seg_data.interval.start)
-            else:
-                seg_id = id(segment)
+                          segment.vertical_lane.lane_index, segment.horizontal_lane.lane_index,
+                          start)
 
             if seg_id in seen:
                 continue
