@@ -178,7 +178,7 @@ class EnvironmentCreation:
             reserved_segment_intervals,
             claimed_segment_intervals
         )
-        car_environment.print_debug(self.ts, self.car_params.name)
+        # car_environment.print_debug(self.ts, self.car_params.name)
         return car_environment
 
     def _compute_horizon(self, backward_length: float, segment_intervals: list[SegmentInterval]) -> Interval:
