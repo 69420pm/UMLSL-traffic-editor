@@ -24,7 +24,6 @@ from pse.umlsl_editor.src.view.ui.exception_handling.warning_dialog import Warni
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import RoadItem
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.segment_interval_item import (
     ClaimedSegmentItem,
-    PathSegmentItem,
     ReservedSegmentItem,
     ViewSegmentItem,
 )
@@ -112,10 +111,11 @@ class CarItem(SelectableGraphicsItem):
         if not parallel_virtual_lanes:
             return
 
+        seen = set()
         for parallel_virtual_lane in parallel_virtual_lanes:
             for virtual_lane in parallel_virtual_lane:
                 view_intervals = self._to_view_segment_intervals(virtual_lane.segment_intervals)
-                self._add_segment_items(view_intervals, ViewSegmentItem)
+                self._add_segment_items(view_intervals, ViewSegmentItem, seen)
 
     def _to_view_segment_intervals(self, segment_intervals) -> list[ViewSegmentIntervall]:
         """Converts standard segment intervals to ViewSegmentIntervall objects with offsets."""
@@ -139,19 +139,36 @@ class CarItem(SelectableGraphicsItem):
             scene.removeItem(seg)
         self._segments.clear()
 
-    def _add_segment_items(self, segments, segment_class) -> None:
+    def _add_segment_items(self, segments, segment_class, seen=None) -> None:
         """
         Instantiates and adds segment items to the scene.
 
         Args:
             segments: List of segment data objects.
             segment_class: The class to instantiate for each segment.
+            seen: Set of already rendered segment intervals to prevent duplicates.
         """
         scene = self._get_scene()
         if scene is None or not segments:
             return
 
+        if seen is None:
+            seen = set()
+
         for i, seg_data in enumerate(segments):
+            segment = seg_data.segment
+            if isinstance(segment, LaneSegment):
+                seg_id = (segment.lane.lane_index, segment.lane.road_uid)
+            elif isinstance(segment, CrossingSegment):
+                seg_id = (segment.horizontal_lane.road_uid, segment.vertical_lane.road_uid,
+                          segment.vertical_lane.lane_index, segment.horizontal_lane.lane_index)
+            else:
+                seg_id = id(segment)
+
+            if seg_id in seen:
+                continue
+            seen.add(seg_id)
+
             entry_lane, exit_lane = self._determine_entry_and_exit_lanes(segments, i)
 
             if not self._validate_segment_road(seg_data.segment):
@@ -330,11 +347,11 @@ class CarItem(SelectableGraphicsItem):
         t = DIMENSION.CAR_TRIANGLE_LENGTH
 
         return [
-            QPointF(0, -w),      # Back-Right
+            QPointF(0, -w),  # Back-Right
             QPointF(l - t, -w),  # Shoulder-Right
-            QPointF(l, 0),       # Tip
-            QPointF(l - t, w),   # Shoulder-Left
-            QPointF(0, w)        # Back-Left
+            QPointF(l, 0),  # Tip
+            QPointF(l - t, w),  # Shoulder-Left
+            QPointF(0, w)  # Back-Left
         ]
 
     def _transform_points_to_world(self, points: list[QPointF], car: Car, road, is_vertical: bool) -> list[QPointF]:
