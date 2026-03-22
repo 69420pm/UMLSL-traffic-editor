@@ -76,6 +76,7 @@ class ViewEventHandlerImplementation(ViewEventHandler):
 
     def update_query_view(self, query: UMLSLQuery) -> None:
         self.view_models.query_list_model.update_entity(query)
+        self.view_models.query_list_model.set_query_loading(query.uid, False)
 
     def loading_query_view(self, query_payload: UMLSLQuery | dict) -> None:
         if isinstance(query_payload, dict):

@@ -145,7 +145,7 @@ class UMLSLQueriesModel(Observable):
             if query.uid in self._active_futures:
                 self._active_futures[query.uid].cancel()
 
-            # self.mark_umlsl_query_as_loading(query)
+            self.mark_umlsl_query_as_loading(query)
 
             evaluate_ego_lane_only = query.should_only_evaluate_on_cars_lane
 

@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+
 from pse.umlsl_editor.src.model.entities.car import Car, CarParams
 from pse.umlsl_editor.src.model.entities.road import Road
 from pse.umlsl_editor.src.model.errors.car_errors import CarTrafficSnapshotContextValidationError
@@ -6,6 +7,7 @@ from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventTy
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
+
 
 class CarMixin:
     def is_car_existing(self: "TrafficSnapshotModel", uid: str) -> bool:
@@ -18,15 +20,12 @@ class CarMixin:
 
     def _on_car_added(self: "TrafficSnapshotModel", car: Car):
         self.notify(TrafficSnapshotEventType.CAR_ADDED, car)
-        # self.revalidate_queries()
 
     def _on_car_removed(self: "TrafficSnapshotModel", car: Car):
         self.notify(TrafficSnapshotEventType.CAR_REMOVED, car)
-        # self.revalidate_queries()
 
     def _on_car_updated(self: "TrafficSnapshotModel", car: Car):
         self.notify(TrafficSnapshotEventType.CAR_UPDATED, car)
-        # self.revalidate_queries()
 
     def get_cars_on_road(self: "TrafficSnapshotModel", road: Road) -> list[Car]:
         return [car for car in self.cars.values() if car.lane.road_uid == road.uid]
