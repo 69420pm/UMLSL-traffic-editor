@@ -14,6 +14,7 @@ class HorizontalChopNode(BinaryNode):
     The HorizontalChopNode is a binary node that evaluates to true if there exists a horizontal split such that the
     left part evaluates to true and the right part evaluates to true as well.
     """
+
     def __init__(self, left: ASTNode, right: ASTNode):
         super().__init__(Precedence.BINARY_CHOP, left, right)
         self.latex_left = left.to_latex()
@@ -89,8 +90,8 @@ class HorizontalChopNode(BinaryNode):
         if left_eval:
             right_eval = self._right.evaluate(traffic_snapshot, right_view, variable_car_map)
             if right_eval:
-                print(
-                    f"hchop: evaluated true on {left_view.horizon} ({self.latex_left}) and {right_view.horizon} ({self.latex_right})")
+                # print(
+                #   f"hchop: evaluated true on {left_view.horizon} ({self.latex_left}) and {right_view.horizon} ({self.latex_right})")
                 return True
 
         return False
@@ -104,6 +105,7 @@ class VerticalChopNode(BinaryNode):
     The VerticalChopNode is a binary node that evaluates to true if there exists a vertical split such that the
     upper part evaluates to true and the lower part evaluates to true as well.
     """
+
     def __init__(self, left: ASTNode, right: ASTNode):
         super().__init__(Precedence.BINARY_CHOP, left, right)
 
