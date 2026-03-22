@@ -57,12 +57,12 @@ class CommandController:
     """
 
     def __init__(
-        self,
-        traffic_snapshot_reader: TrafficSnapshotReader,
-        traffic_snapshot_writer: TrafficSnapshotWriter,
-        umlsl_queries_model: UMLSLQueriesModel,
-        settings_model: SettingsModel,
-        application_controller: Optional[object] = None,
+            self,
+            traffic_snapshot_reader: TrafficSnapshotReader,
+            traffic_snapshot_writer: TrafficSnapshotWriter,
+            umlsl_queries_model: UMLSLQueriesModel,
+            settings_model: SettingsModel,
+            application_controller: Optional[object] = None,
     ):
         """
         Initialize the command controller.
@@ -97,9 +97,9 @@ class CommandController:
         command.execute()
 
         if not (
-            isinstance(command, SaveTrafficSnapshot)
-            or isinstance(command, SaveAsTrafficSnapshot)
-            or isinstance(command, LoadTrafficSnapshot)
+                isinstance(command, SaveTrafficSnapshot)
+                or isinstance(command, SaveAsTrafficSnapshot)
+                or isinstance(command, LoadTrafficSnapshot)
         ):
             # Mark snapshot as changed for all commands except loading/saving
             self._set_snapshot_changed_since_last_save(True)
@@ -109,16 +109,15 @@ class CommandController:
 
     def _preflight_snapshot_command(self, command: Command) -> None:
         if not (
-            hasattr(command, "_traffic_snapshot_reader")
-            and hasattr(command, "_traffic_snapshot_writer")
+                hasattr(command, "_traffic_snapshot_reader")
+                and hasattr(command, "_traffic_snapshot_writer")
         ):
             return
         if not isinstance(self.traffic_snapshot_reader, TrafficSnapshotModel):
             return
 
         snapshot_data = self.traffic_snapshot_reader.to_dict()
-        clone_queries_model = UMLSLQueriesModel()
-        clone_snapshot = TrafficSnapshotModel(clone_queries_model, self.settings_model)
+        clone_snapshot = TrafficSnapshotModel(self.settings_model)
         TrafficSnapshotModel.from_dict(
             snapshot_data, clone_snapshot, clone_snapshot, self.settings_model
         )
@@ -139,26 +138,26 @@ class CommandController:
             command._traffic_snapshot_writer = original_writer
 
     def _map_preflight_exception(
-        self, command: Command, exc: Exception
+            self, command: Command, exc: Exception
     ) -> Exception | None:
         if isinstance(
-            exc,
-            (
-                CarTrafficSnapshotContextValidationError,
-                RoadTrafficSnapshotContextValidationError,
-            ),
+                exc,
+                (
+                        CarTrafficSnapshotContextValidationError,
+                        RoadTrafficSnapshotContextValidationError,
+                ),
         ):
             return exc
         if isinstance(exc, ValueError):
             if isinstance(command, (add_car.AddCarCommand, EditCarCommand)):
                 return CarTrafficSnapshotContextValidationError(content=str(exc))
             if isinstance(
-                command,
-                (
-                    add_road.AddRoadCommand,
-                    edit_road.EditRoadCommand,
-                    delete_road.DeleteRoad,
-                ),
+                    command,
+                    (
+                            add_road.AddRoadCommand,
+                            edit_road.EditRoadCommand,
+                            delete_road.DeleteRoad,
+                    ),
             ):
                 return RoadTrafficSnapshotContextValidationError(content=str(exc))
         return None
@@ -226,17 +225,17 @@ class CommandController:
     # High-level command API methods
 
     def add_car(
-        self,
-        name: str,
-        assigned_road: Road,
-        lane_index: int,
-        color: str,
-        position_on_lane: float,
-        transition: float,
-        speed: float,
-        length: float,
-        acceleration: float,
-        next_turn: Optional[TurnIntent],
+            self,
+            name: str,
+            assigned_road: Road,
+            lane_index: int,
+            color: str,
+            position_on_lane: float,
+            transition: float,
+            speed: float,
+            length: float,
+            acceleration: float,
+            next_turn: Optional[TurnIntent],
     ) -> None:
         """
         Adds a car to the traffic snapshot based on the given parameters.
@@ -290,18 +289,18 @@ class CommandController:
     _UNCHANGED = object()
 
     def edit_car(
-        self,
-        car: Car,
-        car_name: object = _UNCHANGED,
-        road_uid: object = _UNCHANGED,
-        lane_index: object = _UNCHANGED,
-        color: object = _UNCHANGED,
-        position_on_lane: object = _UNCHANGED,
-        transition: object = _UNCHANGED,
-        speed: object = _UNCHANGED,
-        length: object = _UNCHANGED,
-        next_turn: object = _UNCHANGED,
-        acceleration: object = _UNCHANGED,
+            self,
+            car: Car,
+            car_name: object = _UNCHANGED,
+            road_uid: object = _UNCHANGED,
+            lane_index: object = _UNCHANGED,
+            color: object = _UNCHANGED,
+            position_on_lane: object = _UNCHANGED,
+            transition: object = _UNCHANGED,
+            speed: object = _UNCHANGED,
+            length: object = _UNCHANGED,
+            next_turn: object = _UNCHANGED,
+            acceleration: object = _UNCHANGED,
     ) -> None:
         """
         Edits properties of an existing car using a merge strategy:
@@ -343,12 +342,12 @@ class CommandController:
         self._execute_command(edit_car_command)
 
     def add_road(
-        self,
-        name: str,
-        orientation: RoadOrientation,
-        position: float,
-        number_of_forward_lanes: int,
-        number_of_backward_lanes: int,
+            self,
+            name: str,
+            orientation: RoadOrientation,
+            position: float,
+            number_of_forward_lanes: int,
+            number_of_backward_lanes: int,
     ) -> None:
         """
         Adds a road to the traffic snapshot based on the given parameters.
@@ -385,13 +384,13 @@ class CommandController:
         self._execute_command(remove_road_command)
 
     def update_road(
-        self,
-        road: Road,
-        name: object = _UNCHANGED,
-        orientation: object = _UNCHANGED,
-        position: object = _UNCHANGED,
-        number_of_forward_lanes: object = _UNCHANGED,
-        number_of_backward_lanes: object = _UNCHANGED,
+            self,
+            road: Road,
+            name: object = _UNCHANGED,
+            orientation: object = _UNCHANGED,
+            position: object = _UNCHANGED,
+            number_of_forward_lanes: object = _UNCHANGED,
+            number_of_backward_lanes: object = _UNCHANGED,
     ) -> None:
         """
         Updates an existing road using a merge strategy.
@@ -419,7 +418,7 @@ class CommandController:
         self._execute_command(edit_road_command)
 
     def add_umlsl_query(
-        self, assigned_car_uid: str, should_only_evaluate_on_cars_lane: bool, latex: str
+            self, assigned_car_uid: str, should_only_evaluate_on_cars_lane: bool, latex: str
     ) -> None:
         """
         Adds a UMLSL query associated with a car.
@@ -449,11 +448,11 @@ class CommandController:
         self._execute_command(remove_umlsl_query_command)
 
     def update_umlsl_query(
-        self,
-        query: UMLSLQuery,
-        assigned_car_name: object = _UNCHANGED,
-        should_only_evaluate_on_cars_lane: object = _UNCHANGED,
-        latex: object = _UNCHANGED,
+            self,
+            query: UMLSLQuery,
+            assigned_car_name: object = _UNCHANGED,
+            should_only_evaluate_on_cars_lane: object = _UNCHANGED,
+            latex: object = _UNCHANGED,
     ) -> None:
         """
         Edits an existing UMLSL query using a merge strategy.
