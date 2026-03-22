@@ -137,8 +137,9 @@ def wait_until(predicate, timeout=1.0, interval=0.01):
 
 def create_backend_stack(with_event_controller: bool = True):
     settings = SettingsModel(braking_acceleration=8.0, max_speed=15.0)
-    queries = UMLSLQueriesModel()
-    snapshot = TrafficSnapshotModel(queries, settings)
+    snapshot = TrafficSnapshotModel(settings_model=settings)
+    queries = UMLSLQueriesModel(traffic_snapshot=snapshot)
+    
     view = SpyView() if with_event_controller else None
     event_controller = (
         EventController(view, snapshot, settings, queries)
@@ -281,8 +282,9 @@ class TestIntegrationPersistence(unittest.TestCase):
 
     def test_deserialize_filters_queries_with_missing_car(self):
         settings = SettingsModel(braking_acceleration=8.0, max_speed=15.0)
-        queries = UMLSLQueriesModel()
-        snapshot = TrafficSnapshotModel(queries, settings)
+        snapshot = TrafficSnapshotModel(settings_model=settings)
+        queries = UMLSLQueriesModel(traffic_snapshot=snapshot)
+        
 
         payload = {
             "meta": {"version": PersistenceService.VERSION},
@@ -304,8 +306,9 @@ class TestIntegrationPersistence(unittest.TestCase):
 
     def test_deserialize_maps_assigned_car_name(self):
         settings = SettingsModel(braking_acceleration=8.0, max_speed=15.0)
-        queries = UMLSLQueriesModel()
-        snapshot = TrafficSnapshotModel(queries, settings)
+        snapshot = TrafficSnapshotModel(settings_model=settings)
+        queries = UMLSLQueriesModel(traffic_snapshot=snapshot)
+        
 
         payload = {
             "meta": {"version": PersistenceService.VERSION},
@@ -385,8 +388,9 @@ class TestIntegrationPersistence(unittest.TestCase):
 class TestIntegrationDirtyState(unittest.TestCase):
     def test_dirty_state_true_on_modify_emits_signal(self):
         settings = SettingsModel(braking_acceleration=8.0, max_speed=15.0)
-        queries = UMLSLQueriesModel()
-        snapshot = TrafficSnapshotModel(queries, settings)
+        snapshot = TrafficSnapshotModel(settings_model=settings)
+        queries = UMLSLQueriesModel(traffic_snapshot=snapshot)
+        
         fake_app = FakeAppController(settings)
         command_controller = CommandController(
             snapshot, snapshot, queries, settings, application_controller=fake_app
@@ -406,8 +410,9 @@ class TestIntegrationDirtyState(unittest.TestCase):
 
     def test_dirty_state_false_after_save_as_emits(self):
         settings = SettingsModel(braking_acceleration=8.0, max_speed=15.0)
-        queries = UMLSLQueriesModel()
-        snapshot = TrafficSnapshotModel(queries, settings)
+        snapshot = TrafficSnapshotModel(settings_model=settings)
+        queries = UMLSLQueriesModel(traffic_snapshot=snapshot)
+        
         fake_app = FakeAppController(settings)
         command_controller = CommandController(
             snapshot, snapshot, queries, settings, application_controller=fake_app
@@ -459,8 +464,9 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
 
     def test_json_snapshot_load_then_query_evaluation(self):
         settings = SettingsModel(braking_acceleration=8.0, max_speed=15.0)
-        queries = UMLSLQueriesModel()
-        snapshot = TrafficSnapshotModel(queries, settings)
+        snapshot = TrafficSnapshotModel(settings_model=settings)
+        queries = UMLSLQueriesModel(traffic_snapshot=snapshot)
+        
 
         payload = {
             "meta": {"version": PersistenceService.VERSION},
@@ -568,8 +574,9 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
 
     def test_complex_queries_with_json(self):
         settings = SettingsModel(braking_acceleration=8.0, max_speed=15.0)
-        queries = UMLSLQueriesModel()
-        snapshot = TrafficSnapshotModel(queries, settings)
+        snapshot = TrafficSnapshotModel(settings_model=settings)
+        queries = UMLSLQueriesModel(traffic_snapshot=snapshot)
+        
 
         payload = {
             "meta": {"version": PersistenceService.VERSION},
@@ -688,8 +695,9 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
 
     def test_collision_queries_with_json(self):
         settings = SettingsModel(braking_acceleration=8.0, max_speed=15.0)
-        queries = UMLSLQueriesModel()
-        snapshot = TrafficSnapshotModel(queries, settings)
+        snapshot = TrafficSnapshotModel(settings_model=settings)
+        queries = UMLSLQueriesModel(traffic_snapshot=snapshot)
+        
 
         payload = {
             "meta": {"version": PersistenceService.VERSION},
@@ -824,8 +832,9 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
 
     def test_view_queries_with_json(self):
         settings = SettingsModel(braking_acceleration=8.0, max_speed=15.0)
-        queries = UMLSLQueriesModel()
-        snapshot = TrafficSnapshotModel(queries, settings)
+        snapshot = TrafficSnapshotModel(settings_model=settings)
+        queries = UMLSLQueriesModel(traffic_snapshot=snapshot)
+        
 
         payload = {
             "meta": {"version": PersistenceService.VERSION},
@@ -960,8 +969,9 @@ class TestIntegrationQueryEvaluation(unittest.TestCase):
 
     def test_complex_h_chop_queries_with_json(self):
         settings = SettingsModel(braking_acceleration=8.0, max_speed=15.0)
-        queries = UMLSLQueriesModel()
-        snapshot = TrafficSnapshotModel(queries, settings)
+        snapshot = TrafficSnapshotModel(settings_model=settings)
+        queries = UMLSLQueriesModel(traffic_snapshot=snapshot)
+        
 
         payload = {
             "meta": {"version": PersistenceService.VERSION},
