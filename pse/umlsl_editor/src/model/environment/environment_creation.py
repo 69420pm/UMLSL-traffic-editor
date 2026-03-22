@@ -325,14 +325,7 @@ class EnvironmentCreation:
                         paths.append(path)
 
             if len(paths) > 0:
-                if src_seg == self.start_segment:
-                    main_path = compute_path_through_crossing(self.ts, self.start_segment, turn_segment)
-                    if main_path in paths:
-                        order_lanes.append([main_path])
-                    else:
-                        order_lanes.append(paths)
-                else:
-                    order_lanes.append(paths)
+                order_lanes.append(paths)
 
         parallel_lanes: list[list[list[Segment]]] = [list(p) for p in product(*order_lanes)]
 
