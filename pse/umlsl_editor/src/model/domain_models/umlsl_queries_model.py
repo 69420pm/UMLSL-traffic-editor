@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 from typing import Any
 
-from pse.umlsl_editor.src.model.domain_models.umlsl_queries_revalidator import (
-    UMLSLQueriesRevalidator,
-)
 from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQuery, UMLSLQueryParams
 from pse.umlsl_editor.src.model.errors.umlsl_query_errors import (
     UMLSLQueryValidationError,
@@ -43,7 +40,7 @@ class UMLSLQueriesModel(Observable):
             initial_data=queries,
         )
         super().__init__()
-        self._revalidator = UMLSLQueriesRevalidator(self)
+        # self._revalidator = UMLSLQueriesRevalidator(self)
 
     def __post_init__(self):
         """Initialize Observable after dataclass initialization."""
@@ -75,7 +72,7 @@ class UMLSLQueriesModel(Observable):
         self.queries.pop(query_id)
 
     def update_umlsl_query(
-        self, umlsl_query_data: UMLSLQuery, query_params: UMLSLQueryParams
+            self, umlsl_query_data: UMLSLQuery, query_params: UMLSLQueryParams
     ) -> None:
         """
         Updates an existing UMLSL query in the snapshot and validates all attributes in the context of the snapshot.
@@ -86,8 +83,8 @@ class UMLSLQueriesModel(Observable):
         umlsl_query_data.update_from_params(query_params)
         self.queries[umlsl_query_data.uid] = umlsl_query_data
 
-    def revalidate_queries(self, snapshot: Any) -> None:
-        self._revalidator.revalidate_async(snapshot)
+    # def revalidate_queries(self, snapshot: Any) -> None:
+    #     self._revalidator.revalidate_async(snapshot)
 
     def to_dict(self) -> list[dict[str, Any]]:
         """
