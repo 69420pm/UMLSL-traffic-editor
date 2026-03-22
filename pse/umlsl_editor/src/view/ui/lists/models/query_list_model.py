@@ -108,6 +108,9 @@ class QueryListModel(EntityModel):
         index = self.index(row)
         self.dataChanged.emit(index, index, [QueryListModel.LoadingRole])
 
+    def is_query_loading(self, query_uid: str) -> bool:
+        return bool(self._loading_by_uid.get(query_uid, False))
+
     def roleNames(self) -> dict[int, bytes]:
         """
         Return the mapping of role IDs to QML role names.

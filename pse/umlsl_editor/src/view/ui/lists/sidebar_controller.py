@@ -212,6 +212,13 @@ class SidebarController(QObject):
             label = f"road '{entity.name}'"
             delete_action = lambda: self._application_controller.command_controller.remove_road(entity.uid)
         else:
+            if self._view_models.query_list_model.is_query_loading(entity.uid):
+                WarningDialog(
+                    "Cannot delete query",
+                    "This query is still loading. Please wait until it finishes.",
+                    self._window,
+                ).exec()
+                return
             label = "this query"
             delete_action = lambda: self._application_controller.command_controller.remove_umlsl_query(entity.uid)
 

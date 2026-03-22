@@ -17,10 +17,10 @@ class SomewhereNode(UnaryNode):
     """
 
     def evaluate(self, traffic_snapshot: "TrafficSnapshotModel", view: View, variable_car_map: dict[str, Car]) -> bool:
-        somewhere_node = VerticalChopNode.create_nested_vchop(
+        somewhere_node = HorizontalChopNode.create_nested_hchop(
             [
                 TrueNode(),
-                HorizontalChopNode.create_nested_hchop([TrueNode(), self._child, TrueNode()]),
+                VerticalChopNode.create_nested_vchop([TrueNode(), self._child, TrueNode()]),
                 TrueNode()
             ]
         )
