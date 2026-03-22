@@ -1,4 +1,3 @@
-import asyncio
 import json
 from concurrent.futures import ProcessPoolExecutor
 from typing import Any
@@ -15,12 +14,8 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_validator import 
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import (
     TrafficSnapshotWriter,
 )
-from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import (
-    UMLSLQueriesModel,
-)
 from pse.umlsl_editor.src.model.entities.car import Car, CarParams
 from pse.umlsl_editor.src.model.entities.road import Road, RoadOrientation, RoadParams
-from pse.umlsl_editor.src.model.entities.umlsl_query import UMLSLQueryParams
 from pse.umlsl_editor.src.model.errors.car_errors import (
     CarTrafficSnapshotContextValidationError,
 )
@@ -71,12 +66,12 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
     """
 
     def get_valid_turn_intent_lanes(
-        self,
-        car_position: float,
-        car_speed: float,
-        car_lane: Lane,
-        car_length: float,
-        turn_direction: TurnDirection,
+            self,
+            car_position: float,
+            car_speed: float,
+            car_lane: Lane,
+            car_length: float,
+            turn_direction: TurnDirection,
     ) -> list[Lane]:
         if car_speed < 0 or turn_direction not in [
             TurnDirection.LEFT,
@@ -113,30 +108,30 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                 if turn_direction == TurnDirection.LEFT:
                     # lane indeces must be different
                     if (
-                        car_lane.lane_index >= 0 and lane_to_turn_into.lane_index >= 0
+                            car_lane.lane_index >= 0 and lane_to_turn_into.lane_index >= 0
                     ) or (car_lane.lane_index < 0 and lane_to_turn_into.lane_index < 0):
                         lanes_to_turn_into.append(lane_to_turn_into)
                 elif turn_direction == TurnDirection.RIGHT:
                     # lane indeces must be the same
                     if (
-                        car_lane.lane_index >= 0 and lane_to_turn_into.lane_index < 0
+                            car_lane.lane_index >= 0 and lane_to_turn_into.lane_index < 0
                     ) or (
-                        car_lane.lane_index < 0 and lane_to_turn_into.lane_index >= 0
+                            car_lane.lane_index < 0 and lane_to_turn_into.lane_index >= 0
                     ):
                         lanes_to_turn_into.append(lane_to_turn_into)
             if road_of_lane.orientation == RoadOrientation.VERTICAL:
                 if turn_direction == TurnDirection.LEFT:
                     # lane indeces must be different
                     if (
-                        car_lane.lane_index >= 0 and lane_to_turn_into.lane_index < 0
+                            car_lane.lane_index >= 0 and lane_to_turn_into.lane_index < 0
                     ) or (
-                        car_lane.lane_index < 0 and lane_to_turn_into.lane_index >= 0
+                            car_lane.lane_index < 0 and lane_to_turn_into.lane_index >= 0
                     ):
                         lanes_to_turn_into.append(lane_to_turn_into)
                 elif turn_direction == TurnDirection.RIGHT:
                     # lane indeces must be the same
                     if (
-                        car_lane.lane_index >= 0 and lane_to_turn_into.lane_index >= 0
+                            car_lane.lane_index >= 0 and lane_to_turn_into.lane_index >= 0
                     ) or (car_lane.lane_index < 0 and lane_to_turn_into.lane_index < 0):
                         lanes_to_turn_into.append(lane_to_turn_into)
             adjacent_segment = self.get_adjacent_segment(
@@ -154,30 +149,30 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         return False
 
     def is_car_existing(self, uid: str) -> bool:
-        return uid in self._cars
+        return uid in self.cars
 
     def validate_road_params(
-        self,
-        road_params: RoadParams,
-        new_instantiation: bool,
-        road_uid: str | None = None,
+            self,
+            road_params: RoadParams,
+            new_instantiation: bool,
+            road_uid: str | None = None,
     ) -> None:
         if (
-            not new_instantiation
-            and road_uid is None
-            or new_instantiation
-            and road_uid is not None
+                not new_instantiation
+                and road_uid is None
+                or new_instantiation
+                and road_uid is not None
         ):
             raise ValueError("road_uid must be None for new road instantiation.")
         self.validator.validate_road_params(road_params, new_instantiation, road_uid)
 
     def validate_car_params(
-        self, car_params: CarParams, new_instantiation: bool, car_uid: str | None = None
+            self, car_params: CarParams, new_instantiation: bool, car_uid: str | None = None
     ) -> None:
         self.validator.validate_car_params(car_params, new_instantiation, car_uid)
 
     def get_adjacent_segment(
-        self, segment_uid: str, direction: Direction
+            self, segment_uid: str, direction: Direction
     ) -> Segment | None:
         adjacent_uid = self._get_neighbor_in_direction(segment_uid, direction)
         if adjacent_uid is not None:
@@ -185,7 +180,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         return None
 
     def get_outgoing_adjacent_segment(
-        self, segment_uid: str, direction: Direction
+            self, segment_uid: str, direction: Direction
     ) -> Segment | None:
         adjacent_uid = self._get_neighbor_in_direction_outgoing(segment_uid, direction)
         if adjacent_uid is not None:
@@ -219,14 +214,14 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         raise ValueError(f"Road with uid {uid} not found.")
 
     def __init__(
-        self,
-        queries_model: UMLSLQueriesModel,
-        settings_model: SettingsModel,
-        cars: ObservableDict[str, Car] | None = None,
+            self,
+            # queries_model: UMLSLQueriesModel,
+            settings_model: SettingsModel,
+            cars: ObservableDict[str, Car] | None = None,
     ):
 
         super().__init__()
-        self._cars = (
+        self.cars = (
             cars
             if cars is not None
             else ObservableDict[str, Car](
@@ -260,44 +255,44 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             [self._horizontal_roads, self._vertical_roads]
         )
         """Read-only view of the roads dictionary."""
-        self._read_only_cars = ReadOnlyMergedDictView([self._cars])
-        """Read-only view of the cars dictionary."""
+        # self._read_only_cars = ReadOnlyMergedDictView([self._cars])
+        # """Read-only view of the cars dictionary."""
 
         self.lane_width = DIMENSION.LANE_WIDTH
         self.screen_size = (DIMENSION.SCENE_SIZE + 100) / 2
 
         self.validator = TrafficSnapshotValidator(self)
-        self._queries_model: UMLSLQueriesModel = queries_model
+        # self._queries_model: UMLSLQueriesModel = queries_model
         self.settings_model: SettingsModel = settings_model
         self.settings_model.attach(self._on_settings_event)
 
-        self._process_pool = ProcessPoolExecutor(max_workers=2)
-        self._evaluation_version = 0
+        self.process_pool = ProcessPoolExecutor(max_workers=2)
+        self.evaluation_version = 0
 
-    @property
-    def cars(self):
-        return self._read_only_cars
-
+    # @property
+    # def cars(self):
+    #     return self._read_only_cars
+    #
     @property
     def roads(self):
         return self._read_only_roads
 
     def _on_car_added(self, car: Car):
         self.notify(TrafficSnapshotEventType.CAR_ADDED, car)
-        self.revalidate_queries()
+        # self.revalidate_queries()
 
     def _on_car_removed(self, car: Car):
         self.notify(TrafficSnapshotEventType.CAR_REMOVED, car)
-        self.revalidate_queries()
+        # self.revalidate_queries()
 
     def _on_car_updated(self, car: Car):
         self.notify(TrafficSnapshotEventType.CAR_UPDATED, car)
-        self.revalidate_queries()
+        # self.revalidate_queries()
 
     def _on_road_added(self, road: Road):
         self._recalculate_static_segments()
         self._revalidate_cars()
-        self.revalidate_queries()
+        # self.revalidate_queries()
         self.notify(TrafficSnapshotEventType.ROAD_ADDED, road)
 
     def _on_road_removed(self, road: Road):
@@ -305,34 +300,34 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         # This prevents observers from accessing stale segments that reference the removed road.
         self._recalculate_static_segments()
         self._revalidate_cars()
-        self.revalidate_queries()
+        # self.revalidate_queries()
         self.notify(TrafficSnapshotEventType.ROAD_REMOVED, road)
 
     def _on_road_updated(self, road: Road):
         self._recalculate_static_segments()
         self._revalidate_cars()
-        self.revalidate_queries()
+        # self.revalidate_queries()
         self.notify(TrafficSnapshotEventType.ROAD_UPDATED, road)
 
     def _on_settings_event(self, event_type: SettingsEventType, data=None) -> None:
         if event_type in (
-            SettingsEventType.CHANGE_BRAKING_DECELERATION,
-            SettingsEventType.CHANGE_MAX_SPEED,
+                SettingsEventType.CHANGE_BRAKING_DECELERATION,
+                SettingsEventType.CHANGE_MAX_SPEED,
         ):
             self._revalidate_cars()
-            self.revalidate_queries()
+            # self.revalidate_queries()
 
     def get_cars_on_road(self, road: Road) -> list[Car]:
-        return [car for car in self._cars.values() if car.lane.road_uid == road.uid]
+        return [car for car in self.cars.values() if car.lane.road_uid == road.uid]
 
     def get_cars(self) -> dict[str, Car]:
-        return dict(self._read_only_cars)
+        return dict(self.cars)
 
     def get_car_list(self) -> list[Car]:
-        return list(self._cars.values())
+        return list(self.cars.values())
 
     def get_car_by_name(self, name: str) -> Car | None:
-        for car in self._cars.values():
+        for car in self.cars.values():
             if car.name == name:
                 return car
         return None
@@ -426,15 +421,15 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         self.validate_car_params(car_params, True)
         if self.is_car_existing(car.uid):
             raise ValueError(f"Car with uid {car.uid} already exists.")
-        self._cars[car.uid] = car
+        self.cars[car.uid] = car
         self._revalidate_cars()
 
     def remove_car(self, car_uid: str) -> None:
-        self._cars.pop(car_uid)
+        self.cars.pop(car_uid)
         self._revalidate_cars()
 
     def update_car_with_params(self, car_uid: str, car_params: CarParams) -> None:
-        car = self._cars.get(car_uid)
+        car = self.cars.get(car_uid)
         if car is None:
             raise ValueError(f"Car with uid {car_uid} not found.")
         self.validate_car_params(car_params, False, car_uid)
@@ -444,11 +439,11 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                 content=f"Car name '{car_params.name}' is not unique in the traffic snapshot."
             )
         car.update_from_params(car_params, self, self.settings_model)
-        self._cars[car_uid] = car
+        self.cars[car_uid] = car
         self._revalidate_cars()
 
     def get_segment_from_lane_position(
-        self, lane: Lane, position_on_lane: float
+            self, lane: Lane, position_on_lane: float
     ) -> Segment | None:
         segment_uids = self._segments_by_lane.get(lane)
         if segment_uids is None:
@@ -489,7 +484,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         return segments
 
     def _get_neighbor_in_direction(
-        self, segment_uid: str, direction: Direction
+            self, segment_uid: str, direction: Direction
     ) -> str | None:
         """Get the neighboring segment UID in a given direction from the graph."""
         for _, neighbor, data in self._graph.out_edges(segment_uid, data=True):
@@ -501,7 +496,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
         return None
 
     def _get_neighbor_in_direction_outgoing(
-        self, segment_uid: str, direction: Direction
+            self, segment_uid: str, direction: Direction
     ) -> str | None:
         """Get the neighboring segment UID in a given direction from the graph."""
         for _, neighbor, data in self._graph.out_edges(segment_uid, data=True):
@@ -777,10 +772,10 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     @staticmethod
     def from_dict(
-        data: dict[str, Any],
-        writer: TrafficSnapshotWriter,
-        reader: TrafficSnapshotReader,
-        settings_model: SettingsModel,
+            data: dict[str, Any],
+            writer: TrafficSnapshotWriter,
+            reader: TrafficSnapshotReader,
+            settings_model: SettingsModel,
     ) -> "TrafficSnapshotModel":
         """
         Creates a TrafficSnapshot instance from a dictionary.
@@ -875,9 +870,9 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
                 target_lane_data = next_turn_data.get("target_lane", {})
                 if (
-                    isinstance(target_lane_data, dict)
-                    and "road_uid" in target_lane_data
-                    and "lane_index" in target_lane_data
+                        isinstance(target_lane_data, dict)
+                        and "road_uid" in target_lane_data
+                        and "lane_index" in target_lane_data
                 ):
                     target_lane = Lane(
                         road_uid=target_lane_data["road_uid"],
@@ -913,10 +908,9 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     @classmethod
     def from_json(
-        cls,
-        json_string: str,
-        settings_model: SettingsModel,
-        queries_model: UMLSLQueriesModel,
+            cls,
+            json_string: str,
+            settings_model: SettingsModel,
     ) -> "TrafficSnapshotModel":
         """
         Creates a TrafficSnapshot instance from a JSON string.
@@ -930,7 +924,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
             A new TrafficSnapshotModel populated with the deserialized roads and cars.
         """
         data = json.loads(json_string)
-        snapshot = cls(queries_model, settings_model)
+        snapshot = cls(settings_model)
         cls.from_dict(data, snapshot, snapshot, settings_model)
         return snapshot
 
@@ -949,7 +943,7 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
 
     def _revalidate_cars(self):
         cars_to_remove = []
-        cars_snapshot = list(self._cars.values())
+        cars_snapshot = list(self.cars.values())
         for car in cars_snapshot:
             if not self.validator.validate_car_and_autocorrect(car):
                 cars_to_remove.append(car)
@@ -959,74 +953,11 @@ class TrafficSnapshotModel(Observable, TrafficSnapshotReader, TrafficSnapshotWri
                 self,
                 settings_model=self.settings_model,
             )
-            self._cars[car.uid] = car
+            self.cars[car.uid] = car
 
         for car in cars_to_remove:
-            del self._cars[car.uid]
+            del self.cars[car.uid]
 
-    def revalidate_queries(self):
-        from pse.umlsl_editor.src.query.evaluation_worker import evaluate_query_worker
-
-        self.validator.validate_queries(self._queries_model)
-
-        self._evaluation_version += 1
-        current_version = self._evaluation_version
-
-        snapshot_dict = self.to_dict()
-
-        try:
-            loop = asyncio.get_event_loop()
-        except RuntimeError:
-            loop = None
-
-        for query in self._queries_model.queries.values():
-            ego = self._cars.get(query.assigned_car_uid)
-            if ego is None:
-                continue
-
-            evaluate_ego_lane_only = query.should_only_evaluate_on_cars_lane
-
-            def on_evaluation_done(fut, q=query, v=current_version):
-                if v != self._evaluation_version:
-                    return
-                try:
-                    holding = fut.result()
-                    new_query_params = UMLSLQueryParams(
-                        latex=q.latex,
-                        holding=holding,
-                        should_only_evaluate_on_cars_lane=q.should_only_evaluate_on_cars_lane,
-                        assigned_car_uid=q.assigned_car_uid,
-                    )
-
-                    if (
-                        q.holding != new_query_params.holding
-                        or q.latex != new_query_params.latex
-                        or q.assigned_car_uid != new_query_params.assigned_car_uid
-                    ):
-                        self._queries_model.update_umlsl_query(q, new_query_params)
-                except Exception as e:
-                    print(f"Evaluation failed: {e}")
-
-            if loop is not None and loop.is_running():
-                future = loop.run_in_executor(
-                    self._process_pool,
-                    evaluate_query_worker,
-                    snapshot_dict,
-                    query.latex,
-                    ego.uid,
-                    evaluate_ego_lane_only,
-                    self.settings_model.braking_acceleration,
-                    self.settings_model.max_speed,
-                )
-                future.add_done_callback(on_evaluation_done)
-            else:
-                future = self._process_pool.submit(
-                    evaluate_query_worker,
-                    snapshot_dict,
-                    query.latex,
-                    ego.uid,
-                    evaluate_ego_lane_only,
-                    self.settings_model.braking_acceleration,
-                    self.settings_model.max_speed,
-                )
-                future.add_done_callback(on_evaluation_done)
+    # def revalidate_queries(self):
+    #     # need to call umlsl_queries_model here
+    #     pass

@@ -3,12 +3,12 @@ from typing import Any, Dict
 
 
 def evaluate_query_worker(
-    snapshot_dict: Dict[str, Any],
-    latex: str,
-    ego_uid: str,
-    evaluate_ego_lane_only: bool,
-    braking_acceleration: float,
-    max_speed: float,
+        snapshot_dict: Dict[str, Any],
+        latex: str,
+        ego_uid: str,
+        evaluate_ego_lane_only: bool,
+        braking_acceleration: float,
+        max_speed: float,
 ) -> bool:
     """
     Worker function to evaluate a UMLSL query in a separate process.
@@ -23,15 +23,15 @@ def evaluate_query_worker(
     from pse.umlsl_editor.src.query.evaluator import UMLSLEvaluator
 
     try:
-        queries_model = UMLSLQueriesModel()
         settings_model = SettingsModel(
             braking_acceleration=braking_acceleration, max_speed=max_speed
         )
 
         snapshot = TrafficSnapshotModel(
-            queries_model=queries_model, settings_model=settings_model
+            settings_model=settings_model
         )
 
+        queries_model = UMLSLQueriesModel(snapshot)
         # Reconstruct the snapshot from the dictionary
         TrafficSnapshotModel.from_dict(
             snapshot_dict, snapshot, snapshot, settings_model
