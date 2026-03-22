@@ -294,6 +294,10 @@ class PathSegmentItem(SegmentIntervalItem):
 class ViewSegmentItem(SegmentIntervalItem):
     """Visualizes view lanes with a soft background fill."""
 
+    @property
+    def should_ignore_lane_direction(self) -> bool:
+        return True
+
     def _setup_style(self) -> None:
         self.pen = Qt.NoPen
         self.color = QColor(175, 195, 215)
