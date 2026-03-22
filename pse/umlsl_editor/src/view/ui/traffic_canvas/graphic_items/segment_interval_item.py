@@ -15,6 +15,7 @@ from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment impo
 )
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import (
     SegmentInterval,
+    ViewSegmentIntervall,
 )
 from pse.umlsl_editor.src.view.view_constants import COLORS, DIMENSION, Z_LAYERS
 
@@ -251,6 +252,16 @@ class PathSegmentItem(SegmentIntervalItem):
         self.pen.setCosmetic(False)
         self.color = QColor(COLORS.TEXT)
         self.color.setAlphaF(0.2)
+        self.brush.setColor(self.color)
+
+
+class ViewSegmentItem(SegmentIntervalItem):
+    """Visualizes view lanes with a soft background fill."""
+
+    def _setup_style(self) -> None:
+        self.pen = Qt.NoPen
+        self.color = QColor(175, 195, 215)
+        self.color.setAlphaF(0.25)
         self.brush.setColor(self.color)
 
 

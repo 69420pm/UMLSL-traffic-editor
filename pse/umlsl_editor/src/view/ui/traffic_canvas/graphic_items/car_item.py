@@ -17,12 +17,16 @@ from pse.umlsl_editor.src.model.traffic_value_objects.segments.crossing_segment 
 from pse.umlsl_editor.src.model.traffic_value_objects.segments.lane_segment import (
     LaneSegment,
 )
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment_interval import (
+    ViewSegmentIntervall,
+)
 from pse.umlsl_editor.src.view.ui.exception_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.road_item import RoadItem
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.segment_interval_item import (
     ClaimedSegmentItem,
     PathSegmentItem,
     ReservedSegmentItem,
+    ViewSegmentItem,
 )
 from pse.umlsl_editor.src.view.ui.traffic_canvas.graphic_items.selectable_graphics_item import (
     SelectableGraphicsItem,
@@ -87,10 +91,31 @@ class CarItem(SelectableGraphicsItem):
         self._clear_segments()
 
         if self.is_selected:
-            self._add_segment_items(self._car.environment.path_segment_intervals, PathSegmentItem)
+            self._add_view_segment_items()
 
         self._add_segment_items(self._car.environment.reserved, ReservedSegmentItem)
         self._add_segment_items(self._car.environment.claimed, ClaimedSegmentItem)
+
+    def _add_view_segment_items(self) -> None:
+        parallel_virtual_lanes = self._car.environment.parallel_virtual_lanes
+        if not parallel_virtual_lanes:
+            return
+
+        for parallel_virtual_lane in parallel_virtual_lanes:
+            for virtual_lane in parallel_virtual_lane:
+                view_intervals = self._to_view_segment_intervals(virtual_lane.segment_intervals)
+                self._add_segment_items(view_intervals, ViewSegmentItem)
+
+    def _to_view_segment_intervals(self, segment_intervals):
+        view_intervals = []
+        offset = 0.0
+        path_segments = tuple(seg_interval.segment for seg_interval in segment_intervals)
+        for seg_interval in segment_intervals:
+            view_intervals.append(
+                ViewSegmentIntervall(seg_interval.segment, seg_interval.interval, offset, path_segments)
+            )
+            offset = seg_interval.interval.end
+        return view_intervals
 
     def _clear_segments(self) -> None:
         scene = self._get_scene()
