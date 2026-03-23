@@ -13,6 +13,7 @@ class ClaimNode(AtomNode):
     The ClaimNode is a unary node used to check for the existence of a claimed segments of the specified car in
     ego's view.
     """
+
     def __init__(self, car_resolve: CarResolve):
         super().__init__(f"cl\\left({car_resolve.name}\\right)")
         self._car_resolve = car_resolve
@@ -41,9 +42,10 @@ class ClaimNode(AtomNode):
 
         single_segment = segments_on_lane[0]
 
-        for physically_occupied_interval in view.get_visible_cars().get(car_eval.uid, []):
-            if physically_occupied_interval.uid == single_segment.uid \
-                    and view.horizon.subset_of(physically_occupied_interval):
+        for physically_occupied_segment, physically_occupied_interval in view.get_visible_cars().get(car_eval.uid,
+                                                                                                     {}).items():
+            if physically_occupied_segment.uid == single_segment.uid \
+                    and view.horizon.subset_of([physically_occupied_interval]):
                 return True
 
         return False
