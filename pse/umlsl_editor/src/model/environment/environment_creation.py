@@ -289,7 +289,8 @@ class EnvironmentCreation:
         if start_road_orientation == RoadOrientation.VERTICAL and turn_direction == TurnDirection.LEFT:
             src_segments.reverse()
 
-        target_segments: list[LaneSegment] = compute_parallel_lane_segments(self.ts, turn_segment)
+        # Add the '1' parameter here to include all parallel lanes for right turns as well
+        target_segments: list[LaneSegment] = compute_parallel_lane_segments(self.ts, turn_segment, 1)
 
         order_lanes: list[list[list[Segment]]] = []
         for src_seg in src_segments:
@@ -308,22 +309,6 @@ class EnvironmentCreation:
                 order_lanes.append(paths)
 
         parallel_lanes: list[list[list[Segment]]] = [list(p) for p in product(*order_lanes)]
-
-        """
-        DEBUG:
-        for src_segment in src_segments:
-            print("src segment: ", ts.get_segment_info(src_segment.uid), " into=", goes_into_crossing(src_segment))
-        for target_segment in target_segments:
-            print("target segment: ", ts.get_segment_info(target_segment.uid), " into=", goes_into_crossing(target_segment))
-
-        print("ordered lanes:")
-        for order_lane in order_lanes:
-            print("next ord lane", list(map(lambda x: list(map(lambda y: ts.get_segment_info(y.uid), x)), order_lane)))
-        for parallel_lane in parallel_lanes:
-            print("parallel lane: ")
-            for e in parallel_lane:
-                print(list(map(lambda x: ts.get_segment_info(x.uid), e)))
-        """
 
         return parallel_lanes
 
