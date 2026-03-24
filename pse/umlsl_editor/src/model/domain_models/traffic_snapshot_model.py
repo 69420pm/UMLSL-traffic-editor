@@ -3,6 +3,7 @@ from concurrent.futures import ProcessPoolExecutor
 import networkx as nx
 
 from pse.umlsl_editor.src.model.domain_models.car_mixin import CarMixin
+
 # Mixins
 from pse.umlsl_editor.src.model.domain_models.road_mixin import RoadMixin
 from pse.umlsl_editor.src.model.domain_models.segment_mixin import SegmentMixin
@@ -100,7 +101,9 @@ class TrafficSnapshotModel(
         self.settings_model: SettingsModel = settings_model
         self.settings_model.attach(self._on_settings_event)
 
-        self.process_pool = ProcessPoolExecutor(max_workers=2)
+        if not hasattr(TrafficSnapshotModel, '_shared_process_pool') or TrafficSnapshotModel._shared_process_pool is None:
+            TrafficSnapshotModel._shared_process_pool = ProcessPoolExecutor(max_workers=2)
+        self.process_pool = TrafficSnapshotModel._shared_process_pool
         self.evaluation_version = 0
 
     def get_scene_size(self) -> float:
