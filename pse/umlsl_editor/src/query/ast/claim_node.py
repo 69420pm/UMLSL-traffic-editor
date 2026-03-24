@@ -1,6 +1,8 @@
 import typing
 
 from pse.umlsl_editor.src.model.entities.car import Car
+from pse.umlsl_editor.src.model.interval import Interval
+from pse.umlsl_editor.src.model.traffic_value_objects.segments.segment import Segment
 from pse.umlsl_editor.src.query.ast.ast import View, AtomNode
 from pse.umlsl_editor.src.query.ast.car_resolve import CarResolve
 
@@ -26,10 +28,10 @@ class ClaimNode(AtomNode):
         segments_on_lane = list(map(lambda si: si.segment, single_lane.segment_intervals))
 
         car_eval = self._car_resolve.resolve(variable_car_map)
-        claimed_segment_intervals = view.get_claimed_segments().get(car_eval.uid, {})
+        claimed_segment_intervals: dict[Segment, Interval] = view.get_claimed_segments().get(car_eval.uid, {})
         claimed_crossing_segments = map(
             lambda seg_interval: seg_interval.segment,
-            filter(lambda seg_interval: not seg_interval.segment.is_lane_segment, claimed_segment_intervals)
+            filter(lambda segment: not segment.is_lane_segment, claimed_segment_intervals.keys())
         )
 
         # claim evaluates true if all segments (in the horizon) are crossing segments reserved by the (eval) car

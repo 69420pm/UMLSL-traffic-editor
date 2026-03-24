@@ -289,7 +289,6 @@ class EnvironmentCreation:
         if start_road_orientation == RoadOrientation.VERTICAL and turn_direction == TurnDirection.LEFT:
             src_segments.reverse()
 
-        # Add the '1' parameter here to include all parallel lanes for right turns as well
         target_segments: list[LaneSegment] = compute_parallel_lane_segments(self.ts, turn_segment, 1)
 
         order_lanes: list[list[list[Segment]]] = []
