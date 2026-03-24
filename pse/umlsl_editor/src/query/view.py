@@ -127,7 +127,7 @@ class View:
             # if there is any intersection with the horizon, we can put all the occupied segments of the car in the view
             # this won't break the logic and safes us computation time
             any_intersects = any(
-                occupied_interval.intersects(self.horizon)
+                occupied_segment in self.segments_in_view and occupied_interval.intersects(self.horizon)
                 for occupied_segment, occupied_interval in occupied_segment_interval.items()
             )
             if any_intersects:
