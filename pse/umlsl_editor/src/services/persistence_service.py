@@ -174,8 +174,7 @@ class PersistenceService:
             for c in internal_cars:
                 road_name = road_uid_to_name.get(c.get("road_uid"), "unknown")
 
-                # Determine direction based on lane_index (negative index indicates backward/left lane)
-                direction = "right" if c.get("lane_index", 0) >= 0 else "left"
+
 
                 lane_index = c.get("lane_index", 0)
                 lane = lane_index if lane_index >= 0 else abs(lane_index) - 1
@@ -185,6 +184,11 @@ class PersistenceService:
 
                 offset = 20 if road_uid_to_orientation.get(c.get("road_uid")) else 12
                 position = (c.get("position_on_lane", 0.0) + offset) * 40
+
+                # Determine direction based on lane_index (negative index indicates backward/left lane)
+                direction = "right" if c.get("lane_index", 0) >= 0 else "left"
+                if not road_uid_to_orientation.get(c.get("road_uid")):
+                    direction = "right" if direction == "left" else "left"
 
                 color = ImageColor.getrgb(c.get("color", "green"))
 
@@ -273,7 +277,7 @@ class PersistenceService:
                 road_uid = road_name_to_uid.get(road_name, "")
 
                 # Reverse lane_index calculation
-                if direction in ["right", "down"]:
+                if (direction in ["right", "down"] and road_uid_to_horizontal.get(road_uid)) or (direction in ["left", "up"] and not road_uid_to_horizontal.get(road_uid)):
                     lane_index = lane_val
                 else:
                     lane_index = -(lane_val + 1)
@@ -308,6 +312,8 @@ class PersistenceService:
                     "acceleration": 1.0,
                     "next_turn": None
                 })
+                if c.get("max_speed", 0.0) > settings_model.max_speed:
+                    settings_model.max_speed = c.get("max_speed")
 
             TrafficSnapshotModel.from_dict(
                 {"roads": internal_roads, "cars": internal_cars},
