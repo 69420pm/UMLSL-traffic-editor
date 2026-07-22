@@ -13,7 +13,7 @@ from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import (
 from pse.umlsl_editor.src.services.persistence_service import PersistenceService
 
 
-class SaveAsTrafficSnapshot(Command[None]):
+class ExportSnapshot(Command[None]):
     """Saves the current traffic snapshot to a specified file path."""
 
     def __init__(self, file_path: str, traffic_snapshot_model: TrafficSnapshotModel, umlsl_queries: UMLSLQueriesModel):
@@ -27,7 +27,6 @@ class SaveAsTrafficSnapshot(Command[None]):
         """
         self._file_path = file_path
         self._traffic_snapshot_model = traffic_snapshot_model
-        self._umlsl_queries = umlsl_queries
 
     def execute(self) -> None:
         """
@@ -40,9 +39,8 @@ class SaveAsTrafficSnapshot(Command[None]):
             raise CommandValidationError("File path is required to save a snapshot.")
 
         try:
-            payload = PersistenceService.serialize(
+            payload = PersistenceService.serialize_external_format(
                 snapshot=self._traffic_snapshot_model,
-                queries=self._umlsl_queries,
             )
         except ValueError as exc:
             raise CommandValidationError(f"Failed to serialize snapshot: {exc}") from exc

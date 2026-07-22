@@ -545,12 +545,12 @@ QMenu::item:selected {
   </action>
   <action name="actionExport_to_MLSL_Simulation">
    <property name="text">
-    <string>Export to MLSL-Simulation</string>
+    <string>Export to MLSL-Simulator</string>
    </property>
   </action>
   <action name="actionImport_from_MLSL_Simulation">
    <property name="text">
-    <string>Import from MLSL-Simulation</string>
+    <string>Import from MLSL-Simulator</string>
    </property>
   </action>
  </widget>
