@@ -2,8 +2,12 @@ import json
 from typing import TYPE_CHECKING
 
 from pse.umlsl_editor.src.commands.command import Command, CommandValidationError
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
-from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import (
+    TrafficSnapshotModel,
+)
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import (
+    UMLSLQueriesModel,
+)
 from pse.umlsl_editor.src.services.persistence_service import PersistenceService
 
 if TYPE_CHECKING:

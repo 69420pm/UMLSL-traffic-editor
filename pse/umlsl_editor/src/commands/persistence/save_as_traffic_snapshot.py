@@ -1,15 +1,22 @@
 import json
 
 from pse.umlsl_editor.src.commands.command import Command, CommandValidationError
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import (
+    TrafficSnapshotModel,
+)
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import (
+    TrafficSnapshotReader,
+)
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import (
+    UMLSLQueriesModel,
+)
 from pse.umlsl_editor.src.services.persistence_service import PersistenceService
 
 
 class SaveAsTrafficSnapshot(Command[None]):
     """Saves the current traffic snapshot to a specified file path."""
 
-    def __init__(self, file_path: str, traffic_snapshot_reader:TrafficSnapshotReader, umlsl_queries: UMLSLQueriesModel):
+    def __init__(self, file_path: str, traffic_snapshot_model: TrafficSnapshotModel, umlsl_queries: UMLSLQueriesModel):
         """
         Initialize the SaveAsTrafficSnapshot command with the target file path.
 
@@ -19,7 +26,7 @@ class SaveAsTrafficSnapshot(Command[None]):
             umlsl_queries: The UMLSL queries interface for accessing UMLSL-related data.
         """
         self._file_path = file_path
-        self._traffic_snapshot_reader = traffic_snapshot_reader
+        self._traffic_snapshot_model = traffic_snapshot_model
         self._umlsl_queries = umlsl_queries
 
     def execute(self) -> None:
@@ -33,9 +40,9 @@ class SaveAsTrafficSnapshot(Command[None]):
             raise CommandValidationError("File path is required to save a snapshot.")
 
         try:
-            payload = PersistenceService.serialize(
-                snapshot=self._traffic_snapshot_reader,
-                queries=self._umlsl_queries,
+            payload = PersistenceService.serialize_external_format(
+                snapshot=self._traffic_snapshot_model,
+
             )
         except ValueError as exc:
             raise CommandValidationError(f"Failed to serialize snapshot: {exc}") from exc

@@ -33,7 +33,7 @@ class _Dimension:
     CAR_TRIANGLE_LENGTH: float = 0.4
 
     # Scene configuration
-    SCENE_SIZE: int = 1000
+    SCENE_SIZE: int = 40
 
     # Zoom constraints
     MAX_ZOOM: float = 100.0

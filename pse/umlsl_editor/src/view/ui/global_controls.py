@@ -51,6 +51,8 @@ class GlobalControls(QObject):
         self._open_action = self._window.actionOpen
         self._settings_action = self._window.actionSettings
 
+
+
         self._setup_shortcuts()
         self._connect_signals()
 
