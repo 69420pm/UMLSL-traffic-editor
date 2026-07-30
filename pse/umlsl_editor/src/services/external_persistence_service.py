@@ -13,6 +13,7 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import (
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import (
     TrafficSnapshotWriter,
 )
+from pse.umlsl_editor.src.model.entities import road
 
 
 class ExternalPersistenceService:
@@ -35,6 +36,8 @@ class ExternalPersistenceService:
         road_uid_to_name = {}
         road_uid_to_orientation = {}
         road_uid_to_right_lanes = {}
+        road_uid_to_left_lanes = {}
+        road_uid_to_position = {}
 
         for r in internal_roads:
             road_name = r.get("name", "unknown")
@@ -43,29 +46,33 @@ class ExternalPersistenceService:
             orientation = r.get("orientation") == "HORIZONTAL"
             road_uid_to_orientation[r.get("uid")] = orientation
 
+            # offsetting position so that 0,0 is in the bottom left corner and not in the center
             offset = 12 if orientation else 20
+            top = (r.get("position", 0.0) + offset)
+            road_uid_to_position[r.get("uid")] = top
 
-            top = r.get("position", 0.0) + offset
             right = r.get("number_of_forward_lanes", 0)
             left = r.get("number_of_backward_lanes", 0)
 
             road_uid_to_right_lanes[r.get("uid")] = right
+            road_uid_to_left_lanes[r.get("uid")] = left
 
-
-
+            # adjusting position so it is the minimum x/y coordinate and not the center of the road
             if orientation:
                 top -= right
             else:
                 (right, left) = (left, right)
                 top -= left
 
+            # scaling position so one lane is 40 units wide
+            top *= 40
 
-            # Map "orientation" to "horizontal" bool, "position" to "top", and lanes to "right"/"left"
+
             external_roads.append(
                 {
                     "name": road_name,
                     "horizontal": orientation,
-                    "top": top * 40,
+                    "top": top,
                     "right": r.get("number_of_forward_lanes", 0),
                     "left": r.get("number_of_backward_lanes", 0),
                 }
@@ -82,7 +89,8 @@ class ExternalPersistenceService:
 
         external_cars = []
         for c in internal_cars:
-            road_name = road_uid_to_name.get(c.get("road_uid"), "unknown")
+            road_uid = c.get("road_uid")
+            road_name = road_uid_to_name.get(road_uid, "unknown")
 
 
 
@@ -92,22 +100,21 @@ class ExternalPersistenceService:
             if c.get("road"):
                 pass
 
-            offset = 20 if road_uid_to_orientation.get(c.get("road_uid")) else 12
+            offset = 20 if road_uid_to_orientation.get(road_uid) else 12
             position = (c.get("position_on_lane", 0.0) + offset) * 40
 
             # Determine direction based on lane_index (negative index indicates backward/left lane)
             direction = "right" if c.get("lane_index", 0) >= 0 else "left"
-            if not road_uid_to_orientation.get(c.get("road_uid")):
+            if not road_uid_to_orientation.get(road_uid):
                 direction = "right" if direction == "left" else "left"
 
             # switch lane index for roads with direction "right" (so lane 0 to lane 2 becomes lane 2 to lane 0)
             if direction == "right":
                 # get the number of right lanes for the road that this car is on
-                num_of_right_lanes = road_uid_to_right_lanes.get(c.get("road_uid"))
+                num_of_right_lanes = road_uid_to_right_lanes.get(road_uid)
                 # switch lane index for roads with direction "right"
                 lane = num_of_right_lanes - lane - 1
 
-            color = ImageColor.getrgb(c.get("color", "green"))
 
             start = {
                 "road": road_name,
@@ -116,11 +123,62 @@ class ExternalPersistenceService:
                 "position": position
             }
 
+            color = ImageColor.getrgb(c.get("color", "green"))
+
+            # turn_intend -> goal. So goal is the position right after the next turn
+            next_turn = c.get("next_turn")
+
+
+            if next_turn and next_turn.get("direction", 2)!= 2:
+                target_lane = next_turn.get("target_lane", {})
+                target_road_uid = target_lane.get("road_uid")
+                target_lane_index = target_lane.get("lane_index", 0)
+
+                turn_direction = next_turn.get("direction")
+
+                after_turn_car_direction = "right" if target_lane_index >= 0 else "left"
+                if not road_uid_to_orientation.get(target_road_uid):
+                    after_turn_car_direction = "right" if after_turn_car_direction == "left" else "left"
+
+                turn_road_name = road_uid_to_name.get(target_road_uid, "unknown")
+
+                #same lane index conversion like the car lane
+                turn_lane = target_lane_index if target_lane_index >= 0 else abs(target_lane_index) - 1
+
+
+                if after_turn_car_direction == "right":
+                    num_of_right_lanes = road_uid_to_right_lanes.get(target_road_uid)
+                    turn_lane = num_of_right_lanes - turn_lane - 1
+
+                turn_offset = 0
+                if turn_direction == "RIGHT":
+                    turn_offset =  road_uid_to_right_lanes.get(road_uid, 0) + 1
+                elif turn_direction == "LEFT":
+                    turn_offset = road_uid_to_left_lanes.get(road_uid, 0) + 1
+
+                # The position right after the next turn defaults to the start of the lane (position_on_lane = 0.0)
+                turn_position = road_uid_to_position.get(road_uid, 0) + turn_offset
+                turn_position *= 40
+            else:
+                # Fallback to current position if no turn is intended
+                turn_road_name = road_name
+                turn_direction = direction
+                turn_lane = lane
+                turn_position = position
+
+            turn_goal = {
+                "road": turn_road_name,
+                "direction": after_turn_car_direction,
+                "lane": turn_lane,
+                "position": turn_position
+            }
+
+
             external_cars.append({
                 "type": "NPC",
                 "name": c.get("name", ""),
                 "start": start,
-                "first_goal": start,
+                "first_goal": turn_goal,
                 "color": color,
                 "size": c.get("length", 1.0)*40,
                 "speed": c.get("speed", 0.0),
