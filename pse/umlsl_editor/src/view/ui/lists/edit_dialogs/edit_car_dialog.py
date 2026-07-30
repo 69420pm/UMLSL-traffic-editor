@@ -4,9 +4,11 @@ Car editing dialog for the UMLSL Traffic Editor.
 Provides a dialog for creating new cars or editing existing car properties
 such as name, color, speed, lane assignment, and turn direction.
 """
+import random
 from typing import TYPE_CHECKING, Any
 
 from PySide6.QtCore import QSignalBlocker, QTimer
+from PySide6.QtGui import QColor, QColorConstants
 from PySide6.QtWidgets import QDialog, QWidget
 
 from pse.umlsl_editor.src.model.entities.car import Car
@@ -20,6 +22,7 @@ from pse.umlsl_editor.src.model.traffic_value_objects.turn_intent import (
     TurnDirection,
     TurnIntent,
 )
+from pse.umlsl_editor.src.view import view_constants
 from pse.umlsl_editor.src.view.ui.exception_handling.warning_dialog import WarningDialog
 from pse.umlsl_editor.src.view.ui.lists.deletion_checks import (
     get_car_deletion_block_reason,
@@ -108,6 +111,7 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
     def _get_default_car_values(self) -> dict[str, Any]:
         """Return default car field values for create mode."""
         num_of_cars = len(self._application_controller.data_controller.get_all_cars())
+        #color = QColor.fromRgb(*view_constants.COLORS.CAR_COLORS[num_of_cars % len(view_constants.COLORS.CAR_COLORS)])
         return {
             "name": "C" + str(num_of_cars + 1),
             "color": "lightblue",
