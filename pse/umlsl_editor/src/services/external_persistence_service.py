@@ -44,7 +44,6 @@ class ExternalPersistenceService:
     Turning:        explicitly through turn intend;    implicitly through goal
     """
 
-    SPACING_AFTER_CROSSING:Final[float] = .01
     HEIGHT_SIMULATOR:Final[int] = 24
     WIDTH_SIMULATOR:Final[int] = 40
     UNIT_SIZE:Final[int] = 40
@@ -121,6 +120,8 @@ class ExternalPersistenceService:
             external_roads.extend(border_roads)
 
         external_cars = []
+        space_after_crossing = max(c.get("length", 1.0) for c in internal_cars) + 0.01
+
         for c in internal_cars:
             road_uid = c.get("road_uid")
             road_name = road_uid_to_name.get(road_uid, "unknown")
@@ -185,9 +186,9 @@ class ExternalPersistenceService:
                 car_is_on_positive_axis_lane = (cars_is_horizontal and direction == "right") or (not cars_is_horizontal and direction == "left")
 
                 if (car_is_on_positive_axis_lane and turn_direction == "RIGHT") or (not car_is_on_positive_axis_lane and turn_direction == "LEFT"):
-                    turn_offset =  road_uid_to_right_lanes.get(road_uid, 0) + road_uid_to_left_lanes.get(road_uid, 0) + ExternalPersistenceService.SPACING_AFTER_CROSSING
+                    turn_offset =  road_uid_to_right_lanes.get(road_uid, 0) + road_uid_to_left_lanes.get(road_uid, 0) + space_after_crossing
                 else:
-                    turn_offset = - ExternalPersistenceService.SPACING_AFTER_CROSSING
+                    turn_offset = -space_after_crossing
 
 
                 # The position right after the next turn defaults to the start of the lane (position_on_lane = 0.0)
@@ -225,7 +226,7 @@ class ExternalPersistenceService:
                     if not next_road_uid:
                         pos_after_crossing = cpos
                     else:
-                        pos_after_crossing = next_road_position + road_uid_to_left_lanes.get(next_road_uid) + road_uid_to_right_lanes.get(next_road_uid) + ExternalPersistenceService.SPACING_AFTER_CROSSING
+                        pos_after_crossing = next_road_position + road_uid_to_left_lanes.get(next_road_uid) + road_uid_to_right_lanes.get(next_road_uid) + space_after_crossing
 
                 # find the next road crossing in the negative direction and calculate the position after the turn with the position of the road - a small offset
                 else:
@@ -240,7 +241,7 @@ class ExternalPersistenceService:
                     if not next_road_uid:
                         pos_after_crossing = cpos
                     else:
-                        pos_after_crossing = next_road_position - ExternalPersistenceService.SPACING_AFTER_CROSSING
+                        pos_after_crossing = next_road_position - space_after_crossing
 
                 turn_position = pos_after_crossing * ExternalPersistenceService.UNIT_SIZE
 
