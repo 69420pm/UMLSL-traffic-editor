@@ -63,6 +63,7 @@ class ExternalPersistenceService:
 
         external_roads = []
 
+        # saving these for easy lookup when serializing cars
         road_uid_to_name = {}
         road_uid_to_orientation = {}
         road_uid_to_right_lanes = {}
@@ -110,6 +111,7 @@ class ExternalPersistenceService:
             )
 
         if not any(r.get("name") in ["bottom", "right", "top", "left"] for r in external_roads):
+            # if no border roads are present, add them. Needed in simulator.
             border_roads = [
                 {"name": "bottom", "horizontal": True, "top": 0, "right": 1, "left": 0},
                 {"name": "right", "horizontal": False, "top": (ExternalPersistenceService.WIDTH_SIMULATOR-1)*ExternalPersistenceService.UNIT_SIZE, "right": 0, "left": 1},
@@ -123,13 +125,8 @@ class ExternalPersistenceService:
             road_uid = c.get("road_uid")
             road_name = road_uid_to_name.get(road_uid, "unknown")
 
-
-
             lane_index = c.get("lane_index", 0)
             lane = lane_index if lane_index >= 0 else abs(lane_index) - 1
-
-            if c.get("road"):
-                pass
 
             offset = ExternalPersistenceService.WIDTH_SIMULATOR/2 if road_uid_to_orientation.get(road_uid) else ExternalPersistenceService.HEIGHT_SIMULATOR/2
             position = (c.get("position_on_lane", 0.0) + offset) * ExternalPersistenceService.UNIT_SIZE
@@ -180,6 +177,10 @@ class ExternalPersistenceService:
                     num_of_right_lanes = road_uid_to_right_lanes.get(target_road_uid)
                     turn_lane = num_of_right_lanes - turn_lane - 1
 
+                # adding the width of the road to the minimum x/y pos of the road to get the correct position after the turn
+                # but only if the car turns to the far side of the road
+                # also adding a very small offset after the turn so the position is in the correct segment
+
                 cars_is_horizontal = road_uid_to_orientation.get(road_uid) == "HORIZONTAL"
                 car_is_on_positive_axis_lane = (cars_is_horizontal and direction == "right") or (not cars_is_horizontal and direction == "left")
 
@@ -210,6 +211,8 @@ class ExternalPersistenceService:
                 car_drives_in_positive_direction = c.get("lane_index", 0) >= 0
                 next_road_uid = None
                 cpos = position/ExternalPersistenceService.UNIT_SIZE
+
+                #finds the next road crossing in the positive direction and calculates the position after the turn with the position of the road + the width of the road + a small offset
                 if car_drives_in_positive_direction:
                     next_road_position = float('inf')
                     for uid in roads_in_other_direction:
@@ -224,6 +227,7 @@ class ExternalPersistenceService:
                     else:
                         pos_after_crossing = next_road_position + road_uid_to_left_lanes.get(next_road_uid) + road_uid_to_right_lanes.get(next_road_uid) + ExternalPersistenceService.SPACING_AFTER_CROSSING
 
+                # find the next road crossing in the negative direction and calculate the position after the turn with the position of the road - a small offset
                 else:
                     next_road_position = float('-inf')
                     for uid in roads_in_other_direction:
