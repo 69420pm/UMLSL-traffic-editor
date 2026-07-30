@@ -3,10 +3,18 @@ from __future__ import annotations
 from typing import Any
 
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
-from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import (
+    TrafficSnapshotModel,
+)
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import (
+    TrafficSnapshotReader,
+)
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import (
+    TrafficSnapshotWriter,
+)
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import (
+    UMLSLQueriesModel,
+)
 
 
 class PersistenceService:
@@ -16,8 +24,8 @@ class PersistenceService:
 
     @staticmethod
     def serialize(
-            snapshot: TrafficSnapshotModel,
-            queries: UMLSLQueriesModel,
+        snapshot: TrafficSnapshotModel,
+        queries: UMLSLQueriesModel,
     ) -> dict[str, Any]:
         """
         Serialize snapshot and queries to a JSON-ready dict.
@@ -46,11 +54,11 @@ class PersistenceService:
 
     @staticmethod
     def deserialize(
-            data: dict[str, Any],
-            traffic_snapshot_writer: TrafficSnapshotWriter,
-            traffic_snapshot_reader: TrafficSnapshotReader,
-            settings_model: SettingsModel,
-            umlsl_queries_model: UMLSLQueriesModel,
+        data: dict[str, Any],
+        traffic_snapshot_writer: TrafficSnapshotWriter,
+        traffic_snapshot_reader: TrafficSnapshotReader,
+        settings_model: SettingsModel,
+        umlsl_queries_model: UMLSLQueriesModel,
     ) -> None:
         """
         Populate snapshot and queries from a JSON-ready dict.

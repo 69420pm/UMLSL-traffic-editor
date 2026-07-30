@@ -494,6 +494,9 @@ QMenu::item:selected {
     <addaction name="actionSave_As"/>
     <addaction name="separator"/>
     <addaction name="actionOpen"/>
+    <addaction name="separator"/>
+    <addaction name="actionExport_to_MLSL_Simulation"/>
+    <addaction name="actionImport_from_MLSL_Simulation"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
@@ -538,6 +541,16 @@ QMenu::item:selected {
    </property>
    <property name="text">
     <string>Open Settings</string>
+   </property>
+  </action>
+  <action name="actionExport_to_MLSL_Simulation">
+   <property name="text">
+    <string>Export to MLSL-Simulator</string>
+   </property>
+  </action>
+  <action name="actionImport_from_MLSL_Simulation">
+   <property name="text">
+    <string>Import from MLSL-Simulator</string>
    </property>
   </action>
  </widget>

@@ -8,13 +8,16 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import (
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import (
     UMLSLQueriesModel,
 )
+from pse.umlsl_editor.src.services.external_persistence_service import (
+    ExternalPersistenceService,
+)
 from pse.umlsl_editor.src.services.persistence_service import PersistenceService
 
 if TYPE_CHECKING:
     from pse.umlsl_editor.src.controllers import ApplicationController
 
 
-class LoadTrafficSnapshot(Command[None]):
+class ImportSnapshot(Command[None]):
     """Loads a traffic_snapshot from a specified file path and updates the application controller's traffic snapshot,
     which in turn basically reloads the program with the new traffic_snapshot."""
 
@@ -47,12 +50,11 @@ class LoadTrafficSnapshot(Command[None]):
         new_queries = UMLSLQueriesModel(new_snapshot)
 
         try:
-            PersistenceService.deserialize(
+            ExternalPersistenceService.deserialize(
                 payload,
                 new_snapshot,
                 new_snapshot,
                 self._application_controller.get_settings_model(),
-                new_queries,
             )
         except ValueError as exc:
             raise CommandValidationError(f"Failed to deserialize snapshot: {exc}") from exc

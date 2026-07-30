@@ -51,6 +51,9 @@ class GlobalControls(QObject):
         self._open_action = self._window.actionOpen
         self._settings_action = self._window.actionSettings
 
+        self._export_action = self._window.actionExport_to_MLSL_Simulation
+        self._import_action = self._window.actionImport_from_MLSL_Simulation
+
         self._setup_shortcuts()
         self._connect_signals()
 
@@ -60,6 +63,8 @@ class GlobalControls(QObject):
         self._save_as_action.triggered.connect(self._on_save_as)
         self._open_action.triggered.connect(self._on_open)
         self._settings_action.triggered.connect(self._on_open_settings)
+        self._export_action.triggered.connect(self._on_export)
+        self._import_action.triggered.connect(self._on_import)
 
     def _setup_shortcuts(self) -> None:
         """Assign standard keyboard shortcuts to file actions."""
@@ -70,6 +75,8 @@ class GlobalControls(QObject):
             self._settings_action.setShortcut(QKeySequence.Preferences)
         else:  # Windows / Linux
             self._settings_action.setShortcut("Ctrl+,")
+        self._export_action.setShortcut("Ctrl+E")
+        self._import_action.setShortcut("Ctrl+I")
 
     def _on_save(self) -> None:
         """Check if the current snapshot can be saved."""
@@ -130,3 +137,46 @@ class GlobalControls(QObject):
         """Open the application settings dialog."""
         dialog = SettingsDialog(application_controller=self.application_controller, parent=self._window)
         dialog.exec()
+
+    def _on_export(self) -> None:
+        file_path, _ = QFileDialog.getSaveFileName(
+            None,
+            "Export current snapshot in JSON format compatible with mlsl-simulator",
+            "",
+            "JSON Files (*.json)"
+        )
+        if not file_path:
+            return
+        try:
+            self.application_controller.command_controller.export_snapshot(file_path)
+        except CommandValidationError as exc:
+            WarningDialog("Cannot save file", str(exc), self._window).exec()
+        else:
+            self._window.snackbar.show_message("File exported successfully.")
+
+    def _on_import(self) -> None:
+        if self.application_controller.command_controller.get_data_changed_since_last_save():
+            confirm = ConfirmDeletionDialog(
+                "You have unsaved changes.\nDiscard them and open another file?",
+                self._window,
+                title="Unsaved Changes",
+                confirm_text="Discard changes",
+                cancel_text="Keep editing",
+            ).exec()
+            if confirm != QDialog.Accepted:
+                return
+
+        file_path, _ = QFileDialog.getOpenFileName(
+            None,
+            "Import JSON file from mlsl-simulator",
+            "",
+            "JSON Files (*.json)"
+        )
+        if not file_path:
+            return
+        try:
+            self.application_controller.command_controller.import_snapshot(file_path)
+        except (BaseError, CommandValidationError) as exc:
+            WarningDialog("Cannot import file", str(exc), self._window).exec()
+        else:
+            self._window.snackbar.show_message("File opened successfully.")

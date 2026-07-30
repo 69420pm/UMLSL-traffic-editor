@@ -33,7 +33,7 @@ class _Dimension:
     CAR_TRIANGLE_LENGTH: float = 0.4
 
     # Scene configuration
-    SCENE_SIZE: int = 1000
+    SCENE_SIZE: int = 40
 
     # Zoom constraints
     MAX_ZOOM: float = 100.0
@@ -77,6 +77,31 @@ class _Colors:
 
     # Utility
     TRANSPARENT: QColor = field(default_factory=lambda: QColor(0, 0, 0, 0))
+
+    CAR_COLORS  = [
+        (128, 0, 0),
+        (154, 99, 36),
+        (128, 128, 0),
+        (70, 153, 144),
+        (0, 0, 117),
+        (0, 0, 0),
+        (230, 25, 76),
+        (245, 130, 49),
+        (255, 224, 25),
+        (191, 239, 69),
+        (60, 180, 75),
+        (66, 212, 244),
+        (67, 99, 216),
+        (145, 30, 180),
+        (240, 50, 230),
+        (169, 169, 169),
+        (250, 190, 212),
+        (255, 216, 177),
+        (255, 250, 200),
+        (170, 255, 195),
+        (220, 190, 255),
+        (255, 255, 255),
+    ]
 
 
 @dataclass(frozen=True)

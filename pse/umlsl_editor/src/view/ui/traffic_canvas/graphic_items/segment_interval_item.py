@@ -332,6 +332,6 @@ class ClaimedSegmentItem(SegmentIntervalItem):
         self.pen.setStyle(Qt.DashLine)
         self.pen.setDashPattern([2, 2])
         self.pen.setCosmetic(False)
-        self.color = QColor(COLORS.TEXT)
+        self.color = QColor(self.car.color)
         self.color.setAlphaF(0.4)
         self.brush.setColor(self.color)

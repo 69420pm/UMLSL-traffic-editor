@@ -1,4 +1,5 @@
 import json
+import os
 
 from pse.umlsl_editor.src.commands.command import Command, CommandValidationError
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import (
@@ -10,10 +11,13 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import (
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import (
     UMLSLQueriesModel,
 )
+from pse.umlsl_editor.src.services.external_persistence_service import (
+    ExternalPersistenceService,
+)
 from pse.umlsl_editor.src.services.persistence_service import PersistenceService
 
 
-class SaveAsTrafficSnapshot(Command[None]):
+class ExportSnapshot(Command[None]):
     """Saves the current traffic snapshot to a specified file path."""
 
     def __init__(self, file_path: str, traffic_snapshot_model: TrafficSnapshotModel, umlsl_queries: UMLSLQueriesModel):
@@ -27,7 +31,6 @@ class SaveAsTrafficSnapshot(Command[None]):
         """
         self._file_path = file_path
         self._traffic_snapshot_model = traffic_snapshot_model
-        self._umlsl_queries = umlsl_queries
 
     def execute(self) -> None:
         """
@@ -40,9 +43,10 @@ class SaveAsTrafficSnapshot(Command[None]):
             raise CommandValidationError("File path is required to save a snapshot.")
 
         try:
-            payload = PersistenceService.serialize(
+            filename_without_ext = os.path.splitext(os.path.basename(self._file_path))[0]
+            payload = ExternalPersistenceService.serialize(
                 snapshot=self._traffic_snapshot_model,
-                queries=self._umlsl_queries,
+                filename=filename_without_ext
             )
         except ValueError as exc:
             raise CommandValidationError(f"Failed to serialize snapshot: {exc}") from exc

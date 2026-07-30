@@ -6,6 +6,8 @@ from pse.umlsl_editor.src.commands.cars import add_car
 from pse.umlsl_editor.src.commands.cars.delete_car import DeleteCar
 from pse.umlsl_editor.src.commands.cars.edit_car import EditCarCommand
 from pse.umlsl_editor.src.commands.command import Command, CommandValidationError
+from pse.umlsl_editor.src.commands.persistence.export_snapshot import ExportSnapshot
+from pse.umlsl_editor.src.commands.persistence.import_snapshot import ImportSnapshot
 from pse.umlsl_editor.src.commands.persistence.load_traffic_snapshot import (
     LoadTrafficSnapshot,
 )
@@ -531,6 +533,31 @@ class CommandController:
         )
         self._execute_command(save_command)
         self.set_current_snapshot_path(file_path)
+
+    def export_snapshot(self, file_path: str) -> None:
+        """
+        Exports the current traffic snapshot to the specified file path.
+        """
+        if not file_path:
+            raise CommandValidationError("File path is required to export a snapshot.")
+        save_command = ExportSnapshot(
+            file_path,
+            self.traffic_snapshot_reader,
+            self.umlsl_queries_model,
+        )
+        self._execute_command(save_command)
+
+    def import_snapshot(self, file_path: str) -> None:
+        """
+        Imports a traffic snapshot from the specified file path.
+        """
+        if not file_path:
+            raise CommandValidationError("File path is required to import a snapshot.")
+        load_command = ImportSnapshot(
+            file_path,
+            self._application_controller
+        )
+        self._execute_command(load_command)
 
     def change_braking_acceleration(self, value: float) -> None:
         """
