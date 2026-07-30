@@ -75,6 +75,8 @@ class GlobalControls(QObject):
             self._settings_action.setShortcut(QKeySequence.Preferences)
         else:  # Windows / Linux
             self._settings_action.setShortcut("Ctrl+,")
+        self._export_action.setShortcut("Ctrl+E")
+        self._import_action.setShortcut("Ctrl+I")
 
     def _on_save(self) -> None:
         """Check if the current snapshot can be saved."""

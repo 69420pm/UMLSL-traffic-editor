@@ -1,0 +1,91 @@
+{
+  "meta": {
+    "version": 2
+  },
+  "roads": [
+    {
+      "uid": "08345432-4d3e-4870-8b93-1a1ad8e76fcc",
+      "name": "R1",
+      "orientation": "HORIZONTAL",
+      "position": 0.0,
+      "number_of_forward_lanes": 2,
+      "number_of_backward_lanes": 1
+    },
+    {
+      "uid": "05810a37-ea2a-4d44-b8ec-d361bbedecfb",
+      "name": "R2",
+      "orientation": "VERTICAL",
+      "position": 4.0,
+      "number_of_forward_lanes": 1,
+      "number_of_backward_lanes": 2
+    }
+  ],
+  "cars": [
+    {
+      "uid": "92ca6456-3578-4f68-8903-912cddd73999",
+      "name": "D",
+      "road_uid": "08345432-4d3e-4870-8b93-1a1ad8e76fcc",
+      "lane_index": -1,
+      "position_on_lane": 6.22,
+      "transition": 0.0,
+      "speed": 2.0,
+      "length": 1,
+      "color": "#BF80BF",
+      "acceleration": 1.0,
+      "next_turn": {
+        "direction": "LEFT",
+        "target_lane": {
+          "road_uid": "05810a37-ea2a-4d44-b8ec-d361bbedecfb",
+          "lane_index": -1
+        }
+      }
+    },
+    {
+      "uid": "2f38d206-1df1-466d-bb40-e15d7e155dab",
+      "name": "B",
+      "road_uid": "08345432-4d3e-4870-8b93-1a1ad8e76fcc",
+      "lane_index": -1,
+      "position_on_lane": -0.03,
+      "transition": 0.0,
+      "speed": 5.0,
+      "length": 1,
+      "color": "#F93",
+      "acceleration": 1.0,
+      "next_turn": null
+    },
+    {
+      "uid": "1d23632e-4616-4bfc-aed4-6687afc381b3",
+      "name": "C",
+      "road_uid": "08345432-4d3e-4870-8b93-1a1ad8e76fcc",
+      "lane_index": 1,
+      "position_on_lane": -4.74,
+      "transition": 0.01,
+      "speed": 4.0,
+      "length": 1,
+      "color": "#BFFF00",
+      "acceleration": 1.0,
+      "next_turn": null
+    },
+    {
+      "uid": "d280af89-edd3-430d-8ba8-6955cab8a9a3",
+      "name": "E",
+      "road_uid": "08345432-4d3e-4870-8b93-1a1ad8e76fcc",
+      "lane_index": 0,
+      "position_on_lane": -1.3669937607809268,
+      "transition": 0.0,
+      "speed": 5.0,
+      "length": 1,
+      "color": "#00B9F1",
+      "acceleration": 1.0,
+      "next_turn": null
+    }
+  ],
+  "queries": [
+    {
+      "uid": "d94fe4f4-d9e4-46fe-abb0-c6f9485104e1",
+      "latex": "<hchop {re{E}}{free}{cs}> ",
+      "should_only_evaluate_on_cars_lane": false,
+      "assigned_car_uid": "d280af89-edd3-430d-8ba8-6955cab8a9a3"
+    }
+  ]
+}
