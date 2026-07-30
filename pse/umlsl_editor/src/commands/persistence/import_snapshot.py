@@ -8,6 +8,9 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import (
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import (
     UMLSLQueriesModel,
 )
+from pse.umlsl_editor.src.services.external_persistence_service import (
+    ExternalPersistenceService,
+)
 from pse.umlsl_editor.src.services.persistence_service import PersistenceService
 
 if TYPE_CHECKING:
@@ -47,7 +50,7 @@ class ImportSnapshot(Command[None]):
         new_queries = UMLSLQueriesModel(new_snapshot)
 
         try:
-            PersistenceService.deserialize_external_format(
+            ExternalPersistenceService.deserialize(
                 payload,
                 new_snapshot,
                 new_snapshot,

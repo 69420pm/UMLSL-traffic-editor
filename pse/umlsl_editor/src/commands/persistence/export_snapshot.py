@@ -10,6 +10,9 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import (
 from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import (
     UMLSLQueriesModel,
 )
+from pse.umlsl_editor.src.services.external_persistence_service import (
+    ExternalPersistenceService,
+)
 from pse.umlsl_editor.src.services.persistence_service import PersistenceService
 
 
@@ -39,7 +42,7 @@ class ExportSnapshot(Command[None]):
             raise CommandValidationError("File path is required to save a snapshot.")
 
         try:
-            payload = PersistenceService.serialize_external_format(
+            payload = ExternalPersistenceService.serialize(
                 snapshot=self._traffic_snapshot_model,
             )
         except ValueError as exc:
