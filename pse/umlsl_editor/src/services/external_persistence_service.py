@@ -1,5 +1,7 @@
 import uuid
-from typing import Any
+from posix import WIFEXITED
+from tkinter.constants import E
+from typing import Any, Final
 
 from PIL import ImageColor
 
@@ -13,11 +15,39 @@ from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import (
 from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import (
     TrafficSnapshotWriter,
 )
-from pse.umlsl_editor.src.model.entities import road
+from pse.umlsl_editor.src.model.entities import car, road
 
 
 class ExternalPersistenceService:
-    """Handles saving/loading JSON payloads to and from external program formats."""
+    """
+    Handles saving/loading JSON payloads to and from Simulator.
+
+                            Editor          vs             Simulator
+
+                                                        right   left
+    lane indexing :    -3 -2 -1 | 0 1 2                 0 1 2 | 0 1 2
+                    -3          ^                   2   ^
+                    -2          |            left   1   |
+                    -1                              0
+                -> ---                             ---
+                    0                               2
+                    1                        right  1
+                    2                            -> 0
+
+                (Arrows show the saved position of the road.)
+
+    Unit/Lane size: 1 unit = 1;                        1 unit = 40
+    canvas size:    "infinite", but view is limited;   height: 24 lanes, width: 40 lanes
+    Origin:         center of screen, draggable;       bottom left
+    Colors:         hex, "lightblue";                  rgb
+    Max Speed:      one max speed for all;             one per car
+    Turning:        explicitly through turn intend;    implicitly through goal
+    """
+
+    SPACING_AFTER_CROSSING:Final[float] = .01
+    HEIGHT_SIMULATOR:Final[int] = 24
+    WIDTH_SIMULATOR:Final[int] = 40
+    UNIT_SIZE:Final[int] = 40
 
     @staticmethod
     def serialize(
@@ -47,9 +77,8 @@ class ExternalPersistenceService:
             road_uid_to_orientation[r.get("uid")] = orientation
 
             # offsetting position so that 0,0 is in the bottom left corner and not in the center
-            offset = 12 if orientation else 20
+            offset = ExternalPersistenceService.HEIGHT_SIMULATOR/2 if orientation else ExternalPersistenceService.WIDTH_SIMULATOR/2
             top = (r.get("position", 0.0) + offset)
-            road_uid_to_position[r.get("uid")] = top
 
             right = r.get("number_of_forward_lanes", 0)
             left = r.get("number_of_backward_lanes", 0)
@@ -64,8 +93,10 @@ class ExternalPersistenceService:
                 (right, left) = (left, right)
                 top -= left
 
+            road_uid_to_position[r.get("uid")] = top
+
             # scaling position so one lane is 40 units wide
-            top *= 40
+            top *= ExternalPersistenceService.UNIT_SIZE
 
 
             external_roads.append(
@@ -81,8 +112,8 @@ class ExternalPersistenceService:
         if not any(r.get("name") in ["bottom", "right", "top", "left"] for r in external_roads):
             border_roads = [
                 {"name": "bottom", "horizontal": True, "top": 0, "right": 1, "left": 0},
-                {"name": "right", "horizontal": False, "top": 1560, "right": 0, "left": 1},
-                {"name": "top", "horizontal": True, "top": 920, "right": 0, "left": 1},
+                {"name": "right", "horizontal": False, "top": (ExternalPersistenceService.WIDTH_SIMULATOR-1)*ExternalPersistenceService.UNIT_SIZE, "right": 0, "left": 1},
+                {"name": "top", "horizontal": True, "top": (ExternalPersistenceService.HEIGHT_SIMULATOR-1)*ExternalPersistenceService.UNIT_SIZE, "right": 0, "left": 1},
                 {"name": "left", "horizontal": False, "top": 0, "right": 1, "left": 0},
             ]
             external_roads.extend(border_roads)
@@ -100,8 +131,8 @@ class ExternalPersistenceService:
             if c.get("road"):
                 pass
 
-            offset = 20 if road_uid_to_orientation.get(road_uid) else 12
-            position = (c.get("position_on_lane", 0.0) + offset) * 40
+            offset = ExternalPersistenceService.WIDTH_SIMULATOR/2 if road_uid_to_orientation.get(road_uid) else ExternalPersistenceService.HEIGHT_SIMULATOR/2
+            position = (c.get("position_on_lane", 0.0) + offset) * ExternalPersistenceService.UNIT_SIZE
 
             # Determine direction based on lane_index (negative index indicates backward/left lane)
             direction = "right" if c.get("lane_index", 0) >= 0 else "left"
@@ -128,7 +159,6 @@ class ExternalPersistenceService:
             # turn_intend -> goal. So goal is the position right after the next turn
             next_turn = c.get("next_turn")
 
-
             if next_turn and next_turn.get("direction", 2)!= 2:
                 target_lane = next_turn.get("target_lane", {})
                 target_road_uid = target_lane.get("road_uid")
@@ -150,22 +180,65 @@ class ExternalPersistenceService:
                     num_of_right_lanes = road_uid_to_right_lanes.get(target_road_uid)
                     turn_lane = num_of_right_lanes - turn_lane - 1
 
-                turn_offset = 0
-                if turn_direction == "RIGHT":
-                    turn_offset =  road_uid_to_right_lanes.get(road_uid, 0)
-                elif turn_direction == "LEFT":
-                    turn_offset = -road_uid_to_left_lanes.get(road_uid, 0)
+                cars_is_horizontal = road_uid_to_orientation.get(road_uid) == "HORIZONTAL"
+                car_is_on_positive_axis_lane = (cars_is_horizontal and direction == "right") or (not cars_is_horizontal and direction == "left")
+
+                if (car_is_on_positive_axis_lane and turn_direction == "RIGHT") or (not car_is_on_positive_axis_lane and turn_direction == "LEFT"):
+                    turn_offset =  road_uid_to_right_lanes.get(road_uid, 0) + road_uid_to_left_lanes.get(road_uid, 0) + ExternalPersistenceService.SPACING_AFTER_CROSSING
+                else:
+                    turn_offset = - ExternalPersistenceService.SPACING_AFTER_CROSSING
 
 
                 # The position right after the next turn defaults to the start of the lane (position_on_lane = 0.0)
                 turn_position = road_uid_to_position.get(road_uid, 0) + turn_offset
-                turn_position *= 40
+                turn_position *= ExternalPersistenceService.UNIT_SIZE
             else:
-                # Fallback to current position if no turn is intended
+                # If straight, use current lane and direction but offset the position so it is over the next crossing
                 turn_road_name = road_name
-                turn_direction = direction
+                after_turn_car_direction = direction
                 turn_lane = lane
-                turn_position = position
+
+                car_orientation = road_uid_to_orientation.get(road_uid)
+
+                roads_in_other_direction = {
+                    uid: direction
+                    for uid, direction in road_uid_to_orientation.items()
+                    if direction != car_orientation
+                }
+
+                #find next road in other direction
+                car_drives_in_positive_direction = c.get("lane_index", 0) >= 0
+                next_road_uid = None
+                cpos = position/ExternalPersistenceService.UNIT_SIZE
+                if car_drives_in_positive_direction:
+                    next_road_position = float('inf')
+                    for uid in roads_in_other_direction:
+                        pos = road_uid_to_position.get(uid)
+                        if pos > cpos and pos < next_road_position:
+                            next_road_position = pos
+                            next_road_uid = uid
+
+                    # if no road found, use current position as crossing point
+                    if not next_road_uid:
+                        pos_after_crossing = cpos
+                    else:
+                        pos_after_crossing = next_road_position + road_uid_to_left_lanes.get(next_road_uid) + road_uid_to_right_lanes.get(next_road_uid) + ExternalPersistenceService.SPACING_AFTER_CROSSING
+
+                else:
+                    next_road_position = float('-inf')
+                    for uid in roads_in_other_direction:
+                        pos = road_uid_to_position.get(uid) - road_uid_to_left_lanes.get(uid) - road_uid_to_right_lanes.get(uid)
+                        if pos < cpos and road_uid_to_position.get(uid) > next_road_position:
+                            next_road_position = road_uid_to_position.get(uid)
+                            next_road_uid = uid
+
+                    # if no road found, use current position as crossing point
+                    if not next_road_uid:
+                        pos_after_crossing = cpos
+                    else:
+                        pos_after_crossing = next_road_position - ExternalPersistenceService.SPACING_AFTER_CROSSING
+
+                turn_position = pos_after_crossing * ExternalPersistenceService.UNIT_SIZE
 
             turn_goal = {
                 "road": turn_road_name,
@@ -181,7 +254,7 @@ class ExternalPersistenceService:
                 "start": start,
                 "first_goal": turn_goal,
                 "color": color,
-                "size": c.get("length", 1.0)*40,
+                "size": c.get("length", 1.0)*ExternalPersistenceService.UNIT_SIZE,
                 "speed": c.get("speed", 0.0),
                 "max_speed": c.get("speed", 0.0),
             })
@@ -204,7 +277,6 @@ class ExternalPersistenceService:
         """
         Populate snapshot from the external JSON format.
         """
-        import uuid
 
         ext_roads = data.get("roads", [])
         ext_cars = data.get("cars", [])
@@ -222,8 +294,8 @@ class ExternalPersistenceService:
             road_uid_to_horizontal[road_uid] = horizontal
 
             # Reverse road position calculation: top = (position + offset) * 40
-            road_offset = 12 if horizontal else 20
-            position = (r.get("top", 0.0) / 40.0) - road_offset
+            road_offset = ExternalPersistenceService.HEIGHT_SIMULATOR/2 if horizontal else ExternalPersistenceService.WIDTH_SIMULATOR/2
+            position = (r.get("top", 0.0) / ExternalPersistenceService.UNIT_SIZE) - road_offset
 
             number_of_forward_lanes = r.get("right", 0)
             number_of_backward_lanes = r.get("left", 0)
@@ -260,9 +332,9 @@ class ExternalPersistenceService:
 
             # Reverse car position calculation: position = (position_on_lane + offset) * 40
             horizontal = road_uid_to_horizontal.get(road_uid, False)
-            car_offset = 20 if horizontal else 12
+            car_offset = ExternalPersistenceService.WIDTH_SIMULATOR/2 if horizontal else ExternalPersistenceService.HEIGHT_SIMULATOR/2
             ext_position = start.get("position", 0.0)
-            position_on_lane = (ext_position / 40.0) - car_offset
+            position_on_lane = (ext_position / ExternalPersistenceService.UNIT_SIZE) - car_offset
 
             # Reverse color calculation: RGB tuple back to hex string
             ext_color = c.get("color", (173, 216, 230))
@@ -272,8 +344,8 @@ class ExternalPersistenceService:
                 color = str(ext_color)
 
             # Reverse length calculation: size = length * 40
-            size = c.get("size", 40.0)
-            length = size / 40.0
+            size = c.get("size", ExternalPersistenceService.UNIT_SIZE)
+            length = size / ExternalPersistenceService.UNIT_SIZE
 
             internal_cars.append({
                 "uid": str(uuid.uuid4()),
