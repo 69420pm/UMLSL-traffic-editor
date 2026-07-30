@@ -111,10 +111,11 @@ class EditCarDialog(QDialog, Ui_Edit_Car_Dialog):
     def _get_default_car_values(self) -> dict[str, Any]:
         """Return default car field values for create mode."""
         num_of_cars = len(self._application_controller.data_controller.get_all_cars())
-        #color = QColor.fromRgb(*view_constants.COLORS.CAR_COLORS[num_of_cars % len(view_constants.COLORS.CAR_COLORS)])
+        color_rgb = view_constants.COLORS.CAR_COLORS[num_of_cars % len(view_constants.COLORS.CAR_COLORS)]
+        color_hex = "#{:02x}{:02x}{:02x}".format(*color_rgb)
         return {
             "name": "C" + str(num_of_cars + 1),
-            "color": "lightblue",
+            "color": color_hex,
             "length": 1,
             "speed": 10.0,
             "acceleration": 1.0,
