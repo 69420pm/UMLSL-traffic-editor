@@ -546,7 +546,6 @@ class CommandController:
             self.umlsl_queries_model,
         )
         self._execute_command(save_command)
-        self.set_current_snapshot_path(file_path)
 
     def import_snapshot(self, file_path: str) -> None:
         """
@@ -559,7 +558,6 @@ class CommandController:
             self._application_controller
         )
         self._execute_command(load_command)
-        self.set_current_snapshot_path(file_path)
 
     def change_braking_acceleration(self, value: float) -> None:
         """

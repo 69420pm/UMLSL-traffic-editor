@@ -152,9 +152,10 @@ class ExternalPersistenceService:
 
                 turn_offset = 0
                 if turn_direction == "RIGHT":
-                    turn_offset =  road_uid_to_right_lanes.get(road_uid, 0) + 1
+                    turn_offset =  road_uid_to_right_lanes.get(road_uid, 0)
                 elif turn_direction == "LEFT":
-                    turn_offset = road_uid_to_left_lanes.get(road_uid, 0) + 1
+                    turn_offset = -road_uid_to_left_lanes.get(road_uid, 0)
+
 
                 # The position right after the next turn defaults to the start of the lane (position_on_lane = 0.0)
                 turn_position = road_uid_to_position.get(road_uid, 0) + turn_offset

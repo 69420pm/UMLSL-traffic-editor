@@ -7,12 +7,22 @@ from pse.umlsl_editor.src.controllers.command_controller import CommandControlle
 from pse.umlsl_editor.src.controllers.data_controller import DataController
 from pse.umlsl_editor.src.controllers.event_controller import EventController
 from pse.umlsl_editor.src.model.domain_models.settings_model import SettingsModel
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import TrafficSnapshotModel
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import TrafficSnapshotReader
-from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import TrafficSnapshotWriter
-from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import UMLSLQueriesModel
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_model import (
+    TrafficSnapshotModel,
+)
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_reader import (
+    TrafficSnapshotReader,
+)
+from pse.umlsl_editor.src.model.domain_models.traffic_snapshot_writer import (
+    TrafficSnapshotWriter,
+)
+from pse.umlsl_editor.src.model.domain_models.umlsl_queries_model import (
+    UMLSLQueriesModel,
+)
 from pse.umlsl_editor.src.model.helper.event_types import TrafficSnapshotEventType
-from pse.umlsl_editor.src.view.view_event_handler_impl import ViewEventHandlerImplementation
+from pse.umlsl_editor.src.view.view_event_handler_impl import (
+    ViewEventHandlerImplementation,
+)
 from pse.umlsl_editor.src.view.view_models import ViewModels
 
 
