@@ -51,6 +51,7 @@ class ExternalPersistenceService:
     @staticmethod
     def serialize(
             snapshot: TrafficSnapshotModel,
+            filename: str,
     ) -> dict[str, Any]:
         """
         Serialize snapshot to the external JSON format (e.g., 'two_crossings_predefined').
@@ -265,8 +266,8 @@ class ExternalPersistenceService:
             })
 
         return {
-            "name": "TEST",
-            "scenario_name": "test",
+            "name": filename.upper(),
+            "scenario_name": filename.lower(), #TODO: Remove scenario_name
             "players": len(external_cars),
             "roads": external_roads,
             "cars": external_cars
