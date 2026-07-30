@@ -34,6 +34,7 @@ class ExternalPersistenceService:
 
         road_uid_to_name = {}
         road_uid_to_orientation = {}
+        road_uid_to_right_lanes = {}
 
         for r in internal_roads:
             road_name = r.get("name", "unknown")
@@ -47,6 +48,8 @@ class ExternalPersistenceService:
             top = r.get("position", 0.0) + offset
             right = r.get("number_of_forward_lanes", 0)
             left = r.get("number_of_backward_lanes", 0)
+
+            road_uid_to_right_lanes[r.get("uid")] = right
 
 
 
@@ -96,6 +99,13 @@ class ExternalPersistenceService:
             direction = "right" if c.get("lane_index", 0) >= 0 else "left"
             if not road_uid_to_orientation.get(c.get("road_uid")):
                 direction = "right" if direction == "left" else "left"
+
+            # switch lane index for roads with direction "right" (so lane 0 to lane 2 becomes lane 2 to lane 0)
+            if direction == "right":
+                # get the number of right lanes for the road that this car is on
+                num_of_right_lanes = road_uid_to_right_lanes.get(c.get("road_uid"))
+                # switch lane index for roads with direction "right"
+                lane = num_of_right_lanes - lane - 1
 
             color = ImageColor.getrgb(c.get("color", "green"))
 
